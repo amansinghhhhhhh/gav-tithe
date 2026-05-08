@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const admin = require("../config/firebase");
+const { getAdmin } = require("../config/firebase");
 
 const generateToken = (userId) =>
     jwt.sign({ id: userId }, process.env.JWT_SECRET, {
