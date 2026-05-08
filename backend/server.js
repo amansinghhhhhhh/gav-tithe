@@ -13,12 +13,19 @@ const allowedOrigins = [
     "http://localhost:5174",
     "http://user.localhost:5173",
     "http://admin.localhost:5174",
+    "https://gav-tithe-liart.vercel.app",  // ✅ Vercel URL
+    // Sare vercel subdomains allow karo
+    /https:\/\/.*\.vercel\.app$/,
 ];
 
 app.use(cors({
     origin: (origin, cb) => {
-        if (!origin || allowedOrigins.includes(origin)) cb(null, true);
-        else cb(new Error("Not allowed by CORS"));
+        if (!origin) return cb(null, true);
+        // String match
+        if (allowedOrigins.some(o =>
+            typeof o === "string" ? o === origin : o.test(origin)
+        )) return cb(null, true);
+        cb(new Error("Not allowed by CORS"));
     },
     credentials: true,
 }));
