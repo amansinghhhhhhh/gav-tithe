@@ -10,15 +10,20 @@ const generateToken = (userId) =>
 // ── 1. Firebase OTP verify ────────────────────────────────────────────────────
 const verifyOtp = async (req, res) => {
     try {
-        const { idToken, mobile, name } = req.body;  // ✅ name lo
+        const { idToken, mobile, name } = req.body;
         if (!idToken) return res.status(400).json({ message: "Firebase ID token required" });
 
-        const decoded = await admin.auth().verifyIdToken(idToken);
+        // ✅ firebaseAdmin naam use karo — 'admin' se conflict nahi hoga
+        const firebaseAdmin = getAdmin();
+        if (!firebaseAdmin) {
+            return res.status(500).json({ message: "Firebase not configured on server" });
+        }
+
+        const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
         const { uid, phone_number } = decoded;
 
         let user = await User.findOne({ firebaseUid: uid });
         if (!user) {
-            // Naya user — name save karo
             user = await User.create({
                 firebaseUid: uid,
                 mobile: phone_number || `+91${mobile}`,
@@ -26,7 +31,6 @@ const verifyOtp = async (req, res) => {
                 isVerified: true,
             });
         } else {
-            // Existing user — name update karo
             if (name) {
                 user.name = name;
                 await user.save();
@@ -38,7 +42,7 @@ const verifyOtp = async (req, res) => {
             token: generateToken(user._id),
             user: {
                 id: user._id,
-                name: user.name,    // ✅ name response mein
+                name: user.name,
                 mobile: user.mobile,
                 role: user.role,
             },
