@@ -12,6 +12,9 @@ const app = express();
 // ── 1. Helmet — HTTP security headers ────────────────────────────────────────
 app.use(helmet());
 
+// ✅ Railway/Vercel proxy trust karo
+app.set("trust proxy", 1);
+
 // ── 2. CORS — sirf allowed origins ───────────────────────────────────────────
 const allowedOrigins = [
     "http://localhost:5173",
