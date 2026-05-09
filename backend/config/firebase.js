@@ -1,6 +1,5 @@
 const admin = require("firebase-admin");
 
-// Lazy initialize — server crash nahi hoga missing vars pe
 const getAdmin = () => {
     if (admin.apps.length) return admin;
 
@@ -8,17 +7,30 @@ const getAdmin = () => {
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
+    console.log("🔥 Firebase init check:");
+    console.log("  PROJECT_ID:", projectId || "❌ MISSING");
+    console.log("  CLIENT_EMAIL:", clientEmail || "❌ MISSING");
+    console.log("  PRIVATE_KEY:", privateKey ? "✅ EXISTS" : "❌ MISSING");
+
     if (!projectId || !clientEmail || !privateKey) {
-        console.warn("⚠️ Firebase env variables missing — OTP will not work");
+        console.warn("⚠️ Firebase not initialized — OTP will not work");
         return null;
     }
 
-    admin.initializeApp({
-        credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
-    });
-
-    console.log("✅ Firebase initialized");
-    return admin;
+    try {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId,
+                clientEmail,
+                privateKey,
+            }),
+        });
+        console.log("✅ Firebase initialized successfully");
+        return admin;
+    } catch (err) {
+        console.error("❌ Firebase init error:", err.message);
+        return null;
+    }
 };
 
 module.exports = { getAdmin };
