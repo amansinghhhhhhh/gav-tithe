@@ -36,11 +36,12 @@ const FormDataSchema = new mongoose.Schema({
         pan: String,
         bankName: String,
         accountNo: String,
+        // Files — ObjectId ya null (upload hone pe set hoga)
         docs: {
-            aadhaar: mongoose.Schema.Types.ObjectId,
-            pan: mongoose.Schema.Types.ObjectId,
-            udyam: mongoose.Schema.Types.ObjectId,
-            passport: mongoose.Schema.Types.ObjectId,
+            aadhaar: { type: mongoose.Schema.Types.Mixed, default: null },
+            pan: { type: mongoose.Schema.Types.Mixed, default: null },
+            udyam: { type: mongoose.Schema.Types.Mixed, default: null },
+            passport: { type: mongoose.Schema.Types.Mixed, default: null },
         },
     },
 

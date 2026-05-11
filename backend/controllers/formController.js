@@ -42,7 +42,27 @@ const submitForm = async (req, res) => {
         if (section1) form.section1 = section1;
         if (section2) form.section2 = section2;
         if (section3) form.section3 = section3;
-        if (section4) form.section4 = section4;
+        if (section4) {
+            // docs ko alag handle karo — empty objects ignore karo
+            const { docs, ...section4Data } = section4;
+            form.section4 = { ...form.section4?.toObject?.() || {}, ...section4Data };
+
+            // Sirf valid file IDs save karo
+            if (docs) {
+                const validDocs = {};
+                Object.keys(docs).forEach(key => {
+                    const val = docs[key];
+                    if (val && typeof val === "string" && val.length > 0) {
+                        validDocs[key] = val;
+                    }
+                });
+                if (Object.keys(validDocs).length > 0) {
+                    form.section4.docs = { ...form.section4.docs?.toObject?.() || {}, ...validDocs };
+                    form.markModified("section4.docs");
+                }
+            }
+            form.markModified("section4");
+        }
 
         form.status = "submitted";
         form.updatedAt = Date.now();
