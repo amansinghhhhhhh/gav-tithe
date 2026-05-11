@@ -30,6 +30,12 @@ const submitForm = async (req, res) => {
         const { section1, section2, section3, section4 } = req.body;
         const userId = req.user.id;
 
+        console.log("📝 Submit form for user:", userId);
+        console.log("📦 Sections received:", {
+            s1: !!section1, s2: !!section2,
+            s3: !!section3, s4: !!section4
+        });
+
         let form = await FormData.findOne({ userId });
         if (!form) form = new FormData({ userId });
 
@@ -42,8 +48,11 @@ const submitForm = async (req, res) => {
         form.updatedAt = Date.now();
         await form.save();
 
+        console.log("✅ Form submitted successfully:", form._id);
         res.json({ success: true, message: "Form submitted!", formId: form._id });
     } catch (err) {
+        console.error("❌ Submit error:", err.message);
+        console.error("❌ Submit error stack:", err.stack);
         res.status(500).json({ message: "Submit failed", error: err.message });
     }
 };
