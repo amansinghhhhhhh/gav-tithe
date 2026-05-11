@@ -5,6 +5,7 @@ import { loginEmail, registerEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import C from "../constants/colors";
 import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const inp = {
   width: "100%",
@@ -103,7 +104,7 @@ function LoginPage() {
 
   return (
     <>
-      <Header />{" "}
+      <Header />
       <div
         style={{
           minHeight: "100vh",
@@ -355,6 +356,7 @@ function LoginPage() {
           )}
         </div>
       </div>
+      <Footer />
     </>
   );
 }
