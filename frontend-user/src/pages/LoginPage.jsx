@@ -102,7 +102,8 @@ function LoginPage() {
   };
 
   return (
-    <Header>
+    <>
+      <Header />{" "}
       <div
         style={{
           minHeight: "100vh",
@@ -354,7 +355,7 @@ function LoginPage() {
           )}
         </div>
       </div>
-    </Header>
+    </>
   );
 }
 
