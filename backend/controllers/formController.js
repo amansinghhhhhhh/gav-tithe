@@ -27,14 +27,16 @@ const saveSection = async (req, res) => {
 // ── Full form submit ──────────────────────────────────────────────────────────
 const submitForm = async (req, res) => {
     try {
-        const { section1, section2, section3, section4 } = req.body;
         const userId = req.user.id;
 
-        console.log("📝 Submit form for user:", userId);
-        console.log("📦 Sections received:", {
-            s1: !!section1, s2: !!section2,
-            s3: !!section3, s4: !!section4
-        });
+        // FormData se JSON parse karo
+        const section1 = req.body.section1 ? JSON.parse(req.body.section1) : null;
+        const section2 = req.body.section2 ? JSON.parse(req.body.section2) : null;
+        const section3 = req.body.section3 ? JSON.parse(req.body.section3) : null;
+        const section4 = req.body.section4 ? JSON.parse(req.body.section4) : null;
+
+        console.log("📝 Submit for user:", userId);
+        console.log("📁 Files received:", req.files ? Object.keys(req.files) : "none");
 
         let form = await FormData.findOne({ userId });
         if (!form) form = new FormData({ userId });
@@ -43,36 +45,54 @@ const submitForm = async (req, res) => {
         if (section2) form.section2 = section2;
         if (section3) form.section3 = section3;
         if (section4) {
-            // docs ko alag handle karo — empty objects ignore karo
-            const { docs, ...section4Data } = section4;
-            form.section4 = { ...form.section4?.toObject?.() || {}, ...section4Data };
+            form.section4 = {
+                ...form.section4?.toObject?.() || {},
+                ...section4,
+            };
+            form.markModified("section4");
+        }
 
-            // Sirf valid file IDs save karo
-            if (docs) {
-                const validDocs = {};
-                Object.keys(docs).forEach(key => {
-                    const val = docs[key];
-                    if (val && typeof val === "string" && val.length > 0) {
-                        validDocs[key] = val;
-                    }
-                });
-                if (Object.keys(validDocs).length > 0) {
-                    form.section4.docs = { ...form.section4.docs?.toObject?.() || {}, ...validDocs };
-                    form.markModified("section4.docs");
+        // ✅ Files GridFS mein save karo
+        if (req.files) {
+            const docMap = {
+                doc_aadhaar: "aadhaar",
+                doc_pan: "pan",
+                doc_udyam: "udyam",
+                doc_passport: "passport",
+            };
+
+            for (const [fieldName, docKey] of Object.entries(docMap)) {
+                const fileArr = req.files[fieldName];
+                if (fileArr?.[0]) {
+                    const file = fileArr[0];
+                    console.log(`📤 Saving ${docKey} to GridFS...`);
+
+                    const fileId = await saveToGridFS(
+                        file.buffer,
+                        `${Date.now()}_${file.originalname}`,
+                        file.mimetype
+                    );
+
+                    if (!form.section4) form.section4 = {};
+                    if (!form.section4.docs) form.section4.docs = {};
+                    form.section4.docs[docKey] = fileId;
+                    form.markModified("section4");
+
+                    console.log(`✅ ${docKey} saved with ID:`, fileId);
                 }
             }
-            form.markModified("section4");
         }
 
         form.status = "submitted";
         form.updatedAt = Date.now();
         await form.save();
 
-        console.log("✅ Form submitted successfully:", form._id);
+        console.log("✅ Form submitted:", form._id);
         res.json({ success: true, message: "Form submitted!", formId: form._id });
+
     } catch (err) {
         console.error("❌ Submit error:", err.message);
-        console.error("❌ Submit error stack:", err.stack);
+        console.error("❌ Stack:", err.stack);
         res.status(500).json({ message: "Submit failed", error: err.message });
     }
 };
@@ -94,7 +114,6 @@ const uploadDoc = async (req, res) => {
 
         if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
-        // Memory buffer → GridFS
         const fileId = await saveToGridFS(
             req.file.buffer,
             `${Date.now()}_${req.file.originalname}`,

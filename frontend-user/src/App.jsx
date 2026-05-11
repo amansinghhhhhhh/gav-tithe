@@ -143,26 +143,44 @@ function Dashboard() {
     if (saved) showMsg("✅ Draft saved!");
   };
 
-  const handleSubmit = async () => {
-    setSaving(true);
-    try {
-      const res = await submitForm({
-        section1: state.section1,
-        section2: state.section2,
-        section3: state.section3,
-        section4: state.section4,
-      });
-      if (res.success) {
-        dispatch({ type: "SUBMIT" });
-      } else {
-        showMsg("Submit failed: " + res.message, true);
-      }
-    } catch (err) {
-      showMsg("Submit failed: " + err.message, true);
-    } finally {
-      setSaving(false);
+const handleSubmit = async () => {
+  setSaving(true);
+  try {
+    const fd = new FormData();
+
+    fd.append("section1", JSON.stringify(state.section1));
+    fd.append("section2", JSON.stringify(state.section2));
+    fd.append("section3", JSON.stringify(state.section3));
+    fd.append(
+      "section4",
+      JSON.stringify({
+        aadhaar: state.section4.aadhaar,
+        pan: state.section4.pan,
+        bankName: state.section4.bankName,
+        accountNo: state.section4.accountNo,
+      }),
+    );
+
+    if (state.section4.docs?.aadhaar)
+      fd.append("doc_aadhaar", state.section4.docs.aadhaar);
+    if (state.section4.docs?.pan) fd.append("doc_pan", state.section4.docs.pan);
+    if (state.section4.docs?.udyam)
+      fd.append("doc_udyam", state.section4.docs.udyam);
+    if (state.section4.docs?.passport)
+      fd.append("doc_passport", state.section4.docs.passport);
+
+    const res = await submitForm(fd);
+    if (res.success) {
+      dispatch({ type: "SUBMIT" });
+    } else {
+      showMsg("Submit failed: " + res.message, true);
     }
-  };
+  } catch (err) {
+    showMsg("Submit failed: " + err.message, true);
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <div

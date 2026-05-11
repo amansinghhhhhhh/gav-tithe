@@ -50,8 +50,8 @@ const authLimiter = rateLimit({
 });
 
 // ── 4. Body Parser ────────────────────────────────────────────────────────────
-app.use(express.json({ limit: "10kb" }));       // Body size limit
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // ── 5. MongoDB Injection Sanitize ─────────────────────────────────────────────
 app.use(mongoSanitize());

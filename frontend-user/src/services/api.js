@@ -75,13 +75,16 @@ export const saveSection = async (section, data) => {
 };
 
 // Submit full form
-export const submitForm = async (formState) => {
-    console.log("🚀 Submitting form...", formState);
-    return apiFetch(`${BASE}/form/submit`, {
+export const submitForm = async (formData) => {
+    const res = await fetch(`${BASE}/form/submit`, {
         method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(formState),
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+            // ⚠️ Content-Type bilkul mat lagao
+        },
+        body: formData,
     });
+    return res.json();
 };
 
 // Get my saved form (load draft)
