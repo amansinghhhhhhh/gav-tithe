@@ -20,7 +20,7 @@ const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
     "https://gav-tithe-liart.vercel.app",
-    "https://gav-tithe-admin.vercel.app",
+    "https://admin.gaontitheudyojak.com/",
     // Naya Vercel URL aane pe yahan add karo
 ];
 
