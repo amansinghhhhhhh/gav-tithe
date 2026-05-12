@@ -36,7 +36,6 @@ const FormDataSchema = new mongoose.Schema({
         pan: String,
         bankName: String,
         accountNo: String,
-        // Files — ObjectId ya null (upload hone pe set hoga)
         docs: {
             aadhaar: { type: mongoose.Schema.Types.Mixed, default: null },
             pan: { type: mongoose.Schema.Types.Mixed, default: null },
@@ -45,7 +44,12 @@ const FormDataSchema = new mongoose.Schema({
         },
     },
 
-    status: { type: String, enum: ["draft", "submitted", "approved", "rejected"], default: "draft" },
+    status: {
+        type: String,
+        enum: ["draft", "submitted", "under_review", "approved", "rejected"], // ← under_review add kiya
+        default: "draft",
+    },
+    adminRemark: { type: String, default: "" }, // ← naya field
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

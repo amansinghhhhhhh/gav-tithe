@@ -17,6 +17,8 @@ import About from "../assets/About.svg";
 // Logo
 import gulogo from "../assets/gulogotransparent.png";
 import guicon from "../assets/guicon.svg";
+
+// color
 import C from "../constants/colors";
 
 const NAV = {

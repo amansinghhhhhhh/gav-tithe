@@ -143,44 +143,45 @@ function Dashboard() {
     if (saved) showMsg("✅ Draft saved!");
   };
 
-const handleSubmit = async () => {
-  setSaving(true);
-  try {
-    const fd = new FormData();
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      const fd = new FormData();
 
-    fd.append("section1", JSON.stringify(state.section1));
-    fd.append("section2", JSON.stringify(state.section2));
-    fd.append("section3", JSON.stringify(state.section3));
-    fd.append(
-      "section4",
-      JSON.stringify({
-        aadhaar: state.section4.aadhaar,
-        pan: state.section4.pan,
-        bankName: state.section4.bankName,
-        accountNo: state.section4.accountNo,
-      }),
-    );
+      fd.append("section1", JSON.stringify(state.section1));
+      fd.append("section2", JSON.stringify(state.section2));
+      fd.append("section3", JSON.stringify(state.section3));
+      fd.append(
+        "section4",
+        JSON.stringify({
+          aadhaar: state.section4.aadhaar,
+          pan: state.section4.pan,
+          bankName: state.section4.bankName,
+          accountNo: state.section4.accountNo,
+        }),
+      );
 
-    if (state.section4.docs?.aadhaar)
-      fd.append("doc_aadhaar", state.section4.docs.aadhaar);
-    if (state.section4.docs?.pan) fd.append("doc_pan", state.section4.docs.pan);
-    if (state.section4.docs?.udyam)
-      fd.append("doc_udyam", state.section4.docs.udyam);
-    if (state.section4.docs?.passport)
-      fd.append("doc_passport", state.section4.docs.passport);
+      if (state.section4.docs?.aadhaar)
+        fd.append("doc_aadhaar", state.section4.docs.aadhaar);
+      if (state.section4.docs?.pan)
+        fd.append("doc_pan", state.section4.docs.pan);
+      if (state.section4.docs?.udyam)
+        fd.append("doc_udyam", state.section4.docs.udyam);
+      if (state.section4.docs?.passport)
+        fd.append("doc_passport", state.section4.docs.passport);
 
-    const res = await submitForm(fd);
-    if (res.success) {
-      dispatch({ type: "SUBMIT" });
-    } else {
-      showMsg("Submit failed: " + res.message, true);
+      const res = await submitForm(fd);
+      if (res.success) {
+        dispatch({ type: "SUBMIT" });
+      } else {
+        showMsg("Submit failed: " + res.message, true);
+      }
+    } catch (err) {
+      showMsg("Submit failed: " + err.message, true);
+    } finally {
+      setSaving(false);
     }
-  } catch (err) {
-    showMsg("Submit failed: " + err.message, true);
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   return (
     <div
@@ -197,7 +198,9 @@ const handleSubmit = async () => {
       />
 
       <div style={{ flex: 1, background: C.light, overflowY: "auto" }}>
-        <main style={{ maxWidth: 860, margin: "0 auto", padding: "28px 24px" }}>
+        <main
+          style={{ maxWidth: 1160, margin: "0 auto", padding: "28px 24px" }}
+        >
           {/* Toast message */}
           {saveMsg && (
             <div

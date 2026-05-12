@@ -59,6 +59,7 @@ app.use(mongoSanitize());
 // ── 6. Routes ─────────────────────────────────────────────────────────────────
 app.use("/api/auth", authLimiter, require("./routes/authRoutes"));
 app.use("/api/form", apiLimiter, require("./routes/formRoutes"));
+app.use("/api/admin", apiLimiter, require("./routes/adminRoutes"));
 
 // ── 7. Health check ───────────────────────────────────────────────────────────
 app.get("/", (req, res) => res.json({ message: "Gav Tithe API running ✅" }));

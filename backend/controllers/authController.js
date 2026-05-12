@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { getAdmin } = require("../config/firebase");
-
+const bcrypt = require("bcryptjs"); // ← ye line honi chahiye
 const generateToken = (userId) =>
     jwt.sign({ id: userId }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -78,26 +78,41 @@ const registerEmail = async (req, res) => {
 const loginEmail = async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (!email || !password)
-            return res.status(400).json({ message: "Email and password required" });
+        console.log("📧 Login attempt:", email);
 
         const user = await User.findOne({ email });
-        if (!user || !user.password)
+        if (!user) {
+            console.log("❌ User not found");
             return res.status(401).json({ message: "Invalid credentials" });
+        }
 
-        const isMatch = await user.matchPassword(password);
-        if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+        console.log("👤 User found:", user.email, "Role:", user.role);
+        console.log("🔑 Comparing passwords...");
 
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("✅ Password match:", isMatch);
+
+        if (!isMatch) {
+            console.log("❌ Password mismatch!");
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const token = generateToken(user._id);
         res.json({
             success: true,
-            token: generateToken(user._id),
-            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, role: user.role },
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            },
         });
     } catch (err) {
+        console.error("❌ Login error:", err.message);
         res.status(500).json({ message: "Login failed", error: err.message });
     }
 };
-
 // ── 4. Get current user ───────────────────────────────────────────────────────
 const getMe = async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
