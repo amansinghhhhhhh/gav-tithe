@@ -183,6 +183,14 @@ function Dashboard() {
     }
   };
 
+  // Add this at the top of your component or file
+  const mainStyle = {
+    maxWidth: 1160,
+    margin: "0 auto",
+    // 60px on mobile (less than 768px), 28px on desktop
+    padding: window.innerWidth < 1200 ? "80px 24px 28px" : "28px 24px",
+  };
+
   return (
     <div
       style={{
@@ -198,9 +206,7 @@ function Dashboard() {
       />
 
       <div style={{ flex: 1, background: C.light, overflowY: "auto" }}>
-        <main
-          style={{ maxWidth: 1160, margin: "0 auto", padding: "28px 24px" }}
-        >
+        <main style={mainStyle}>
           {/* Toast message */}
           {saveMsg && (
             <div

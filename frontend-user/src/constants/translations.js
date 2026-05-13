@@ -157,16 +157,23 @@ const translations = {
         banner_cta: "टप्पा",
 
         // loginpage
-
-        login_title: "गाव तिथे उद्योजक ",
-        login_otp: "मोबाइल  OTP",
-        login_email: "लॉगिन",
-        login_name_placeholder: "पूर्ण नाव",
+        login_title: "गाव तिथे उद्योजक — लॉगिन",
+        login_otp: "OTP ने लॉगिन",
+        login_email: "Email ने लॉगिन",
+        login_name_placeholder: "तुमचे पूर्ण नाव",
         login_number_placeholder: "मोबाईल नंबर",
         login_send_otp: "OTP पाठवा",
-        login_input_otp_placeholder: "६-अंकी ओटीपी द्या",
-        login_otp_verify: "सत्यापित करा",
-        login_otp_verifed: "सत्यापित",
+        login_input_otp_placeholder: "OTP टाका",
+        login_otp_verifed: "✅ OTP सत्यापित",
+        login_otp_verify: "OTP सत्यापित करा",
+        login_otp_resend: "OTP पुन्हा पाठवा",
+        login_email_placeholder: "Email पत्ता",
+        login_password_placeholder: "पासवर्ड",
+        login_mobile_optional: "मोबाईल (ऐच्छिक)",
+        create_account: "खाते तयार करा",
+        login_now: "लॉगिन करा",
+        already_have_account: "आधीच खाते आहे? ",
+        new_account: "नवीन खाते? ",
 
     },
 
@@ -359,15 +366,23 @@ const translations = {
 
         // translate
 
-        login_title: "Gaon Tithe Udyojak",
-        login_otp: "Mobile OTP",
-        login_email: "Login",
-        login_name_placeholder: "Full Name",
+        login_title: "Gaon Tithe Udyojak — Login",
+        login_otp: "Login with OTP",
+        login_email: "Login with Email",
+        login_name_placeholder: "Your Full Name",
         login_number_placeholder: "Mobile Number",
         login_send_otp: "Send OTP",
-        login_input_otp_placeholder: "6-digit OTP daalo",
-        login_otp_verify: "Verify",
-        login_otp_verifed: "Verifed",
+        login_input_otp_placeholder: "Enter OTP",
+        login_otp_verifed: "✅ OTP Verified",
+        login_otp_verify: "Verify OTP",
+        login_otp_resend: "Resend OTP",
+        login_email_placeholder: "Email address",
+        login_password_placeholder: "Password",
+        login_mobile_optional: "Mobile (optional)",
+        create_account: "Create Account",
+        login_now: "Login Now",
+        already_have_account: "Already have an account? ",
+        new_account: "New here? ",
 
 
     },

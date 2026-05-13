@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLang } from "../context/LangContext";
 
-// icons
 import Journey from "../assets/journey.svg";
 import Assessment from "../assets/Assessment.svg";
 import Vikas from "../assets/Vikas.svg";
@@ -14,11 +13,9 @@ import Universities from "../assets/Universities.svg";
 import Partners from "../assets/Partners.svg";
 import About from "../assets/About.svg";
 
-// Logo
 import gulogo from "../assets/gulogotransparent.png";
 import guicon from "../assets/guicon.svg";
 
-// color
 import C from "../constants/colors";
 
 const NAV = {
@@ -97,7 +94,7 @@ const NAV = {
 };
 
 const EXPANDED_W = 260;
-const COLLAPSED_W = 68;
+const COLLAPSED_W = 75;
 
 function NavItem({ item, active, onClick, lang, expanded }) {
   const label = lang === "mr" ? item.labelMr : item.label;
@@ -117,9 +114,8 @@ function NavItem({ item, active, onClick, lang, expanded }) {
         color: active ? C.white : C.text,
         fontWeight: active ? 600 : 400,
         fontSize: 14,
-        marginBottom: 2,
+        marginBottom: 4,
         transition: "all 0.2s ease",
-        whiteSpace: "nowrap",
       }}
     >
       <span
@@ -135,10 +131,9 @@ function NavItem({ item, active, onClick, lang, expanded }) {
       {expanded && (
         <span
           style={{
-            opacity: 1,
-            transition: "opacity 0.2s ease",
             overflow: "hidden",
             textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
           {label}
@@ -151,7 +146,7 @@ function NavItem({ item, active, onClick, lang, expanded }) {
 function SectionLabel({ label, expanded }) {
   if (!expanded)
     return (
-      <div style={{ height: 1, background: C.border, margin: "12px 8px" }} />
+      <div style={{ height: 1, background: C.border, margin: "15px 10px" }} />
     );
   return (
     <p
@@ -160,9 +155,8 @@ function SectionLabel({ label, expanded }) {
         fontWeight: 700,
         color: "#5a7aa8",
         letterSpacing: 1.2,
-        margin: "18px 16px 6px",
+        margin: "20px 16px 8px",
         textTransform: "uppercase",
-        whiteSpace: "nowrap",
       }}
     >
       {label}
@@ -170,167 +164,228 @@ function SectionLabel({ label, expanded }) {
   );
 }
 
-// ✅ onLogout prop add kiya
 function Sidebar({ activeKey, onNav, onLogout }) {
   const { lang, setLang } = useLang();
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(window.innerWidth >= 1200);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1200);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1200;
+      setIsMobile(mobile);
+      if (mobile) setExpanded(false);
+      else setExpanded(true);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const sidebarWidth = expanded ? EXPANDED_W : isMobile ? 0 : COLLAPSED_W;
 
   return (
-    <div style={{ position: "relative", flexShrink: 0 }}>
-      <div
-        style={{
-          width: expanded ? EXPANDED_W : COLLAPSED_W,
-          minWidth: expanded ? EXPANDED_W : COLLAPSED_W,
-          background: C.navy,
-          height: "100vh",
-          position: "sticky",
-          top: 0,
-          overflowY: "auto",
-          overflowX: "hidden",
-          padding: expanded ? "40px 12px" : "40px 6px",
-          boxSizing: "border-box",
-          transition:
-            "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease",
-          scrollbarWidth: "none",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        className="sidebar"
-      >
-        {/* Toggle Button */}
-        <button
-          onClick={() => setExpanded((p) => !p)}
-          title={expanded ? "Collapse sidebar" : "Expand sidebar"}
-          style={{
-            position: "fixed",
-            top: "20px",
-            left: expanded ? EXPANDED_W - 15 : COLLAPSED_W - 15,
-            width: 28,
-            height: 28,
-            borderRadius: "50%",
-            border: `2px solid ${C.navyDark}`,
-            background: C.orange,
-            color: C.white,
-            cursor: "pointer",
-            fontSize: 15,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
-            zIndex: 99999,
-            transition: "left 0.3s ease",
-            transform: expanded ? "rotate(0deg)" : "rotate(180deg)",
-            marginLeft: 4,
-          }}
-        >
-          ❮
-        </button>
-
-        {/* Logo */}
+    <>
+      {isMobile && (
         <div
           style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "60px",
+            background: C.navy,
             display: "flex",
             alignItems: "center",
-            justifyContent: expanded ? "flex-start" : "center",
-            marginBottom: 16,
-            padding: expanded ? "0 4px" : 0,
-            paddingRight: expanded ? 24 : 0,
+            padding: "0 20px",
+            zIndex: 99997,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
           }}
         >
-          {!expanded && (
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img style={{ width: 60 }} src={guicon} alt="" />
-            </div>
-          )}
-          {expanded && (
-            <div style={{ marginLeft: 10, overflow: "hidden" }}>
-              <img style={{ width: "200px" }} src={gulogo} />
-            </div>
-          )}
-        </div>
-
-        {/* Entrepreneur Badge */}
-        {expanded ? (
-          <div
+          <button
+            onClick={() => setExpanded(true)}
             style={{
               background: C.orange,
+              border: "none",
               color: "#fff",
-              textAlign: "center",
-              borderRadius: 8,
-              padding: "8px 0",
-              fontWeight: 700,
-              fontSize: 14,
-              marginBottom: 20,
-              whiteSpace: "nowrap",
+              fontSize: "20px",
+              padding: "5px 10px",
+              borderRadius: "6px",
+              cursor: "pointer",
             }}
           >
-            Entrepreneur
-          </div>
-        ) : (
-          <div style={{ height: 8 }} />
+            ☰
+          </button>
+          <img
+            src={guicon}
+            style={{ height: "30px", marginLeft: "15px" }}
+            alt="logo"
+          />
+        </div>
+      )}
+
+      {isMobile && expanded && (
+        <div
+          onClick={() => setExpanded(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(2px)",
+            zIndex: 99998,
+          }}
+        />
+      )}
+
+      {/* Main Wrapper: Takes 100% height and doesn't scroll with page */}
+      <div
+        style={{
+          position: isMobile ? "fixed" : "fixed", // Changed to fixed for desktop
+          top: 0,
+          left: 0,
+          bottom: 0,
+          zIndex: 99999,
+          width: sidebarWidth,
+          height: "100vh", // Force full height
+          transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
+          background: C.navy,
+        }}
+      >
+        {!isMobile && (
+          <button
+            onClick={() => setExpanded((p) => !p)}
+            style={{
+              position: "absolute",
+              top: "45px",
+              right: "-14px",
+              width: "28px",
+              height: "28px",
+              borderRadius: "50%",
+              border: `2px solid ${C.navyDark}`,
+              background: C.orange,
+              color: C.white,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+              zIndex: 100001,
+              transform: expanded ? "rotate(0deg)" : "rotate(180deg)",
+              transition: "transform 0.3s ease",
+            }}
+          >
+            ❮
+          </button>
         )}
 
-        {/* MY JOURNEY */}
-        <SectionLabel label="My Journey" expanded={expanded} />
-        {NAV.MY_JOURNEY.map((item) => (
-          <NavItem
-            key={item.key}
-            item={item}
-            active={activeKey === item.key}
-            onClick={onNav}
-            lang={lang}
-            expanded={expanded}
-          />
-        ))}
-
-        {/* USER */}
-        <div style={{ borderTop: `1px solid ${C.border}`, margin: "12px 0" }} />
-        {NAV.USER.map((item) => (
-          <NavItem
-            key={item.key}
-            item={item}
-            active={activeKey === item.key}
-            onClick={onNav}
-            lang={lang}
-            expanded={expanded}
-          />
-        ))}
-
-        {/* MARKET HUB */}
-        <SectionLabel label="Market Hub" expanded={expanded} />
-        {NAV.MARKET_HUB.map((item) => (
-          <NavItem
-            key={item.key}
-            item={item}
-            active={activeKey === item.key}
-            onClick={onNav}
-            lang={lang}
-            expanded={expanded}
-          />
-        ))}
-
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Language Toggle */}
-        {expanded ? (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            overflowY: "auto",
+            overflowX: "hidden",
+            padding: expanded ? "30px 15px" : isMobile ? "0" : "30px 8px",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            transform:
+              isMobile && !expanded ? "translateX(-100%)" : "translateX(0)",
+            transition: "transform 0.3s ease",
+          }}
+        >
           <div
             style={{
               display: "flex",
-              background: C.navyDark,
+              alignItems: "center",
+              justifyContent: expanded ? "flex-start" : "center",
+              marginBottom: 25,
+            }}
+          >
+            {expanded ? (
+              <img style={{ width: "180px" }} src={gulogo} />
+            ) : (
+              !isMobile && <img style={{ width: 45 }} src={guicon} />
+            )}
+          </div>
+
+          {expanded && (
+            <div
+              style={{
+                background: C.orange,
+                color: "#fff",
+                textAlign: "center",
+                borderRadius: 8,
+                padding: "10px",
+                fontWeight: 700,
+                fontSize: 13,
+                marginBottom: 20,
+              }}
+            >
+              ENTREPRENEUR
+            </div>
+          )}
+
+          <SectionLabel label="My Journey" expanded={expanded} />
+          {NAV.MY_JOURNEY.map((item) => (
+            <NavItem
+              key={item.key}
+              item={item}
+              active={activeKey === item.key}
+              onClick={(k) => {
+                onNav(k);
+                if (isMobile) setExpanded(false);
+              }}
+              lang={lang}
+              expanded={expanded}
+            />
+          ))}
+
+          <div
+            style={{ borderTop: `1px solid ${C.border}`, margin: "15px 0" }}
+          />
+          {NAV.USER.map((item) => (
+            <NavItem
+              key={item.key}
+              item={item}
+              active={activeKey === item.key}
+              onClick={(k) => {
+                onNav(k);
+                if (isMobile) setExpanded(false);
+              }}
+              lang={lang}
+              expanded={expanded}
+            />
+          ))}
+
+          <SectionLabel label="Market Hub" expanded={expanded} />
+          {NAV.MARKET_HUB.map((item) => (
+            <NavItem
+              key={item.key}
+              item={item}
+              active={activeKey === item.key}
+              onClick={(k) => {
+                onNav(k);
+                if (isMobile) setExpanded(false);
+              }}
+              lang={lang}
+              expanded={expanded}
+            />
+          ))}
+
+          <div style={{ flex: 1, minHeight: "40px" }} />
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: expanded ? "row" : "column",
+              background: expanded ? C.navyDark : "transparent",
               borderRadius: 12,
-              padding: 4,
-              margin: "12px 0",
+              padding: expanded ? 4 : 0,
+              marginBottom: 15,
+              gap: 4,
             }}
           >
             {["en", "mr"].map((l) => (
@@ -340,75 +395,52 @@ function Sidebar({ activeKey, onNav, onLogout }) {
                 style={{
                   flex: 1,
                   padding: "10px 0",
-                  borderRadius: 10,
+                  borderRadius: expanded ? 10 : 8,
                   border: "none",
-                  background: lang === l ? C.orange : "transparent",
-                  color: lang === l ? "#fff" : C.text,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  transition: "background 0.2s",
-                }}
-              >
-                {l === "en" ? "EN" : "मराठी"}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              margin: "12px 0",
-            }}
-          >
-            {["en", "mr"].map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                title={l === "en" ? "English" : "मराठी"}
-                style={{
-                  width: "100%",
-                  padding: "8px 0",
-                  borderRadius: 8,
-                  border: "none",
-                  background: lang === l ? C.orange : C.active,
+                  background:
+                    lang === l ? C.orange : expanded ? "transparent" : C.active,
                   color: "#fff",
                   fontWeight: 700,
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                 }}
               >
-                {l === "en" ? "EN" : "मर"}
+                {l === "en" ? "EN" : expanded ? "मराठी" : "मर"}
               </button>
             ))}
           </div>
-        )}
 
-        {/* ✅ Sign Out — onLogout connected */}
-        <div
-          onClick={onLogout}
-          title="Sign Out"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: expanded ? "flex-start" : "center",
-            gap: expanded ? 10 : 0,
-            color: C.text,
-            cursor: "pointer",
-            padding: "10px 8px",
-            fontSize: 14,
-            borderRadius: 8,
-            transition: "all 0.2s",
-            marginBottom: 8,
-          }}
-        >
-          <span style={{ fontSize: 18 }}>↪</span>
-          {expanded && <span>Sign Out</span>}
+          <div
+            onClick={onLogout}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: expanded ? "flex-start" : "center",
+              gap: 12,
+              color: C.text,
+              cursor: "pointer",
+              padding: "12px",
+              borderRadius: 8,
+              background: "rgba(255,255,255,0.05)",
+            }}
+          >
+            <span style={{ fontSize: 18 }}>↪</span>
+            {expanded && <span>Sign Out</span>}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Spacer for Desktop Content: Prevents content from going under the fixed sidebar */}
+      {!isMobile && (
+        <div
+          style={{
+            width: sidebarWidth,
+            flexShrink: 0,
+            transition: "width 0.3s ease",
+          }}
+        />
+      )}
+    </>
   );
 }
 

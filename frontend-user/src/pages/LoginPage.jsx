@@ -8,12 +8,19 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import gulogotransparent from "../assets/gulogotransparent.png";
 import { useLang } from "../context/LangContext";
+
+// ── Hook: screen size detect ──────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  return isMobile;
+}
+
 const inp = {
   width: "100%",
   padding: "12px 14px",
   border: "1.5px solid #ddd",
   borderRadius: 8,
-  fontSize: 14,
+  fontSize: 16,
   outline: "none",
   boxSizing: "border-box",
   fontFamily: "inherit",
@@ -35,6 +42,8 @@ function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { otpSent, otpVerified, loading, error, sendOtp, verifyOtp } = useOtp();
+  const { t } = useLang();
+  const isMobile = useIsMobile();
 
   const [tab, setTab] = useState("otp");
   const [isSignup, setIsSignup] = useState(false);
@@ -54,7 +63,7 @@ function LoginPage() {
   const handleSendOtp = () => {
     setErr("");
     if (!name.trim()) {
-      setErr("Naam daalo");
+      setErr(t("login_name_placeholder"));
       return;
     }
     if (mobile.length !== 10) {
@@ -65,16 +74,13 @@ function LoginPage() {
   };
 
   const handleVerifyOtp = async () => {
-    console.log("Name being sent:", name); // ← add karo
     if (otp.length < 4) {
-      setErr("OTP daalo");
+      setErr(t("login_input_otp_placeholder"));
       return;
     }
     const data = await verifyOtp(otp, mobile, name);
-    console.log("🔍 OTP verify response:", data); // ← add karo
     if (data?.success) {
       login(data.user);
-      console.log("👤 User set:", data.user); // ← add karo
       navigate("/dashboard");
     }
   };
@@ -83,7 +89,7 @@ function LoginPage() {
   const handleEmail = async () => {
     setErr("");
     if (isSignup && !emailName.trim()) {
-      setErr("Naam daalo");
+      setErr(t("login_name_placeholder"));
       return;
     }
     if (!email || !password) {
@@ -103,9 +109,6 @@ function LoginPage() {
     }
   };
 
-  // translate
-  const { lang, setLang, t } = useLang();
-
   return (
     <>
       <Header />
@@ -116,6 +119,7 @@ function LoginPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          padding: isMobile ? "16px 12px" : "24px",
         }}
       >
         <div id="recaptcha-container" />
@@ -124,7 +128,7 @@ function LoginPage() {
           style={{
             background: "#fff",
             borderRadius: 16,
-            padding: "36px 32px",
+            padding: isMobile ? "24px 16px" : "36px 32px",
             width: "100%",
             maxWidth: 400,
             boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
@@ -132,22 +136,21 @@ function LoginPage() {
         >
           {/* Logo */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <div style={{}}>
-              <img style={{ width: 200 }} src={gulogotransparent} />
-            </div>
+            <img
+              style={{ width: isMobile ? 160 : 200 }}
+              src={gulogotransparent}
+              alt="logo"
+            />
             <h2
               style={{
-                margin: 0,
+                margin: "8px 0 0",
                 color: C.maroon,
                 fontWeight: 800,
-                fontSize: 20,
+                fontSize: isMobile ? 17 : 20,
               }}
             >
               {t("login_title")}
             </h2>
-            {/* <p style={{ margin: "4px 0 0", color: "#777", fontSize: 13 }}>
-              गाव तिथे उद्योजक — Login
-            </p> */}
           </div>
 
           {/* Tab Toggle */}
@@ -208,7 +211,6 @@ function LoginPage() {
           {/* ── OTP Tab ── */}
           {tab === "otp" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {/* Name field */}
               <input
                 style={inp}
                 placeholder={t("login_name_placeholder")}
@@ -217,7 +219,6 @@ function LoginPage() {
                 disabled={otpSent}
               />
 
-              {/* Mobile field */}
               <div style={{ display: "flex", gap: 8 }}>
                 <div
                   style={{
@@ -226,6 +227,9 @@ function LoginPage() {
                     textAlign: "center",
                     background: "#f5f5f5",
                     color: "#555",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   +91
@@ -235,6 +239,7 @@ function LoginPage() {
                   placeholder={t("login_number_placeholder")}
                   value={mobile}
                   maxLength={10}
+                  inputMode="numeric"
                   onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
                   disabled={otpSent}
                 />
@@ -255,6 +260,7 @@ function LoginPage() {
                     placeholder={t("login_input_otp_placeholder")}
                     value={otp}
                     maxLength={6}
+                    inputMode="numeric"
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                   />
                   <button
@@ -265,8 +271,8 @@ function LoginPage() {
                     {loading
                       ? "Verify ho raha hai..."
                       : otpVerified
-                        ? ` ${t("login_otp_verifed")}`
-                        : `${t("login_otp_verify")}`}
+                        ? t("login_otp_verifed")
+                        : t("login_otp_verify")}
                   </button>
                   <button
                     onClick={() => sendOtp(mobile)}
@@ -278,7 +284,7 @@ function LoginPage() {
                       fontSize: 13,
                     }}
                   >
-                    OTP dobara bhejo
+                    {t("login_otp_resend")}
                   </button>
                 </>
               )}
@@ -291,7 +297,7 @@ function LoginPage() {
               {isSignup && (
                 <input
                   style={inp}
-                  placeholder="Aapka Naam (Full Name)"
+                  placeholder={t("login_name_placeholder")}
                   value={emailName}
                   onChange={(e) => setEmailName(e.target.value)}
                 />
@@ -299,28 +305,30 @@ function LoginPage() {
               <input
                 style={inp}
                 type="email"
-                placeholder="Email address"
+                inputMode="email"
+                placeholder={t("login_email_placeholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
                 style={inp}
                 type="password"
-                placeholder="Password"
+                placeholder={t("login_password_placeholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               {isSignup && (
                 <input
                   style={inp}
-                  placeholder="Mobile (optional)"
+                  placeholder={t("login_mobile_optional")}
                   value={mobile}
                   maxLength={10}
+                  inputMode="numeric"
                   onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
                 />
               )}
               <button style={btn(C.maroon)} onClick={handleEmail}>
-                {isSignup ? "Account Banao" : "Login Karo"}
+                {isSignup ? t("create_account") : t("login_now")}
               </button>
               <p
                 style={{
@@ -330,7 +338,7 @@ function LoginPage() {
                   margin: 0,
                 }}
               >
-                {isSignup ? "Already account hai? " : "Naya account? "}
+                {isSignup ? t("already_have_account") : t("new_account")}
                 <span
                   onClick={() => {
                     setIsSignup(!isSignup);
@@ -342,7 +350,7 @@ function LoginPage() {
                     fontWeight: 600,
                   }}
                 >
-                  {isSignup ? "Login karo" : "Register karo"}
+                  {isSignup ? t("login_now") : t("create_account")}
                 </span>
               </p>
             </div>
