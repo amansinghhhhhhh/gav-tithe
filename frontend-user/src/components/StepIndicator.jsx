@@ -41,6 +41,7 @@ export function StepIndicator({ current }) {
           gap: 16,
           boxShadow: "0 4px 20px rgba(86,10,10,0.35)",
         }}
+        className="md:flex-row flex-col"
       >
         {/* Left: Avatar + Text */}
         <div
@@ -48,8 +49,8 @@ export function StepIndicator({ current }) {
             display: "flex",
             flexDirection: "column",
             gap: 10,
-            width: 420,
           }}
+          className="w-[100%]"
         >
           {/* Avatar row */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
