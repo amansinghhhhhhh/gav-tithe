@@ -195,11 +195,13 @@ function Sidebar({ activeKey, onNav, onLogout }) {
             background: C.navy,
             display: "flex",
             alignItems: "center",
-            padding: "0 20px",
+            justifyContent: "space-between", // Pushes content to left and right
+            padding: "0 15px", // Adjusted padding for sides
             zIndex: 99997,
             boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
           }}
         >
+          {/* Toggle Button on the Left */}
           <button
             onClick={() => setExpanded(true)}
             style={{
@@ -207,16 +209,18 @@ function Sidebar({ activeKey, onNav, onLogout }) {
               border: "none",
               color: "#fff",
               fontSize: "20px",
-              padding: "5px 10px",
+              padding: "5px 12px",
               borderRadius: "6px",
               cursor: "pointer",
             }}
           >
             ☰
           </button>
+
+          {/* Large Image on the Right */}
           <img
-            src={guicon}
-            style={{ height: "30px", marginLeft: "15px" }}
+            src={gulogo}
+            style={{ height: "35px", width: "auto" }}
             alt="logo"
           />
         </div>
@@ -238,16 +242,15 @@ function Sidebar({ activeKey, onNav, onLogout }) {
         />
       )}
 
-      {/* Main Wrapper: Takes 100% height and doesn't scroll with page */}
       <div
         style={{
-          position: isMobile ? "fixed" : "fixed", // Changed to fixed for desktop
+          position: "fixed",
           top: 0,
           left: 0,
           bottom: 0,
           zIndex: 99999,
           width: sidebarWidth,
-          height: "100vh", // Force full height
+          height: "100vh",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           background: C.navy,
         }}
@@ -430,7 +433,6 @@ function Sidebar({ activeKey, onNav, onLogout }) {
         </div>
       </div>
 
-      {/* Spacer for Desktop Content: Prevents content from going under the fixed sidebar */}
       {!isMobile && (
         <div
           style={{
