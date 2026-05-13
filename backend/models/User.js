@@ -13,9 +13,11 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Password hash
+// Yeh check karo User.js mein — pre-save hook toh nahi hai?
 UserSchema.pre("save", async function (next) {
-    if (!this.isModified("password") || !this.password) return next();
-    this.password = await bcrypt.hash(this.password, 10);
+    if (this.isModified("password")) {
+        this.password = await bcrypt.hash(this.password, 10); // ← YAHI PROBLEM HAI
+    }
     next();
 });
 

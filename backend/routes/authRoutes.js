@@ -10,4 +10,13 @@ router.post("/register", validateRegister, registerEmail); // POST /api/auth/reg
 router.post("/login", validateLogin, loginEmail);    // POST /api/auth/login
 router.get("/me", protect, getMe);         // GET  /api/auth/me
 
+
+router.post("/verify-email", protect, async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user.id, { isVerified: true });
+        res.json({ success: true, message: "Email verified!" });
+    } catch (err) {
+        res.status(500).json({ message: "Failed", error: err.message });
+    }
+});
 module.exports = router;

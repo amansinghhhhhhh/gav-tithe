@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+const BASE = import.meta.env.VITE_API_BASE || "https://gav-tithe-production.up.railway.app/api";
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem("gtu_token");
@@ -100,5 +100,13 @@ export const uploadDoc = async (docType, file) => {
         method: "POST",
         headers: { Authorization: `Bearer ${getToken()}` },
         body: fd,
+    });
+};
+
+
+export const markEmailVerified = async () => {
+    return apiFetch(`${BASE}/auth/verify-email`, {
+        method: "POST",
+        headers: authHeaders(),
     });
 };

@@ -33,21 +33,22 @@ const validateOtp = [
 
 // Email Register
 const validateRegister = [
+    body("email")
+        .isEmail()
+        .withMessage("Valid email daalo"),
+
+    body("password")
+        .isLength({ min: 6 })
+        .withMessage("Password min 6 chars hona chahiye"),
+
     body("name")
         .optional()
-        .trim()
-        .isLength({ min: 2, max: 100 }).withMessage("Naam 2-100 characters ka hona chahiye"),
-    body("email")
-        .notEmpty().withMessage("Email required")
-        .isEmail().withMessage("Valid email daalo")
-        .normalizeEmail(),
-    body("password")
-        .notEmpty().withMessage("Password required")
-        .isLength({ min: 6 }).withMessage("Password kam se kam 6 characters ka hona chahiye")
-        .matches(/\d/).withMessage("Password mein kam se kam ek number hona chahiye"),
+        .trim(),
+
+    // ✅ mobile completely optional — no validation
     body("mobile")
-        .optional()
-        .isMobilePhone("en-IN").withMessage("Valid 10-digit mobile number daalo"),
+        .optional({ nullable: true, checkFalsy: true }),
+
     validate,
 ];
 

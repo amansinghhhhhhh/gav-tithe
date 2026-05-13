@@ -23,7 +23,7 @@ import C from "./constants/colors";
 import { SuccessPage } from "./SuccessPage";
 import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
-
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -328,6 +328,7 @@ function Dashboard() {
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/dashboard"
