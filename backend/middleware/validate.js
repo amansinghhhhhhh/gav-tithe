@@ -56,8 +56,8 @@ const validateRegister = [
 const validateLogin = [
     body("email")
         .notEmpty().withMessage("Email required")
-        .isEmail().withMessage("Valid email daalo")
-        .normalizeEmail(),
+        .isEmail().withMessage("Valid email daalo"),
+    // .normalizeEmail()  ← YEH HATAO
     body("password")
         .notEmpty().withMessage("Password required"),
     validate,

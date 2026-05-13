@@ -60,31 +60,25 @@ const registerEmail = async (req, res) => {
 
         const existing = await User.findOne({ email });
         if (existing) {
-            return res.status(400).json({
-                success: false,
-                message: "Email already registered hai",
-            });
+            return res.status(400).json({ success: false, message: "Email already registered hai" });
         }
 
-        // ✅ Hash mat karo — pre-save hook karega
-        const user = await User.create({
+        // ✅ Plain password do — pre-save hook hash karega
+        const user = new User({
             name: name || email.split("@")[0],
             email,
-            password: password,  // ← plain password daalo
-            mobile: mobile || "",
+            password,        // ← NO bcrypt.hash here
+            mobile: mobile || null,
             role: "user",
         });
+
+        await user.save(); // ← pre-save hook trigger hoga
 
         const token = generateToken(user._id);
         res.json({
             success: true,
             token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role },
         });
     } catch (err) {
         console.error("❌ Register error:", err.message);
