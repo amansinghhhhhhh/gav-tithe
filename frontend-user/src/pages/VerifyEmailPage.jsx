@@ -40,7 +40,7 @@ export default function VerifyEmailPage() {
       } catch (e) {
         console.error(e);
         if (e.code === "auth/invalid-action-code") {
-          setMsg("Link expire ho gaya hai ya already use hua hai.");
+          setMsg("Link is Expired");
         } else {
           setMsg(e.message);
         }
@@ -79,7 +79,7 @@ export default function VerifyEmailPage() {
           <>
             <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
             <h2 style={{ color: C.navy, fontWeight: 800, margin: "0 0 8px" }}>
-              Verify ho raha hai...
+              Verified🎉...
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14 }}>Thoda wait karo</p>
           </>
@@ -109,7 +109,7 @@ export default function VerifyEmailPage() {
               Email Verified! 🎉
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 20px" }}>
-              Tumhari email verify ho gayi. Ab login kar sakte ho!
+              Email Verified.. Please Login!!
             </p>
             <div
               style={{
@@ -122,7 +122,7 @@ export default function VerifyEmailPage() {
                 marginBottom: 20,
               }}
             >
-              3 seconds mein login page pe redirect ho rahe ho...
+              Please Wait for 3 Sec. Automatically Redirect..
             </div>
             <button
               onClick={() => navigate("/login")}
@@ -138,7 +138,7 @@ export default function VerifyEmailPage() {
                 cursor: "pointer",
               }}
             >
-              → Login Karo
+              → Login
             </button>
           </>
         )}
@@ -169,7 +169,7 @@ export default function VerifyEmailPage() {
                 cursor: "pointer",
               }}
             >
-              ← Login Page Pe Jao
+              ← Go to login Page
             </button>
           </>
         )}

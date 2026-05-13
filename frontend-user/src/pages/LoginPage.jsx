@@ -276,7 +276,7 @@ export default function LoginPage() {
       // Step 2 — Email verified check
       if (!fbCred.user.emailVerified) {
         setErr(
-          "Email verify nahi hai. Inbox check karo aur verify link pe click karo.",
+          "Your email is not verified. Please check your inbox and click the verification link.",
         );
         setLoading(false);
         return;
@@ -301,11 +301,11 @@ export default function LoginPage() {
   const handleStep1Next = () => {
     setErr("");
     if (!email) {
-      setErr("Email daalo");
+      setErr("Enter Email");
       return;
     }
     if (password.length < 6) {
-      setErr("Password kam se kam 6 characters hona chahiye");
+      setErr("Password must be at least 6 characters long");
       return;
     }
     setStep(2);
@@ -315,15 +315,15 @@ export default function LoginPage() {
   const handleRegister = async () => {
     setErr("");
     if (!firstName.trim()) {
-      setErr("First Name daalo");
+      setErr("First Name ");
       return;
     }
     if (!surname.trim()) {
-      setErr("Surname daalo");
+      setErr("Surname ");
       return;
     }
     if (mobile && mobile.length !== 10) {
-      setErr("Valid 10-digit mobile daalo");
+      setErr("Enter a valid 10-digit mobile number.");
       return;
     }
 
@@ -347,7 +347,7 @@ export default function LoginPage() {
 
       if (data?.success || data?.token) {
         setSuccessMsg(
-          `✅ Registration successful! "${email}" pe verification link bheja gaya hai. Email verify karo phir login karo.`,
+          `✅ Registration successful! A verification link has been sent to "${email}". Please verify your email and then log in`,
         );
         setIsSignup(false);
         setStep(1);
@@ -359,7 +359,7 @@ export default function LoginPage() {
     } catch (e) {
       const msg =
         e.code === "auth/email-already-in-use"
-          ? "Yeh email already registered hai — login karo"
+          ? "This email is already register. Please Login"
           : e.message;
       setErr(msg);
     } finally {
@@ -375,7 +375,7 @@ export default function LoginPage() {
       await sendEmailVerification(fbCred.user);
       setSuccessMsg("Verification email dobara bheja gaya! Inbox check karo.");
     } catch {
-      setErr("Pehle login karo — phir resend hoga");
+      setErr("Pehle login karo.");
     }
   };
 
@@ -456,7 +456,7 @@ export default function LoginPage() {
                     fontSize: 12,
                   }}
                 >
-                  → Verification email dobara bhejo
+                  → Resend Verification Email...
                 </span>
               )}
             </div>
