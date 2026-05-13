@@ -6,7 +6,8 @@ import { useAuth } from "../context/AuthContext";
 import C from "../constants/colors";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
-
+import gulogotransparent from "../assets/gulogotransparent.png";
+import { useLang } from "../context/LangContext";
 const inp = {
   width: "100%",
   padding: "12px 14px",
@@ -102,6 +103,9 @@ function LoginPage() {
     }
   };
 
+  // translate
+  const { lang, setLang, t } = useLang();
+
   return (
     <>
       <Header />
@@ -128,22 +132,8 @@ function LoginPage() {
         >
           {/* Logo */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                background: "#F97316",
-                borderRadius: 12,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 900,
-                fontSize: 14,
-                color: "#fff",
-                marginBottom: 10,
-              }}
-            >
-              गाव
+            <div style={{}}>
+              <img style={{ width: 200 }} src={gulogotransparent} />
             </div>
             <h2
               style={{
@@ -153,11 +143,11 @@ function LoginPage() {
                 fontSize: 20,
               }}
             >
-              Gaon Tithe Udyojak
+              {t("login_title")}
             </h2>
-            <p style={{ margin: "4px 0 0", color: "#777", fontSize: 13 }}>
+            {/* <p style={{ margin: "4px 0 0", color: "#777", fontSize: 13 }}>
               गाव तिथे उद्योजक — Login
-            </p>
+            </p> */}
           </div>
 
           {/* Tab Toggle */}
@@ -170,11 +160,11 @@ function LoginPage() {
               marginBottom: 22,
             }}
           >
-            {["otp", "email"].map((t) => (
+            {["otp", "email"].map((type) => (
               <button
-                key={t}
+                key={type}
                 onClick={() => {
-                  setTab(t);
+                  setTab(type);
                   setErr("");
                 }}
                 style={{
@@ -182,15 +172,18 @@ function LoginPage() {
                   padding: "9px 0",
                   border: "none",
                   borderRadius: 8,
-                  background: tab === t ? "#fff" : "transparent",
-                  color: tab === t ? C.maroon : "#888",
-                  fontWeight: tab === t ? 700 : 400,
+                  background: tab === type ? "#fff" : "transparent",
+                  color: tab === type ? C.maroon : "#888",
+                  fontWeight: tab === type ? 700 : 400,
                   fontSize: 13,
                   cursor: "pointer",
-                  boxShadow: tab === t ? "0 1px 4px rgba(0,0,0,0.10)" : "none",
+                  boxShadow:
+                    tab === type ? "0 1px 4px rgba(0,0,0,0.10)" : "none",
                 }}
               >
-                {t === "otp" ? "📱 Mobile OTP" : "✉️ Email"}
+                {type === "otp"
+                  ? `📱 ${t("login_otp")}`
+                  : `✉️ ${t("login_email")}`}
               </button>
             ))}
           </div>
@@ -218,7 +211,7 @@ function LoginPage() {
               {/* Name field */}
               <input
                 style={inp}
-                placeholder="Aapka Naam (Full Name)"
+                placeholder={t("login_name_placeholder")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={otpSent}
@@ -239,7 +232,7 @@ function LoginPage() {
                 </div>
                 <input
                   style={{ ...inp, flex: 1 }}
-                  placeholder="Mobile Number"
+                  placeholder={t("login_number_placeholder")}
                   value={mobile}
                   maxLength={10}
                   onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
@@ -253,13 +246,13 @@ function LoginPage() {
                   onClick={handleSendOtp}
                   disabled={loading}
                 >
-                  {loading ? "Bhej raha hai..." : "OTP Bhejo"}
+                  {loading ? "Sending..." : t("login_send_otp")}
                 </button>
               ) : (
                 <>
                   <input
                     style={inp}
-                    placeholder="6-digit OTP daalo"
+                    placeholder={t("login_input_otp_placeholder")}
                     value={otp}
                     maxLength={6}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
@@ -272,8 +265,8 @@ function LoginPage() {
                     {loading
                       ? "Verify ho raha hai..."
                       : otpVerified
-                        ? "✅ Verified!"
-                        : "OTP Verify Karo"}
+                        ? ` ${t("login_otp_verifed")}`
+                        : `${t("login_otp_verify")}`}
                   </button>
                   <button
                     onClick={() => sendOtp(mobile)}

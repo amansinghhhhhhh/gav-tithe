@@ -156,6 +156,18 @@ const translations = {
         banner_next_desc: "टप्पा 1 मध्ये कागदपत्रे अपलोड करा आणि मंजूर करा",
         banner_cta: "टप्पा",
 
+        // loginpage
+
+        login_title: "गाव तिथे उद्योजक ",
+        login_otp: "मोबाइल  OTP",
+        login_email: "लॉगिन",
+        login_name_placeholder: "पूर्ण नाव",
+        login_number_placeholder: "मोबाईल नंबर",
+        login_send_otp: "OTP पाठवा",
+        login_input_otp_placeholder: "६-अंकी ओटीपी द्या",
+        login_otp_verify: "सत्यापित करा",
+        login_otp_verifed: "सत्यापित",
+
     },
 
     en: {
@@ -344,6 +356,19 @@ const translations = {
         banner_next_title: "Next Action",
         banner_next_desc: "Upload and get documents approved in Step 1",
         banner_cta: "Step",
+
+        // translate
+
+        login_title: "Gaon Tithe Udyojak",
+        login_otp: "Mobile OTP",
+        login_email: "Login",
+        login_name_placeholder: "Full Name",
+        login_number_placeholder: "Mobile Number",
+        login_send_otp: "Send OTP",
+        login_input_otp_placeholder: "6-digit OTP daalo",
+        login_otp_verify: "Verify",
+        login_otp_verifed: "Verifed",
+
 
     },
 

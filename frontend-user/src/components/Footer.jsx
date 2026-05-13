@@ -2,7 +2,7 @@ import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 
 import maccialogo from "../assets/MACCIAlogo.svg";
-import maccialogo from "../assets/gulogo.svg";
+import gulogo from "../assets/gulogo.svg";
 
 export function Footer() {
   const { t } = useLang();
