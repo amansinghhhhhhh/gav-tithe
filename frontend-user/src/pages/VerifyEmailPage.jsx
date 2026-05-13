@@ -79,7 +79,7 @@ export default function VerifyEmailPage() {
           <>
             <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
             <h2 style={{ color: C.navy, fontWeight: 800, margin: "0 0 8px" }}>
-              Verified🎉...
+              Verifying...
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14 }}>Thoda wait karo</p>
           </>
