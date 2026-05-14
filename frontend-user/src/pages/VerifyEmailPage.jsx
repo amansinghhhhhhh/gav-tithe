@@ -226,7 +226,7 @@ export default function VerifyEmailPage() {
               🔑
             </div>
             <h2 style={{ color: C.maroon, fontWeight: 800, margin: "0 0 4px" }}>
-              {t("reset_title")}
+              Set New Password
             </h2>
             {resetEmail && (
               <p style={{ color: "#6b7280", fontSize: 13, margin: "0 0 20px" }}>
@@ -269,7 +269,7 @@ export default function VerifyEmailPage() {
                     display: "block",
                   }}
                 >
-                  {t("reset_new_pass")}
+                  Reset New Password
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
@@ -308,7 +308,7 @@ export default function VerifyEmailPage() {
                     display: "block",
                   }}
                 >
-                  {t("reset_confirm_pass")}
+                  Confirm Password
                 </label>
                 <input
                   style={inp}
@@ -339,7 +339,7 @@ export default function VerifyEmailPage() {
                   marginTop: 4,
                 }}
               >
-                {resetLoading ? t("reset_saving") : t("reset_btn")}
+                {resetLoading ? "Saving..." : "Change Password"}
               </button>
             </div>
           </>

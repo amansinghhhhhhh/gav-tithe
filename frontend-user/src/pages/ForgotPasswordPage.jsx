@@ -129,7 +129,7 @@ export default function ForgotPasswordPage() {
                 fontSize: 20,
               }}
             >
-              Reset Password
+              {t("forgot_title")}
             </h2>
             <p
               style={{
@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
                 fontSize: 13,
               }}
             >
-              Enter your email, we'll send you a reset link
+              {t("forgot_subtitle")}
             </p>
           </div>
 
@@ -185,13 +185,13 @@ export default function ForgotPasswordPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
                 <label style={labelStyle}>
-                  Email Address
+                  {t("forgot_email")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
                   style={inp}
                   type="email"
-                  placeholder="Email Address"
+                  placeholder={t("forgot_email_ph")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleReset()}
@@ -218,7 +218,7 @@ export default function ForgotPasswordPage() {
                   boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
                 }}
               >
-                {loading ? "Sending..." : "Send Reset Link"}
+                {loading ? t("forgot_sending") : t("forgot_btn")}
               </button>
 
               <button
@@ -235,7 +235,7 @@ export default function ForgotPasswordPage() {
                   cursor: "pointer",
                 }}
               >
-                ← Back to Login
+                {t("forgot_back")}
               </button>
             </div>
           </div>
