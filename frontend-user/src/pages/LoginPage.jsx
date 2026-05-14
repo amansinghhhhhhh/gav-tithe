@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginEmail, registerEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
-
 import {
   getAuth,
   sendEmailVerification,
@@ -11,8 +11,8 @@ import {
   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { app } from "../config/firebase";
+import { Header } from "../components/Header";
 
-// ── Styles ────────────────────────────────────────────────────────────────────
 const inp = {
   width: "100%",
   padding: "13px 14px",
@@ -27,7 +27,7 @@ const inp = {
   transition: "border-color 0.2s",
 };
 
-const label = {
+const labelStyle = {
   fontSize: 13,
   fontWeight: 600,
   color: "#374151",
@@ -35,8 +35,9 @@ const label = {
   display: "block",
 };
 
-// ── Hero Card (top orange section) ───────────────────────────────────────────
+// ── Hero Card ─────────────────────────────────────────────────────────────────
 function HeroCard() {
+  const { t } = useLang();
   return (
     <div
       style={{
@@ -49,7 +50,6 @@ function HeroCard() {
         overflow: "hidden",
       }}
     >
-      {/* Decorative circles */}
       <div
         style={{
           position: "absolute",
@@ -72,8 +72,6 @@ function HeroCard() {
           background: "rgba(255,255,255,0.08)",
         }}
       />
-
-      {/* Bulb icon */}
       <div
         style={{
           width: 48,
@@ -89,7 +87,6 @@ function HeroCard() {
       >
         💡
       </div>
-
       <h2
         style={{
           margin: 0,
@@ -99,7 +96,7 @@ function HeroCard() {
           letterSpacing: "-0.3px",
         }}
       >
-        Potential Entrepreneur
+        {t("login_title")}
       </h2>
       <p
         style={{
@@ -108,7 +105,7 @@ function HeroCard() {
           fontSize: 13,
         }}
       >
-        Start Your Business Journey
+        {t("login_subtitle")}
       </p>
     </div>
   );
@@ -116,11 +113,12 @@ function HeroCard() {
 
 // ── Authority Box ─────────────────────────────────────────────────────────────
 function AuthorityBox() {
+  const { t } = useLang();
   const points = [
-    "Free registration & mindset assessment",
-    "Business training & skill development",
-    "Government scheme access & DPR library",
-    "Personal mentorship & milestone tracking",
+    t("login_point1"),
+    t("login_point2"),
+    t("login_point3"),
+    t("login_point4"),
   ];
   return (
     <div
@@ -142,7 +140,7 @@ function AuthorityBox() {
           textTransform: "uppercase",
         }}
       >
-        Authority &amp; Responsibilities
+        {t("login_authority_head")}
       </p>
       {points.map((pt, i) => (
         <div
@@ -175,6 +173,7 @@ function AuthorityBox() {
 
 // ── Step Dots ─────────────────────────────────────────────────────────────────
 function StepDots({ step }) {
+  const { t } = useLang();
   return (
     <div
       style={{
@@ -217,7 +216,7 @@ function StepDots({ step }) {
         </div>
       ))}
       <span style={{ fontSize: 13, color: "#6b7280", marginLeft: 4 }}>
-        Basic Details
+        {t("login_step_label")}
       </span>
     </div>
   );
@@ -227,22 +226,18 @@ function StepDots({ step }) {
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLang();
   const auth = getAuth(app);
 
   const [isSignup, setIsSignup] = useState(false);
-  const [step, setStep] = useState(1); // 1 = login/step1, 2 = basic details
-
-  // Login fields
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-
-  // Signup Step 2 fields
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
   const [surname, setSurname] = useState("");
   const [mobile, setMobile] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -256,24 +251,19 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      // Step 1 — Firebase sign in
       let fbCred;
       try {
         fbCred = await signInWithEmailAndPassword(auth, email, password);
       } catch (firebaseErr) {
-        if (
+        setErr(
           firebaseErr.code === "auth/invalid-credential" ||
-          firebaseErr.code === "auth/user-not-found"
-        ) {
-          setErr("Email ya password galat hai");
-        } else {
-          setErr(firebaseErr.message);
-        }
+            firebaseErr.code === "auth/user-not-found"
+            ? "Email ya password galat hai"
+            : firebaseErr.message,
+        );
         setLoading(false);
         return;
       }
-
-      // Step 2 — Email verified check
       if (!fbCred.user.emailVerified) {
         setErr(
           "Your email is not verified. Please check your inbox and click the verification link.",
@@ -281,15 +271,11 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-
-      // Step 3 — Backend login
       const data = await loginEmail(email, password);
       if (data?.success) {
         login(data.user);
         navigate("/dashboard");
-      } else {
-        setErr(data?.message || "Login failed");
-      }
+      } else setErr(data?.message || "Login failed");
     } catch (e) {
       setErr("Login failed: " + e.message);
     } finally {
@@ -297,7 +283,7 @@ export default function LoginPage() {
     }
   };
 
-  // ── SIGNUP Step 1 → Step 2 ─────────────────────────────────────────────────
+  // ── SIGNUP Step 1 ──────────────────────────────────────────────────────────
   const handleStep1Next = () => {
     setErr("");
     if (!email) {
@@ -305,46 +291,39 @@ export default function LoginPage() {
       return;
     }
     if (password.length < 6) {
-      setErr("Password must be at least 6 characters long");
+      setErr("Password must be at least 6 characters");
       return;
     }
     setStep(2);
   };
 
-  // ── SIGNUP Step 2 → Register ───────────────────────────────────────────────
+  // ── SIGNUP Step 2 ──────────────────────────────────────────────────────────
   const handleRegister = async () => {
     setErr("");
     if (!firstName.trim()) {
-      setErr("First Name ");
+      setErr("First Name required");
       return;
     }
     if (!surname.trim()) {
-      setErr("Surname ");
+      setErr("Surname required");
       return;
     }
     if (mobile && mobile.length !== 10) {
       setErr("Enter a valid 10-digit mobile number.");
       return;
     }
-
     setLoading(true);
     try {
-      // 1. Firebase user create
       const fbCred = await createUserWithEmailAndPassword(
         auth,
         email,
         password,
       );
-
-      // 2. Verification email bhejo
       await sendEmailVerification(fbCred.user);
-
-      // 3. MongoDB mein save karo
       const fullName = [firstName, middleName, surname]
         .filter(Boolean)
         .join(" ");
       const data = await registerEmail(email, password, mobile, fullName);
-
       if (data?.success || data?.token) {
         setSuccessMsg(
           `✅ Registration successful! A verification link has been sent to "${email}". Please verify your email and then log in`,
@@ -357,17 +336,16 @@ export default function LoginPage() {
         setErr(data?.message || "Registration failed");
       }
     } catch (e) {
-      const msg =
+      setErr(
         e.code === "auth/email-already-in-use"
-          ? "This email is already register. Please Login"
-          : e.message;
-      setErr(msg);
+          ? "This email is already registered. Please Login"
+          : e.message,
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Resend verification email ──────────────────────────────────────────────
   const handleResendVerification = async () => {
     setErr("");
     try {
@@ -379,469 +357,460 @@ export default function LoginPage() {
     }
   };
 
+  const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
+  const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f3f4f6",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px 16px",
-        fontFamily: "'Segoe UI', sans-serif",
-      }}
-    >
+    <>
+      <Header />
       <div
         style={{
-          background: "#fff",
-          borderRadius: 16,
-          width: "100%",
-          maxWidth: 400,
-          boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
-          overflow: "hidden",
+          minHeight: "100vh",
+          background: "#f3f4f6",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px 16px",
+          fontFamily: "'Segoe UI', sans-serif",
         }}
       >
-        {/* Orange Hero */}
-        <HeroCard />
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 16,
+            width: "100%",
+            maxWidth: 400,
+            boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
+            overflow: "hidden",
+          }}
+        >
+          <HeroCard />
 
-        {/* Form Body */}
-        <div style={{ padding: "24px 24px 28px" }}>
-          {/* Authority Box */}
-          <AuthorityBox />
+          <div style={{ padding: "24px 24px 28px" }}>
+            <AuthorityBox />
+            {isSignup && <StepDots step={step} />}
 
-          {/* Step Dots — signup step 2 pe dikhao */}
-          {isSignup && <StepDots step={step} />}
-
-          {/* Success Message */}
-          {successMsg && (
-            <div
-              style={{
-                background: "#dcfce7",
-                border: "1px solid #86efac",
-                borderRadius: 10,
-                padding: "12px 14px",
-                color: "#166534",
-                fontSize: 13,
-                marginBottom: 16,
-                lineHeight: 1.6,
-              }}
-            >
-              {successMsg}
-            </div>
-          )}
-
-          {/* Error */}
-          {err && (
-            <div
-              style={{
-                background: "#fff0f0",
-                border: "1px solid #fca5a5",
-                borderRadius: 10,
-                padding: "10px 14px",
-                color: "#dc2626",
-                fontSize: 13,
-                marginBottom: 16,
-              }}
-            >
-              ⚠ {err}
-              {err.includes("verify nahi") && (
-                <span
-                  onClick={handleResendVerification}
-                  style={{
-                    display: "block",
-                    marginTop: 6,
-                    color: "#F97316",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                    fontSize: 12,
-                  }}
-                >
-                  → Resend Verification Email...
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* ── LOGIN FORM ── */}
-          {!isSignup && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={label}>
-                  Email Address <span style={{ color: "#ef4444" }}>*</span>
-                </label>
-                <input
-                  style={inp}
-                  type="email"
-                  inputMode="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
+            {/* Success */}
+            {successMsg && (
+              <div
+                style={{
+                  background: "#dcfce7",
+                  border: "1px solid #86efac",
+                  borderRadius: 10,
+                  padding: "12px 14px",
+                  color: "#166534",
+                  fontSize: 13,
+                  marginBottom: 16,
+                  lineHeight: 1.6,
+                }}
+              >
+                {successMsg}
               </div>
-              <div>
-                <div
+            )}
+
+            {/* Error */}
+            {err && (
+              <div
+                style={{
+                  background: "#fff0f0",
+                  border: "1px solid #fca5a5",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  color: "#dc2626",
+                  fontSize: 13,
+                  marginBottom: 16,
+                }}
+              >
+                ⚠ {err}
+                {err.includes("verify") && (
+                  <span
+                    onClick={handleResendVerification}
+                    style={{
+                      display: "block",
+                      marginTop: 6,
+                      color: "#F97316",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      fontSize: 12,
+                    }}
+                  >
+                    → Resend Verification Email
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* ── LOGIN ── */}
+            {!isSignup && (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 14 }}
+              >
+                <div>
+                  <label style={labelStyle}>
+                    {t("login_email")}{" "}
+                    <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <input
+                    style={inp}
+                    type="email"
+                    placeholder={t("login_email_ph")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={focusStyle}
+                    onBlur={blurStyle}
+                  />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <label style={{ ...labelStyle, margin: 0 }}>
+                      {t("login_password")}{" "}
+                      <span style={{ color: "#ef4444" }}>*</span>{" "}
+                      <span style={{ color: "#9ca3af", fontWeight: 400 }}>
+                        {t("login_password_hint")}
+                      </span>
+                    </label>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "#F97316",
+                        cursor: "pointer",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {t("login_forgot")}
+                    </span>
+                  </div>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      style={inp}
+                      type={showPass ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                      onFocus={focusStyle}
+                      onBlur={blurStyle}
+                    />
+                    <span
+                      onClick={() => setShowPass(!showPass)}
+                      style={{
+                        position: "absolute",
+                        right: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        color: "#9ca3af",
+                        fontSize: 18,
+                      }}
+                    >
+                      {showPass ? "🙈" : "👁"}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogin}
+                  disabled={loading}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 6,
+                    width: "100%",
+                    padding: "14px 0",
+                    background: loading
+                      ? "#fdba74"
+                      : "linear-gradient(135deg, #F97316, #fb923c)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    fontSize: 15,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
                   }}
                 >
-                  <label style={{ ...label, margin: 0 }}>
-                    Password <span style={{ color: "#ef4444" }}>*</span>{" "}
-                    <span style={{ color: "#9ca3af", fontWeight: 400 }}>
-                      (min 6 chars)
-                    </span>
-                  </label>
+                  {loading ? t("login_signing") : t("login_btn")}
+                </button>
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: 13,
+                    color: "#6b7280",
+                    margin: 0,
+                  }}
+                >
+                  {t("login_new")}{" "}
                   <span
+                    onClick={() => {
+                      setIsSignup(true);
+                      setStep(1);
+                      setErr("");
+                      setSuccessMsg("");
+                    }}
                     style={{
-                      fontSize: 12,
                       color: "#F97316",
                       cursor: "pointer",
                       fontWeight: 600,
                     }}
                   >
-                    Forgot password?
+                    {t("login_register_link")}
                   </span>
-                </div>
-                <div style={{ position: "relative" }}>
-                  <input
-                    style={inp}
-                    type={showPass ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                    onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                    onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                  />
-                  <span
-                    onClick={() => setShowPass(!showPass)}
-                    style={{
-                      position: "absolute",
-                      right: 14,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      cursor: "pointer",
-                      color: "#9ca3af",
-                      fontSize: 18,
-                    }}
-                  >
-                    {showPass ? "🙈" : "👁"}
-                  </span>
-                </div>
+                </p>
               </div>
+            )}
 
-              <button
-                onClick={handleLogin}
-                disabled={loading}
-                style={{
-                  width: "100%",
-                  padding: "14px 0",
-                  background: loading
-                    ? "#fdba74"
-                    : "linear-gradient(135deg, #F97316, #fb923c)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
-                }}
-              >
-                {loading ? "Signing in..." : "→ Sign in"}
-              </button>
-
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: 13,
-                  color: "#6b7280",
-                  margin: 0,
-                }}
-              >
-                New here?{" "}
-                <span
-                  onClick={() => {
-                    setIsSignup(true);
-                    setStep(1);
-                    setErr("");
-                    setSuccessMsg("");
-                  }}
-                  style={{
-                    color: "#F97316",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
-                >
-                  Register for free →
-                </span>
-              </p>
-            </div>
-          )}
-
-          {/* ── SIGNUP STEP 1 — Email + Password ── */}
-          {isSignup && step === 1 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <label style={label}>
-                  Email Address <span style={{ color: "#ef4444" }}>*</span>
-                </label>
-                <input
-                  style={inp}
-                  type="email"
-                  inputMode="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-              <div>
-                <label style={label}>
-                  Password <span style={{ color: "#ef4444" }}>*</span>{" "}
-                  <span style={{ color: "#9ca3af", fontWeight: 400 }}>
-                    (min 6 chars)
-                  </span>
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    style={inp}
-                    type={showPass ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                    onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                  />
-                  <span
-                    onClick={() => setShowPass(!showPass)}
-                    style={{
-                      position: "absolute",
-                      right: 14,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      cursor: "pointer",
-                      color: "#9ca3af",
-                      fontSize: 18,
-                    }}
-                  >
-                    {showPass ? "🙈" : "👁"}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleStep1Next}
-                style={{
-                  width: "100%",
-                  padding: "14px 0",
-                  background: "linear-gradient(135deg, #F97316, #fb923c)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
-                }}
-              >
-                Next →
-              </button>
-
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: 13,
-                  color: "#6b7280",
-                  margin: 0,
-                }}
-              >
-                Already have an account?{" "}
-                <span
-                  onClick={() => {
-                    setIsSignup(false);
-                    setErr("");
-                  }}
-                  style={{
-                    color: "#F97316",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
-                >
-                  Sign In →
-                </span>
-              </p>
-            </div>
-          )}
-
-          {/* ── SIGNUP STEP 2 — Basic Details ── */}
-          {isSignup && step === 2 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {/* Name Row */}
+            {/* ── SIGNUP STEP 1 ── */}
+            {isSignup && step === 1 && (
               <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 1fr",
-                  gap: 8,
-                }}
+                style={{ display: "flex", flexDirection: "column", gap: 14 }}
               >
                 <div>
-                  <label style={label}>
-                    First Name <span style={{ color: "#ef4444" }}>*</span>
+                  <label style={labelStyle}>
+                    {t("login_email")}{" "}
+                    <span style={{ color: "#ef4444" }}>*</span>
                   </label>
                   <input
-                    style={{ ...inp, padding: "11px 10px", fontSize: 13 }}
-                    placeholder="Rajesh"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                    onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                    style={inp}
+                    type="email"
+                    placeholder={t("login_email_ph")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={focusStyle}
+                    onBlur={blurStyle}
                   />
                 </div>
                 <div>
-                  <label style={label}>Middle Name</label>
-                  <input
-                    style={{ ...inp, padding: "11px 10px", fontSize: 13 }}
-                    placeholder="Suresh"
-                    value={middleName}
-                    onChange={(e) => setMiddleName(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                    onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                  />
-                </div>
-                <div>
-                  <label style={label}>
-                    Surname <span style={{ color: "#ef4444" }}>*</span>
+                  <label style={labelStyle}>
+                    {t("login_password")}{" "}
+                    <span style={{ color: "#ef4444" }}>*</span>{" "}
+                    <span style={{ color: "#9ca3af", fontWeight: 400 }}>
+                      {t("login_password_hint")}
+                    </span>
                   </label>
-                  <input
-                    style={{ ...inp, padding: "11px 10px", fontSize: 13 }}
-                    placeholder="Patil"
-                    value={surname}
-                    onChange={(e) => setSurname(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                    onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                  />
+                  <div style={{ position: "relative" }}>
+                    <input
+                      style={inp}
+                      type={showPass ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={focusStyle}
+                      onBlur={blurStyle}
+                    />
+                    <span
+                      onClick={() => setShowPass(!showPass)}
+                      style={{
+                        position: "absolute",
+                        right: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        color: "#9ca3af",
+                        fontSize: 18,
+                      }}
+                    >
+                      {showPass ? "🙈" : "👁"}
+                    </span>
+                  </div>
                 </div>
-              </div>
-
-              {/* Mobile */}
-              <div>
-                <label style={label}>Mobile Number</label>
-                <div style={{ position: "relative" }}>
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 14,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      color: "#9ca3af",
-                      fontSize: 14,
-                    }}
-                  >
-                    📱
-                  </span>
-                  <input
-                    style={{ ...inp, paddingLeft: 38 }}
-                    placeholder="9XXXXXXXXX"
-                    value={mobile}
-                    maxLength={10}
-                    inputMode="numeric"
-                    onChange={(e) =>
-                      setMobile(e.target.value.replace(/\D/g, ""))
-                    }
-                    onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-                    onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                  />
-                </div>
-              </div>
-
-              {/* Email (readonly) */}
-              <div>
-                <label style={label}>
-                  Email Address <span style={{ color: "#ef4444" }}>*</span>
-                </label>
-                <input
-                  style={{ ...inp, background: "#f9fafb", color: "#6b7280" }}
-                  value={email}
-                  readOnly
-                />
-              </div>
-
-              {/* Password (readonly) */}
-              <div>
-                <label style={label}>
-                  Password <span style={{ color: "#ef4444" }}>*</span>
-                </label>
-                <input
-                  style={{ ...inp, background: "#f9fafb", color: "#6b7280" }}
-                  type="password"
-                  value={password}
-                  readOnly
-                />
-              </div>
-
-              <button
-                onClick={handleRegister}
-                disabled={loading}
-                style={{
-                  width: "100%",
-                  padding: "14px 0",
-                  background: loading
-                    ? "#fdba74"
-                    : "linear-gradient(135deg, #F97316, #fb923c)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
-                }}
-              >
-                {loading ? "Registering..." : "✨ Register for Free"}
-              </button>
-
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: 13,
-                  color: "#6b7280",
-                  margin: 0,
-                }}
-              >
-                Already have an account?{" "}
-                <span
-                  onClick={() => {
-                    setIsSignup(false);
-                    setStep(1);
-                    setErr("");
-                  }}
+                <button
+                  onClick={handleStep1Next}
                   style={{
-                    color: "#F97316",
+                    width: "100%",
+                    padding: "14px 0",
+                    background: "linear-gradient(135deg, #F97316, #fb923c)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    fontSize: 15,
                     cursor: "pointer",
-                    fontWeight: 600,
+                    boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
                   }}
                 >
-                  Sign In →
-                </span>
-              </p>
-            </div>
-          )}
+                  {t("login_next")}
+                </button>
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: 13,
+                    color: "#6b7280",
+                    margin: 0,
+                  }}
+                >
+                  {t("login_have_account")}{" "}
+                  <span
+                    onClick={() => {
+                      setIsSignup(false);
+                      setErr("");
+                    }}
+                    style={{
+                      color: "#F97316",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {t("login_signin_link")}
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {/* ── SIGNUP STEP 2 ── */}
+            {isSignup && step === 2 && (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 14 }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr",
+                    gap: 8,
+                  }}
+                >
+                  {[
+                    {
+                      label: t("login_firstname"),
+                      val: firstName,
+                      set: setFirstName,
+                      req: true,
+                      ph: "Rajesh",
+                    },
+                    {
+                      label: t("login_middlename"),
+                      val: middleName,
+                      set: setMiddleName,
+                      req: false,
+                      ph: "Suresh",
+                    },
+                    {
+                      label: t("login_surname"),
+                      val: surname,
+                      set: setSurname,
+                      req: true,
+                      ph: "Patil",
+                    },
+                  ].map(({ label: lbl, val, set, req, ph }) => (
+                    <div key={lbl}>
+                      <label style={labelStyle}>
+                        {lbl}{" "}
+                        {req && <span style={{ color: "#ef4444" }}>*</span>}
+                      </label>
+                      <input
+                        style={{ ...inp, padding: "11px 10px", fontSize: 13 }}
+                        placeholder={ph}
+                        value={val}
+                        onChange={(e) => set(e.target.value)}
+                        onFocus={focusStyle}
+                        onBlur={blurStyle}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <label style={labelStyle}>{t("login_mobile")}</label>
+                  <div style={{ position: "relative" }}>
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#9ca3af",
+                        fontSize: 14,
+                      }}
+                    >
+                      📱
+                    </span>
+                    <input
+                      style={{ ...inp, paddingLeft: 38 }}
+                      placeholder={t("login_mobile_ph")}
+                      value={mobile}
+                      maxLength={10}
+                      inputMode="numeric"
+                      onChange={(e) =>
+                        setMobile(e.target.value.replace(/\D/g, ""))
+                      }
+                      onFocus={focusStyle}
+                      onBlur={blurStyle}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>
+                    {t("login_email_readonly")}{" "}
+                    <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <input
+                    style={{ ...inp, background: "#f9fafb", color: "#6b7280" }}
+                    value={email}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>
+                    {t("login_pass_readonly")}{" "}
+                    <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <input
+                    style={{ ...inp, background: "#f9fafb", color: "#6b7280" }}
+                    type="password"
+                    value={password}
+                    readOnly
+                  />
+                </div>
+                <button
+                  onClick={handleRegister}
+                  disabled={loading}
+                  style={{
+                    width: "100%",
+                    padding: "14px 0",
+                    background: loading
+                      ? "#fdba74"
+                      : "linear-gradient(135deg, #F97316, #fb923c)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 10,
+                    fontWeight: 700,
+                    fontSize: 15,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                  }}
+                >
+                  {loading ? t("login_registering") : t("login_register_btn")}
+                </button>
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: 13,
+                    color: "#6b7280",
+                    margin: 0,
+                  }}
+                >
+                  {t("login_have_account")}{" "}
+                  <span
+                    onClick={() => {
+                      setIsSignup(false);
+                      setStep(1);
+                      setErr("");
+                    }}
+                    style={{
+                      color: "#F97316",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {t("login_signin_link")}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
