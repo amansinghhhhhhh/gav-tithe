@@ -13,10 +13,8 @@ const translations = {
         step2: "व्यवसाय",
         step3: "आर्थिक",
         step4: "KYC",
-        // ── mr (Marathi) ──
 
-
-        // ✅ Form Banner (StepIndicator top)
+        // Form Banner
         form_title: "गाव तिथे उद्योजक: ऑनबोर्डिंग फॉर्म",
         form_welcome: "नमस्कार! गाव तिथे उद्योजक अभियान अंतर्गत तुमच्या उद्योजकतेच्या प्रवासात उद्योग विचार मंचाकडून तुमचे स्वागत आहे.",
         form_subtitle: "हा फॉर्म अतिशय सोप्या टप्प्यांत विभागला आहे, जेणेकरून तुम्हाला माहिती भरणे अगदी सोपे आणि सुटसुटीत जाईल.",
@@ -30,7 +28,7 @@ const translations = {
         // Success
         success_msg: "तुमचा फॉर्म सबमिट झाला आहे. आम्ही लवकरच तुमच्याशी संपर्क करू.",
 
-        // ── Section 1 ──────────────────────────────────────────────
+        // Section 1
         s1_title: "विभाग १: तुमची ओळख (वैयक्तिक माहिती)",
         s1_badge: "उद्योजकाची प्राथमिक ओळख पटवण्यासाठी ही माहिती आवश्यक आहे.",
         s1_fullname: "संपूर्ण नाव (आधार कार्डनुसार) *",
@@ -58,7 +56,7 @@ const translations = {
         s1_address: "संपूर्ण पत्ता (जिल्हा, तालुका, गाव आणि पिन कोड) *",
         s1_address_ph: "तुमचा सविस्तर पत्ता लिहा...",
 
-        // ── Section 2 ──────────────────────────────────────────────
+        // Section 2
         s2_title: "विभाग २: तुमच्या व्यवसायाची कल्पना (Business Concept)",
         s2_badge: "तुमची उद्योजकीय मानसिकता आणि व्यवसायाचे ध्येय समजून घेण्यासाठी.",
         s2_biz_name: "व्यवसायाचे नाव (प्रस्तावित किंवा सध्या चालू असलेले)",
@@ -92,7 +90,7 @@ const translations = {
         s2_invest_sub: "तुम्ही स्वतः किती प्राथमिक गुंतवणूक करू शकता?",
         s2_invest_ph: "रक्कम लिहा",
 
-        // ── Section 3 ──────────────────────────────────────────────
+        // Section 3
         s3_title: "विभाग ३: आर्थिक सद्यस्थिती आणि बँक कर्ज इतिहास",
         s3_info: "बँकेत आपला प्रस्ताव (Proposal) गेल्यावर अगदी शेवटच्या क्षणी कर्ज नामंजूर होऊ नये आणि तुमचा वेळ वाया जाऊ नये, यासाठी आपण आधीच काळजी घेत आहोत. म्हणून ही माहिती न घाबरता अचूक भरणे महत्त्वाचे आहे.",
         s3_had_loan: "यापूर्वी तुम्ही कोणतेही कर्ज घेतले आहे का? *",
@@ -118,7 +116,7 @@ const translations = {
         s3_diff_sub: "(असल्यास थोडक्यात सांगा, उदा. सेटलमेंट झाली आहे, हप्ते बाऊन्स झाले होते इ.)",
         s3_diff_ph: "तुमचा अनुभव इथे लिहा...",
 
-        // ── Section 4 ──────────────────────────────────────────────
+        // Section 4
         s4_title: "विभाग ४: कागदपत्रे आणि पडताळणी (KYC Details)",
         s4_subtitle: "सुरक्षा आणि अधिकृततेसाठी ही माहिती अनिवार्य आहे. तुमचा डेटा आमच्याकडे 100% सुरक्षित राहील.",
         s4_aadhaar: "आधार कार्ड नंबर *",
@@ -150,14 +148,26 @@ const translations = {
         f_phone: "022-22855859 / 5860 | Mob: +91 87797 58864",
         f_copy: "© 2026 गाव तिथे उद्योजक अभियान. MACCIA — महाराष्ट्र चेंबर ऑफ कॉमर्स, इंडस्ट्री अँड अॅग्रीकल्चर. सर्व हक्क राखीव.",
 
-        banner_greeting: "नमस्कार",
+        // Banner
+        banner_greeting_prefix: "नमस्कार,",
         banner_subtitle: "प्रगतीसाठी सध्याच्या टप्प्यातील कार्ये पूर्ण करा.",
         banner_next_title: "पुढील कृती",
         banner_next_desc: "टप्पा 1 मध्ये कागदपत्रे अपलोड करा आणि मंजूर करा",
         banner_cta: "टप्पा",
 
-        // loginpage
-        // / ── mr(Marathi) object mein add karo ────────────────────────────────────────
+        // Validation errors
+        err_required: "हे फील्ड आवश्यक आहे",
+        err_min3: "किमान 3 अक्षरे आवश्यक आहेत",
+        err_min10: "कृपया सविस्तर पत्ता लिहा",
+        err_mobile: "कृपया वैध 10-अंकी मोबाईल नंबर टाका",
+        err_otp: "पुढे जाण्यासाठी OTP सत्यापित करणे आवश्यक आहे",
+        err_number: "कृपया वैध संख्या टाका",
+        err_cibil: "CIBIL स्कोर 300 ते 900 च्या दरम्यान असावा",
+        err_aadhaar: "आधार नंबर 12 अंकी असावा",
+        err_pan: "वैध PAN नंबर टाका (उदा. ABCDE1234F)",
+        err_doc_required: "हा दस्तऐवज अपलोड करणे आवश्यक आहे",
+
+        // Login Page
         login_title: "उद्योजक नोंदणी",
         login_subtitle: "तुमचा व्यवसायाचा प्रवास सुरू करा",
         login_authority_head: "अधिकार आणि जबाबदाऱ्या",
@@ -181,13 +191,40 @@ const translations = {
         login_registering: "नोंदणी होत आहे...",
         login_step_label: "मूलभूत माहिती",
         login_firstname: "पहिले नाव",
+        login_firstname_ph: "राजेश",
         login_middlename: "मधले नाव",
+        login_middlename_ph: "सुरेश",
         login_surname: "आडनाव",
+        login_surname_ph: "पाटील",
         login_mobile: "मोबाईल नंबर",
         login_mobile_ph: "9XXXXXXXXX",
         login_email_readonly: "ई-मेल पत्ता",
         login_pass_readonly: "पासवर्ड",
+        login_error: "तुमचा ईमेल आणि पासवर्ड टाका.",
+        login_error1: "ईमेल किंवा पासवर्ड चुकीचा आहे.",
+        login_error2: "हा ईमेल आधीच नोंदणीकृत आहे. कृपया लॉगिन करा.",
+        login_error_firstname: "पहिले नाव आवश्यक आहे",
+        login_error_surname: "आडनाव आवश्यक आहे",
+        login_error_mobile: "वैध 10-अंकी मोबाईल नंबर टाका.",
+        login_error_email: "ईमेल टाका",
+        login_error_pass: "पासवर्ड किमान 6 अक्षरांचा असावा",
+        login_not_verified: "तुमचा ईमेल verify झालेला नाही. कृपया inbox तपासा आणि verification link वर click करा.",
+        login_resend: "→ Verification Email पुन्हा पाठवा",
+        login_resend_success: "Verification email पुन्हा पाठवला! Inbox तपासा.",
+        login_failed: "लॉगिन अयशस्वी: {{msg}}",
+        registration_success: "✅ नोंदणी यशस्वी! \"{{email}}\" वर verification link पाठवली आहे. कृपया email verify करा आणि मग login करा.",
 
+        // Verify Email Page
+        verify_verifying: "सत्यापित होत आहे...",
+        verify_wait: "थोडे थांबा",
+        verify_success_title: "ईमेल सत्यापित झाला! 🎉",
+        verify_success_msg: "ईमेल सत्यापित झाला. कृपया लॉगिन करा!",
+        verify_redirect: "3 सेकंद थांबा, आपोआप redirect होईल...",
+        verify_login_btn: "→ लॉगिन",
+        verify_error_title: "सत्यापन अयशस्वी",
+        verify_invalid_link: "अवैध verification link",
+        verify_expired: "Link कालबाह्य झाली आहे",
+        verify_go_login: "← Login पेजवर जा",
     },
 
     en: {
@@ -205,7 +242,7 @@ const translations = {
         step3: "Financial",
         step4: "KYC",
 
-        // ✅ Form Banner (StepIndicator top)
+        // Form Banner
         form_title: "Gav Tithe Udyojak: Onboarding Form",
         form_welcome: "We welcome you on behalf of Udyog Vichar Manch in your entrepreneurial journey under the Gav Tithe Udyojak campaign.",
         form_subtitle: "This form is divided into very simple steps, so that filling in the information will be easy and convenient for you.",
@@ -219,7 +256,7 @@ const translations = {
         // Success
         success_msg: "Your form has been submitted. We will contact you soon.",
 
-        // ── Section 1 ──────────────────────────────────────────────
+        // Section 1
         s1_title: "Section 1: Your Identity (Personal Information)",
         s1_badge: "This information is required to verify the entrepreneur's primary identity.",
         s1_fullname: "Full Name (as per Aadhaar Card) *",
@@ -247,7 +284,7 @@ const translations = {
         s1_address: "Full Address (District, Taluka, Village and PIN Code) *",
         s1_address_ph: "Write your complete address...",
 
-        // ── Section 2 ──────────────────────────────────────────────
+        // Section 2
         s2_title: "Section 2: Your Business Idea (Business Concept)",
         s2_badge: "To understand your entrepreneurial mindset and business goals.",
         s2_biz_name: "Business Name (Proposed or Currently Running)",
@@ -281,7 +318,7 @@ const translations = {
         s2_invest_sub: "How much initial investment can you make yourself?",
         s2_invest_ph: "Enter amount",
 
-        // ── Section 3 ──────────────────────────────────────────────
+        // Section 3
         s3_title: "Section 3: Financial Status & Bank Loan History",
         s3_info: "To ensure your bank proposal is not rejected at the last moment and your time is not wasted, we are taking care in advance. Hence it is important to fill this information accurately without hesitation.",
         s3_had_loan: "Have you taken any loan previously? *",
@@ -307,7 +344,7 @@ const translations = {
         s3_diff_sub: "(If yes, briefly mention e.g. settlement done, EMIs bounced etc.)",
         s3_diff_ph: "Write your experience here...",
 
-        // ── Section 4 ──────────────────────────────────────────────
+        // Section 4
         s4_title: "Section 4: Documents & Verification (KYC Details)",
         s4_subtitle: "This information is mandatory for security and authentication. Your data will be 100% safe with us.",
         s4_aadhaar: "Aadhaar Card Number *",
@@ -339,24 +376,14 @@ const translations = {
         f_phone: "022-22855859 / 5860 | Mob: +91 87797 58864",
         f_copy: "© 2026 Gav Tithe Udyojak Abhiyan. MACCIA — Maharashtra Chamber of Commerce, Industry & Agriculture. All rights reserved.",
 
+        // Banner
+        banner_greeting_prefix: "Hello,",
+        banner_subtitle: "Complete the current step tasks to make progress.",
+        banner_next_title: "Next Action",
+        banner_next_desc: "Upload and get documents approved in Step 1",
+        banner_cta: "Step",
 
-
-
-        // translations.js ke mr aur en dono objects mein add karo:
-
-        // ── mr (Marathi) ──
-        err_required: "हे फील्ड आवश्यक आहे",
-        err_min3: "किमान 3 अक्षरे आवश्यक आहेत",
-        err_min10: "कृपया सविस्तर पत्ता लिहा",
-        err_mobile: "कृपया वैध 10-अंकी मोबाईल नंबर टाका",
-        err_otp: "पुढे जाण्यासाठी OTP सत्यापित करणे आवश्यक आहे",
-        err_number: "कृपया वैध संख्या टाका",
-        err_cibil: "CIBIL स्कोर 300 ते 900 च्या दरम्यान असावा",
-        err_aadhaar: "आधार नंबर 12 अंकी असावा",
-        err_pan: "वैध PAN नंबर टाका (उदा. ABCDE1234F)",
-        err_doc_required: "हा दस्तऐवज अपलोड करणे आवश्यक आहे",
-
-        // ── en (English) ──
+        // Validation errors
         err_required: "This field is required",
         err_min3: "Minimum 3 characters required",
         err_min10: "Please write a detailed address",
@@ -368,18 +395,7 @@ const translations = {
         err_pan: "Enter valid PAN number (e.g. ABCDE1234F)",
         err_doc_required: "This document upload is required",
 
-
-
-        // Banner
-        banner_greeting: "Hello",
-        banner_subtitle: "Complete the current step tasks to make progress.",
-        banner_next_title: "Next Action",
-        banner_next_desc: "Upload and get documents approved in Step 1",
-        banner_cta: "Step",
-
-        // translate
-
-        // / ── en(English) object mein add karo ────────────────────────────────────────
+        // Login Page
         login_title: "Entrepreneur Registration",
         login_subtitle: "Start Your Business Journey",
         login_authority_head: "Authority & Responsibilities",
@@ -403,17 +419,41 @@ const translations = {
         login_registering: "Registering...",
         login_step_label: "Basic Details",
         login_firstname: "First Name",
+        login_firstname_ph: "Rajesh",
         login_middlename: "Middle Name",
+        login_middlename_ph: "Suresh",
         login_surname: "Surname",
+        login_surname_ph: "Patil",
         login_mobile: "Mobile Number",
         login_mobile_ph: "9XXXXXXXXX",
         login_email_readonly: "Email Address",
         login_pass_readonly: "Password",
+        login_error: "Enter your email and password.",
+        login_error1: "Incorrect email or password.",
+        login_error2: "This email is already registered. Please Login.",
+        login_error_firstname: "First Name is required",
+        login_error_surname: "Surname is required",
+        login_error_mobile: "Enter a valid 10-digit mobile number.",
+        login_error_email: "Enter Email",
+        login_error_pass: "Password must be at least 6 characters",
+        login_not_verified: "Your email is not verified. Please check your inbox and click the verification link.",
+        login_resend: "→ Resend Verification Email",
+        login_resend_success: "Verification email sent again! Check your inbox.",
+        login_failed: "Login failed: {{msg}}",
+        registration_success: "✅ Registration successful! A verification link has been sent to \"{{email}}\". Please verify your email and then log in.",
 
-
+        // Verify Email Page
+        verify_verifying: "Verifying...",
+        verify_wait: "Please wait",
+        verify_success_title: "Email Verified! 🎉",
+        verify_success_msg: "Email Verified. Please Login!",
+        verify_redirect: "Please wait 3 seconds. Redirecting automatically...",
+        verify_login_btn: "→ Login",
+        verify_error_title: "Verification Failed",
+        verify_invalid_link: "Invalid verification link",
+        verify_expired: "Link has expired",
+        verify_go_login: "← Go to Login Page",
     },
-
-
 };
 
 export default translations;

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { loginEmail, registerEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
-import C from "../constants/colors";
 import {
   getAuth,
   sendEmailVerification,
@@ -242,11 +241,14 @@ export default function LoginPage() {
   const [err, setErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
+  const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
+
   // ── LOGIN ──────────────────────────────────────────────────────────────────
   const handleLogin = async () => {
     setErr("");
     if (!email || !password) {
-      setErr("Email aur password daalo");
+      setErr(t("login_error"));
       return;
     }
     setLoading(true);
@@ -258,16 +260,14 @@ export default function LoginPage() {
         setErr(
           firebaseErr.code === "auth/invalid-credential" ||
             firebaseErr.code === "auth/user-not-found"
-            ? "Email ya password galat hai"
+            ? t("login_error1")
             : firebaseErr.message,
         );
         setLoading(false);
         return;
       }
       if (!fbCred.user.emailVerified) {
-        setErr(
-          "Your email is not verified. Please check your inbox and click the verification link.",
-        );
+        setErr(t("login_not_verified"));
         setLoading(false);
         return;
       }
@@ -275,9 +275,9 @@ export default function LoginPage() {
       if (data?.success) {
         login(data.user);
         navigate("/dashboard");
-      } else setErr(data?.message || "Login failed");
+      } else setErr(data?.message || t("login_error1"));
     } catch (e) {
-      setErr("Login failed: " + e.message);
+      setErr(t("login_failed", { msg: e.message }));
     } finally {
       setLoading(false);
     }
@@ -287,11 +287,11 @@ export default function LoginPage() {
   const handleStep1Next = () => {
     setErr("");
     if (!email) {
-      setErr("Enter Email");
+      setErr(t("login_error_email"));
       return;
     }
     if (password.length < 6) {
-      setErr("Password must be at least 6 characters");
+      setErr(t("login_error_pass"));
       return;
     }
     setStep(2);
@@ -301,15 +301,15 @@ export default function LoginPage() {
   const handleRegister = async () => {
     setErr("");
     if (!firstName.trim()) {
-      setErr("First Name required");
+      setErr(t("login_error_firstname"));
       return;
     }
     if (!surname.trim()) {
-      setErr("Surname required");
+      setErr(t("login_error_surname"));
       return;
     }
     if (mobile && mobile.length !== 10) {
-      setErr("Enter a valid 10-digit mobile number.");
+      setErr(t("login_error_mobile"));
       return;
     }
     setLoading(true);
@@ -325,21 +325,17 @@ export default function LoginPage() {
         .join(" ");
       const data = await registerEmail(email, password, mobile, fullName);
       if (data?.success || data?.token) {
-        setSuccessMsg(
-          `✅ Registration successful! A verification link has been sent to "${email}". Please verify your email and then log in`,
-        );
+        setSuccessMsg(t("registration_success", { email }));
         setIsSignup(false);
         setStep(1);
         setEmail("");
         setPassword("");
       } else {
-        setErr(data?.message || "Registration failed");
+        setErr(data?.message || t("login_error"));
       }
     } catch (e) {
       setErr(
-        e.code === "auth/email-already-in-use"
-          ? "This email is already registered. Please Login"
-          : e.message,
+        e.code === "auth/email-already-in-use" ? t("login_error2") : e.message,
       );
     } finally {
       setLoading(false);
@@ -351,14 +347,11 @@ export default function LoginPage() {
     try {
       const fbCred = await signInWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(fbCred.user);
-      setSuccessMsg("Verification email dobara bheja gaya! Inbox check karo.");
+      setSuccessMsg(t("login_resend_success"));
     } catch {
-      setErr("Pehle login karo.");
+      setErr(t("login_error1"));
     }
   };
-
-  const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
-  const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
   return (
     <>
@@ -385,7 +378,6 @@ export default function LoginPage() {
           }}
         >
           <HeroCard />
-
           <div style={{ padding: "24px 24px 28px" }}>
             <AuthorityBox />
             {isSignup && <StepDots step={step} />}
@@ -422,7 +414,7 @@ export default function LoginPage() {
                 }}
               >
                 ⚠ {err}
-                {err.includes("verify") && (
+                {err === t("login_not_verified") && (
                   <span
                     onClick={handleResendVerification}
                     style={{
@@ -434,7 +426,7 @@ export default function LoginPage() {
                       fontSize: 12,
                     }}
                   >
-                    → Resend Verification Email
+                    {t("login_resend")}
                   </span>
                 )}
               </div>
@@ -677,21 +669,21 @@ export default function LoginPage() {
                       val: firstName,
                       set: setFirstName,
                       req: true,
-                      ph: "Rajesh",
+                      ph: t("login_firstname_ph"),
                     },
                     {
                       label: t("login_middlename"),
                       val: middleName,
                       set: setMiddleName,
                       req: false,
-                      ph: "Suresh",
+                      ph: t("login_middlename_ph"),
                     },
                     {
                       label: t("login_surname"),
                       val: surname,
                       set: setSurname,
                       req: true,
-                      ph: "Patil",
+                      ph: t("login_surname_ph"),
                     },
                   ].map(({ label: lbl, val, set, req, ph }) => (
                     <div key={lbl}>

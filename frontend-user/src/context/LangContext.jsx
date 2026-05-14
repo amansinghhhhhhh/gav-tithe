@@ -1,12 +1,23 @@
 import { createContext, useContext, useState } from "react";
 import translations from "../constants/translations";
 
-const LangContext = createContext();
+const LangContext = createContext({
+  lang: "mr",
+  setLang: () => {},
+  t: (key) => key,
+});
 
 export function LangProvider({ children }) {
-  const [lang, setLang] = useState("mr"); // default Marathi
+  const [lang, setLang] = useState("mr");
 
-  const t = (key) => translations[lang]?.[key] || key;
+  // ✅ Dynamic variables support: t("key", { email: "abc@xyz.com" })
+  const t = (key, vars = {}) => {
+    let str = translations[lang]?.[key] || key;
+    Object.keys(vars).forEach((k) => {
+      str = str.replace(new RegExp(`{{${k}}}`, "g"), vars[k]);
+    });
+    return str;
+  };
 
   return (
     <LangContext.Provider value={{ lang, setLang, t }}>
@@ -15,7 +26,8 @@ export function LangProvider({ children }) {
   );
 }
 
-// Custom hook — kisi bhi component mein use karo
 export function useLang() {
-  return useContext(LangContext);
+  const context = useContext(LangContext);
+  if (!context) throw new Error("useLang must be used inside <LangProvider>");
+  return context;
 }

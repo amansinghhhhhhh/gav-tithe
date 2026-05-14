@@ -3,14 +3,16 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { applyActionCode, getAuth } from "firebase/auth";
 import { app } from "../config/firebase";
 import { markEmailVerified } from "../services/api";
+import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const auth = getAuth(app);
+  const { t } = useLang();
 
-  const [status, setStatus] = useState("verifying"); // verifying | success | error
+  const [status, setStatus] = useState("verifying");
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
@@ -19,31 +21,23 @@ export default function VerifyEmailPage() {
 
     if (mode !== "verifyEmail" || !oobCode) {
       setStatus("error");
-      setMsg("Invalid verification link");
+      setMsg(t("verify_invalid_link"));
       return;
     }
 
     const verify = async () => {
       try {
-        // Step 1 — Firebase verify karo
         await applyActionCode(auth, oobCode);
-
-        // Step 2 — Backend mein isVerified: true karo
         await markEmailVerified();
-
         setStatus("success");
-
-        // Step 3 — 3 seconds baad login page pe redirect
-        setTimeout(() => {
-          navigate("/login");
-        }, 3000);
+        setTimeout(() => navigate("/login"), 3000);
       } catch (e) {
         console.error(e);
-        if (e.code === "auth/invalid-action-code") {
-          setMsg("Link is Expired");
-        } else {
-          setMsg(e.message);
-        }
+        setMsg(
+          e.code === "auth/invalid-action-code"
+            ? t("verify_expired")
+            : e.message,
+        );
         setStatus("error");
       }
     };
@@ -79,9 +73,9 @@ export default function VerifyEmailPage() {
           <>
             <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
             <h2 style={{ color: C.navy, fontWeight: 800, margin: "0 0 8px" }}>
-              Verifying...
+              {t("verify_verifying")}
             </h2>
-            <p style={{ color: "#6b7280", fontSize: 14 }}>Thoda wait karo</p>
+            <p style={{ color: "#6b7280", fontSize: 14 }}>{t("verify_wait")}</p>
           </>
         )}
 
@@ -106,10 +100,10 @@ export default function VerifyEmailPage() {
             <h2
               style={{ color: "#166534", fontWeight: 800, margin: "0 0 8px" }}
             >
-              Email Verified! 🎉
+              {t("verify_success_title")}
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 20px" }}>
-              Email Verified.. Please Login!!
+              {t("verify_success_msg")}
             </p>
             <div
               style={{
@@ -122,7 +116,7 @@ export default function VerifyEmailPage() {
                 marginBottom: 20,
               }}
             >
-              Please Wait for 3 Sec. Automatically Redirect..
+              {t("verify_redirect")}
             </div>
             <button
               onClick={() => navigate("/login")}
@@ -138,7 +132,7 @@ export default function VerifyEmailPage() {
                 cursor: "pointer",
               }}
             >
-              → Login
+              {t("verify_login_btn")}
             </button>
           </>
         )}
@@ -150,7 +144,7 @@ export default function VerifyEmailPage() {
             <h2
               style={{ color: "#dc2626", fontWeight: 800, margin: "0 0 8px" }}
             >
-              Verification Failed
+              {t("verify_error_title")}
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 20px" }}>
               {msg}
@@ -169,7 +163,7 @@ export default function VerifyEmailPage() {
                 cursor: "pointer",
               }}
             >
-              ← Go to login Page
+              {t("verify_go_login")}
             </button>
           </>
         )}
