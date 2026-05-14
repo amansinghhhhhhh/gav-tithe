@@ -477,6 +477,17 @@ const translations = {
         verify_invalid_link: "Invalid verification link",
         verify_expired: "Link has expired",
         verify_go_login: "← Go to Login Page",
+
+        // Reset Password Page
+        reset_title: "Set New Password",
+        reset_new_pass: "New Password",
+        reset_confirm_pass: "Confirm Password",
+        reset_btn: "Change Password",
+        reset_saving: "Saving...",
+        reset_pass_min: "Password must be at least 6 characters",
+        reset_pass_mismatch: "Passwords do not match",
+        reset_success_title: "Password Changed! 🎉",
+        reset_success_msg: "Your password has been successfully changed.",
     },
 };
 

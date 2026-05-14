@@ -1,30 +1,22 @@
 import { useState, useReducer, useRef, useEffect } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { LangProvider } from "./context/LangContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import reducer, { initialState } from "./store/reducer";
 import Sidebar from "./components/Sidebar";
 import { StepIndicator } from "./components/StepIndicator";
-import useLang from "./hooks/useLang";
 import { FooterBar } from "./components/FooterBar";
-// import { Header } from "./components/Header";
-// import { Footer } from "./components/Footer";
 import Section1 from "./components/sections/Section1";
 import Section2 from "./components/sections/Section2";
 import Section3 from "./components/sections/Section3";
 import Section4 from "./components/sections/Section4";
 import C from "./constants/colors";
-import { SuccessPage } from "./SuccessPage";
+import SuccessPage from "./components/SuccessPage";
 import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -50,23 +42,18 @@ function Dashboard() {
   const [activeNav, setActiveNav] = useState("my_journey");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
-  const [loadingForm, setLoadingForm] = useState(true); // ✅ yahan define hai
+  const [loadingForm, setLoadingForm] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const { currentStep, submitted } = state;
   const validateAndGoNext = useRef(null);
 
-  // ── Load saved draft from MongoDB on mount ────────────────────────────────
   useEffect(() => {
     const loadDraft = async () => {
-      console.log("🔄 Loading draft...");
-      console.log("🔑 Token:", localStorage.getItem("gtu_token"));
       try {
         const res = await getMyForm();
-        console.log("📋 Form response:", res);
         if (res.success && res.form) {
           const { section1, section2, section3, section4, status } = res.form;
-
           if (section1)
             dispatch({ type: "UPDATE_SECTION1", payload: section1 });
           if (section2)
@@ -75,24 +62,18 @@ function Dashboard() {
             dispatch({ type: "UPDATE_SECTION3", payload: section3 });
           if (section4)
             dispatch({ type: "UPDATE_SECTION4", payload: section4 });
-
-          // Restore step
-          if (status === "submitted") {
-            dispatch({ type: "SUBMIT" });
-          } else if (section4?.aadhaar) {
+          if (status === "submitted") dispatch({ type: "SUBMIT" });
+          else if (section4?.aadhaar) dispatch({ type: "SET_STEP", step: 4 });
+          else if (section3?.cibilScore)
             dispatch({ type: "SET_STEP", step: 4 });
-          } else if (section3?.cibilScore) {
-            dispatch({ type: "SET_STEP", step: 4 });
-          } else if (section2?.businessType) {
+          else if (section2?.businessType)
             dispatch({ type: "SET_STEP", step: 3 });
-          } else if (section1?.fullName) {
-            dispatch({ type: "SET_STEP", step: 2 });
-          }
+          else if (section1?.fullName) dispatch({ type: "SET_STEP", step: 2 });
         }
       } catch (err) {
         console.error("Draft load error:", err);
       } finally {
-        setLoadingForm(false); // ✅ loading khatam
+        setLoadingForm(false);
       }
     };
     loadDraft();
@@ -109,11 +90,9 @@ function Dashboard() {
   };
 
   const saveCurrent = async (step = currentStep) => {
-    const sectionKey = `section${step}`;
-    const sectionData = state[sectionKey];
     setSaving(true);
     try {
-      const res = await saveSection(sectionKey, sectionData);
+      const res = await saveSection(`section${step}`, state[`section${step}`]);
       if (!res.success) throw new Error(res.message);
       return true;
     } catch (err) {
@@ -147,36 +126,19 @@ function Dashboard() {
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      const fd = new FormData();
-
-      fd.append("section1", JSON.stringify(state.section1));
-      fd.append("section2", JSON.stringify(state.section2));
-      fd.append("section3", JSON.stringify(state.section3));
-      fd.append(
-        "section4",
-        JSON.stringify({
+      const res = await submitForm({
+        section1: state.section1,
+        section2: state.section2,
+        section3: state.section3,
+        section4: {
           aadhaar: state.section4.aadhaar,
           pan: state.section4.pan,
           bankName: state.section4.bankName,
           accountNo: state.section4.accountNo,
-        }),
-      );
-
-      if (state.section4.docs?.aadhaar)
-        fd.append("doc_aadhaar", state.section4.docs.aadhaar);
-      if (state.section4.docs?.pan)
-        fd.append("doc_pan", state.section4.docs.pan);
-      if (state.section4.docs?.udyam)
-        fd.append("doc_udyam", state.section4.docs.udyam);
-      if (state.section4.docs?.passport)
-        fd.append("doc_passport", state.section4.docs.passport);
-
-      const res = await submitForm(fd);
-      if (res.success) {
-        dispatch({ type: "SUBMIT" });
-      } else {
-        showMsg("Submit failed: " + res.message, true);
-      }
+        },
+      });
+      if (res.success) dispatch({ type: "SUBMIT" });
+      else showMsg("Submit failed: " + res.message, true);
     } catch (err) {
       showMsg("Submit failed: " + err.message, true);
     } finally {
@@ -184,12 +146,11 @@ function Dashboard() {
     }
   };
 
-  // Add this at the top of your component or file
+  const isMobile = window.innerWidth < 1200;
   const mainStyle = {
     maxWidth: 1160,
     margin: "0 auto",
-    // 60px on mobile (less than 768px), 28px on desktop
-    padding: window.innerWidth < 1200 ? "80px 24px 28px" : "28px 24px",
+    padding: isMobile ? "80px 24px 28px" : "28px 24px",
   };
 
   return (
@@ -205,10 +166,9 @@ function Dashboard() {
         onNav={setActiveNav}
         onLogout={handleLogout}
       />
-
       <div style={{ flex: 1, background: C.light, overflowY: "auto" }}>
         <main style={mainStyle}>
-          {/* Toast message */}
+          {/* Toast */}
           {saveMsg && (
             <div
               style={{
@@ -230,7 +190,6 @@ function Dashboard() {
             </div>
           )}
 
-          {/* ── Loading draft ── */}
           {loadingForm ? (
             <div
               style={{
@@ -252,7 +211,6 @@ function Dashboard() {
           ) : (
             <>
               <StepIndicator current={currentStep} />
-
               {saving && (
                 <div
                   style={{
@@ -267,7 +225,6 @@ function Dashboard() {
                   ⏳ Saving...
                 </div>
               )}
-
               {currentStep === 1 && (
                 <Section1
                   data={state.section1}
@@ -308,7 +265,6 @@ function Dashboard() {
                   onNext={handleSubmit}
                 />
               )}
-
               <FooterBar
                 step={currentStep}
                 onBack={goBack}
@@ -329,8 +285,9 @@ function Dashboard() {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />{" "}
+      {/* ✅ handles both modes via searchParams */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route
         path="/dashboard"
