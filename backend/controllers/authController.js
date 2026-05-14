@@ -76,17 +76,43 @@ const registerEmail = async (req, res) => {
 // ── 3. Email Login ────────────────────────────────────────────────────────────
 const loginEmail = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, firebaseIdToken } = req.body;
 
         const user = await User.findOne({ email });
-        if (!user || !user.password)
+        if (!user)
             return res.status(401).json({ message: "Invalid credentials" });
 
-        // ✅ User model ka matchPassword method use karo (bcrypt.compare internally)
+        // ── Firebase token se verify karo (forgot password ke baad) ──────────
+        if (firebaseIdToken) {
+            try {
+                const firebaseAdmin = getAdmin();
+                if (firebaseAdmin) {
+                    await firebaseAdmin.auth().verifyIdToken(firebaseIdToken);
+                    // Token valid hai → login allow karo + MongoDB password update karo
+                    if (password && user.password) {
+                        user.password = password;
+                        await user.save();
+                    }
+                    return res.json({
+                        success: true,
+                        token: generateToken(user._id),
+                        user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, role: user.role },
+                    });
+                }
+            } catch (e) {
+                console.error("Firebase token verify failed:", e.message);
+            }
+        }
+
+        // ── Normal password check ─────────────────────────────────────────────
+        if (!user.password)
+            return res.status(401).json({ message: "Invalid credentials" });
+
         const isMatch = await user.matchPassword(password);
         if (!isMatch)
             return res.status(401).json({ message: "Invalid credentials" });
 
+        // ✅ Login success pe MongoDB password sync karo
         res.json({
             success: true,
             token: generateToken(user._id),

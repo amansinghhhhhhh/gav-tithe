@@ -44,11 +44,12 @@ export const registerEmail = async (email, password, mobile, name) => {
     return data;
 };
 
-export const loginEmail = async (email, password) => {
+// ✅ firebaseIdToken optional — forgot password ke baad sync ke liye
+export const loginEmail = async (email, password, firebaseIdToken = null) => {
     const data = await apiFetch(`${BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, firebaseIdToken }),
     });
     if (data.token) setToken(data.token);
     return data;
@@ -62,11 +63,7 @@ export const logout = () => clearToken();
 
 // ── Form ──────────────────────────────────────────────────────────────────────
 
-// Save one section as draft
-// section: "section1" | "section2" | "section3" | "section4"
-// data: section state object
 export const saveSection = async (section, data) => {
-    console.log(`💾 Saving ${section}...`, data);
     return apiFetch(`${BASE}/form/save`, {
         method: "POST",
         headers: authHeaders(),
@@ -74,25 +71,19 @@ export const saveSection = async (section, data) => {
     });
 };
 
-// Submit full form
 export const submitForm = async (formData) => {
     const res = await fetch(`${BASE}/form/submit`, {
         method: "POST",
-        headers: {
-            Authorization: `Bearer ${getToken()}`,
-            // ⚠️ Content-Type bilkul mat lagao
-        },
+        headers: { Authorization: `Bearer ${getToken()}` },
         body: formData,
     });
     return res.json();
 };
 
-// Get my saved form (load draft)
 export const getMyForm = async () => {
     return apiFetch(`${BASE}/form`, { headers: authHeaders() });
 };
 
-// Upload document
 export const uploadDoc = async (docType, file) => {
     const fd = new FormData();
     fd.append("file", file);
@@ -102,7 +93,6 @@ export const uploadDoc = async (docType, file) => {
         body: fd,
     });
 };
-
 
 export const markEmailVerified = async () => {
     return apiFetch(`${BASE}/auth/verify-email`, {

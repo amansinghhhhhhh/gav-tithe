@@ -266,7 +266,10 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      const data = await loginEmail(email, password);
+
+      // ✅ Firebase idToken bhi bhejo — forgot password ke baad sync hoga
+      const firebaseIdToken = await fbCred.user.getIdToken();
+      const data = await loginEmail(email, password, firebaseIdToken);
       if (data?.success) {
         login(data.user);
         navigate("/dashboard");
