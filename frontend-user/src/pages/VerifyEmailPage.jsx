@@ -366,10 +366,10 @@ export default function VerifyEmailPage() {
             <h2
               style={{ color: "#166534", fontWeight: 800, margin: "0 0 8px" }}
             >
-              {t("reset_success_title")}
+              "Password Changed! 🎉"
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 20px" }}>
-              {t("reset_success_msg")}
+              "Your password has been successfully changed."
             </p>
             <div
               style={{
