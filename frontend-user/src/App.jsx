@@ -11,7 +11,7 @@ import Section2 from "./components/sections/Section2";
 import Section3 from "./components/sections/Section3";
 import Section4 from "./components/sections/Section4";
 import C from "./constants/colors";
-import SuccessPage from "./components/SuccessPage";
+import { SuccessPage } from "./SuccessPage";
 import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
