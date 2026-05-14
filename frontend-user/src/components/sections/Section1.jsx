@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { RadioGroup } from "../shared/RadioGroup";
 import { useLang } from "../../context/LangContext";
-import Select from "../shared/Select";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import C from "../../constants/colors";
 import SectionHeader from "../shared/SectionHeader";
 import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
 import useValidation from "../../hooks/useValidation";
+import useOtp from "../../hooks/useOtp";
 
-// Validation rules for Section 1
 const makeRules = (t) => ({
   fullName: (v) =>
     !v?.trim() ? t("err_required") : v.trim().length < 3 ? t("err_min3") : null,
@@ -38,6 +37,24 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     makeRules(t),
   );
 
+  // ── Firebase OTP hook ─────────────────────────────────────────────────────
+  const {
+    otpSent,
+    otpVerified: firebaseVerified,
+    loading: otpLoading,
+    error: otpError,
+    sendOtp,
+    verifyOtp,
+  } = useOtp();
+
+  // Firebase OTP verified hone pe Redux state update karo
+  useEffect(() => {
+    if (firebaseVerified) {
+      u({ otpVerified: true });
+      clearError("otpVerified");
+    }
+  }, [firebaseVerified]);
+
   const handleNext = () => {
     const isValid = validateAll({
       fullName: data.fullName,
@@ -50,13 +67,29 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     if (isValid) onNext();
   };
 
-  // Register this section's handleNext with App.jsx
   useEffect(() => {
     registerNext(handleNext);
   });
 
+  // ── Send OTP ──────────────────────────────────────────────────────────────
+  const handleSendOtp = () => {
+    if (data.mobile.length === 10) {
+      sendOtp(data.mobile);
+    }
+  };
+
+  // ── Verify OTP ────────────────────────────────────────────────────────────
+  const handleVerifyOtp = async () => {
+    if (otpInput.length >= 4) {
+      await verifyOtp(otpInput, data.mobile);
+    }
+  };
+
   return (
     <div style={sectionCardStyle}>
+      {/* reCAPTCHA invisible div */}
+      <div id="recaptcha-container" />
+
       <SectionHeader title={t("s1_title")} badge={t("s1_badge")} />
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <ValidatedInput
@@ -126,38 +159,48 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 placeholder="9876543210"
                 maxLength={10}
                 value={data.mobile}
+                disabled={otpSent || data.otpVerified}
                 onChange={(e) => {
                   u({ mobile: e.target.value });
                   clearError("mobile");
                 }}
                 onBlur={(e) => validateField("mobile", e.target.value, data)}
               />
-              <button
-                onClick={() => {
-                  if (data.mobile.length === 10) u({ otpSent: true });
-                }}
-                style={{
-                  padding: "10px 14px",
-                  background: C.green,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 8,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  fontSize: 13,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {t("s1_get_otp")}
-              </button>
+              {!otpSent && !data.otpVerified && (
+                <button
+                  onClick={handleSendOtp}
+                  disabled={otpLoading || data.mobile.length !== 10}
+                  style={{
+                    padding: "10px 14px",
+                    background: otpLoading ? "#aaa" : C.green,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    cursor: otpLoading ? "not-allowed" : "pointer",
+                    fontSize: 13,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {otpLoading ? "..." : t("s1_get_otp")}
+                </button>
+              )}
             </div>
+
+            {/* OTP Error from Firebase */}
+            {otpError && (
+              <div style={{ fontSize: 12, color: "#e53e3e", marginTop: 4 }}>
+                ⚠ {otpError}
+              </div>
+            )}
             {errors.mobile && (
               <span style={{ fontSize: 11, color: "#e53e3e" }}>
                 ⚠ {errors.mobile}
               </span>
             )}
 
-            {data.otpSent && !data.otpVerified && (
+            {/* OTP Input box */}
+            {otpSent && !data.otpVerified && (
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <input
                   style={{
@@ -167,31 +210,49 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                   }}
                   placeholder={t("s1_otp_ph")}
                   value={otpInput}
-                  onChange={(e) => setOtpInput(e.target.value)}
+                  onChange={(e) =>
+                    setOtpInput(e.target.value.replace(/\D/g, ""))
+                  }
                   maxLength={6}
                 />
                 <button
-                  onClick={() => {
-                    if (otpInput.length >= 4) {
-                      u({ otpVerified: true });
-                      clearError("otpVerified");
-                    }
-                  }}
+                  onClick={handleVerifyOtp}
+                  disabled={otpLoading || otpInput.length < 4}
                   style={{
                     padding: "10px 14px",
-                    background: C.navy,
+                    background: otpLoading ? "#aaa" : C.navy,
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
                     fontWeight: 700,
-                    cursor: "pointer",
+                    cursor: otpLoading ? "not-allowed" : "pointer",
                     fontSize: 13,
                   }}
                 >
-                  {t("s1_verify")}
+                  {otpLoading ? "..." : t("s1_verify")}
                 </button>
               </div>
             )}
+
+            {/* Resend OTP */}
+            {otpSent && !data.otpVerified && (
+              <button
+                onClick={handleSendOtp}
+                disabled={otpLoading}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: C.green,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  marginTop: 4,
+                  padding: 0,
+                }}
+              >
+                OTP dobara bhejo
+              </button>
+            )}
+
             {errors.otpVerified && (
               <span style={{ fontSize: 11, color: "#e53e3e" }}>
                 ⚠ {errors.otpVerified}
