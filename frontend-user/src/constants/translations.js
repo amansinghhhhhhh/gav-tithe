@@ -149,7 +149,7 @@ const translations = {
         f_copy: "© 2026 गाव तिथे उद्योजक अभियान. MACCIA — महाराष्ट्र चेंबर ऑफ कॉमर्स, इंडस्ट्री अँड अॅग्रीकल्चर. सर्व हक्क राखीव.",
 
         // Banner
-        banner_greeting_prefix: "नमस्कार,",
+        banner_greeting: "नमस्कार,",
         banner_subtitle: "प्रगतीसाठी सध्याच्या टप्प्यातील कार्ये पूर्ण करा.",
         banner_next_title: "पुढील कृती",
         banner_next_desc: "टप्पा 1 मध्ये कागदपत्रे अपलोड करा आणि मंजूर करा",
@@ -388,7 +388,7 @@ const translations = {
         f_copy: "© 2026 Gav Tithe Udyojak Abhiyan. MACCIA — Maharashtra Chamber of Commerce, Industry & Agriculture. All rights reserved.",
 
         // Banner
-        banner_greeting_prefix: "Hello,",
+        banner_greeting: "Hello,",
         banner_subtitle: "Complete the current step tasks to make progress.",
         banner_next_title: "Next Action",
         banner_next_desc: "Upload and get documents approved in Step 1",
