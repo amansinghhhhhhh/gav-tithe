@@ -34,7 +34,6 @@ const labelStyle = {
   display: "block",
 };
 
-// ── Hero Card ─────────────────────────────────────────────────────────────────
 function HeroCard() {
   const { t } = useLang();
   return (
@@ -110,7 +109,6 @@ function HeroCard() {
   );
 }
 
-// ── Authority Box ─────────────────────────────────────────────────────────────
 function AuthorityBox() {
   const { t } = useLang();
   const points = [
@@ -170,7 +168,6 @@ function AuthorityBox() {
   );
 }
 
-// ── Step Dots ─────────────────────────────────────────────────────────────────
 function StepDots({ step }) {
   const { t } = useLang();
   return (
@@ -221,7 +218,6 @@ function StepDots({ step }) {
   );
 }
 
-// ── Main LoginPage ─────────────────────────────────────────────────────────────
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -244,7 +240,6 @@ export default function LoginPage() {
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
-  // ── LOGIN ──────────────────────────────────────────────────────────────────
   const handleLogin = async () => {
     setErr("");
     if (!email || !password) {
@@ -283,7 +278,6 @@ export default function LoginPage() {
     }
   };
 
-  // ── SIGNUP Step 1 ──────────────────────────────────────────────────────────
   const handleStep1Next = () => {
     setErr("");
     if (!email) {
@@ -297,7 +291,6 @@ export default function LoginPage() {
     setStep(2);
   };
 
-  // ── SIGNUP Step 2 ──────────────────────────────────────────────────────────
   const handleRegister = async () => {
     setErr("");
     if (!firstName.trim()) {
@@ -382,7 +375,6 @@ export default function LoginPage() {
             <AuthorityBox />
             {isSignup && <StepDots step={step} />}
 
-            {/* Success */}
             {successMsg && (
               <div
                 style={{
@@ -400,7 +392,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Error */}
             {err && (
               <div
                 style={{
@@ -468,7 +459,9 @@ export default function LoginPage() {
                         {t("login_password_hint")}
                       </span>
                     </label>
+                    {/* ✅ Forgot password → navigate */}
                     <span
+                      onClick={() => navigate("/forgot-password")}
                       style={{
                         fontSize: 12,
                         color: "#F97316",

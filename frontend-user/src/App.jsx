@@ -24,6 +24,7 @@ import { SuccessPage } from "./SuccessPage";
 import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -330,6 +331,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route
         path="/dashboard"
         element={

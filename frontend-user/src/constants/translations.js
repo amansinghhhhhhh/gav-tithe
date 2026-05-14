@@ -214,7 +214,18 @@ const translations = {
         login_failed: "लॉगिन अयशस्वी: {{msg}}",
         registration_success: "✅ नोंदणी यशस्वी! \"{{email}}\" वर verification link पाठवली आहे. कृपया email verify करा आणि मग login करा.",
 
-        // Verify Email Page
+        // Forgot Password
+        forgot_title: "पासवर्ड रीसेट करा",
+        forgot_subtitle: "तुमचा ईमेल टाका, आम्ही reset link पाठवू",
+        forgot_email: "ई-मेल पत्ता",
+        forgot_email_ph: "you@example.com",
+        forgot_btn: "Reset Link पाठवा",
+        forgot_sending: "पाठवत आहे...",
+        forgot_success: "✅ Reset link \"{{email}}\" वर पाठवली आहे. कृपया inbox तपासा.",
+        forgot_error_email: "कृपया valid ईमेल टाका",
+        forgot_error_failed: "Reset link पाठवणे अयशस्वी: {{msg}}",
+        forgot_back: "← लॉगिनवर परत जा",
+        forgot_check_spam: "email न आल्यास spam folder तपासा.",
         verify_verifying: "सत्यापित होत आहे...",
         verify_wait: "थोडे थांबा",
         verify_success_title: "ईमेल सत्यापित झाला! 🎉",
@@ -441,6 +452,19 @@ const translations = {
         login_resend_success: "Verification email sent again! Check your inbox.",
         login_failed: "Login failed: {{msg}}",
         registration_success: "✅ Registration successful! A verification link has been sent to \"{{email}}\". Please verify your email and then log in.",
+
+        // Forgot Password
+        forgot_title: "Reset Password",
+        forgot_subtitle: "Enter your email, we'll send you a reset link",
+        forgot_email: "Email Address",
+        forgot_email_ph: "you@example.com",
+        forgot_btn: "Send Reset Link",
+        forgot_sending: "Sending...",
+        forgot_success: "✅ Reset link has been sent to \"{{email}}\". Please check your inbox.",
+        forgot_error_email: "Please enter a valid email",
+        forgot_error_failed: "Failed to send reset link: {{msg}}",
+        forgot_back: "← Back to Login",
+        forgot_check_spam: "If you don't see the email, check your spam folder.",
 
         // Verify Email Page
         verify_verifying: "Verifying...",
