@@ -7,16 +7,16 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // App load pe token check karo → user load karo
   useEffect(() => {
     const init = async () => {
       const token = getToken();
       if (token) {
         const data = await getMe();
         if (data.success) {
-          setUser(data.user); // name, email, mobile, role sab aayega
+          setUser(data.user);
         } else {
           clearToken();
+          localStorage.removeItem("otp_verified"); // token invalid → clear
         }
       }
       setLoading(false);
@@ -24,13 +24,13 @@ export function AuthProvider({ children }) {
     init();
   }, []);
 
-  // Login ke baad user set karo
   const login = (userData) => {
     setUser(userData);
   };
 
   const logout = () => {
     clearToken();
+    localStorage.removeItem("otp_verified"); // ✅ logout pe clear karo
     setUser(null);
   };
 
