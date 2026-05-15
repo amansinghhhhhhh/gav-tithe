@@ -126,17 +126,31 @@ function Dashboard() {
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      const res = await submitForm({
-        section1: state.section1,
-        section2: state.section2,
-        section3: state.section3,
-        section4: {
-          aadhaar: state.section4.aadhaar,
-          pan: state.section4.pan,
-          bankName: state.section4.bankName,
-          accountNo: state.section4.accountNo,
-        },
-      });
+      const fd = new FormData();
+      fd.append("section1", JSON.stringify(state.section1));
+      fd.append("section2", JSON.stringify(state.section2));
+      fd.append("section3", JSON.stringify(state.section3));
+      fd.append("section4", JSON.stringify({
+        aadhaar: state.section4.aadhaar,
+        pan: state.section4.pan,
+        bankName: state.section4.bankName,
+        accountNo: state.section4.accountNo,
+      }));
+
+      const docFieldMap = {
+        aadhaar: "doc_aadhaar",
+        pan: "doc_pan",
+        udyam: "doc_udyam",
+        passport: "doc_passport",
+      };
+      for (const [key, fieldName] of Object.entries(docFieldMap)) {
+        const file = state.section4.docs[key];
+        if (file instanceof File) {
+          fd.append(fieldName, file);
+        }
+      }
+
+      const res = await submitForm(fd);
       if (res.success) dispatch({ type: "SUBMIT" });
       else showMsg("Submit failed: " + res.message, true);
     } catch (err) {
