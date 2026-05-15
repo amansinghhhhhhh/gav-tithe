@@ -55,6 +55,12 @@ const translations = {
         s1_edu_6: "पदव्युत्तर",
         s1_address: "संपूर्ण पत्ता (जिल्हा, तालुका, गाव आणि पिन कोड) *",
         s1_address_ph: "तुमचा सविस्तर पत्ता लिहा...",
+        s1_dist: "जिल्हा",
+        s1_taluka: "तालुका",
+        s1_village: "गाव",
+        s1_pincode: "पिन कोड",
+        err_pincode: "चुकीचा पिनकोड",
+
 
         // Section 2
         s2_title: "विभाग २: तुमच्या व्यवसायाची कल्पना (Business Concept)",
@@ -294,6 +300,11 @@ const translations = {
         s1_edu_6: "Post Graduate",
         s1_address: "Full Address (District, Taluka, Village and PIN Code) *",
         s1_address_ph: "Write your complete address...",
+        s1_dist: "Dist.",
+        s1_taluka: "Taluka",
+        s1_village: "Village",
+        s1_pincode: "Pincode",
+        err_pincode: "Wrong Pincode",
 
         // Section 2
         s2_title: "Section 2: Your Business Idea (Business Concept)",
@@ -488,6 +499,9 @@ const translations = {
         reset_pass_mismatch: "Passwords do not match",
         reset_success_title: "Password Changed! 🎉",
         reset_success_msg: "Your password has been successfully changed.",
+
+
+
     },
 };
 
