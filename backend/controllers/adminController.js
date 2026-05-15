@@ -30,7 +30,7 @@ const getAllUsers = async (req, res) => {
 
         res.json({ success: true, users: usersWithForm });
     } catch (err) {
-        res.status(500).json({ message: "Failed", error: err.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
@@ -46,7 +46,7 @@ const getUserDetail = async (req, res) => {
 
         res.json({ success: true, user, form: form || null });
     } catch (err) {
-        res.status(500).json({ message: "Failed", error: err.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
@@ -71,7 +71,7 @@ const updateUserStatus = async (req, res) => {
 
         res.json({ success: true, message: `Status updated to ${status}` });
     } catch (err) {
-        res.status(500).json({ message: "Failed", error: err.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
@@ -96,8 +96,10 @@ const getDocument = async (req, res) => {
         }
 
         const file = files[0];
+        // Strip dangerous chars from filename to prevent header injection
+        const safeFilename = (file.filename || "document").replace(/[^\w.\-]/g, "_");
         res.set("Content-Type", file.contentType || "application/octet-stream");
-        res.set("Content-Disposition", `inline; filename="${file.filename}"`);
+        res.set("Content-Disposition", `attachment; filename="${safeFilename}"`);
 
         // Stream karo
         const downloadStream = bucket.openDownloadStream(objectId);
@@ -108,7 +110,7 @@ const getDocument = async (req, res) => {
         });
 
     } catch (err) {
-        res.status(500).json({ message: "Failed", error: err.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 

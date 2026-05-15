@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getToken, clearToken } from "../services/api";
+import { getToken, clearToken, getMe } from "../services/api";
 
 const AuthContext = createContext();
 
@@ -8,20 +8,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getToken();
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        if (payload.exp * 1000 > Date.now()) {
-          setAdmin({ id: payload.id });
+    const init = async () => {
+      const token = getToken();
+      if (token) {
+        const data = await getMe();
+        if (data.success && data.user?.role === "admin") {
+          setAdmin(data.user);
         } else {
           clearToken();
         }
-      } catch {
-        clearToken();
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    init();
   }, []);
 
   const login = (user) => setAdmin(user);

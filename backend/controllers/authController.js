@@ -92,7 +92,7 @@ const verifyOtp = async (req, res) => {
         });
     } catch (err) {
         console.error("OTP verify error:", err.message);
-        res.status(401).json({ message: "OTP verification failed", error: err.message });
+        res.status(401).json({ message: "OTP verification failed" });
     }
 };
 
@@ -121,7 +121,7 @@ const registerEmail = async (req, res) => {
         });
     } catch (err) {
         console.error("Register error:", err.message);
-        res.status(500).json({ message: "Registration failed", error: err.message });
+        res.status(500).json({ message: "Registration failed" });
     }
 };
 
@@ -138,7 +138,13 @@ const loginEmail = async (req, res) => {
             try {
                 const firebaseAdmin = getAdmin();
                 if (firebaseAdmin) {
-                    await firebaseAdmin.auth().verifyIdToken(firebaseIdToken);
+                    const decoded = await firebaseAdmin.auth().verifyIdToken(firebaseIdToken);
+                    // Verify the Firebase identity actually belongs to this user account
+                    const emailMatch = decoded.email && decoded.email === email;
+                    const uidMatch = user.firebaseUid && decoded.uid === user.firebaseUid;
+                    if (!emailMatch && !uidMatch) {
+                        return res.status(401).json({ message: "Invalid credentials" });
+                    }
                     if (password && user.password) {
                         user.password = password;
                         await user.save();
@@ -168,7 +174,7 @@ const loginEmail = async (req, res) => {
         });
     } catch (err) {
         console.error("Login error:", err.message);
-        res.status(500).json({ message: "Login failed", error: err.message });
+        res.status(500).json({ message: "Login failed" });
     }
 };
 

@@ -17,6 +17,40 @@ const upload = multer({
     },
 });
 
+// Server-side magic bytes verification (client-controlled Content-Type par bharosa nahi)
+const checkBytes = (file) => {
+    const buf = file.buffer;
+    if (file.mimetype === "image/jpeg")
+        return buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF;
+    if (file.mimetype === "image/png")
+        return buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47;
+    if (file.mimetype === "application/pdf")
+        return buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46;
+    return false;
+};
+
+// upload.single ke baad use karo
+const verifyMagicBytes = (req, res, next) => {
+    if (req.file && !checkBytes(req.file)) {
+        return res.status(400).json({ message: "File content does not match declared type" });
+    }
+    next();
+};
+
+// upload.fields ke baad use karo
+const verifyMagicBytesFields = (req, res, next) => {
+    if (req.files) {
+        for (const fileArr of Object.values(req.files)) {
+            for (const file of fileArr) {
+                if (!checkBytes(file)) {
+                    return res.status(400).json({ message: "File content does not match declared type" });
+                }
+            }
+        }
+    }
+    next();
+};
+
 // GridFS mein file save karne ka helper
 const saveToGridFS = (fileBuffer, filename, mimetype) => {
     return new Promise((resolve, reject) => {
@@ -37,4 +71,4 @@ const saveToGridFS = (fileBuffer, filename, mimetype) => {
     });
 };
 
-module.exports = { upload, saveToGridFS };
+module.exports = { upload, saveToGridFS, verifyMagicBytes, verifyMagicBytesFields };

@@ -2,7 +2,7 @@ const express2 = require("express");
 const router2 = express2.Router();
 const { saveSection, submitForm, getMyForm, uploadDoc } = require("../controllers/formController");
 const { protect: protect2 } = require("../middleware/authMiddleware");
-const { upload } = require("../middleware/upload");
+const { upload, verifyMagicBytes, verifyMagicBytesFields } = require("../middleware/upload");
 const { validateSaveSection } = require("../middleware/validate");
 
 router2.get("/", protect2, getMyForm);
@@ -18,9 +18,10 @@ router2.post(
         { name: "doc_udyam", maxCount: 1 },
         { name: "doc_passport", maxCount: 1 },
     ]),
+    verifyMagicBytesFields,
     submitForm
 );
 
-router2.post("/upload/:docType", protect2, upload.single("file"), uploadDoc);
+router2.post("/upload/:docType", protect2, upload.single("file"), verifyMagicBytes, uploadDoc);
 
 module.exports = router2;

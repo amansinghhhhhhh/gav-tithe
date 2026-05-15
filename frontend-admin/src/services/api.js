@@ -4,14 +4,10 @@ export const getToken = () => localStorage.getItem("admin_token");
 export const setToken = (t) => localStorage.setItem("admin_token", t);
 export const clearToken = () => localStorage.removeItem("admin_token");
 
-const authHeaders = () => {
-    const token = getToken();
-    console.log("🔑 Token being sent:", token); // ← temporarily add karo
-    return {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-    };
-};
+const authHeaders = () => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${getToken()}`,
+});
 
 const apiFetch = async (url, options = {}) => {
     try {
@@ -30,10 +26,12 @@ export const loginAdmin = async (email, password) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
     });
-    console.log("📋 Login API response:", data); // ← ye add karo
-    if (data.token) setToken(data.token); // ← ye chal raha hai?
+    if (data.token) setToken(data.token);
     return data;
 };
+
+export const getMe = async () =>
+    apiFetch(`${BASE}/auth/me`, { headers: authHeaders() });
 
 export const getAllUsers = async () =>
     apiFetch(`${BASE}/admin/users`, { headers: authHeaders() });

@@ -9,13 +9,10 @@ router.post("/otp/verify", validateOtp, verifyOtp);
 router.post("/register", validateRegister, registerEmail);
 router.post("/login", validateLogin, loginEmail);
 router.get("/me", protect, getMe);
+// Email verification requires a signed token sent to user's inbox.
+// This endpoint is intentionally disabled until email sending is implemented.
 router.post("/verify-email", protect, async (req, res) => {
-    try {
-        await User.findByIdAndUpdate(req.user.id, { isVerified: true });
-        res.json({ success: true, message: "Email verified!" });
-    } catch (err) {
-        res.status(500).json({ message: "Failed", error: err.message });
-    }
+    return res.status(501).json({ message: "Email verification not implemented" });
 });
 
 module.exports = router;

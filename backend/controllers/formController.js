@@ -1,6 +1,15 @@
 const FormData = require("../models/FormData");
 const { saveToGridFS } = require("../middleware/upload");
 
+const ALLOWED_DOC_TYPES = ["aadhaar", "pan", "udyam", "passport"];
+
+const SECTION_ALLOWED_KEYS = {
+    section1: ["fullName", "dob", "gender", "mobile", "email", "education", "address", "otpVerified"],
+    section2: ["businessName", "businessType", "sector", "businessStatus", "employment", "investment"],
+    section3: ["hadLoan", "loanType", "repaymentStatus", "cibilScore", "pastDifficulty"],
+    section4: ["aadhaar", "pan", "bankName", "accountNo", "docs"],
+};
+
 // ── Section save (draft) ──────────────────────────────────────────────────────
 const saveSection = async (req, res) => {
     try {
@@ -11,7 +20,11 @@ const saveSection = async (req, res) => {
         if (!form) form = new FormData({ userId });
 
         if (section && data) {
-            form[section] = { ...(form[section]?.toObject?.() || {}), ...data };
+            const allowedKeys = SECTION_ALLOWED_KEYS[section] || [];
+            const filteredData = Object.fromEntries(
+                Object.entries(data).filter(([key]) => allowedKeys.includes(key))
+            );
+            form[section] = { ...(form[section]?.toObject?.() || {}), ...filteredData };
         }
 
         form.status = "draft";
@@ -20,7 +33,8 @@ const saveSection = async (req, res) => {
 
         res.json({ success: true, message: "Draft saved", formId: form._id });
     } catch (err) {
-        res.status(500).json({ message: "Save failed", error: err.message });
+        console.error("Save error:", err.message);
+        res.status(500).json({ message: "Save failed" });
     }
 };
 
@@ -93,7 +107,7 @@ const submitForm = async (req, res) => {
     } catch (err) {
         console.error("❌ Submit error:", err.message);
         console.error("❌ Stack:", err.stack);
-        res.status(500).json({ message: "Submit failed", error: err.message });
+        res.status(500).json({ message: "Submit failed" });
     }
 };
 
@@ -103,7 +117,8 @@ const getMyForm = async (req, res) => {
         const form = await FormData.findOne({ userId: req.user.id });
         res.json({ success: true, form: form || null });
     } catch (err) {
-        res.status(500).json({ message: "Fetch failed", error: err.message });
+        console.error("Fetch error:", err.message);
+        res.status(500).json({ message: "Fetch failed" });
     }
 };
 
@@ -111,6 +126,10 @@ const getMyForm = async (req, res) => {
 const uploadDoc = async (req, res) => {
     try {
         const { docType } = req.params;
+
+        if (!ALLOWED_DOC_TYPES.includes(docType)) {
+            return res.status(400).json({ message: "Invalid document type" });
+        }
 
         if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
@@ -132,7 +151,8 @@ const uploadDoc = async (req, res) => {
 
         res.json({ success: true, fileId, message: `${docType} uploaded` });
     } catch (err) {
-        res.status(500).json({ message: "Upload failed", error: err.message });
+        console.error("Upload error:", err.message);
+        res.status(500).json({ message: "Upload failed" });
     }
 };
 
