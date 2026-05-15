@@ -27,7 +27,8 @@ const apiFetch = async (url, options = {}) => {
 export const verifyOtpApi = async (idToken, mobile, name) => {
     const data = await apiFetch(`${BASE}/auth/otp/verify`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // ✅ authHeaders() use karo — logged-in user ka JWT token bhi jayega
+        headers: authHeaders(),
         body: JSON.stringify({ idToken, mobile, name }),
     });
     if (data.token) setToken(data.token);
@@ -44,7 +45,6 @@ export const registerEmail = async (email, password, mobile, name) => {
     return data;
 };
 
-// ✅ firebaseIdToken optional — forgot password ke baad sync ke liye
 export const loginEmail = async (email, password, firebaseIdToken = null) => {
     const data = await apiFetch(`${BASE}/auth/login`, {
         method: "POST",

@@ -19,23 +19,76 @@ const verifyOtp = async (req, res) => {
 
         const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
         const { uid, phone_number } = decoded;
+        const mobileNumber = phone_number || `+91${mobile}`;
 
-        let user = await User.findOne({ firebaseUid: uid });
-        if (!user) {
-            user = await User.create({
-                firebaseUid: uid,
-                mobile: phone_number || `+91${mobile}`,
-                name: name || "",
-                isVerified: true,
+        // ── Check: koi logged-in user hai JWT token se? ───────────────────────
+        let loggedInUser = null;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            try {
+                const token = authHeader.split(" ")[1];
+                const jwtDecoded = jwt.verify(token, process.env.JWT_SECRET);
+                loggedInUser = await User.findById(jwtDecoded.id);
+            } catch (_) {
+                // Token invalid/expire — ignore, treat as new user
+            }
+        }
+
+        let user;
+
+        if (loggedInUser) {
+            // ── Case 1: Logged-in user hai → usi mein mobile + firebaseUid update karo
+            // Pehle check karo yeh mobile kisi aur user ke paas toh nahi
+            const mobileConflict = await User.findOne({
+                mobile: mobileNumber,
+                _id: { $ne: loggedInUser._id },
             });
+            if (mobileConflict) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Yeh mobile number kisi aur account se linked hai",
+                });
+            }
+
+            loggedInUser.mobile = mobileNumber;
+            loggedInUser.firebaseUid = uid;
+            loggedInUser.isVerified = true;
+            if (name) loggedInUser.name = name;
+            await loggedInUser.save();
+            user = loggedInUser;
+
         } else {
-            if (name) { user.name = name; await user.save(); }
+            // ── Case 2: Koi logged-in user nahi → firebaseUid ya mobile se dhundo
+            user = await User.findOne({
+                $or: [{ firebaseUid: uid }, { mobile: mobileNumber }],
+            });
+
+            if (!user) {
+                user = await User.create({
+                    firebaseUid: uid,
+                    mobile: mobileNumber,
+                    name: name || "",
+                    isVerified: true,
+                });
+            } else {
+                user.firebaseUid = uid;
+                user.mobile = mobileNumber;
+                user.isVerified = true;
+                if (name) user.name = name;
+                await user.save();
+            }
         }
 
         res.json({
             success: true,
             token: generateToken(user._id),
-            user: { id: user._id, name: user.name, mobile: user.mobile, role: user.role },
+            user: {
+                id: user._id,
+                name: user.name,
+                mobile: user.mobile,
+                email: user.email,
+                role: user.role,
+            },
         });
     } catch (err) {
         console.error("OTP verify error:", err.message);
@@ -52,11 +105,10 @@ const registerEmail = async (req, res) => {
         if (existing)
             return res.status(400).json({ success: false, message: "Email already registered" });
 
-        // ✅ Plain password pass karo — User model ka pre-save hook hash karega
         const user = new User({
             name: name || email.split("@")[0],
             email,
-            password, // pre-save hook bcrypt hash karega
+            password,
             mobile: mobile || null,
             role: "user",
         });
@@ -82,13 +134,11 @@ const loginEmail = async (req, res) => {
         if (!user)
             return res.status(401).json({ message: "Invalid credentials" });
 
-        // ── Firebase token se verify karo (forgot password ke baad) ──────────
         if (firebaseIdToken) {
             try {
                 const firebaseAdmin = getAdmin();
                 if (firebaseAdmin) {
                     await firebaseAdmin.auth().verifyIdToken(firebaseIdToken);
-                    // Token valid hai → login allow karo + MongoDB password update karo
                     if (password && user.password) {
                         user.password = password;
                         await user.save();
@@ -104,7 +154,6 @@ const loginEmail = async (req, res) => {
             }
         }
 
-        // ── Normal password check ─────────────────────────────────────────────
         if (!user.password)
             return res.status(401).json({ message: "Invalid credentials" });
 
@@ -112,7 +161,6 @@ const loginEmail = async (req, res) => {
         if (!isMatch)
             return res.status(401).json({ message: "Invalid credentials" });
 
-        // ✅ Login success pe MongoDB password sync karo
         res.json({
             success: true,
             token: generateToken(user._id),
