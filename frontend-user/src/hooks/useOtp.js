@@ -5,7 +5,10 @@ import { verifyOtpApi } from "../services/api";
 
 function useOtp() {
     const [otpSent, setOtpSent] = useState(false);
-    const [otpVerified, setOtpVerified] = useState(false);
+    // Fix 2: localStorage se verified state load karo refresh pe
+    const [otpVerified, setOtpVerified] = useState(
+        () => localStorage.getItem("otp_verified") === "true"
+    );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const confirmRef = useRef(null);
@@ -54,34 +57,26 @@ function useOtp() {
 
     // ── Step 1: OTP bhejo ───────────────────────────────────────────────────
     const sendOtp = async (mobile) => {
-        console.log("1. sendOtp called with:", mobile);
         setError("");
         setLoading(true);
 
+        // Pehle purana recaptcha saaf karo (resend case)
         if (confirmRef.current) {
             destroyRecaptcha();
         }
 
         try {
-            console.log("2. getRecaptcha calling...");
             const verifier = getRecaptcha();
-            console.log("3. verifier created:", verifier);
 
-            console.log("4. render calling...");
+            // render() explicitly call karo — invisible hone pe bhi zaroori hai
             await verifier.render();
-            console.log("5. render done");
 
             const phoneNumber = `+91${mobile}`;
-            console.log("6. signInWithPhoneNumber calling:", phoneNumber);
             const confirmation = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-            console.log("7. confirmation received:", confirmation);
-
             confirmRef.current = confirmation;
             setOtpSent(true);
         } catch (err) {
-            console.error("❌ Error at step:", err);
-            console.error("Error code:", err.code);
-            console.error("Error message:", err.message);
+            console.error("OTP send error:", err);
             setError(getErrorMessage(err.code) || "OTP bhejne mein problem aayi");
             destroyRecaptcha();
         } finally {
@@ -103,6 +98,7 @@ function useOtp() {
             if (!data.success) throw new Error(data.message);
 
             setOtpVerified(true);
+            localStorage.setItem("otp_verified", "true"); // persist karo
             return data;
         } catch (err) {
             console.error("OTP verify error:", err);
@@ -119,6 +115,7 @@ function useOtp() {
         setOtpVerified(false);
         setError("");
         confirmRef.current = null;
+        localStorage.removeItem("otp_verified"); // logout/reset pe clear karo
         destroyRecaptcha();
     };
 

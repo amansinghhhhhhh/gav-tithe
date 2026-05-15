@@ -13,18 +13,9 @@ export function StepIndicator({ current }) {
   const steps = [t("step1"), t("step2"), t("step3"), t("step4")];
   const progress = STEP_PROGRESS[current] ?? 0;
 
-  // ── Dynamic user display ──────────────────────────────────────────────────
-  const userName = user?.name || "";
-  // const userContact = user?.email || user?.mobile || "";
-  const displayName = userName || "User";
-
-  const avatarText = userName
-    ? userName[0].toUpperCase()
-    : user?.email
-      ? user.email[0].toUpperCase()
-      : user?.mobile
-        ? user.mobile.slice(-4)
-        : "U";
+  // ── Fix 1: Sirf userName dikhao ──────────────────────────────────────────
+  const displayName = user?.name || "User";
+  const avatarText = user?.name ? user.name[0].toUpperCase() : "U";
 
   return (
     <>
@@ -45,11 +36,7 @@ export function StepIndicator({ current }) {
       >
         {/* Left: Avatar + Text */}
         <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: 10 }}
           className="w-[100%]"
         >
           {/* Avatar row */}
