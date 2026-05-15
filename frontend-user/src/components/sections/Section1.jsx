@@ -20,11 +20,15 @@ const makeRules = (t) => ({
         : null,
   otpVerified: (v) => (!v ? t("err_otp") : null),
   education: (v) => (!v ? t("err_required") : null),
-  address: (v) =>
+  // ✅ address object validation — sabhi fields required
+  "address.dist": (v) => (!v?.trim() ? t("err_required") : null),
+  "address.taluka": (v) => (!v?.trim() ? t("err_required") : null),
+  "address.village": (v) => (!v?.trim() ? t("err_required") : null),
+  "address.pincode": (v) =>
     !v?.trim()
       ? t("err_required")
-      : v.trim().length < 10
-        ? t("err_min10")
+      : !/^\d{6}$/.test(v.trim())
+        ? t("err_pincode")
         : null,
 });
 
@@ -33,11 +37,14 @@ function Section1({ data, dispatch, registerNext, onNext }) {
   const [otpInput, setOtpInput] = useState("");
   const u = (p) => dispatch({ type: "UPDATE_SECTION1", payload: p });
 
+  // address field shortcut
+  const uAddr = (field, val) =>
+    u({ address: { ...data.address, [field]: val } });
+
   const { errors, validateField, validateAll, clearError } = useValidation(
     makeRules(t),
   );
 
-  // ── Firebase OTP hook ─────────────────────────────────────────────────────
   const {
     otpSent,
     otpVerified: firebaseVerified,
@@ -47,7 +54,6 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     verifyOtp,
   } = useOtp();
 
-  // Firebase OTP verified hone pe Redux state update karo
   useEffect(() => {
     if (firebaseVerified) {
       u({ otpVerified: true });
@@ -62,7 +68,10 @@ function Section1({ data, dispatch, registerNext, onNext }) {
       mobile: data.mobile,
       otpVerified: data.otpVerified,
       education: data.education,
-      address: data.address,
+      "address.dist": data.address?.dist,
+      "address.taluka": data.address?.taluka,
+      "address.village": data.address?.village,
+      "address.pincode": data.address?.pincode,
     });
     if (isValid) onNext();
   };
@@ -71,25 +80,17 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     registerNext(handleNext);
   });
 
-  // ── Send OTP ──────────────────────────────────────────────────────────────
   const handleSendOtp = () => {
-    if (data.mobile.length === 10) {
-      sendOtp(data.mobile);
-    }
+    if (data.mobile.length === 10) sendOtp(data.mobile);
   };
 
-  // ── Verify OTP ────────────────────────────────────────────────────────────
   const handleVerifyOtp = async () => {
-    if (otpInput.length >= 4) {
-      await verifyOtp(otpInput, data.mobile);
-    }
+    if (otpInput.length >= 4) await verifyOtp(otpInput, data.mobile);
   };
 
   return (
     <div style={sectionCardStyle}>
-      {/* reCAPTCHA invisible div */}
       <div id="recaptcha-container" />
-
       <SectionHeader title={t("s1_title")} badge={t("s1_badge")} />
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <ValidatedInput
@@ -187,7 +188,6 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               )}
             </div>
 
-            {/* OTP Error from Firebase */}
             {otpError && (
               <div style={{ fontSize: 12, color: "#e53e3e", marginTop: 4 }}>
                 ⚠ {otpError}
@@ -199,7 +199,6 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               </span>
             )}
 
-            {/* OTP Input box */}
             {otpSent && !data.otpVerified && (
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <input
@@ -234,7 +233,6 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               </div>
             )}
 
-            {/* Resend OTP */}
             {otpSent && !data.otpVerified && (
               <button
                 onClick={handleSendOtp}
@@ -302,28 +300,105 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           ]}
         />
 
+        {/* ✅ Address — 4 fields */}
         <div>
           <label style={labelStyle}>{t("s1_address")}</label>
-          <textarea
-            style={{
-              ...inputStyle,
-              minHeight: 70,
-              resize: "vertical",
-              border: `1.5px solid ${errors.address ? "#e53e3e" : "#ddd"}`,
-            }}
-            placeholder={t("s1_address_ph")}
-            value={data.address}
-            onChange={(e) => {
-              u({ address: e.target.value });
-              clearError("address");
-            }}
-            onBlur={(e) => validateField("address", e.target.value, data)}
-          />
-          {errors.address && (
-            <span style={{ fontSize: 11, color: "#e53e3e" }}>
-              ⚠ {errors.address}
-            </span>
-          )}
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {/* Dist + Taluka */}
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <input
+                style={{
+                  ...inputStyle,
+                  border: `1.5px solid ${errors["address.dist"] ? "#e53e3e" : "#ddd"}`,
+                }}
+                placeholder={t("s1_dist") || "Dist."}
+                value={data.address?.dist || ""}
+                onChange={(e) => {
+                  uAddr("dist", e.target.value);
+                  clearError("address.dist");
+                }}
+                onBlur={(e) =>
+                  validateField("address.dist", e.target.value, data)
+                }
+              />
+              {errors["address.dist"] && (
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>
+                  ⚠ {errors["address.dist"]}
+                </span>
+              )}
+            </div>
+
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <input
+                style={{
+                  ...inputStyle,
+                  border: `1.5px solid ${errors["address.taluka"] ? "#e53e3e" : "#ddd"}`,
+                }}
+                placeholder={t("s1_taluka") || "Taluka"}
+                value={data.address?.taluka || ""}
+                onChange={(e) => {
+                  uAddr("taluka", e.target.value);
+                  clearError("address.taluka");
+                }}
+                onBlur={(e) =>
+                  validateField("address.taluka", e.target.value, data)
+                }
+              />
+              {errors["address.taluka"] && (
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>
+                  ⚠ {errors["address.taluka"]}
+                </span>
+              )}
+            </div>
+
+            {/* Village + Pincode */}
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <input
+                style={{
+                  ...inputStyle,
+                  border: `1.5px solid ${errors["address.village"] ? "#e53e3e" : "#ddd"}`,
+                }}
+                placeholder={t("s1_village") || "Village"}
+                value={data.address?.village || ""}
+                onChange={(e) => {
+                  uAddr("village", e.target.value);
+                  clearError("address.village");
+                }}
+                onBlur={(e) =>
+                  validateField("address.village", e.target.value, data)
+                }
+              />
+              {errors["address.village"] && (
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>
+                  ⚠ {errors["address.village"]}
+                </span>
+              )}
+            </div>
+
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <input
+                style={{
+                  ...inputStyle,
+                  border: `1.5px solid ${errors["address.pincode"] ? "#e53e3e" : "#ddd"}`,
+                }}
+                placeholder={t("s1_pincode") || "Pincode"}
+                value={data.address?.pincode || ""}
+                maxLength={6}
+                onChange={(e) => {
+                  uAddr("pincode", e.target.value.replace(/\D/g, ""));
+                  clearError("address.pincode");
+                }}
+                onBlur={(e) =>
+                  validateField("address.pincode", e.target.value, data)
+                }
+              />
+              {errors["address.pincode"] && (
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>
+                  ⚠ {errors["address.pincode"]}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

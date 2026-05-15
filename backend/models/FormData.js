@@ -10,7 +10,13 @@ const FormDataSchema = new mongoose.Schema({
         mobile: String,
         email: String,
         education: String,
-        address: String,
+        // ✅ address string → object
+        address: {
+            dist: { type: String, default: "" },
+            taluka: { type: String, default: "" },
+            village: { type: String, default: "" },
+            pincode: { type: String, default: "" },
+        },
         otpVerified: Boolean,
     },
 
@@ -46,10 +52,10 @@ const FormDataSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["draft", "submitted", "under_review", "approved", "rejected"], // ← under_review add kiya
+        enum: ["draft", "submitted", "under_review", "approved", "rejected"],
         default: "draft",
     },
-    adminRemark: { type: String, default: "" }, // ← naya field
+    adminRemark: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

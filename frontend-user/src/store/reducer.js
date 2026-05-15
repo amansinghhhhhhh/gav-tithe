@@ -3,7 +3,9 @@ export const initialState = {
     submitted: false,
     section1: {
         fullName: "", dob: "", gender: "purush", mobile: "",
-        otpSent: false, otpVerified: false, email: "", education: "", address: "",
+        otpSent: false, otpVerified: false, email: "", education: "",
+        // ✅ address string → object
+        address: { dist: "", taluka: "", village: "", pincode: "" },
     },
     section2: {
         businessName: "", businessType: "", sector: "",
