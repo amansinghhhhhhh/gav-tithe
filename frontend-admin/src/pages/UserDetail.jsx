@@ -43,6 +43,13 @@ export default function UserDetail() {
   const s3 = form?.section3 || {};
   const s4 = form?.section4 || {};
 
+  // ✅ address object ya string dono handle karo
+  const addr = s1.address || {};
+  const addressDisplay =
+    typeof addr === "string"
+      ? addr // purana string data
+      : null; // naya object data — alag rows dikhenge
+
   return (
     <div style={{ padding: "28px 24px", maxWidth: 900, margin: "0 auto" }}>
       {/* Header */}
@@ -97,7 +104,18 @@ export default function UserDetail() {
           <Row label="Mobile" value={s1.mobile} />
           <Row label="Email" value={s1.email} />
           <Row label="Education" value={s1.education} />
-          <Row label="Address" value={s1.address} />
+
+          {/* ✅ Address — object ya string dono handle */}
+          {addressDisplay !== null ? (
+            <Row label="Address" value={addressDisplay} />
+          ) : (
+            <>
+              <Row label="Dist." value={addr.dist} />
+              <Row label="Taluka" value={addr.taluka} />
+              <Row label="Village" value={addr.village} />
+              <Row label="Pincode" value={addr.pincode} />
+            </>
+          )}
         </Card>
 
         {/* Section 2 — Business */}
