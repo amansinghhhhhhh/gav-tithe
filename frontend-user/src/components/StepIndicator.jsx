@@ -15,8 +15,8 @@ export function StepIndicator({ current }) {
 
   // ── Dynamic user display ──────────────────────────────────────────────────
   const userName = user?.name || "";
-  const userContact = user?.email || user?.mobile || "";
-  const displayName = userName || userContact || "User";
+  // const userContact = user?.email || user?.mobile || "";
+  const displayName = userName || "User";
 
   const avatarText = userName
     ? userName[0].toUpperCase()
