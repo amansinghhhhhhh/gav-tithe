@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getUserDetail, updateUserStatus, getDocUrl } from "../services/api";
+import { getUserDetail, updateUserStatus, openDoc } from "../services/api";
 import C from "../constants/colors";
 
 export default function UserDetail() {
@@ -187,10 +187,8 @@ export default function UserDetail() {
                   {doc}
                 </div>
                 {fileId ? (
-                  <a
-                    href={getDocUrl(fileId)}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    onClick={() => openDoc(fileId)}
                     style={{
                       display: "inline-block",
                       padding: "5px 12px",
@@ -198,12 +196,13 @@ export default function UserDetail() {
                       color: "#fff",
                       borderRadius: 6,
                       fontSize: 12,
-                      textDecoration: "none",
+                      border: "none",
+                      cursor: "pointer",
                       fontWeight: 600,
                     }}
                   >
                     View
-                  </a>
+                  </button>
                 ) : (
                   <span style={{ fontSize: 12, color: C.textopa }}>
                     Not uploaded
