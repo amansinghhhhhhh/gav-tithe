@@ -54,26 +54,34 @@ function useOtp() {
 
     // ── Step 1: OTP bhejo ───────────────────────────────────────────────────
     const sendOtp = async (mobile) => {
+        console.log("1. sendOtp called with:", mobile);
         setError("");
         setLoading(true);
 
-        // Pehle purana recaptcha saaf karo (resend case)
         if (confirmRef.current) {
             destroyRecaptcha();
         }
 
         try {
+            console.log("2. getRecaptcha calling...");
             const verifier = getRecaptcha();
+            console.log("3. verifier created:", verifier);
 
-            // render() explicitly call karo — invisible hone pe bhi zaroori hai
+            console.log("4. render calling...");
             await verifier.render();
+            console.log("5. render done");
 
             const phoneNumber = `+91${mobile}`;
+            console.log("6. signInWithPhoneNumber calling:", phoneNumber);
             const confirmation = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+            console.log("7. confirmation received:", confirmation);
+
             confirmRef.current = confirmation;
             setOtpSent(true);
         } catch (err) {
-            console.error("OTP send error:", err);
+            console.error("❌ Error at step:", err);
+            console.error("Error code:", err.code);
+            console.error("Error message:", err.message);
             setError(getErrorMessage(err.code) || "OTP bhejne mein problem aayi");
             destroyRecaptcha();
         } finally {
