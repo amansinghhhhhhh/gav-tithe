@@ -12,7 +12,7 @@ export const initialState = {
         businessStatus: "ideation", employment: "", investment: "",
     },
     section3: {
-        hadLoan: "hoy", loanType: "", repaymentStatus: "",
+        hadLoan: "hoy", loanType: "", loanTypeOther: "", repaymentStatus: "",
         cibilScore: "", pastDifficulty: "",
     },
     section4: {

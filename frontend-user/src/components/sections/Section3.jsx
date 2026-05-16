@@ -94,7 +94,7 @@ function Section3({ data, dispatch, registerNext, onNext }) {
                 label={t("s3_loan_type")}
                 placeholder={t("s3_lt_ph")}
                 value={data.loanType}
-                onChange={(e) => u({ loanType: e.target.value })}
+                onChange={(e) => u({ loanType: e.target.value, loanTypeOther: "" })}
                 options={[
                   { value: "personal", label: t("s3_lt_per") },
                   { value: "business", label: t("s3_lt_biz") },
@@ -104,6 +104,19 @@ function Section3({ data, dispatch, registerNext, onNext }) {
                   { value: "other", label: t("s3_lt_oth") },
                 ]}
               />
+              {data.loanType === "other" && (
+                <input
+                  style={{
+                    ...inputStyle,
+                    width: "100%",
+                    boxSizing: "border-box",
+                    marginTop: 8,
+                  }}
+                  placeholder={t("s3_lt_other_ph")}
+                  value={data.loanTypeOther}
+                  onChange={(e) => u({ loanTypeOther: e.target.value })}
+                />
+              )}
             </div>
             <div style={{ flex: 1, minWidth: 180 }}>
               <ValidatedSelect

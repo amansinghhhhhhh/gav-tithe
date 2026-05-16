@@ -33,6 +33,7 @@ const FormDataSchema = new mongoose.Schema({
     section3: {
         hadLoan: String,
         loanType: String,
+        loanTypeOther: String,
         repaymentStatus: String,
         cibilScore: String,
         pastDifficulty: String,

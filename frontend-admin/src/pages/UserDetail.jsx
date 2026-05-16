@@ -137,7 +137,7 @@ export default function UserDetail() {
         {/* Section 3 — Financial */}
         <Card title="Financial Info" icon="💰">
           <Row label="Had Loan" value={s3.hadLoan} />
-          <Row label="Loan Type" value={s3.loanType} />
+          <Row label="Loan Type" value={s3.loanType === "other" ? `Other — ${s3.loanTypeOther || ""}` : s3.loanType} />
           <Row label="Repayment" value={s3.repaymentStatus} />
           <Row label="CIBIL Score" value={s3.cibilScore} />
           <Row label="Difficulty" value={s3.pastDifficulty} />
