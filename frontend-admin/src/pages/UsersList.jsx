@@ -12,7 +12,6 @@ export default function UsersList() {
 
   useEffect(() => {
     getAllUsers().then((res) => {
-      console.log("📋 Users API response:", res); // ← add karo
       if (res.success) setUsers(res.users);
       setLoading(false);
     });
