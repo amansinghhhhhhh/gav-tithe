@@ -183,6 +183,8 @@ const translations = {
         err_cibil: "CIBIL स्कोर 300 ते 900 च्या दरम्यान असावा",
         err_aadhaar: "आधार नंबर 12 अंकी असावा",
         err_pan: "वैध PAN नंबर टाका (उदा. ABCDE1234F)",
+        err_acc_digits: "खाते क्रमांकात फक्त अंक असावेत",
+        err_acc_length: "खाते क्रमांक 9 ते 18 अंकी असावा",
         err_doc_required: "हा दस्तऐवज अपलोड करणे आवश्यक आहे",
 
         // Login Page
@@ -440,6 +442,8 @@ const translations = {
         err_cibil: "CIBIL score must be between 300 and 900",
         err_aadhaar: "Aadhaar number must be 12 digits",
         err_pan: "Enter valid PAN number (e.g. ABCDE1234F)",
+        err_acc_digits: "Account number must contain only digits",
+        err_acc_length: "Account number must be 9 to 18 digits",
         err_doc_required: "This document upload is required",
 
         // Login Page

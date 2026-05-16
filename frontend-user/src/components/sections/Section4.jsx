@@ -19,6 +19,12 @@ const makeRules = (t) => ({
       : !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.trim())
         ? t("err_pan")
         : null,
+  accountNo: (v) => {
+    if (!v?.trim()) return null; // optional field
+    if (!/^\d+$/.test(v)) return t("err_acc_digits");
+    if (v.length < 9 || v.length > 18) return t("err_acc_length");
+    return null;
+  },
   "docs.aadhaarFront": (v) => (!v ? t("err_doc_required") : null),
   "docs.aadhaarBack": (v) => (!v ? t("err_doc_required") : null),
   "docs.pan": (v) => (!v ? t("err_doc_required") : null),
@@ -37,6 +43,7 @@ function Section4({ data, dispatch, registerNext, onNext }) {
     const isValid = validateAll({
       aadhaar: data.aadhaar,
       pan: data.pan,
+      accountNo: data.accountNo,
       "docs.aadhaarFront": data.docs.aadhaarFront,
       "docs.aadhaarBack": data.docs.aadhaarBack,
       "docs.pan": data.docs.pan,
@@ -92,18 +99,28 @@ function Section4({ data, dispatch, registerNext, onNext }) {
         <div>
           <label style={labelStyle}>{t("s4_bank")}</label>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <input
-              style={{ ...inputStyle, flex: 1, minWidth: 160 }}
-              placeholder={t("s4_bank_name_ph")}
-              value={data.bankName}
-              onChange={(e) => u({ bankName: e.target.value })}
-            />
-            <input
-              style={{ ...inputStyle, flex: 1, minWidth: 160 }}
-              placeholder={t("s4_acc_ph")}
-              value={data.accountNo}
-              onChange={(e) => u({ accountNo: e.target.value })}
-            />
+            <div style={{ flex: 1, minWidth: 160 }}>
+              <input
+                style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }}
+                placeholder={t("s4_bank_name_ph")}
+                value={data.bankName}
+                onChange={(e) => u({ bankName: e.target.value })}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 160 }}>
+              <ValidatedInput
+                placeholder={t("s4_acc_ph")}
+                value={data.accountNo}
+                maxLength={18}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "");
+                  u({ accountNo: digits });
+                  clearError("accountNo");
+                }}
+                onBlur={() => validateField("accountNo", data.accountNo, data)}
+                error={errors.accountNo}
+              />
+            </div>
           </div>
         </div>
 
