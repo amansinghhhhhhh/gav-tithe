@@ -5,7 +5,7 @@ const ALLOWED_DOC_TYPES = ["aadhaar", "pan", "udyam", "passport"];
 
 const SECTION_ALLOWED_KEYS = {
     section1: ["fullName", "dob", "gender", "mobile", "email", "education", "address", "otpVerified"],
-    section2: ["businessName", "businessType", "sector", "businessStatus", "employment", "investment"],
+    section2: ["businessName", "businessType", "sector", "sectorOther", "businessStatus", "employment", "investment"],
     section3: ["hadLoan", "loanType", "repaymentStatus", "cibilScore", "pastDifficulty"],
     section4: ["aadhaar", "pan", "bankName", "accountNo", "docs"],
 };

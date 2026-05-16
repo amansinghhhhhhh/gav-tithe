@@ -24,6 +24,7 @@ const FormDataSchema = new mongoose.Schema({
         businessName: String,
         businessType: String,
         sector: String,
+        sectorOther: String,
         businessStatus: String,
         employment: String,
         investment: String,
