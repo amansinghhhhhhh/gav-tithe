@@ -38,6 +38,14 @@ const makeRules = (t) => ({
 function Section1({ data, dispatch, registerNext, onNext }) {
   const { t } = useLang();
   const [otpInput, setOtpInput] = useState("");
+  const [countdown, setCountdown] = useState(0);
+
+  // countdown timer
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
   const u = (p) => dispatch({ type: "UPDATE_SECTION1", payload: p });
 
   // address field shortcut
@@ -55,6 +63,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     error: otpError,
     sendOtp,
     verifyOtp,
+    reset,
   } = useOtp();
 
   useEffect(() => {
@@ -84,7 +93,17 @@ function Section1({ data, dispatch, registerNext, onNext }) {
   });
 
   const handleSendOtp = () => {
-    if (data.mobile.length === 10) sendOtp(data.mobile);
+    if (data.mobile.length === 10) {
+      sendOtp(data.mobile);
+      setCountdown(59);
+    }
+  };
+
+  const handleEditNumber = () => {
+    reset();
+    setOtpInput("");
+    setCountdown(0);
+    u({ mobile: data.mobile, otpVerified: false });
   };
 
   const handleVerifyOtp = async () => {
@@ -170,6 +189,25 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 }}
                 onBlur={(e) => validateField("mobile", e.target.value, data)}
               />
+              {/* Edit button — OTP sent hone ke baad number change karne ke liye */}
+              {otpSent && !data.otpVerified && (
+                <button
+                  onClick={handleEditNumber}
+                  style={{
+                    padding: "10px 12px",
+                    background: "none",
+                    border: `1.5px solid ${C.navy}`,
+                    borderRadius: 8,
+                    color: C.navy,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  ✏ {t("s1_edit_number") || "Edit"}
+                </button>
+              )}
               {!otpSent && !data.otpVerified && (
                 <button
                   onClick={handleSendOtp}
@@ -247,18 +285,21 @@ function Section1({ data, dispatch, registerNext, onNext }) {
             {otpSent && !data.otpVerified && (
               <button
                 onClick={handleSendOtp}
-                disabled={otpLoading}
+                disabled={otpLoading || countdown > 0}
                 style={{
                   background: "none",
                   border: "none",
-                  color: C.green,
-                  cursor: "pointer",
+                  color: countdown > 0 ? "#9ca3af" : C.green,
+                  cursor: countdown > 0 ? "not-allowed" : "pointer",
                   fontSize: 12,
                   marginTop: 4,
                   padding: 0,
+                  fontWeight: 600,
                 }}
               >
-                OTP dobara bhejo
+                {countdown > 0
+                  ? `${t("s1_resend_wait") || "Resend in"} ${countdown}s`
+                  : t("s1_resend_otp") || "OTP Resend करा"}
               </button>
             )}
 

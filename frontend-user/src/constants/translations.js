@@ -63,6 +63,9 @@ const translations = {
         s1_village_ph: "-- गाव निवडा --",
         s1_pincode: "पिन कोड",
         err_pincode: "चुकीचा पिनकोड",
+        s1_edit_number: "नंबर बदला",
+        s1_resend_wait: "पुन्हा पाठवा",
+        s1_resend_otp: "OTP पुन्हा पाठवा",
 
 
         // Section 2
@@ -312,6 +315,9 @@ const translations = {
         s1_village_ph: "-- Select Village --",
         s1_pincode: "Pincode",
         err_pincode: "Wrong Pincode",
+        s1_edit_number: "Edit Number",
+        s1_resend_wait: "Resend in",
+        s1_resend_otp: "Resend OTP",
 
         // Section 2
         s2_title: "Section 2: Your Business Idea (Business Concept)",
