@@ -1,7 +1,8 @@
-// ─── SuccessPage.jsx ──────────────────────────────────────────────────────────
 import C from "./constants/colors";
+import { useLang } from "./context/LangContext";
 
 export function SuccessPage() {
+  const { t } = useLang();
   return (
     <div
       style={{
@@ -29,7 +30,7 @@ export function SuccessPage() {
         ✓
       </div>
       <p style={{ fontSize: 18, fontWeight: 700, color: C.green, margin: 0 }}>
-        तुमचा फॉर्म सबमिट झाला आहे. आम्ही लवकरच तुमच्याशी संपर्क करू.
+        {t("success_msg")}
       </p>
     </div>
   );
