@@ -15,6 +15,9 @@ const apiFetch = async (url, options = {}) => {
     try {
         const res = await fetch(url, options);
         const data = await res.json();
+        if (!res.ok) {
+            return { success: false, message: data.message || "Kuch gadbad hui, dobara try karo." };
+        }
         return data;
     } catch (err) {
         console.error("API error:", err);
