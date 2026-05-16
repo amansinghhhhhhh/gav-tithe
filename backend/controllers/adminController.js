@@ -10,23 +10,29 @@ const getAllUsers = async (req, res) => {
             .select("-password")
             .sort({ createdAt: -1 });
 
-        // Har user ke saath form status bhi lo
-        const usersWithForm = await Promise.all(
-            users.map(async (user) => {
-                const form = await FormData.findOne({ userId: user._id })
-                    .select("status updatedAt section1");
-                return {
-                    _id: user._id,
-                    name: user.name,
-                    mobile: user.mobile,
-                    email: user.email,
-                    createdAt: user.createdAt,
-                    formStatus: form?.status || "not_started",
-                    formUpdatedAt: form?.updatedAt || null,
-                    fullName: form?.section1?.fullName || null,
-                };
-            })
-        );
+        const userIds = users.map((u) => u._id);
+
+        const forms = await FormData.find({ userId: { $in: userIds } })
+            .select("userId status updatedAt section1");
+
+        const formMap = {};
+        for (const form of forms) {
+            formMap[form.userId.toString()] = form;
+        }
+
+        const usersWithForm = users.map((user) => {
+            const form = formMap[user._id.toString()];
+            return {
+                _id: user._id,
+                name: user.name,
+                mobile: user.mobile,
+                email: user.email,
+                createdAt: user.createdAt,
+                formStatus: form?.status || "not_started",
+                formUpdatedAt: form?.updatedAt || null,
+                fullName: form?.section1?.fullName || null,
+            };
+        });
 
         res.json({ success: true, users: usersWithForm });
     } catch (err) {
