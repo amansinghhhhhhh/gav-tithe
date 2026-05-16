@@ -128,7 +128,7 @@ export default function UserDetail() {
         <Card title="Business Info" icon="🏢">
           <Row label="Business Name" value={s2.businessName} />
           <Row label="Type" value={s2.businessType} />
-          <Row label="Sector" value={s2.sector} />
+          <Row label="Sector" value={s2.sector === "other" ? `Other — ${s2.sectorOther || ""}` : s2.sector} />
           <Row label="Status" value={s2.businessStatus} />
           <Row label="Employment" value={s2.employment} />
           <Row label="Investment" value={s2.investment} />
