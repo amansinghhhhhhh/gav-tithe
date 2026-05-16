@@ -10,6 +10,8 @@ import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
 const makeRules = (t) => ({
   businessType: (v) => (!v ? t("err_required") : null),
   sector: (v) => (!v ? t("err_required") : null),
+  sectorOther: (v, all) =>
+    all?.sector === "other" && !v?.trim() ? t("err_required") : null,
   businessStatus: (v) => (!v ? t("err_required") : null),
   employment: (v) => (!v?.trim() ? t("err_required") : null),
   investment: (v) =>
@@ -27,6 +29,7 @@ function Section2({ data, dispatch, registerNext, onNext }) {
     const isValid = validateAll({
       businessType: data.businessType,
       sector: data.sector,
+      sectorOther: data.sectorOther,
       businessStatus: data.businessStatus,
       employment: data.employment,
       investment: data.investment,
@@ -85,8 +88,9 @@ function Section2({ data, dispatch, registerNext, onNext }) {
               placeholder={t("s2_sector_ph")}
               value={data.sector}
               onChange={(e) => {
-                u({ sector: e.target.value });
+                u({ sector: e.target.value, sectorOther: "" });
                 clearError("sector");
+                clearError("sectorOther");
               }}
               onBlur={(e) => validateField("sector", e.target.value, data)}
               error={errors.sector}
@@ -101,6 +105,32 @@ function Section2({ data, dispatch, registerNext, onNext }) {
                 { value: "other", label: t("s2_sc_oth") },
               ]}
             />
+            {data.sector === "other" && (
+              <div style={{ marginTop: 8 }}>
+                <input
+                  style={{
+                    ...inputStyle,
+                    width: "100%",
+                    boxSizing: "border-box",
+                    border: `1.5px solid ${errors.sectorOther ? "#e53e3e" : "#ddd"}`,
+                  }}
+                  placeholder={t("s2_sector_other_ph")}
+                  value={data.sectorOther}
+                  onChange={(e) => {
+                    u({ sectorOther: e.target.value });
+                    clearError("sectorOther");
+                  }}
+                  onBlur={(e) =>
+                    validateField("sectorOther", e.target.value, { ...data, sector: "other" })
+                  }
+                />
+                {errors.sectorOther && (
+                  <span style={{ fontSize: 11, color: "#e53e3e" }}>
+                    ⚠ {errors.sectorOther}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

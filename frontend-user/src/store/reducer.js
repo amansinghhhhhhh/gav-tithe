@@ -8,7 +8,7 @@ export const initialState = {
         address: { dist: "", taluka: "", village: "", pincode: "" },
     },
     section2: {
-        businessName: "", businessType: "", sector: "",
+        businessName: "", businessType: "", sector: "", sectorOther: "",
         businessStatus: "ideation", employment: "", investment: "",
     },
     section3: {
