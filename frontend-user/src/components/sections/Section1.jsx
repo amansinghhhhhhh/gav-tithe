@@ -326,8 +326,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 }}
                 value={data.address?.dist || ""}
                 onChange={(e) => {
-                  uAddr("dist", e.target.value);
-                  uAddr("taluka", "");
+                  u({ address: { ...data.address, dist: e.target.value, taluka: "" } });
                   clearError("address.dist");
                   clearError("address.taluka");
                 }}
