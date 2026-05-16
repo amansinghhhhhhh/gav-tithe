@@ -47,7 +47,7 @@ const apiLimiter = rateLimit({
 // Auth routes ke liye strict limit
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10,                   // 10 attempts per 15 min
+    max: 20,                   // 20 attempts per 15 min
     message: { message: "Too many login attempts, please try again later" },
 });
 
