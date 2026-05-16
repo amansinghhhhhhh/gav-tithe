@@ -31,3 +31,6 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Claude Code
+.claude/
