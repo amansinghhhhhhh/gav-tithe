@@ -29,9 +29,14 @@ function useOtp() {
         } catch (_) { }
         recaptchaRef.current = null;
 
-        // DOM container bhi reset karo — Firebase dobara inject kar sake
+        // Element ko replace karo (innerHTML clear karna kaafi nahi — grecaptcha
+        // DOM element reference ya attribute se track karta hai, ID se nahi)
         const el = document.getElementById("recaptcha-container");
-        if (el) el.innerHTML = "";
+        if (el && el.parentNode) {
+            const fresh = document.createElement("div");
+            fresh.id = "recaptcha-container";
+            el.parentNode.replaceChild(fresh, el);
+        }
     };
 
     // ── reCAPTCHA initialize (ek baar) ─────────────────────────────────────
