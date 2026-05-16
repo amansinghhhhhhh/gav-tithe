@@ -38,7 +38,6 @@ const makeRules = (t) => ({
 function Section1({ data, dispatch, registerNext, onNext }) {
   const { t } = useLang();
   const [otpInput, setOtpInput] = useState("");
-  const [pincodeLoading, setPincodeLoading] = useState(false);
   const u = (p) => dispatch({ type: "UPDATE_SECTION1", payload: p });
 
   // address field shortcut
@@ -385,43 +384,13 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 }}
                 value={data.address?.village || ""}
                 disabled={!data.address?.taluka}
-                onChange={async (e) => {
-                  const village = e.target.value;
-                  uAddr("village", village);
+                onChange={(e) => {
+                  uAddr("village", e.target.value);
                   clearError("address.village");
-
-                  if (!village || village === "__other__") {
-                    uAddr("pincode", "");
-                    return;
-                  }
-
-                  // India Post API se pincode fetch karo
-                  setPincodeLoading(true);
-                  try {
-                    const res = await fetch(
-                      `https://api.postalpincode.in/postoffice/${encodeURIComponent(village)}`
-                    );
-                    const json = await res.json();
-                    const offices = json?.[0]?.PostOffice || [];
-                    const mh = offices.find(
-                      (o) => o.State === "Maharashtra" &&
-                        o.District?.toLowerCase().includes(
-                          (data.address?.dist || "").toLowerCase().split(" ")[0]
-                        )
-                    ) || offices.find((o) => o.State === "Maharashtra");
-                    if (mh?.Pincode) {
-                      uAddr("pincode", mh.Pincode);
-                      clearError("address.pincode");
-                    }
-                  } catch (_) {
-                    // silent fail — user enters manually
-                  } finally {
-                    setPincodeLoading(false);
-                  }
                 }}
                 onBlur={(e) => validateField("address.village", e.target.value, data)}
               >
-                <option value="">{t("s1_village_ph") || "-- गाव निवडा --"}</option>
+                <option value="">{t("s1_village_ph")}</option>
                 {getVillages(data.address?.dist, data.address?.taluka).map((v) => (
                   <option key={v} value={v}>{v}</option>
                 ))}
@@ -430,7 +399,6 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               {errors["address.village"] && (
                 <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.village"]}</span>
               )}
-              {/* Other village free text */}
               {data.address?.village === "__other__" && (
                 <input
                   style={{ ...inputStyle, marginTop: 8 }}
@@ -441,31 +409,23 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               )}
             </div>
 
-            {/* Pincode — auto-fill or manual */}
+            {/* Pincode — manual input */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <div style={{ position: "relative" }}>
-                <input
-                  style={{
-                    ...inputStyle,
-                    border: `1.5px solid ${errors["address.pincode"] ? "#e53e3e" : "#ddd"}`,
-                    paddingRight: pincodeLoading ? 36 : 14,
-                  }}
-                  placeholder={t("s1_pincode") || "Pincode"}
-                  value={data.address?.pincode || ""}
-                  maxLength={6}
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    uAddr("pincode", e.target.value.replace(/\D/g, ""));
-                    clearError("address.pincode");
-                  }}
-                  onBlur={(e) => validateField("address.pincode", e.target.value, data)}
-                />
-                {pincodeLoading && (
-                  <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)" }}>
-                    <Spinner size={16} />
-                  </div>
-                )}
-              </div>
+              <input
+                style={{
+                  ...inputStyle,
+                  border: `1.5px solid ${errors["address.pincode"] ? "#e53e3e" : "#ddd"}`,
+                }}
+                placeholder={t("s1_pincode") || "Pincode"}
+                value={data.address?.pincode || ""}
+                maxLength={6}
+                inputMode="numeric"
+                onChange={(e) => {
+                  uAddr("pincode", e.target.value.replace(/\D/g, ""));
+                  clearError("address.pincode");
+                }}
+                onBlur={(e) => validateField("address.pincode", e.target.value, data)}
+              />
               {errors["address.pincode"] && (
                 <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.pincode"]}</span>
               )}
