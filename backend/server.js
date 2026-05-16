@@ -47,8 +47,16 @@ const apiLimiter = rateLimit({
 // Auth routes ke liye strict limit
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20,                   // 20 attempts per 15 min
-    message: { message: "Too many login attempts, please try again later" },
+    max: 15,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        const waitMs = req.rateLimit.resetTime - Date.now();
+        const waitMin = Math.ceil(waitMs / 60000);
+        res.status(429).json({
+            message: `Bahut zyada login attempts ho gaye. ${waitMin} minute baad dobara try karo.`,
+        });
+    },
 });
 
 // ── 4. Body Parser ────────────────────────────────────────────────────────────
