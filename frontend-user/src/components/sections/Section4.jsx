@@ -113,14 +113,12 @@ function Section4({ data, dispatch, registerNext, onNext }) {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <DocUploadBox
               label={t("s4_doc_aadh_front")}
-              sublabel={t("s4_doc_aadh_front_sub")}
               uploaded={!!data.docs.aadhaarFront}
               onUpload={(f) => { ud("aadhaarFront", f); clearError("docs.aadhaarFront"); }}
               error={errors["docs.aadhaarFront"]}
             />
             <DocUploadBox
               label={t("s4_doc_aadh_back")}
-              sublabel={t("s4_doc_aadh_back_sub")}
               uploaded={!!data.docs.aadhaarBack}
               onUpload={(f) => { ud("aadhaarBack", f); clearError("docs.aadhaarBack"); }}
               error={errors["docs.aadhaarBack"]}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import C from "../../constants/colors";
 
 const PDF_MAX = 1 * 1024 * 1024;   // 1 MB
-const IMG_MAX = 5 * 1024 * 1024;   // 5 MB
+const IMG_MAX = 2 * 1024 * 1024;   // 2 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
 function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
@@ -13,14 +13,15 @@ function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setErr("फक्त PDF, JPG, PNG, WEBP");
+      setErr("फक्त PDF, JPG, PNG, WEBP मान्य आहे");
       e.target.value = "";
       return;
     }
 
-    const limit = file.type === "application/pdf" ? PDF_MAX : IMG_MAX;
+    const isPdf = file.type === "application/pdf";
+    const limit = isPdf ? PDF_MAX : IMG_MAX;
     if (file.size > limit) {
-      setErr(file.type === "application/pdf" ? "PDF जास्तीत जास्त 1MB" : "Image जास्तीत जास्त 5MB");
+      setErr(isPdf ? "PDF जास्तीत जास्त 1MB असावे" : "Image जास्तीत जास्त 2MB असावे");
       e.target.value = "";
       return;
     }
@@ -66,7 +67,7 @@ function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
         )}
 
         <span style={{ fontSize: 9, color: "#aaa", marginTop: 4 }}>
-          PDF 1MB · IMG 5MB
+          PDF ≤1MB · IMG ≤2MB
         </span>
       </label>
 

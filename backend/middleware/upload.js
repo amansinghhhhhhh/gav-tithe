@@ -7,7 +7,7 @@ const { Readable } = require("stream");
 const storage = multer.memoryStorage();
 
 const PDF_MAX = 1 * 1024 * 1024;  // 1 MB for PDF
-const IMG_MAX = 5 * 1024 * 1024;  // 5 MB for images
+const IMG_MAX = 2 * 1024 * 1024;  // 2 MB for images
 
 const upload = multer({
     storage,
