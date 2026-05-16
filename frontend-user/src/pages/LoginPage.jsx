@@ -274,7 +274,11 @@ export default function LoginPage() {
       if (data?.success) {
         login(data.user);
         navigate("/dashboard");
-      } else setErr(data?.message || t("login_error1"));
+      } else if (data?.retryAfterMinutes) {
+        setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
+      } else {
+        setErr(data?.message || t("login_error1"));
+      }
     } catch (e) {
       setErr(t("login_failed", { msg: e.message }));
     } finally {

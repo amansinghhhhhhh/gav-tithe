@@ -218,6 +218,7 @@ const translations = {
         login_resend: "→ Verification Email पुन्हा पाठवा",
         login_resend_success: "Verification email पुन्हा पाठवला! Inbox तपासा.",
         login_failed: "लॉगिन अयशस्वी: {{msg}}",
+        err_rate_limit: "बरेच लॉगिन प्रयत्न झाले. {{min}} मिनिटांनंतर पुन्हा प्रयत्न करा.",
         registration_success: "✅ नोंदणी यशस्वी! \"{{email}}\" वर verification link पाठवली आहे. कृपया email verify करा आणि मग login करा.",
 
         // Forgot Password
@@ -462,6 +463,7 @@ const translations = {
         login_resend: "→ Resend Verification Email",
         login_resend_success: "Verification email sent again! Check your inbox.",
         login_failed: "Login failed: {{msg}}",
+        err_rate_limit: "Too many login attempts. Please try again in {{min}} minutes.",
         registration_success: "✅ Registration successful! A verification link has been sent to \"{{email}}\". Please verify your email and then log in.",
 
         // Forgot Password

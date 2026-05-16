@@ -55,6 +55,7 @@ const authLimiter = rateLimit({
         const waitMin = Math.ceil(waitMs / 60000);
         res.status(429).json({
             message: `Bahut zyada login attempts ho gaye. ${waitMin} minute baad dobara try karo.`,
+            retryAfterMinutes: waitMin,
         });
     },
 });
