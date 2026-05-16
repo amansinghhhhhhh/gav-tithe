@@ -8,6 +8,7 @@ import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
 import useValidation from "../../hooks/useValidation";
 import useOtp from "../../hooks/useOtp";
 import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
+import { districts, getTalukas } from "../../constants/maharashtraData";
 
 const makeRules = (t) => ({
   fullName: (v) =>
@@ -309,81 +310,88 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           ]}
         />
 
-        {/* ✅ Address — 4 fields */}
+        {/* ✅ Address — cascading dropdowns */}
         <div>
           <label style={labelStyle}>{t("s1_address")}</label>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            {/* Dist + Taluka */}
+
+            {/* District dropdown */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <input
+              <select
                 style={{
                   ...inputStyle,
                   border: `1.5px solid ${errors["address.dist"] ? "#e53e3e" : "#ddd"}`,
+                  background: "#fff",
+                  cursor: "pointer",
                 }}
-                placeholder={t("s1_dist") || "Dist."}
                 value={data.address?.dist || ""}
                 onChange={(e) => {
                   uAddr("dist", e.target.value);
+                  uAddr("taluka", "");
                   clearError("address.dist");
+                  clearError("address.taluka");
                 }}
-                onBlur={(e) =>
-                  validateField("address.dist", e.target.value, data)
-                }
-              />
+                onBlur={(e) => validateField("address.dist", e.target.value, data)}
+              >
+                <option value="">{t("s1_dist_ph") || "-- जिल्हा निवडा --"}</option>
+                {districts.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
               {errors["address.dist"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                  ⚠ {errors["address.dist"]}
-                </span>
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.dist"]}</span>
               )}
             </div>
 
+            {/* Taluka dropdown — district nivadat hone var enable */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <input
+              <select
                 style={{
                   ...inputStyle,
                   border: `1.5px solid ${errors["address.taluka"] ? "#e53e3e" : "#ddd"}`,
+                  background: data.address?.dist ? "#fff" : "#f9fafb",
+                  cursor: data.address?.dist ? "pointer" : "not-allowed",
+                  color: data.address?.dist ? "#1a1a1a" : "#9ca3af",
                 }}
-                placeholder={t("s1_taluka") || "Taluka"}
                 value={data.address?.taluka || ""}
+                disabled={!data.address?.dist}
                 onChange={(e) => {
                   uAddr("taluka", e.target.value);
                   clearError("address.taluka");
                 }}
-                onBlur={(e) =>
-                  validateField("address.taluka", e.target.value, data)
-                }
-              />
+                onBlur={(e) => validateField("address.taluka", e.target.value, data)}
+              >
+                <option value="">{t("s1_taluka_ph") || "-- तालुका निवडा --"}</option>
+                {getTalukas(data.address?.dist).map((tk) => (
+                  <option key={tk} value={tk}>{tk}</option>
+                ))}
+              </select>
               {errors["address.taluka"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                  ⚠ {errors["address.taluka"]}
-                </span>
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.taluka"]}</span>
               )}
             </div>
 
-            {/* Village + Pincode */}
+            {/* Village — free text */}
             <div style={{ flex: 1, minWidth: 180 }}>
               <input
                 style={{
                   ...inputStyle,
                   border: `1.5px solid ${errors["address.village"] ? "#e53e3e" : "#ddd"}`,
                 }}
-                placeholder={t("s1_village") || "Village"}
+                placeholder={t("s1_village") || "गाव"}
                 value={data.address?.village || ""}
                 onChange={(e) => {
                   uAddr("village", e.target.value);
                   clearError("address.village");
                 }}
-                onBlur={(e) =>
-                  validateField("address.village", e.target.value, data)
-                }
+                onBlur={(e) => validateField("address.village", e.target.value, data)}
               />
               {errors["address.village"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                  ⚠ {errors["address.village"]}
-                </span>
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.village"]}</span>
               )}
             </div>
 
+            {/* Pincode */}
             <div style={{ flex: 1, minWidth: 180 }}>
               <input
                 style={{
@@ -393,20 +401,18 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 placeholder={t("s1_pincode") || "Pincode"}
                 value={data.address?.pincode || ""}
                 maxLength={6}
+                inputMode="numeric"
                 onChange={(e) => {
                   uAddr("pincode", e.target.value.replace(/\D/g, ""));
                   clearError("address.pincode");
                 }}
-                onBlur={(e) =>
-                  validateField("address.pincode", e.target.value, data)
-                }
+                onBlur={(e) => validateField("address.pincode", e.target.value, data)}
               />
               {errors["address.pincode"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                  ⚠ {errors["address.pincode"]}
-                </span>
+                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.pincode"]}</span>
               )}
             </div>
+
           </div>
         </div>
       </div>
