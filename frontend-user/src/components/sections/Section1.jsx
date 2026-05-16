@@ -7,6 +7,7 @@ import SectionHeader from "../shared/SectionHeader";
 import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
 import useValidation from "../../hooks/useValidation";
 import useOtp from "../../hooks/useOtp";
+import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
 
 const makeRules = (t) => ({
   fullName: (v) =>
@@ -181,8 +182,12 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                     cursor: otpLoading ? "not-allowed" : "pointer",
                     fontSize: 13,
                     whiteSpace: "nowrap",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                 >
+                  {otpLoading && <Spinner size={16} style={{ filter: "brightness(0) invert(1)" }} />}
                   {otpLoading ? "..." : t("s1_get_otp")}
                 </button>
               )}
@@ -200,37 +205,41 @@ function Section1({ data, dispatch, registerNext, onNext }) {
             )}
 
             {otpSent && !data.otpVerified && (
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <input
-                  style={{
-                    ...inputStyle,
-                    flex: 1,
-                    border: `1.5px solid ${errors.otpVerified ? "#e53e3e" : "#ddd"}`,
-                  }}
-                  placeholder={t("s1_otp_ph")}
-                  value={otpInput}
-                  onChange={(e) =>
-                    setOtpInput(e.target.value.replace(/\D/g, ""))
-                  }
-                  maxLength={6}
-                />
-                <button
-                  onClick={handleVerifyOtp}
-                  disabled={otpLoading || otpInput.length < 4}
-                  style={{
-                    padding: "10px 14px",
-                    background: otpLoading ? "#aaa" : C.navy,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    fontWeight: 700,
-                    cursor: otpLoading ? "not-allowed" : "pointer",
-                    fontSize: 13,
-                  }}
-                >
-                  {otpLoading ? "..." : t("s1_verify")}
-                </button>
-              </div>
+              <>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <input
+                    style={{
+                      ...inputStyle,
+                      flex: 1,
+                      border: `1.5px solid ${errors.otpVerified ? "#e53e3e" : "#ddd"}`,
+                    }}
+                    placeholder={t("s1_otp_ph")}
+                    value={otpInput}
+                    onChange={(e) =>
+                      setOtpInput(e.target.value.replace(/\D/g, ""))
+                    }
+                    maxLength={6}
+                    disabled={otpLoading}
+                  />
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={otpLoading || otpInput.length < 4}
+                    style={{
+                      padding: "10px 14px",
+                      background: otpLoading ? "#aaa" : C.navy,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 8,
+                      fontWeight: 700,
+                      cursor: otpLoading ? "not-allowed" : "pointer",
+                      fontSize: 13,
+                    }}
+                  >
+                    {t("s1_verify")}
+                  </button>
+                </div>
+                {otpLoading && <OtpVerifyLoader />}
+              </>
             )}
 
             {otpSent && !data.otpVerified && (

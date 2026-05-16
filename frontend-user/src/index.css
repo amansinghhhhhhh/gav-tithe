@@ -103,6 +103,21 @@ p {
   display: none;
 }
 
+@keyframes gu-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes gu-ring {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes gu-ring2 {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
 code,
 .counter {
   font-family: var(--mono);

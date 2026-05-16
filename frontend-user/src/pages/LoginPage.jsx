@@ -11,6 +11,7 @@ import {
 } from "firebase/auth";
 import { app } from "../config/firebase";
 import { Header } from "../components/Header";
+import { Spinner } from "../components/shared/Spinner";
 
 const inp = {
   width: "100%",
@@ -518,8 +519,13 @@ export default function LoginPage() {
                     fontSize: 15,
                     cursor: loading ? "not-allowed" : "pointer",
                     boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
                   }}
                 >
+                  {loading && <Spinner size={20} style={{ filter: "brightness(0) invert(1)" }} />}
                   {loading ? t("login_signing") : t("login_btn")}
                 </button>
                 <p
@@ -766,8 +772,13 @@ export default function LoginPage() {
                     fontSize: 15,
                     cursor: loading ? "not-allowed" : "pointer",
                     boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
                   }}
                 >
+                  {loading && <Spinner size={20} style={{ filter: "brightness(0) invert(1)" }} />}
                   {loading ? t("login_registering") : t("login_register_btn")}
                 </button>
                 <p

@@ -16,6 +16,7 @@ import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import { Spinner } from "./components/shared/Spinner";
 
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
@@ -25,12 +26,15 @@ function ProtectedRoute({ children }) {
       <div
         style={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          gap: 16,
           height: "100vh",
         }}
       >
-        <div style={{ color: C.maroon, fontWeight: 700 }}>Loading...</div>
+        <Spinner size={56} />
+        <div style={{ color: C.maroon, fontWeight: 700, fontSize: 15 }}>Loading...</div>
       </div>
     );
   return user ? children : <Navigate to="/login" replace />;
@@ -208,16 +212,16 @@ function Dashboard() {
             <div
               style={{
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
+                gap: 16,
                 height: "60vh",
               }}
             >
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
-                <div style={{ color: C.maroon, fontWeight: 600 }}>
-                  Loading your form...
-                </div>
+              <Spinner size={64} />
+              <div style={{ color: C.maroon, fontWeight: 600, fontSize: 15 }}>
+                Loading your form...
               </div>
             </div>
           ) : submitted ? (
@@ -228,15 +232,18 @@ function Dashboard() {
               {saving && (
                 <div
                   style={{
-                    textAlign: "center",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
                     padding: "8px",
-                    color: C.maroon,
-                    fontWeight: 600,
-                    fontSize: 13,
                     marginBottom: 8,
                   }}
                 >
-                  ⏳ Saving...
+                  <Spinner size={20} />
+                  <span style={{ color: C.maroon, fontWeight: 600, fontSize: 13 }}>
+                    Saving...
+                  </span>
                 </div>
               )}
               {currentStep === 1 && (
