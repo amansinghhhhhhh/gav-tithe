@@ -1,7 +1,7 @@
 const FormData = require("../models/FormData");
 const { saveToGridFS } = require("../middleware/upload");
 
-const ALLOWED_DOC_TYPES = ["aadhaar", "pan", "udyam", "passport"];
+const ALLOWED_DOC_TYPES = ["aadhaar_front", "aadhaar_back", "pan", "udyam", "passport"];
 
 const SECTION_ALLOWED_KEYS = {
     section1: ["fullName", "dob", "gender", "mobile", "email", "education", "address", "otpVerified"],
@@ -69,7 +69,8 @@ const submitForm = async (req, res) => {
         // ✅ Files GridFS mein save karo
         if (req.files) {
             const docMap = {
-                doc_aadhaar: "aadhaar",
+                doc_aadhaar_front: "aadhaarFront",
+                doc_aadhaar_back: "aadhaarBack",
                 doc_pan: "pan",
                 doc_udyam: "udyam",
                 doc_passport: "passport",

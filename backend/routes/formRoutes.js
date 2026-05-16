@@ -13,7 +13,8 @@ router2.post(
     "/submit",
     protect2,
     upload.fields([
-        { name: "doc_aadhaar", maxCount: 1 },
+        { name: "doc_aadhaar_front", maxCount: 1 },
+        { name: "doc_aadhaar_back", maxCount: 1 },
         { name: "doc_pan", maxCount: 1 },
         { name: "doc_udyam", maxCount: 1 },
         { name: "doc_passport", maxCount: 1 },

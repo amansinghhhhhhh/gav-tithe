@@ -166,7 +166,14 @@ export default function UserDetail() {
           📎 Documents
         </h3>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          {["aadhaar", "pan", "udyam", "passport"].map((doc) => {
+          {[
+            { key: "aadhaarFront", label: "Aadhaar Front" },
+            { key: "aadhaarBack", label: "Aadhaar Back" },
+            { key: "pan", label: "PAN" },
+            { key: "udyam", label: "Udyam" },
+            { key: "passport", label: "Passport Photo" },
+          ].map(({ key, label }) => {
+            const doc = key;
             const fileId = s4.docs?.[doc];
             return (
               <div
@@ -186,11 +193,10 @@ export default function UserDetail() {
                   style={{
                     fontSize: 13,
                     fontWeight: 600,
-                    textTransform: "capitalize",
                     marginBottom: 8,
                   }}
                 >
-                  {doc}
+                  {label}
                 </div>
                 {fileId ? (
                   <button

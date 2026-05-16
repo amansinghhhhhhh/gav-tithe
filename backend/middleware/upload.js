@@ -6,14 +6,25 @@ const { Readable } = require("stream");
 // Memory storage — file buffer mein rakho, phir GridFS mein save karo
 const storage = multer.memoryStorage();
 
+const PDF_MAX = 1 * 1024 * 1024;  // 1 MB for PDF
+const IMG_MAX = 5 * 1024 * 1024;  // 5 MB for images
+
 const upload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    limits: { fileSize: IMG_MAX },   // outer cap — per-type enforced in fileFilter
     fileFilter: (req, file, cb) => {
-        const allowed = ["image/jpeg", "image/png", "application/pdf"];
-        allowed.includes(file.mimetype)
-            ? cb(null, true)
-            : cb(new Error("Only JPG, PNG, PDF allowed"), false);
+        const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+        if (!allowed.includes(file.mimetype)) {
+            return cb(new Error("Only JPG, PNG, WEBP, PDF allowed"), false);
+        }
+        // PDF size check (multer limits fires after, so check here via Content-Length header)
+        if (file.mimetype === "application/pdf") {
+            const cl = parseInt(req.headers["content-length"] || "0", 10);
+            if (cl > PDF_MAX) {
+                return cb(new Error("PDF file must be under 1MB"), false);
+            }
+        }
+        cb(null, true);
     },
 });
 
@@ -24,6 +35,8 @@ const checkBytes = (file) => {
         return buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF;
     if (file.mimetype === "image/png")
         return buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47;
+    if (file.mimetype === "image/webp")
+        return buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46;
     if (file.mimetype === "application/pdf")
         return buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46;
     return false;

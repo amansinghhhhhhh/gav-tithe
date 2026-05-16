@@ -142,7 +142,8 @@ function Dashboard() {
       }));
 
       const docFieldMap = {
-        aadhaar: "doc_aadhaar",
+        aadhaarFront: "doc_aadhaar_front",
+        aadhaarBack: "doc_aadhaar_back",
         pan: "doc_pan",
         udyam: "doc_udyam",
         passport: "doc_passport",

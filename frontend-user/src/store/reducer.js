@@ -17,7 +17,7 @@ export const initialState = {
     },
     section4: {
         aadhaar: "", pan: "", bankName: "", accountNo: "",
-        docs: { aadhaar: null, pan: null, udyam: null, passport: null },
+        docs: { aadhaarFront: null, aadhaarBack: null, pan: null, udyam: null, passport: null },
     },
 };
 

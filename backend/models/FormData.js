@@ -45,7 +45,8 @@ const FormDataSchema = new mongoose.Schema({
         bankName: String,
         accountNo: String,
         docs: {
-            aadhaar: { type: mongoose.Schema.Types.Mixed, default: null },
+            aadhaarFront: { type: mongoose.Schema.Types.Mixed, default: null },
+            aadhaarBack: { type: mongoose.Schema.Types.Mixed, default: null },
             pan: { type: mongoose.Schema.Types.Mixed, default: null },
             udyam: { type: mongoose.Schema.Types.Mixed, default: null },
             passport: { type: mongoose.Schema.Types.Mixed, default: null },

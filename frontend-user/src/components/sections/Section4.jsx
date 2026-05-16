@@ -19,7 +19,8 @@ const makeRules = (t) => ({
       : !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.trim())
         ? t("err_pan")
         : null,
-  "docs.aadhaar": (v) => (!v ? t("err_doc_required") : null),
+  "docs.aadhaarFront": (v) => (!v ? t("err_doc_required") : null),
+  "docs.aadhaarBack": (v) => (!v ? t("err_doc_required") : null),
   "docs.pan": (v) => (!v ? t("err_doc_required") : null),
 });
 
@@ -36,7 +37,8 @@ function Section4({ data, dispatch, registerNext, onNext }) {
     const isValid = validateAll({
       aadhaar: data.aadhaar,
       pan: data.pan,
-      "docs.aadhaar": data.docs.aadhaar,
+      "docs.aadhaarFront": data.docs.aadhaarFront,
+      "docs.aadhaarBack": data.docs.aadhaarBack,
       "docs.pan": data.docs.pan,
     });
     if (isValid) onNext();
@@ -109,53 +111,26 @@ function Section4({ data, dispatch, registerNext, onNext }) {
         <div>
           <label style={labelStyle}>{t("s4_upload")}</label>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 110 }}>
-              <DocUploadBox
-                label={t("s4_doc_aadh")}
-                sublabel={t("s4_doc_aadh_sub")}
-                uploaded={!!data.docs.aadhaar}
-                onUpload={(f) => {
-                  ud("aadhaar", f);
-                  clearError("docs.aadhaar");
-                }}
-              />
-              {errors["docs.aadhaar"] && (
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: "#e53e3e",
-                    display: "block",
-                    textAlign: "center",
-                    marginTop: 4,
-                  }}
-                >
-                  ⚠ {errors["docs.aadhaar"]}
-                </span>
-              )}
-            </div>
-            <div style={{ flex: 1, minWidth: 110 }}>
-              <DocUploadBox
-                label={t("s4_doc_pan")}
-                uploaded={!!data.docs.pan}
-                onUpload={(f) => {
-                  ud("pan", f);
-                  clearError("docs.pan");
-                }}
-              />
-              {errors["docs.pan"] && (
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: "#e53e3e",
-                    display: "block",
-                    textAlign: "center",
-                    marginTop: 4,
-                  }}
-                >
-                  ⚠ {errors["docs.pan"]}
-                </span>
-              )}
-            </div>
+            <DocUploadBox
+              label={t("s4_doc_aadh_front")}
+              sublabel={t("s4_doc_aadh_front_sub")}
+              uploaded={!!data.docs.aadhaarFront}
+              onUpload={(f) => { ud("aadhaarFront", f); clearError("docs.aadhaarFront"); }}
+              error={errors["docs.aadhaarFront"]}
+            />
+            <DocUploadBox
+              label={t("s4_doc_aadh_back")}
+              sublabel={t("s4_doc_aadh_back_sub")}
+              uploaded={!!data.docs.aadhaarBack}
+              onUpload={(f) => { ud("aadhaarBack", f); clearError("docs.aadhaarBack"); }}
+              error={errors["docs.aadhaarBack"]}
+            />
+            <DocUploadBox
+              label={t("s4_doc_pan")}
+              uploaded={!!data.docs.pan}
+              onUpload={(f) => { ud("pan", f); clearError("docs.pan"); }}
+              error={errors["docs.pan"]}
+            />
             <DocUploadBox
               label={t("s4_doc_udyam")}
               sublabel={t("s4_doc_udyam_sub")}
