@@ -60,6 +60,7 @@ const translations = {
         s1_taluka: "तालुका",
         s1_taluka_ph: "-- तालुका निवडा --",
         s1_village: "गाव",
+        s1_village_ph: "-- गाव निवडा --",
         s1_pincode: "पिन कोड",
         err_pincode: "चुकीचा पिनकोड",
 
@@ -308,6 +309,7 @@ const translations = {
         s1_taluka: "Taluka",
         s1_taluka_ph: "-- Select Taluka --",
         s1_village: "Village",
+        s1_village_ph: "-- Select Village --",
         s1_pincode: "Pincode",
         err_pincode: "Wrong Pincode",
 

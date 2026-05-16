@@ -9,6 +9,7 @@ import useValidation from "../../hooks/useValidation";
 import useOtp from "../../hooks/useOtp";
 import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
 import { districts, getTalukas } from "../../constants/maharashtraData";
+import { getVillages } from "../../constants/maharashtraVillages";
 
 const makeRules = (t) => ({
   fullName: (v) =>
@@ -37,6 +38,7 @@ const makeRules = (t) => ({
 function Section1({ data, dispatch, registerNext, onNext }) {
   const { t } = useLang();
   const [otpInput, setOtpInput] = useState("");
+  const [pincodeLoading, setPincodeLoading] = useState(false);
   const u = (p) => dispatch({ type: "UPDATE_SECTION1", payload: p });
 
   // address field shortcut
@@ -321,18 +323,18 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 style={{
                   ...inputStyle,
                   border: `1.5px solid ${errors["address.dist"] ? "#e53e3e" : "#ddd"}`,
-                  background: "#fff",
                   cursor: "pointer",
                 }}
                 value={data.address?.dist || ""}
                 onChange={(e) => {
-                  u({ address: { ...data.address, dist: e.target.value, taluka: "" } });
+                  u({ address: { ...data.address, dist: e.target.value, taluka: "", village: "", pincode: "" } });
                   clearError("address.dist");
                   clearError("address.taluka");
+                  clearError("address.village");
                 }}
                 onBlur={(e) => validateField("address.dist", e.target.value, data)}
               >
-                <option value="">{t("s1_dist_ph") || "-- जिल्हा निवडा --"}</option>
+                <option value="">{t("s1_dist_ph")}</option>
                 {districts.map((d) => (
                   <option key={d} value={d}>{d}</option>
                 ))}
@@ -342,7 +344,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               )}
             </div>
 
-            {/* Taluka dropdown — district nivadat hone var enable */}
+            {/* Taluka dropdown */}
             <div style={{ flex: 1, minWidth: 180 }}>
               <select
                 style={{
@@ -350,17 +352,18 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                   border: `1.5px solid ${errors["address.taluka"] ? "#e53e3e" : "#ddd"}`,
                   background: data.address?.dist ? "#fff" : "#f9fafb",
                   cursor: data.address?.dist ? "pointer" : "not-allowed",
-                  color: data.address?.dist ? "#1a1a1a" : "#9ca3af",
+                  color: data.address?.dist ? "#222" : "#9ca3af",
                 }}
                 value={data.address?.taluka || ""}
                 disabled={!data.address?.dist}
                 onChange={(e) => {
-                  uAddr("taluka", e.target.value);
+                  u({ address: { ...data.address, taluka: e.target.value, village: "", pincode: "" } });
                   clearError("address.taluka");
+                  clearError("address.village");
                 }}
                 onBlur={(e) => validateField("address.taluka", e.target.value, data)}
               >
-                <option value="">{t("s1_taluka_ph") || "-- तालुका निवडा --"}</option>
+                <option value="">{t("s1_taluka_ph")}</option>
                 {getTalukas(data.address?.dist).map((tk) => (
                   <option key={tk} value={tk}>{tk}</option>
                 ))}
@@ -370,43 +373,99 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               )}
             </div>
 
-            {/* Village — free text */}
+            {/* Village dropdown */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <input
+              <select
                 style={{
                   ...inputStyle,
                   border: `1.5px solid ${errors["address.village"] ? "#e53e3e" : "#ddd"}`,
+                  background: data.address?.taluka ? "#fff" : "#f9fafb",
+                  cursor: data.address?.taluka ? "pointer" : "not-allowed",
+                  color: data.address?.taluka ? "#222" : "#9ca3af",
                 }}
-                placeholder={t("s1_village") || "गाव"}
                 value={data.address?.village || ""}
-                onChange={(e) => {
-                  uAddr("village", e.target.value);
+                disabled={!data.address?.taluka}
+                onChange={async (e) => {
+                  const village = e.target.value;
+                  uAddr("village", village);
                   clearError("address.village");
+
+                  if (!village || village === "__other__") {
+                    uAddr("pincode", "");
+                    return;
+                  }
+
+                  // India Post API se pincode fetch karo
+                  setPincodeLoading(true);
+                  try {
+                    const res = await fetch(
+                      `https://api.postalpincode.in/postoffice/${encodeURIComponent(village)}`
+                    );
+                    const json = await res.json();
+                    const offices = json?.[0]?.PostOffice || [];
+                    const mh = offices.find(
+                      (o) => o.State === "Maharashtra" &&
+                        o.District?.toLowerCase().includes(
+                          (data.address?.dist || "").toLowerCase().split(" ")[0]
+                        )
+                    ) || offices.find((o) => o.State === "Maharashtra");
+                    if (mh?.Pincode) {
+                      uAddr("pincode", mh.Pincode);
+                      clearError("address.pincode");
+                    }
+                  } catch (_) {
+                    // silent fail — user enters manually
+                  } finally {
+                    setPincodeLoading(false);
+                  }
                 }}
                 onBlur={(e) => validateField("address.village", e.target.value, data)}
-              />
+              >
+                <option value="">{t("s1_village_ph") || "-- गाव निवडा --"}</option>
+                {getVillages(data.address?.dist, data.address?.taluka).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+                <option value="__other__">इतर (Other)</option>
+              </select>
               {errors["address.village"] && (
                 <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.village"]}</span>
               )}
+              {/* Other village free text */}
+              {data.address?.village === "__other__" && (
+                <input
+                  style={{ ...inputStyle, marginTop: 8 }}
+                  placeholder="तुमचे गाव लिहा..."
+                  value={data.address?.villageCustom || ""}
+                  onChange={(e) => uAddr("villageCustom", e.target.value)}
+                />
+              )}
             </div>
 
-            {/* Pincode */}
+            {/* Pincode — auto-fill or manual */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <input
-                style={{
-                  ...inputStyle,
-                  border: `1.5px solid ${errors["address.pincode"] ? "#e53e3e" : "#ddd"}`,
-                }}
-                placeholder={t("s1_pincode") || "Pincode"}
-                value={data.address?.pincode || ""}
-                maxLength={6}
-                inputMode="numeric"
-                onChange={(e) => {
-                  uAddr("pincode", e.target.value.replace(/\D/g, ""));
-                  clearError("address.pincode");
-                }}
-                onBlur={(e) => validateField("address.pincode", e.target.value, data)}
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  style={{
+                    ...inputStyle,
+                    border: `1.5px solid ${errors["address.pincode"] ? "#e53e3e" : "#ddd"}`,
+                    paddingRight: pincodeLoading ? 36 : 14,
+                  }}
+                  placeholder={t("s1_pincode") || "Pincode"}
+                  value={data.address?.pincode || ""}
+                  maxLength={6}
+                  inputMode="numeric"
+                  onChange={(e) => {
+                    uAddr("pincode", e.target.value.replace(/\D/g, ""));
+                    clearError("address.pincode");
+                  }}
+                  onBlur={(e) => validateField("address.pincode", e.target.value, data)}
+                />
+                {pincodeLoading && (
+                  <div style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)" }}>
+                    <Spinner size={16} />
+                  </div>
+                )}
+              </div>
               {errors["address.pincode"] && (
                 <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.pincode"]}</span>
               )}
