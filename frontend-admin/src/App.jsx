@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import UsersList from "./pages/UsersList";
 import UserDetail from "./pages/UserDetail";
 import C from "./constants/colors";
+import { Spinner } from "./components/shared/Spinner";
 
 function ProtectedLayout({ children }) {
   const { admin, loading } = useAuth();
@@ -14,12 +15,15 @@ function ProtectedLayout({ children }) {
       <div
         style={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          gap: 16,
           height: "100vh",
         }}
       >
-        Loading...
+        <Spinner size={56} />
+        <div style={{ color: C.maroon, fontWeight: 700, fontSize: 15 }}>Loading...</div>
       </div>
     );
   if (!admin) return <Navigate to="/login" replace />;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllUsers } from "../services/api";
 import C from "../constants/colors";
+import { Spinner } from "../components/shared/Spinner";
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
@@ -82,8 +83,9 @@ export default function UsersList() {
         }}
       >
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: C.textopa }}>
-            Loading...
+          <div style={{ padding: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <Spinner size={48} />
+            <div style={{ color: C.textopa, fontWeight: 600 }}>Loading...</div>
           </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>

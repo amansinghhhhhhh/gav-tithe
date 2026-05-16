@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserDetail, updateUserStatus, openDoc } from "../services/api";
 import C from "../constants/colors";
+import { Spinner } from "../components/shared/Spinner";
 
 export default function UserDetail() {
   const { userId } = useParams();
@@ -34,7 +35,12 @@ export default function UserDetail() {
   };
 
   if (loading)
-    return <div style={{ padding: 40, textAlign: "center" }}>Loading...</div>;
+    return (
+      <div style={{ padding: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <Spinner size={52} />
+        <div style={{ color: C.maroon, fontWeight: 600 }}>Loading...</div>
+      </div>
+    );
   if (!data) return <div style={{ padding: 40 }}>User not found</div>;
 
   const { user, form } = data;

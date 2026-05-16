@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginAdmin } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import C from "../constants/colors";
+import { Spinner } from "../components/shared/Spinner";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,6 +25,8 @@ export default function LoginPage() {
     if (data?.success && data?.user?.role === "admin") {
       login(data.user);
       navigate("/dashboard");
+    } else if (data?.retryAfterMinutes) {
+      setErr(`Too many login attempts. Please try again in ${data.retryAfterMinutes} minutes.`);
     } else if (data?.user?.role !== "admin") {
       setErr("Admin access nahi hai");
     } else {
@@ -119,17 +122,22 @@ export default function LoginPage() {
           <button
             style={{
               padding: "12px 0",
-              background: C.maroon,
+              background: loading ? "#9b2b2b" : C.maroon,
               color: "#fff",
               border: "none",
               borderRadius: 8,
               fontWeight: 700,
               fontSize: 15,
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
             }}
             onClick={handleLogin}
             disabled={loading}
           >
+            {loading && <Spinner size={18} style={{ filter: "brightness(0) invert(1)" }} />}
             {loading ? "Login ho raha hai..." : "Login Karo"}
           </button>
         </div>

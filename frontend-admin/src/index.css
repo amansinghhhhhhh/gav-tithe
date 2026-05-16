@@ -103,6 +103,11 @@ p {
   display: none;
 }
 
+@keyframes gu-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 code,
 .counter {
   font-family: var(--mono);
