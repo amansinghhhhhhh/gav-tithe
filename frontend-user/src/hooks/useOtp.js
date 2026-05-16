@@ -60,17 +60,12 @@ function useOtp() {
         setError("");
         setLoading(true);
 
-        // Pehle purana recaptcha saaf karo (resend case)
-        if (confirmRef.current) {
-            destroyRecaptcha();
-        }
+        // Har baar fresh shuru karo — grecaptcha global state stale ho jaata hai
+        destroyRecaptcha();
 
         try {
             const verifier = getRecaptcha();
-
-            // render() explicitly call karo — invisible hone pe bhi zaroori hai
-            await verifier.render();
-
+            // render() explicitly mat karo — signInWithPhoneNumber internally call karta hai
             const phoneNumber = `+91${mobile}`;
             const confirmation = await signInWithPhoneNumber(auth, phoneNumber, verifier);
             confirmRef.current = confirmation;
