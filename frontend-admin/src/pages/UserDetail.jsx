@@ -4,7 +4,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getUserDetail, updateUserStatus, openDoc } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
-import guicon from "../assets/guicon.svg";
 
 export default function UserDetail() {
   const { userId } = useParams();
@@ -205,7 +204,9 @@ export default function UserDetail() {
                   <button
                     onClick={async () => {
                       flushSync(() => setLoadingDoc(key));
+                      const minDelay = new Promise(r => setTimeout(r, 700));
                       try { await openDoc(fileId); } catch (_) {}
+                      await minDelay;
                       setLoadingDoc(null);
                     }}
                     disabled={loadingDoc === key}
@@ -227,17 +228,16 @@ export default function UserDetail() {
                     }}
                   >
                     {loadingDoc === key ? (
-                      <img
-                        src={guicon}
-                        alt=""
-                        style={{
-                          width: 16,
-                          height: 16,
-                          animation: "gu-spin 0.8s linear infinite",
-                          filter: "brightness(0) invert(1)",
-                          display: "block",
-                        }}
-                      />
+                      <span style={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: "50%",
+                        border: "2px solid rgba(255,255,255,0.35)",
+                        borderTopColor: "#fff",
+                        display: "inline-block",
+                        animation: "gu-spin 0.7s linear infinite",
+                        flexShrink: 0,
+                      }} />
                     ) : "View"}
                   </button>
                 ) : (
