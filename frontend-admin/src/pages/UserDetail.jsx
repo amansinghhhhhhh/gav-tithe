@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { getUserDetail, updateUserStatus, openDoc } from "../services/api";
 import C from "../constants/colors";
@@ -203,7 +204,7 @@ export default function UserDetail() {
                 {fileId ? (
                   <button
                     onClick={async () => {
-                      setLoadingDoc(key);
+                      flushSync(() => setLoadingDoc(key));
                       try { await openDoc(fileId); } catch (_) {}
                       setLoadingDoc(null);
                     }}
