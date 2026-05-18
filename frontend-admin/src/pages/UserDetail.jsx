@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getUserDetail, updateUserStatus, openDoc } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import guicon from "../assets/guicon.svg";
 
 export default function UserDetail() {
   const { userId } = useParams();
@@ -224,7 +225,19 @@ export default function UserDetail() {
                       minWidth: 56,
                     }}
                   >
-                    {loadingDoc === key ? <Spinner size={14} /> : "View"}
+                    {loadingDoc === key ? (
+                      <img
+                        src={guicon}
+                        alt=""
+                        style={{
+                          width: 16,
+                          height: 16,
+                          animation: "gu-spin 0.8s linear infinite",
+                          filter: "brightness(0) invert(1)",
+                          display: "block",
+                        }}
+                      />
+                    ) : "View"}
                   </button>
                 ) : (
                   <span style={{ fontSize: 12, color: C.textopa }}>
