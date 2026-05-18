@@ -13,6 +13,7 @@ export default function UserDetail() {
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [loadingDoc, setLoadingDoc] = useState(null);
 
   useEffect(() => {
     getUserDetail(userId).then((res) => {
@@ -200,20 +201,30 @@ export default function UserDetail() {
                 </div>
                 {fileId ? (
                   <button
-                    onClick={() => openDoc(fileId)}
+                    onClick={async () => {
+                      setLoadingDoc(key);
+                      try { await openDoc(fileId); } catch (_) {}
+                      setLoadingDoc(null);
+                    }}
+                    disabled={loadingDoc === key}
                     style={{
-                      display: "inline-block",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
                       padding: "5px 12px",
                       background: C.navy,
                       color: "#fff",
                       borderRadius: 6,
                       fontSize: 12,
                       border: "none",
-                      cursor: "pointer",
+                      cursor: loadingDoc === key ? "not-allowed" : "pointer",
                       fontWeight: 600,
+                      opacity: loadingDoc === key ? 0.8 : 1,
+                      minWidth: 56,
                     }}
                   >
-                    View
+                    {loadingDoc === key ? <Spinner size={14} /> : "View"}
                   </button>
                 ) : (
                   <span style={{ fontSize: 12, color: C.textopa }}>
