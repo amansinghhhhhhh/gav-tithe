@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers } from "../services/api";
+import { getAllUsers, getExcelUrl } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 
@@ -31,9 +31,24 @@ export default function UsersList() {
 
   return (
     <div style={{ padding: "28px 24px" }}>
-      <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24 }}>
-        Users List
-      </h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <h2 style={{ color: C.navy, fontWeight: 800, margin: 0 }}>Users List</h2>
+        <a
+          href={getExcelUrl()}
+          download="applications.xlsx"
+          style={{
+            padding: "9px 18px",
+            background: C.green,
+            color: "#fff",
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 700,
+            textDecoration: "none",
+          }}
+        >
+          ⬇ Download Excel
+        </a>
+      </div>
 
       {/* Filters */}
       <div

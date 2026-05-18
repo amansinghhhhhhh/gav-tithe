@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { flushSync } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import { getUserDetail, updateUserStatus, openDoc } from "../services/api";
+import { getUserDetail, updateUserStatus, getDocUrl } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 
@@ -14,7 +13,6 @@ export default function UserDetail() {
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
-  const [loadingDoc, setLoadingDoc] = useState(null);
 
   useEffect(() => {
     getUserDetail(userId).then((res) => {
@@ -201,45 +199,23 @@ export default function UserDetail() {
                   {label}
                 </div>
                 {fileId ? (
-                  <button
-                    onClick={async () => {
-                      flushSync(() => setLoadingDoc(key));
-                      const minDelay = new Promise(r => setTimeout(r, 700));
-                      try { await openDoc(fileId); } catch (_) {}
-                      await minDelay;
-                      setLoadingDoc(null);
-                    }}
-                    disabled={loadingDoc === key}
+                  <a
+                    href={getDocUrl(fileId)}
+                    target="_blank"
+                    rel="noreferrer"
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 6,
+                      display: "inline-block",
                       padding: "5px 12px",
                       background: C.navy,
                       color: "#fff",
                       borderRadius: 6,
                       fontSize: 12,
-                      border: "none",
-                      cursor: loadingDoc === key ? "not-allowed" : "pointer",
                       fontWeight: 600,
-                      opacity: loadingDoc === key ? 0.8 : 1,
-                      minWidth: 56,
+                      textDecoration: "none",
                     }}
                   >
-                    {loadingDoc === key ? (
-                      <span style={{
-                        width: 14,
-                        height: 14,
-                        borderRadius: "50%",
-                        border: "2px solid rgba(255,255,255,0.35)",
-                        borderTopColor: "#fff",
-                        display: "inline-block",
-                        animation: "gu-spin 0.7s linear infinite",
-                        flexShrink: 0,
-                      }} />
-                    ) : "View"}
-                  </button>
+                    View
+                  </a>
                 ) : (
                   <span style={{ fontSize: 12, color: C.textopa }}>
                     Not uploaded

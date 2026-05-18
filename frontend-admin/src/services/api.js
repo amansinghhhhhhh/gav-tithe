@@ -49,12 +49,8 @@ export const updateUserStatus = async (userId, status, remark = "") =>
         body: JSON.stringify({ status, remark }),
     });
 
-export const openDoc = async (fileId) => {
-    const res = await fetch(`${BASE}/admin/docs/${fileId}`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-    });
-    if (!res.ok) throw new Error("Document fetch failed");
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-};
+export const getDocUrl = (fileId) =>
+    `${BASE}/admin/docs/${fileId}?token=${getToken()}`;
+
+export const getExcelUrl = () =>
+    `${BASE}/admin/export/excel?token=${getToken()}`;

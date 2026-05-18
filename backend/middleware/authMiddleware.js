@@ -4,7 +4,7 @@ const User = require("../models/User");
 const protect = async (req, res, next) => {
     let token = req.headers.authorization?.startsWith("Bearer ")
         ? req.headers.authorization.split(" ")[1]
-        : null;
+        : req.query.token || null;
 
     if (!token) return res.status(401).json({ message: "Not authorized, no token" });
 
