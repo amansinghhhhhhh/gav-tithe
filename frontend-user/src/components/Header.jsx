@@ -47,16 +47,20 @@ export function Header() {
             gap: isMobile ? 8 : 16,
           }}
         >
-          <img
-            src={maccialogo}
-            style={{ height: isMobile ? 32 : 44 }}
-            alt="MACCIA"
-          />
-          <img src={gulogo} style={{ height: isMobile ? 32 : 44 }} alt="GU" />
+          <a href="https://gaontitheudyojak.com/">
+            <img
+              src={maccialogo}
+              style={{ height: isMobile ? 32 : 44 }}
+              alt="MACCIA"
+            />
+          </a>
+          <a href="https://gaontitheudyojak.com/">
+            <img src={gulogo} style={{ height: isMobile ? 32 : 44 }} alt="GU" />
+          </a>
         </div>
 
         {/* Desktop Nav */}
-        {!isMobile && (
+        {/* {!isMobile && (
           <nav style={{ display: "flex", gap: 20 }}>
             {navKeys.map((key) => (
               <a
@@ -68,7 +72,7 @@ export function Header() {
               </a>
             ))}
           </nav>
-        )}
+        )} */}
 
         {/* Right Section */}
         <div
