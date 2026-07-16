@@ -125,7 +125,7 @@ export function Header() {
           </div>
 
           {/* Login Button — desktop only */}
-          {!isMobile && (
+          {/* {!isMobile && (
             <button
               style={{
                 background: "transparent",
@@ -144,10 +144,10 @@ export function Header() {
               <img src={loginicon} style={{ height: 18 }} alt="" />
               Login
             </button>
-          )}
+          )} */}
 
           {/* Hamburger — mobile only */}
-          {isMobile && (
+          {/* {isMobile && (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               style={{
@@ -161,12 +161,12 @@ export function Header() {
             >
               {menuOpen ? "✕" : "☰"}
             </button>
-          )}
+          )} */}
         </div>
       </header>
 
       {/* Mobile Dropdown Menu */}
-      {isMobile && menuOpen && (
+      {/* {isMobile && menuOpen && (
         <div
           style={{
             position: "fixed",
@@ -222,7 +222,7 @@ export function Header() {
             Login
           </button>
         </div>
-      )}
+      )} */}
     </>
   );
 }
