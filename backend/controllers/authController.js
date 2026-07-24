@@ -200,8 +200,35 @@ const loginEmail = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
 
         const isMatch = await user.matchPassword(password);
-        if (!isMatch)
+        if (!isMatch) {
+            // Firebase fallback: verify password via Firebase REST API
+            // (fixes case where local hash didn't save correctly during registration)
+            const fbKey = process.env.FIREBASE_WEB_API_KEY;
+            if (fbKey && user.email) {
+                try {
+                    const resp = await fetch(
+                        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${fbKey}`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: user.email, password, returnSecureToken: true }),
+                        },
+                    );
+                    if (resp.ok) {
+                        // Password correct according to Firebase → re-hash and save locally
+                        user.password = password;
+                        await user.save();
+                        console.log("Password re-hashed from Firebase for:", user.email);
+                        return res.json({
+                            success: true,
+                            token: generateToken(user._id),
+                            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
+                        });
+                    }
+                } catch (_) {}
+            }
             return res.status(401).json({ message: "Invalid credentials" });
+        }
 
         res.json({
             success: true,
