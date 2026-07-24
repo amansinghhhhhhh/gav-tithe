@@ -54,10 +54,15 @@ const validateRegister = [
 
 // Email / Mobile Login
 const validateLogin = [
-    body("identifier")
-        .notEmpty().withMessage("Email ya mobile number required"),
     body("password")
         .notEmpty().withMessage("Password required"),
+    body()
+        .custom((_, { req }) => {
+            if (!req.body.identifier && !req.body.email) {
+                throw new Error("Email ya mobile number required");
+            }
+            return true;
+        }),
     validate,
 ];
 
