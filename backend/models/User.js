@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 
 const UserSchema = new mongoose.Schema({
     name: { type: String },                               // ✅ name field
-    mobile: { type: String, sparse: true },
+    mobile: { type: String, unique: true, sparse: true },
     email: { type: String, unique: true, sparse: true },
     password: { type: String },
     firebaseUid: { type: String, unique: true, sparse: true },

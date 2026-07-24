@@ -102,31 +102,43 @@ const registerEmail = async (req, res) => {
     try {
         const { email, password, mobile, name, firebaseUid } = req.body;
 
-        const existing = await User.findOne({ email });
-        if (existing)
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail)
             return res.status(400).json({ success: false, message: "Email already registered" });
 
-        // If firebaseUid (phone) provided, check it's not already used
-        if (firebaseUid) {
-            const phoneUser = await User.findOne({ firebaseUid });
-            if (phoneUser) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Yeh mobile number kisi aur account se linked hai",
-                });
-            }
-        }
-
-        const user = new User({
-            name: name || email.split("@")[0],
-            email,
-            password,
-            mobile: mobile || null,
-            firebaseUid: firebaseUid || null,
-            isVerified: !!firebaseUid,
-            role: "user",
+        // Pehle se koi user is mobile/firebaseUid se exist karta hai? → UPDATE karo
+        let user;
+        const existingUser = await User.findOne({
+            $or: [
+                ...(firebaseUid ? [{ firebaseUid }] : []),
+                ...(mobile ? [{ mobile }] : []),
+            ],
         });
-        await user.save();
+
+        if (existingUser) {
+            // Existing user mil gaya → email/password add karo
+            user = existingUser;
+            user.email = email;
+            if (password) user.password = password;
+            if (name) user.name = name;
+            if (firebaseUid) user.firebaseUid = firebaseUid;
+            if (mobile) user.mobile = mobile;
+            user.isVerified = !!user.firebaseUid || user.isVerified;
+            await user.save();
+            console.log("Existing user updated with email:", email);
+        } else {
+            // Naya user
+            user = new User({
+                name: name || email.split("@")[0],
+                email,
+                password,
+                mobile: mobile || null,
+                firebaseUid: firebaseUid || null,
+                isVerified: !!firebaseUid,
+                role: "user",
+            });
+            await user.save();
+        }
 
         res.json({
             success: true,
