@@ -342,6 +342,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const isEmail = email.includes("@");
+      // Mobile input clean: remove spaces, dashes, etc.
+      const cleanInput = isEmail ? email.trim() : email.replace(/[^0-9]/g, "").slice(-10);
 
       if (isEmail) {
         // ── Email login: existing Firebase flow ──
@@ -365,7 +367,7 @@ export default function LoginPage() {
         }
 
         const firebaseIdToken = await fbCred.user.getIdToken();
-        const data = await loginEmail(email, password, firebaseIdToken);
+        const data = await loginEmail(cleanInput, password, firebaseIdToken);
         if (data?.success) {
           login(data.user);
           navigate("/dashboard");
@@ -376,7 +378,7 @@ export default function LoginPage() {
         }
       } else {
         // ── Mobile login: skip Firebase, direct backend ──
-        const data = await loginEmail(email, password);
+        const data = await loginEmail(cleanInput, password);
         if (data?.success) {
           login(data.user);
           navigate("/dashboard");

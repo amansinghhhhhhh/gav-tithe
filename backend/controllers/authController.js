@@ -154,16 +154,19 @@ const loginEmail = async (req, res) => {
         if (isEmail) {
             user = await User.findOne({ email: loginId.toLowerCase() });
         } else {
-            // Try both raw and +91 formats (register saves raw, OTP saves with +91)
+            const cleanMobile = loginId.replace(/[^0-9]/g, "").slice(-10);
             user = await User.findOne({
                 $or: [
                     { mobile: loginId },
                     { mobile: `+91${loginId}` },
                     { mobile: loginId.replace("+91", "") },
+                    { mobile: cleanMobile },
+                    { mobile: `+91${cleanMobile}` },
                 ],
             });
         }
 
+        console.log("Login - identifier:", loginId, "isEmail:", isEmail, "found:", !!user, "userMobile:", user?.mobile);
         if (!user)
             return res.status(401).json({ message: "Invalid credentials" });
 
