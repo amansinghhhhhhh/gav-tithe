@@ -1,4 +1,7 @@
-const BASE = import.meta.env.VITE_API_BASE || "https://gav-tithe-production.up.railway.app/api";
+const BASE = import.meta.env.VITE_API_BASE ||
+  (window.location.hostname === "localhost" || window.location.hostname === "192.168.29.4"
+    ? "http://localhost:5000/api"
+    : "https://gav-tithe-production.up.railway.app/api");
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem("gtu_token");
