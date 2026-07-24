@@ -108,12 +108,13 @@ const registerEmail = async (req, res) => {
 
         // Pehle se koi user is mobile/firebaseUid se exist karta hai? → UPDATE karo
         let user;
-        const existingUser = await User.findOne({
-            $or: [
-                ...(firebaseUid ? [{ firebaseUid }] : []),
-                ...(mobile ? [{ mobile }] : []),
-            ],
-        });
+        const lookupConditions = [
+            ...(firebaseUid ? [{ firebaseUid }] : []),
+            ...(mobile ? [{ mobile }] : []),
+        ];
+        const existingUser = lookupConditions.length
+            ? await User.findOne({ $or: lookupConditions })
+            : null;
 
         if (existingUser) {
             // Existing user mil gaya → email/password add karo
