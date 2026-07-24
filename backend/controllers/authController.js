@@ -87,6 +87,7 @@ const verifyOtp = async (req, res) => {
                 name: user.name,
                 mobile: user.mobile,
                 email: user.email,
+                firebaseUid: user.firebaseUid,
                 role: user.role,
             },
         });
@@ -99,17 +100,30 @@ const verifyOtp = async (req, res) => {
 // ── 2. Email Register ─────────────────────────────────────────────────────────
 const registerEmail = async (req, res) => {
     try {
-        const { email, password, mobile, name } = req.body;
+        const { email, password, mobile, name, firebaseUid } = req.body;
 
         const existing = await User.findOne({ email });
         if (existing)
             return res.status(400).json({ success: false, message: "Email already registered" });
+
+        // If firebaseUid (phone) provided, check it's not already used
+        if (firebaseUid) {
+            const phoneUser = await User.findOne({ firebaseUid });
+            if (phoneUser) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Yeh mobile number kisi aur account se linked hai",
+                });
+            }
+        }
 
         const user = new User({
             name: name || email.split("@")[0],
             email,
             password,
             mobile: mobile || null,
+            firebaseUid: firebaseUid || null,
+            isVerified: !!firebaseUid,
             role: "user",
         });
         await user.save();
@@ -117,7 +131,7 @@ const registerEmail = async (req, res) => {
         res.json({
             success: true,
             token: generateToken(user._id),
-            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
         });
     } catch (err) {
         console.error("Register error:", err.message);
@@ -125,22 +139,41 @@ const registerEmail = async (req, res) => {
     }
 };
 
-// ── 3. Email Login ────────────────────────────────────────────────────────────
+// ── 3. Email / Mobile Login ───────────────────────────────────────────────────
 const loginEmail = async (req, res) => {
     try {
-        const { email, password, firebaseIdToken } = req.body;
+        const { identifier, password, firebaseIdToken } = req.body;
+        // Backward compat: accept `email` field too (admin login, older clients)
+        const loginId = identifier || req.body.email;
+        if (!loginId)
+            return res.status(400).json({ message: "Email ya mobile number required" });
 
-        const user = await User.findOne({ email });
+        const isEmail = loginId.includes("@");
+        let user;
+
+        if (isEmail) {
+            user = await User.findOne({ email: loginId.toLowerCase() });
+        } else {
+            // Try both raw and +91 formats (register saves raw, OTP saves with +91)
+            user = await User.findOne({
+                $or: [
+                    { mobile: loginId },
+                    { mobile: `+91${loginId}` },
+                    { mobile: loginId.replace("+91", "") },
+                ],
+            });
+        }
+
         if (!user)
             return res.status(401).json({ message: "Invalid credentials" });
 
-        if (firebaseIdToken) {
+        // Firebase token verification — only for email login
+        if (firebaseIdToken && isEmail) {
             try {
                 const firebaseAdmin = getAdmin();
                 if (firebaseAdmin) {
                     const decoded = await firebaseAdmin.auth().verifyIdToken(firebaseIdToken);
-                    // Verify the Firebase identity actually belongs to this user account
-                    const emailMatch = decoded.email && decoded.email === email;
+                    const emailMatch = decoded.email && decoded.email === loginId.toLowerCase();
                     const uidMatch = user.firebaseUid && decoded.uid === user.firebaseUid;
                     if (!emailMatch && !uidMatch) {
                         return res.status(401).json({ message: "Invalid credentials" });
@@ -152,7 +185,7 @@ const loginEmail = async (req, res) => {
                     return res.json({
                         success: true,
                         token: generateToken(user._id),
-                        user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, role: user.role },
+                        user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
                     });
                 }
             } catch (e) {
@@ -170,7 +203,7 @@ const loginEmail = async (req, res) => {
         res.json({
             success: true,
             token: generateToken(user._id),
-            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
         });
     } catch (err) {
         console.error("Login error:", err.message);
@@ -188,6 +221,7 @@ const getMe = async (req, res) => {
             name: user.name,
             email: user.email,
             mobile: user.mobile,
+            firebaseUid: user.firebaseUid,
             role: user.role,
         },
     });

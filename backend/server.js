@@ -19,10 +19,16 @@ app.set("trust proxy", 1);
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://192.168.29.4:5173",
     "https://user.gaontitheudyojak.com",
     "https://admin.gaontitheudyojak.com",
     // Naya Vercel URL aane pe yahan add karo
 ];
+
+// DEV: FRONTEND_URL env se local network IP allow karo
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+}
 
 app.use((req, res, next) => {
     const origin = req.headers.origin;

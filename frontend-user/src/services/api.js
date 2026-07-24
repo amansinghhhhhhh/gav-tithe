@@ -38,21 +38,25 @@ export const verifyOtpApi = async (idToken, mobile, name) => {
     return data;
 };
 
-export const registerEmail = async (email, password, mobile, name) => {
+export const registerEmail = async (email, password, mobile, name, firebaseUid) => {
+    const body = { email, password, mobile, name };
+    if (firebaseUid) body.firebaseUid = firebaseUid;
     const data = await apiFetch(`${BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, mobile, name }),
+        body: JSON.stringify(body),
     });
     if (data.token) setToken(data.token);
     return data;
 };
 
-export const loginEmail = async (email, password, firebaseIdToken = null) => {
+export const loginEmail = async (identifier, password, firebaseIdToken = null) => {
+    const body = { identifier, password };
+    if (firebaseIdToken) body.firebaseIdToken = firebaseIdToken;
     const data = await apiFetch(`${BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, firebaseIdToken }),
+        body: JSON.stringify(body),
     });
     if (data.token) setToken(data.token);
     return data;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { RadioGroup } from "../shared/RadioGroup";
 import { useLang } from "../../context/LangContext";
+import { useAuth } from "../../context/AuthContext";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import C from "../../constants/colors";
 import SectionHeader from "../shared/SectionHeader";
@@ -37,6 +38,7 @@ const makeRules = (t) => ({
 
 function Section1({ data, dispatch, registerNext, onNext }) {
   const { t } = useLang();
+  const { user } = useAuth();
   const [otpInput, setOtpInput] = useState("");
   const [countdown, setCountdown] = useState(0);
 
@@ -65,6 +67,15 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     verifyOtp,
     reset,
   } = useOtp();
+
+  // Auto-verify if user already has firebaseUid (OTP done during registration)
+  useEffect(() => {
+    if (user?.firebaseUid && user?.mobile) {
+      u({ mobile: user.mobile, otpVerified: true });
+      localStorage.setItem("otp_verified", "true");
+      clearError("otpVerified");
+    }
+  }, [user?.firebaseUid, user?.mobile]);
 
   useEffect(() => {
     if (firebaseVerified) {

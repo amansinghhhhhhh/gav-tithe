@@ -52,12 +52,10 @@ const validateRegister = [
     validate,
 ];
 
-// Email Login
+// Email / Mobile Login
 const validateLogin = [
-    body("email")
-        .notEmpty().withMessage("Email required")
-        .isEmail().withMessage("Valid email daalo"),
-    // .normalizeEmail()  ← YEH HATAO
+    body("identifier")
+        .notEmpty().withMessage("Email ya mobile number required"),
     body("password")
         .notEmpty().withMessage("Password required"),
     validate,

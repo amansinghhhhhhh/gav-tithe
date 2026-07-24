@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginEmail, registerEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
 import {
   getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
   sendEmailVerification,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -238,8 +240,98 @@ export default function LoginPage() {
   const [err, setErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  // OTP for registration
+  const [regOtpSent, setRegOtpSent] = useState(false);
+  const [regOtpVerified, setRegOtpVerified] = useState(false);
+  const [regOtpLoading, setRegOtpLoading] = useState(false);
+  const [regOtpInput, setRegOtpInput] = useState("");
+  const [phoneFirebaseUid, setPhoneFirebaseUid] = useState("");
+  const [countdown, setCountdown] = useState(0);
+
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
+
+  // ── Registration OTP helpers (useRef pattern — same as useOtp.js) ──
+  const regRecaptchaRef = useRef(null);
+  const regConfirmRef = useRef(null);
+
+  function destroyRegRecaptcha() {
+    try {
+      if (regRecaptchaRef.current) regRecaptchaRef.current.clear();
+    } catch (_) {}
+    regRecaptchaRef.current = null;
+    const el = document.getElementById("reg-recaptcha-container");
+    if (el && el.parentNode) {
+      const fresh = document.createElement("div");
+      fresh.id = "reg-recaptcha-container";
+      el.parentNode.replaceChild(fresh, el);
+    }
+  }
+
+  const resetRegOtp = () => {
+    setRegOtpSent(false);
+    setRegOtpVerified(false);
+    setRegOtpInput("");
+    setPhoneFirebaseUid("");
+    setCountdown(0);
+    regConfirmRef.current = null;
+    destroyRegRecaptcha();
+  };
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  useEffect(() => {
+    return () => destroyRegRecaptcha();
+  }, []);
+
+  const getRegRecaptcha = () => {
+    if (regRecaptchaRef.current) return regRecaptchaRef.current;
+    regRecaptchaRef.current = new RecaptchaVerifier(
+      auth,
+      "reg-recaptcha-container",
+      { size: "invisible", callback: () => {}, "expired-callback": () => { destroyRegRecaptcha(); } },
+    );
+    return regRecaptchaRef.current;
+  };
+
+  const sendRegOtp = async () => {
+    setErr("");
+    if (mobile.length !== 10) { setErr(t("login_error_mobile")); return; }
+    setRegOtpLoading(true);
+    try {
+      const verifier = getRegRecaptcha();
+      const confirmation = await signInWithPhoneNumber(auth, `+91${mobile}`, verifier);
+      regConfirmRef.current = confirmation;
+      setRegOtpSent(true);
+      setCountdown(59);
+    } catch (e) {
+      setErr(e.message);
+      destroyRegRecaptcha();
+    } finally {
+      setRegOtpLoading(false);
+    }
+  };
+
+  const handleVerifyRegOtp = async () => {
+    if (regOtpInput.length < 4) return;
+    setErr("");
+    setRegOtpLoading(true);
+    try {
+      if (!regConfirmRef.current) throw new Error("Pehle OTP bhejo");
+      const result = await regConfirmRef.current.confirm(regOtpInput);
+      const uid = result.user.uid;
+      setPhoneFirebaseUid(uid);
+      setRegOtpVerified(true);
+    } catch (e) {
+      setErr(e.message || "OTP galat hai");
+    } finally {
+      setRegOtpLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     setErr("");
@@ -249,35 +341,50 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      let fbCred;
-      try {
-        fbCred = await signInWithEmailAndPassword(auth, email, password);
-      } catch (firebaseErr) {
-        setErr(
-          firebaseErr.code === "auth/invalid-credential" ||
-            firebaseErr.code === "auth/user-not-found"
-            ? t("login_error1")
-            : firebaseErr.message,
-        );
-        setLoading(false);
-        return;
-      }
-      if (!fbCred.user.emailVerified) {
-        setErr(t("login_not_verified"));
-        setLoading(false);
-        return;
-      }
+      const isEmail = email.includes("@");
 
-      // ✅ Firebase idToken bhi bhejo — forgot password ke baad sync hoga
-      const firebaseIdToken = await fbCred.user.getIdToken();
-      const data = await loginEmail(email, password, firebaseIdToken);
-      if (data?.success) {
-        login(data.user);
-        navigate("/dashboard");
-      } else if (data?.retryAfterMinutes) {
-        setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
+      if (isEmail) {
+        // ── Email login: existing Firebase flow ──
+        let fbCred;
+        try {
+          fbCred = await signInWithEmailAndPassword(auth, email, password);
+        } catch (firebaseErr) {
+          setErr(
+            firebaseErr.code === "auth/invalid-credential" ||
+              firebaseErr.code === "auth/user-not-found"
+              ? t("login_error1")
+              : firebaseErr.message,
+          );
+          setLoading(false);
+          return;
+        }
+        if (!fbCred.user.emailVerified) {
+          setErr(t("login_not_verified"));
+          setLoading(false);
+          return;
+        }
+
+        const firebaseIdToken = await fbCred.user.getIdToken();
+        const data = await loginEmail(email, password, firebaseIdToken);
+        if (data?.success) {
+          login(data.user);
+          navigate("/dashboard");
+        } else if (data?.retryAfterMinutes) {
+          setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
+        } else {
+          setErr(data?.message || t("login_error1"));
+        }
       } else {
-        setErr(data?.message || t("login_error1"));
+        // ── Mobile login: skip Firebase, direct backend ──
+        const data = await loginEmail(email, password);
+        if (data?.success) {
+          login(data.user);
+          navigate("/dashboard");
+        } else if (data?.retryAfterMinutes) {
+          setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
+        } else {
+          setErr(data?.message || t("login_error1"));
+        }
       }
     } catch (e) {
       setErr(t("login_failed", { msg: e.message }));
@@ -313,6 +420,10 @@ export default function LoginPage() {
       setErr(t("login_error_mobile"));
       return;
     }
+    if (mobile && !regOtpVerified) {
+      setErr(t("login_error_otp"));
+      return;
+    }
     setLoading(true);
     try {
       const fbCred = await createUserWithEmailAndPassword(
@@ -324,13 +435,14 @@ export default function LoginPage() {
       const fullName = [firstName, middleName, surname]
         .filter(Boolean)
         .join(" ");
-      const data = await registerEmail(email, password, mobile, fullName);
+      const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid);
       if (data?.success || data?.token) {
         setSuccessMsg(t("registration_success", { email }));
         setIsSignup(false);
         setStep(1);
         setEmail("");
         setPassword("");
+        resetRegOtp();
       } else {
         setErr(data?.message || t("login_error"));
       }
@@ -438,13 +550,14 @@ export default function LoginPage() {
               >
                 <div>
                   <label style={labelStyle}>
-                    {t("login_email")}{" "}
+                    {t("login_email_or_mobile")}{" "}
                     <span style={{ color: "#ef4444" }}>*</span>
                   </label>
                   <input
                     style={inp}
-                    type="email"
-                    placeholder={t("login_email_ph")}
+                    type="text"
+                    inputMode="email"
+                    placeholder={t("login_email_or_mobile_ph")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={focusStyle}
@@ -547,6 +660,7 @@ export default function LoginPage() {
                       setStep(1);
                       setErr("");
                       setSuccessMsg("");
+                      resetRegOtp();
                     }}
                     style={{
                       color: "#F97316",
@@ -644,6 +758,7 @@ export default function LoginPage() {
                     onClick={() => {
                       setIsSignup(false);
                       setErr("");
+                      resetRegOtp();
                     }}
                     style={{
                       color: "#F97316",
@@ -708,34 +823,137 @@ export default function LoginPage() {
                     </div>
                   ))}
                 </div>
+                <div id="reg-recaptcha-container" />
                 <div>
                   <label style={labelStyle}>{t("login_mobile")}</label>
-                  <div style={{ position: "relative" }}>
-                    <span
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <div style={{ position: "relative", flex: 1 }}>
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: 14,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "#9ca3af",
+                          fontSize: 14,
+                        }}
+                      >
+                        📱
+                      </span>
+                      <input
+                        style={{ ...inp, paddingLeft: 38 }}
+                        placeholder={t("login_mobile_ph")}
+                        value={mobile}
+                        maxLength={10}
+                        inputMode="numeric"
+                        disabled={regOtpSent}
+                        onChange={(e) =>
+                          setMobile(e.target.value.replace(/\D/g, ""))
+                        }
+                        onFocus={focusStyle}
+                        onBlur={blurStyle}
+                      />
+                    </div>
+                    {!regOtpSent && !regOtpVerified && (
+                      <button
+                        onClick={sendRegOtp}
+                        disabled={regOtpLoading || mobile.length !== 10}
+                        style={{
+                          padding: "10px 16px",
+                          background: regOtpLoading ? "#aaa" : "#22c55e",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 10,
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: regOtpLoading || mobile.length !== 10 ? "not-allowed" : "pointer",
+                          whiteSpace: "nowrap",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {regOtpLoading && <Spinner size={16} style={{ filter: "brightness(0) invert(1)" }} />}
+                        {regOtpLoading ? "..." : t("s1_get_otp")}
+                      </button>
+                    )}
+                    {regOtpSent && !regOtpVerified && (
+                      <button
+                        onClick={() => { setRegOtpSent(false); setRegOtpInput(""); destroyRegRecaptcha(); }}
+                        style={{
+                          padding: "10px 12px",
+                          background: "none",
+                          border: "1.5px solid #1e3a5f",
+                          borderRadius: 10,
+                          color: "#1e3a5f",
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        ✏ {t("s1_edit_number") || "Edit"}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* OTP input */}
+                  {regOtpSent && !regOtpVerified && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <input
+                        style={{ ...inp, flex: 1 }}
+                        placeholder={t("s1_otp_ph") || "OTP enter karo"}
+                        value={regOtpInput}
+                        onChange={(e) => setRegOtpInput(e.target.value.replace(/\D/g, ""))}
+                        maxLength={6}
+                        disabled={regOtpLoading}
+                      />
+                      <button
+                        onClick={handleVerifyRegOtp}
+                        disabled={regOtpLoading || regOtpInput.length < 4}
+                        style={{
+                          padding: "10px 16px",
+                          background: regOtpLoading ? "#aaa" : "#1e3a5f",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 10,
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: regOtpLoading || regOtpInput.length < 4 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        {t("s1_verify")}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Resend */}
+                  {regOtpSent && !regOtpVerified && (
+                    <button
+                      onClick={sendRegOtp}
+                      disabled={regOtpLoading || countdown > 0}
                       style={{
-                        position: "absolute",
-                        left: 14,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        color: "#9ca3af",
-                        fontSize: 14,
+                        background: "none",
+                        border: "none",
+                        color: countdown > 0 ? "#9ca3af" : "#22c55e",
+                        cursor: countdown > 0 ? "not-allowed" : "pointer",
+                        fontSize: 12,
+                        marginTop: 4,
+                        padding: 0,
+                        fontWeight: 600,
                       }}
                     >
-                      📱
-                    </span>
-                    <input
-                      style={{ ...inp, paddingLeft: 38 }}
-                      placeholder={t("login_mobile_ph")}
-                      value={mobile}
-                      maxLength={10}
-                      inputMode="numeric"
-                      onChange={(e) =>
-                        setMobile(e.target.value.replace(/\D/g, ""))
-                      }
-                      onFocus={focusStyle}
-                      onBlur={blurStyle}
-                    />
-                  </div>
+                      {countdown > 0
+                        ? `${t("s1_resend_wait") || "Resend in"} ${countdown}s`
+                        : t("s1_resend_otp") || "Resend OTP"}
+                    </button>
+                  )}
+
+                  {regOtpVerified && (
+                    <div style={{ color: "#22c55e", fontSize: 13, marginTop: 6, fontWeight: 600 }}>
+                      ✅ {t("s1_verified") || "Verified"}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label style={labelStyle}>
@@ -799,6 +1017,7 @@ export default function LoginPage() {
                       setIsSignup(false);
                       setStep(1);
                       setErr("");
+                      resetRegOtp();
                     }}
                     style={{
                       color: "#F97316",
