@@ -127,6 +127,9 @@ function Section4({ data, dispatch, registerNext, onNext }) {
         {/* Document Uploads */}
         <div>
           <label style={labelStyle}>{t("s4_upload")}</label>
+          <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>
+            {t("s4_upload_hint")}
+          </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <DocUploadBox
               label={t("s4_doc_aadh_front")}
