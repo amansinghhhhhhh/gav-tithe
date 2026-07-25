@@ -30,10 +30,21 @@ const makeRules = (t) => ({
   "docs.pan": (v) => (!v ? t("err_doc_required") : null),
 });
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 function Section4({ data, dispatch, registerNext, onNext }) {
   const { t } = useLang();
   const u = (p) => dispatch({ type: "UPDATE_SECTION4", payload: p });
   const ud = (k, f) => dispatch({ type: "UPDATE_DOC", key: k, file: f });
+
+  const handleDocUpload = (key, file) => {
+    if (file && file.size > MAX_FILE_SIZE) {
+      alert(t("s4_file_too_large") || "File 5MB se choti honi chahiye");
+      return;
+    }
+    ud(key, file);
+    clearError(`docs.${key}`);
+  };
 
   const { errors, validateField, validateAll, clearError } = useValidation(
     makeRules(t),
@@ -134,31 +145,31 @@ function Section4({ data, dispatch, registerNext, onNext }) {
             <DocUploadBox
               label={t("s4_doc_aadh_front")}
               uploaded={!!data.docs.aadhaarFront}
-              onUpload={(f) => { ud("aadhaarFront", f); clearError("docs.aadhaarFront"); }}
+              onUpload={(f) => handleDocUpload("aadhaarFront", f)}
               error={errors["docs.aadhaarFront"]}
             />
             <DocUploadBox
               label={t("s4_doc_aadh_back")}
               uploaded={!!data.docs.aadhaarBack}
-              onUpload={(f) => { ud("aadhaarBack", f); clearError("docs.aadhaarBack"); }}
+              onUpload={(f) => handleDocUpload("aadhaarBack", f)}
               error={errors["docs.aadhaarBack"]}
             />
             <DocUploadBox
               label={t("s4_doc_pan")}
               uploaded={!!data.docs.pan}
-              onUpload={(f) => { ud("pan", f); clearError("docs.pan"); }}
+              onUpload={(f) => handleDocUpload("pan", f)}
               error={errors["docs.pan"]}
             />
             <DocUploadBox
               label={t("s4_doc_udyam")}
               sublabel={t("s4_doc_udyam_sub")}
               uploaded={!!data.docs.udyam}
-              onUpload={(f) => ud("udyam", f)}
+              onUpload={(f) => handleDocUpload("udyam", f)}
             />
             <DocUploadBox
               label={t("s4_doc_pass")}
               uploaded={!!data.docs.passport}
-              onUpload={(f) => ud("passport", f)}
+              onUpload={(f) => handleDocUpload("passport", f)}
             />
           </div>
         </div>
