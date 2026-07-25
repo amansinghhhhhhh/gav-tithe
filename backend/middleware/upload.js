@@ -6,23 +6,15 @@ const { Readable } = require("stream");
 // Memory storage — file buffer mein rakho, phir GridFS mein save karo
 const storage = multer.memoryStorage();
 
-const PDF_MAX = 1 * 1024 * 1024;  // 1 MB for PDF
-const IMG_MAX = 2 * 1024 * 1024;  // 2 MB for images
+const FILE_MAX = 5 * 1024 * 1024;  // 5 MB for all files
 
 const upload = multer({
     storage,
-    limits: { fileSize: IMG_MAX },   // outer cap — per-type enforced in fileFilter
+    limits: { fileSize: FILE_MAX },
     fileFilter: (req, file, cb) => {
         const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
         if (!allowed.includes(file.mimetype)) {
             return cb(new Error("Only JPG, PNG, WEBP, PDF allowed"), false);
-        }
-        // PDF size check (multer limits fires after, so check here via Content-Length header)
-        if (file.mimetype === "application/pdf") {
-            const cl = parseInt(req.headers["content-length"] || "0", 10);
-            if (cl > PDF_MAX) {
-                return cb(new Error("PDF file must be under 1MB"), false);
-            }
         }
         cb(null, true);
     },
@@ -84,4 +76,12 @@ const saveToGridFS = (fileBuffer, filename, mimetype) => {
     });
 };
 
-module.exports = { upload, saveToGridFS, verifyMagicBytes, verifyMagicBytesFields };
+const handleMulterError = (err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: err.code === "LIMIT_FILE_SIZE" ? "File size max 5MB" : err.message });
+    }
+    if (err) return res.status(400).json({ message: err.message });
+    next();
+};
+
+module.exports = { upload, saveToGridFS, verifyMagicBytes, verifyMagicBytesFields, handleMulterError };
