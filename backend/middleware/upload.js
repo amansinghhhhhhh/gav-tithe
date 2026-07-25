@@ -42,20 +42,6 @@ const verifyMagicBytes = (req, res, next) => {
     next();
 };
 
-// upload.fields ke baad use karo
-const verifyMagicBytesFields = (req, res, next) => {
-    if (req.files) {
-        for (const fileArr of Object.values(req.files)) {
-            for (const file of fileArr) {
-                if (!checkBytes(file)) {
-                    return res.status(400).json({ message: "File content does not match declared type" });
-                }
-            }
-        }
-    }
-    next();
-};
-
 // GridFS mein file save karne ka helper
 const saveToGridFS = (fileBuffer, filename, mimetype) => {
     return new Promise((resolve, reject) => {
@@ -84,4 +70,4 @@ const handleMulterError = (err, req, res, next) => {
     next();
 };
 
-module.exports = { upload, saveToGridFS, verifyMagicBytes, verifyMagicBytesFields, handleMulterError };
+module.exports = { upload, saveToGridFS, verifyMagicBytes, handleMulterError };

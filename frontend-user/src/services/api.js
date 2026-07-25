@@ -81,13 +81,12 @@ export const saveSection = async (section, data) => {
     });
 };
 
-export const submitForm = async (formData) => {
-    const res = await fetch(`${BASE}/form/submit`, {
+export const submitForm = async (data) => {
+    return apiFetch(`${BASE}/form/submit`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${getToken()}` },
-        body: formData,
+        headers: authHeaders(),
+        body: JSON.stringify(data),
     });
-    return res.json();
 };
 
 export const getMyForm = async () => {

@@ -5,6 +5,7 @@ import DocUploadBox from "../shared/DocUploadBox";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
+import { uploadDoc } from "../../services/api";
 
 const makeRules = (t) => ({
   aadhaar: (v) =>
@@ -37,13 +38,22 @@ function Section4({ data, dispatch, registerNext, onNext }) {
   const u = (p) => dispatch({ type: "UPDATE_SECTION4", payload: p });
   const ud = (k, f) => dispatch({ type: "UPDATE_DOC", key: k, file: f });
 
-  const handleDocUpload = (key, file) => {
+  const handleDocUpload = async (key, file) => {
     if (file && file.size > MAX_FILE_SIZE) {
       alert(t("s4_file_too_large") || "File 5MB se choti honi chahiye");
       return;
     }
-    ud(key, file);
-    clearError(`docs.${key}`);
+    try {
+      const res = await uploadDoc(key, file);
+      if (res.success) {
+        ud(key, res.fileId);
+        clearError(`docs.${key}`);
+      } else {
+        alert(res.message || "Upload failed");
+      }
+    } catch (err) {
+      alert("Upload failed: " + err.message);
+    }
   };
 
   const { errors, validateField, validateAll, clearError } = useValidation(

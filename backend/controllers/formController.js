@@ -1,7 +1,7 @@
 const FormData = require("../models/FormData");
 const { saveToGridFS } = require("../middleware/upload");
 
-const ALLOWED_DOC_TYPES = ["aadhaar_front", "aadhaar_back", "pan", "udyam", "passport"];
+const ALLOWED_DOC_TYPES = ["aadhaarFront", "aadhaarBack", "pan", "udyam", "passport"];
 
 const SECTION_ALLOWED_KEYS = {
     section1: ["fullName", "dob", "gender", "mobile", "email", "education", "address", "otpVerified"],
@@ -42,15 +42,9 @@ const saveSection = async (req, res) => {
 const submitForm = async (req, res) => {
     try {
         const userId = req.user.id;
-
-        // FormData se JSON parse karo
-        const section1 = req.body.section1 ? JSON.parse(req.body.section1) : null;
-        const section2 = req.body.section2 ? JSON.parse(req.body.section2) : null;
-        const section3 = req.body.section3 ? JSON.parse(req.body.section3) : null;
-        const section4 = req.body.section4 ? JSON.parse(req.body.section4) : null;
+        const { section1, section2, section3, section4 } = req.body;
 
         console.log("📝 Submit for user:", userId);
-        console.log("📁 Files received:", req.files ? Object.keys(req.files) : "none");
 
         let form = await FormData.findOne({ userId });
         if (!form) form = new FormData({ userId });
@@ -64,38 +58,6 @@ const submitForm = async (req, res) => {
                 ...section4,
             };
             form.markModified("section4");
-        }
-
-        // ✅ Files GridFS mein save karo
-        if (req.files) {
-            const docMap = {
-                doc_aadhaar_front: "aadhaarFront",
-                doc_aadhaar_back: "aadhaarBack",
-                doc_pan: "pan",
-                doc_udyam: "udyam",
-                doc_passport: "passport",
-            };
-
-            for (const [fieldName, docKey] of Object.entries(docMap)) {
-                const fileArr = req.files[fieldName];
-                if (fileArr?.[0]) {
-                    const file = fileArr[0];
-                    console.log(`📤 Saving ${docKey} to GridFS...`);
-
-                    const fileId = await saveToGridFS(
-                        file.buffer,
-                        `${Date.now()}_${file.originalname}`,
-                        file.mimetype
-                    );
-
-                    if (!form.section4) form.section4 = {};
-                    if (!form.section4.docs) form.section4.docs = {};
-                    form.section4.docs[docKey] = fileId;
-                    form.markModified("section4");
-
-                    console.log(`✅ ${docKey} saved with ID:`, fileId);
-                }
-            }
         }
 
         form.status = "submitted";
