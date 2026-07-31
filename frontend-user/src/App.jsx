@@ -57,7 +57,7 @@ function Dashboard() {
       try {
         const res = await getMyForm();
         if (res.success && res.form) {
-          const { section1, section2, section3, section4, status } = res.form;
+          const { section1, section2, section3, section4, status, editAllowed } = res.form;
           if (section1)
             dispatch({ type: "UPDATE_SECTION1", payload: section1 });
           if (section2)
@@ -66,8 +66,11 @@ function Dashboard() {
             dispatch({ type: "UPDATE_SECTION3", payload: section3 });
           if (section4)
             dispatch({ type: "UPDATE_SECTION4", payload: section4 });
-          if (status === "submitted") dispatch({ type: "SUBMIT" });
-          else if (section4?.aadhaar) dispatch({ type: "SET_STEP", step: 4 });
+          dispatch({ type: "SET_EDIT_ALLOWED", value: !!editAllowed });
+          if (status === "submitted" && !editAllowed)
+            dispatch({ type: "SUBMIT" });
+          else if (section4?.aadhaar)
+            dispatch({ type: "SET_STEP", step: 4 });
           else if (section3?.cibilScore)
             dispatch({ type: "SET_STEP", step: 4 });
           else if (section2?.businessType)
@@ -137,7 +140,10 @@ function Dashboard() {
         section4: state.section4,
       };
       const res = await submitForm(data);
-      if (res.success) dispatch({ type: "SUBMIT" });
+      if (res.success) {
+        dispatch({ type: "SET_EDIT_ALLOWED", value: false });
+        dispatch({ type: "SUBMIT" });
+      }
       else showMsg("Submit failed: " + res.message, true);
     } catch (err) {
       showMsg("Submit failed: " + err.message, true);
@@ -206,11 +212,21 @@ function Dashboard() {
                 Loading your form...
               </div>
             </div>
-          ) : submitted ? (
+          ) : submitted && !state.editAllowed ? (
             <SuccessPage />
           ) : (
             <>
-              <StepIndicator current={currentStep} />
+              <StepIndicator
+                current={currentStep}
+                onStepClick={
+                  state.editAllowed
+                    ? (step) => {
+                        saveCurrent(currentStep);
+                        dispatch({ type: "SET_STEP", step });
+                      }
+                    : undefined
+                }
+              />
               {saving && (
                 <div
                   style={{
@@ -262,6 +278,7 @@ function Dashboard() {
                 <Section4
                   data={state.section4}
                   dispatch={dispatch}
+                  editAllowed={state.editAllowed}
                   registerNext={(fn) => {
                     validateAndGoNext.current = fn;
                   }}

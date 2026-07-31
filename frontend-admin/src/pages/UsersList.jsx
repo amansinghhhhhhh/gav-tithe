@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers, getExcelUrl } from "../services/api";
+import { getAllUsers, getExcelUrl, deleteUser } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 
@@ -9,6 +9,7 @@ export default function UsersList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +18,20 @@ export default function UsersList() {
       setLoading(false);
     });
   }, []);
+
+  const handleDelete = async (u) => {
+    const name = u.fullName || u.name || "this user";
+    if (!window.confirm(`"${name}" ko delete karein? Uske saath saara data (form, documents, edit requests) bhi delete ho jayega.`)) return;
+    if (!window.confirm("Pakka? Yeh action wapas nahi ho sakta.")) return;
+    setDeletingId(u._id);
+    const res = await deleteUser(u._id);
+    setDeletingId(null);
+    if (res.success) {
+      setUsers((prev) => prev.filter((x) => x._id !== u._id));
+    } else {
+      alert(res.message || "Delete failed");
+    }
+  };
 
   const filtered = users.filter((u) => {
     const matchSearch =
@@ -113,6 +128,7 @@ export default function UsersList() {
                   "Email",
                   "Status",
                   "Registered",
+                  "Form Filled",
                   "Action",
                 ].map((h) => (
                   <th
@@ -133,7 +149,7 @@ export default function UsersList() {
               {filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     style={{
                       padding: 32,
                       textAlign: "center",
@@ -179,33 +195,66 @@ export default function UsersList() {
                     <td style={{ padding: "12px 14px" }}>
                       <StatusBadge status={u.formStatus} />
                     </td>
-                    <td
-                      style={{
-                        padding: "12px 14px",
-                        fontSize: 13,
-                        color: C.textopa,
-                      }}
-                    >
-                      {u.createdAt
-                        ? new Date(u.createdAt).toLocaleDateString("en-IN")
-                        : "—"}
-                    </td>
+                  <td
+                    style={{
+                      padding: "12px 14px",
+                      fontSize: 13,
+                      color: C.textopa,
+                    }}
+                  >
+                    {u.createdAt
+                      ? new Date(u.createdAt).toLocaleDateString("en-IN")
+                      : "—"}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px 14px",
+                      fontSize: 13,
+                      color: C.textopa,
+                    }}
+                  >
+                    {u.formSubmittedAt
+                      ? new Date(u.formSubmittedAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "—"}
+                  </td>
                     <td style={{ padding: "12px 14px" }}>
-                      <button
-                        onClick={() => navigate(`/users/${u._id}`)}
-                        style={{
-                          padding: "6px 14px",
-                          background: C.navy,
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 6,
-                          fontSize: 12,
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
-                      >
-                        View
-                      </button>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => navigate(`/users/${u._id}`)}
+                          style={{
+                            padding: "6px 14px",
+                            background: C.navy,
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 6,
+                            fontSize: 12,
+                            cursor: "pointer",
+                            fontWeight: 600,
+                          }}
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => handleDelete(u)}
+                          disabled={deletingId === u._id}
+                          style={{
+                            padding: "6px 14px",
+                            background: deletingId === u._id ? "#fca5a5" : "#fee2e2",
+                            color: "#dc2626",
+                            border: "1px solid #fca5a5",
+                            borderRadius: 6,
+                            fontSize: 12,
+                            cursor: deletingId === u._id ? "default" : "pointer",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {deletingId === u._id ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

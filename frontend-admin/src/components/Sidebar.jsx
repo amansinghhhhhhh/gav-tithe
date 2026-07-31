@@ -7,6 +7,7 @@ import gulogo from "../assets/gulogotransparent.png";
 import guicon from "../assets/guicon.svg";
 import dashboard from "../assets/dashboard.svg";
 import userList from "../assets/userList.svg";
+import editRequest from "../assets/editRequest.svg";
 const NAV = [
   {
     key: "/dashboard",
@@ -17,6 +18,11 @@ const NAV = [
     key: "/users",
     label: "Users List",
     icon: <img src={userList} />,
+  },
+  {
+    key: "/edit-requests",
+    label: "Edit Requests",
+    icon: <img src={editRequest} />,
   },
 ];
 

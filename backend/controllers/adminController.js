@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const FormData = require("../models/FormData");
+const EditRequest = require("../models/EditRequest");
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
 const ExcelJS = require("exceljs");
@@ -14,7 +15,7 @@ const getAllUsers = async (req, res) => {
         const userIds = users.map((u) => u._id);
 
         const forms = await FormData.find({ userId: { $in: userIds } })
-            .select("userId status updatedAt section1");
+            .select("userId status updatedAt submittedAt section1");
 
         const formMap = {};
         for (const form of forms) {
@@ -31,6 +32,7 @@ const getAllUsers = async (req, res) => {
                 createdAt: user.createdAt,
                 formStatus: form?.status || "not_started",
                 formUpdatedAt: form?.updatedAt || null,
+                formSubmittedAt: form?.submittedAt || null,
                 fullName: form?.section1?.fullName || null,
             };
         });
@@ -139,6 +141,8 @@ const exportExcel = async (req, res) => {
             { header: "Mobile", key: "mobile", width: 15 },
             { header: "Email", key: "email", width: 25 },
             { header: "Status", key: "status", width: 14 },
+            { header: "Registered On", key: "registeredOn", width: 14 },
+            { header: "Form Submitted On", key: "submittedOn", width: 16 },
             { header: "Full Name", key: "fullName", width: 20 },
             { header: "DOB", key: "dob", width: 12 },
             { header: "Gender", key: "gender", width: 10 },
@@ -178,6 +182,8 @@ const exportExcel = async (req, res) => {
                 mobile: user.mobile,
                 email: user.email,
                 status: f?.status || "not_started",
+                registeredOn: user.createdAt,
+                submittedOn: f?.submittedAt || null,
                 fullName: s1.fullName,
                 dob: s1.dob,
                 gender: s1.gender,
@@ -213,4 +219,115 @@ const exportExcel = async (req, res) => {
     }
 };
 
-module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel };
+// ── Get all edit requests ─────────────────────────────────────────────────────
+const getEditRequests = async (req, res) => {
+    try {
+        const requests = await EditRequest.find().sort({ createdAt: -1 }).lean();
+
+        const userIds = [...new Set(requests.map((r) => r.userId))];
+        const users = await User.find({ _id: { $in: userIds } })
+            .select("name mobile email")
+            .lean();
+        const userMap = {};
+        for (const u of users) userMap[u._id.toString()] = u;
+
+        const data = requests.map((r) => ({
+            ...r,
+            userId: undefined,
+            user: userMap[r.userId.toString()] || null,
+        }));
+
+        res.json({ success: true, requests: data });
+    } catch (err) {
+        console.error("Get edit requests error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// ── Update edit request (approve/reject) ──────────────────────────────────────
+const updateEditRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, remark } = req.body;
+
+        const allowed = ["approved", "rejected"];
+        if (!allowed.includes(status)) {
+            return res.status(400).json({ message: "Invalid status" });
+        }
+
+        const request = await EditRequest.findById(id);
+        if (!request) return res.status(404).json({ message: "Request not found" });
+
+        request.status = status;
+        if (remark) request.remark = remark;
+        request.updatedAt = Date.now();
+        await request.save();
+
+        // Approve hone par user ka form edit ke liye khol do
+        // ⚠️ Security: purana OCR verification invalid karo — user ko docs dobara upload karne padenge
+        if (status === "approved") {
+            const form = await FormData.findOne({ userId: request.userId });
+            if (form) {
+                form.editAllowed = true;
+                if (form.section4) {
+                    form.section4.ocr = { aadhaarFront: null, pan: null };
+                    form.markModified("section4");
+                }
+                form.updatedAt = Date.now();
+                await form.save();
+            }
+        }
+
+        res.json({ success: true, message: `Request ${status}` });
+    } catch (err) {
+        console.error("Update edit request error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// ── Delete user + saara related data ──────────────────────────────────────────
+const deleteUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+        if (user.role === "admin") {
+            return res.status(400).json({ message: "Admin user delete nahi kar sakte" });
+        }
+
+        const form = await FormData.findOne({ userId });
+
+        // ── GridFS files delete (uploads.files + uploads.chunks dono) ──────
+        const db = mongoose.connection.db;
+        const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+        const docs = form?.section4?.docs || {};
+        for (const docType of Object.keys(docs)) {
+            const fileId = docs[docType];
+            if (!fileId) continue;
+            try {
+                await bucket.delete(new mongoose.Types.ObjectId(fileId.toString()));
+                console.log("🗑️ Deleted GridFS file:", fileId, "(", docType, ")");
+            } catch (e) {
+                console.log("⚠️ GridFS file missing (skip):", fileId, e.message);
+            }
+        }
+
+        // ── FormData + EditRequests + User ──────────────────────────────────
+        if (form) await FormData.deleteOne({ _id: form._id });
+        await EditRequest.deleteMany({ userId });
+        await User.deleteOne({ _id: userId });
+
+        console.log("🗑️ User deleted:", userId);
+        res.json({ success: true, message: "User aur saara data delete ho gaya" });
+    } catch (err) {
+        console.error("Delete user error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, deleteUser };

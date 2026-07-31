@@ -6,6 +6,10 @@ import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
 import { uploadDoc } from "../../services/api";
+import { extractDocNumber, aadhaarDiff, panMatches } from "../../services/ocr";
+
+// Jin doc types ke liye document-number match check hoga
+const OCR_KEYS = { aadhaarFront: "aadhaar", pan: "pan" };
 
 const makeRules = (t) => ({
   aadhaar: (v) =>
@@ -33,18 +37,118 @@ const makeRules = (t) => ({
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-function Section4({ data, dispatch, registerNext, onNext }) {
+const OCR_STATUS_STYLE = {
+  checking: { color: "#d97706", icon: "⏳" },
+  match: { color: "#16a34a", icon: "✅" },
+  mismatch: { color: "#dc2626", icon: "❌" },
+  unreadable: { color: "#dc2626", icon: "⚠️" },
+  reupload: { color: "#d97706", icon: "🔒" },
+  suggest: { color: "#d97706", icon: "💡" },
+  type: { color: "#9ca3af", icon: "ℹ️" },
+};
+
+function Section4({ data, dispatch, registerNext, onNext, editAllowed = false }) {
   const { t } = useLang();
   const u = (p) => dispatch({ type: "UPDATE_SECTION4", payload: p });
   const ud = (k, f) => dispatch({ type: "UPDATE_DOC", key: k, file: f });
+  const uo = (p) => dispatch({ type: "UPDATE_OCR", payload: p });
+
+  // Document-number match status: null | checking | type | match | mismatch | unreadable | reupload | suggest
+  const getOcrStatus = (docKey) => {
+    if (!data.docs?.[docKey]) return null;
+    const ocr = data.ocr?.[docKey];
+    if (data.ocr?.[`${docKey}Pending`]) return "checking";
+    if (!ocr) {
+      // Edit access milne ke baad security ke liye doc dobara upload karna zaroori hai
+      return editAllowed ? "reupload" : "unreadable";
+    }
+    if (docKey === "aadhaarFront") {
+      const typed = (data.aadhaar || "").replace(/\s/g, "");
+      if (!typed) return "type";
+      const diff = aadhaarDiff(typed, ocr);
+      if (diff === 0) return "match";
+      // 1 digit door hai → green ✅ nahi, suggestion dikhao (user verify kare)
+      return diff === 1 ? "suggest" : "mismatch";
+    }
+    const typed = (data.pan || "").trim();
+    if (!typed) return "type";
+    if (typed === ocr) return "match";
+    // 1-char door hai → green ✅ mat dikhao, suggestion dikhao (user verify kare)
+    return panMatches(typed, ocr) ? "suggest" : "mismatch";
+  };
+
+  const OcrStatus = ({ docKey, showExtracted }) => {
+    const status = getOcrStatus(docKey);
+    if (!status) return null;
+    const s = OCR_STATUS_STYLE[status];
+    const extracted = data.ocr?.[docKey];
+
+    if (status === "suggest") {
+      return (
+        <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
+          {s.icon} {t("ocr_suggest")}{" "}
+          <b style={{ letterSpacing: 1 }}>{extracted}</b>{" "}
+          <button
+            type="button"
+            onClick={() => {
+              const value =
+                docKey === "aadhaarFront"
+                  ? (extracted || "").replace(/(\d{4})(?=\d)/g, "$1 ").trim()
+                  : extracted;
+              u(docKey === "aadhaarFront" ? { aadhaar: value } : { pan: value });
+              clearError(docKey === "aadhaarFront" ? "aadhaar" : "pan");
+            }}
+            style={{
+              marginLeft: 4,
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#b45309",
+              background: "#fef3c7",
+              border: "1px solid #f59e0b",
+              borderRadius: 6,
+              padding: "1px 8px",
+              cursor: "pointer",
+            }}
+          >
+            {t("ocr_use")}
+          </button>
+        </p>
+      );
+    }
+
+    const showExtractedValue = showExtracted && extracted;
+    return (
+      <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
+        {s.icon} {t(`ocr_${status}`)}
+        {showExtractedValue ? ` (${extracted})` : ""}
+      </p>
+    );
+  };
 
   const handleDocUpload = async (key, file) => {
     if (file && file.size > MAX_FILE_SIZE) {
       alert(t("s4_file_too_large") || "File 5MB se choti honi chahiye");
       return;
     }
+
+    let ocrNumber = null;
+    if (OCR_KEYS[key]) {
+      uo({ [`${key}Pending`]: true, [key]: null });
+      try {
+        const result = await extractDocNumber(file);
+        if (result.ok) {
+          ocrNumber = key === "aadhaarFront" ? result.aadhaar : result.pan;
+          uo({ [key]: ocrNumber || null });
+        }
+      } catch (err) {
+        console.error("OCR failed:", err);
+      } finally {
+        uo({ [`${key}Pending`]: false });
+      }
+    }
+
     try {
-      const res = await uploadDoc(key, file);
+      const res = await uploadDoc(key, file, ocrNumber);
       if (res.success) {
         ud(key, res.fileId);
         clearError(`docs.${key}`);
@@ -69,7 +173,31 @@ function Section4({ data, dispatch, registerNext, onNext }) {
       "docs.aadhaarBack": data.docs.aadhaarBack,
       "docs.pan": data.docs.pan,
     });
-    if (isValid) onNext();
+    if (!isValid) return;
+
+    const aStatus = getOcrStatus("aadhaarFront");
+    const pStatus = getOcrStatus("pan");
+    if (aStatus === "checking" || pStatus === "checking") {
+      alert(t("ocr_checking"));
+      return;
+    }
+    if (aStatus === "mismatch" || aStatus === "suggest") {
+      alert(t("err_ocr_mismatch_aadhaar"));
+      return;
+    }
+    if (pStatus === "mismatch" || pStatus === "suggest") {
+      alert(t("err_ocr_mismatch_pan"));
+      return;
+    }
+    if (aStatus === "reupload" || pStatus === "reupload") {
+      alert(t("err_ocr_reupload"));
+      return;
+    }
+    if (aStatus === "unreadable" || pStatus === "unreadable") {
+      alert(t("err_ocr_unreadable"));
+      return;
+    }
+    onNext();
   };
 
   useEffect(() => {
@@ -96,6 +224,7 @@ function Section4({ data, dispatch, registerNext, onNext }) {
               onBlur={() => validateField("aadhaar", data.aadhaar, data)}
               error={errors.aadhaar}
             />
+            <OcrStatus docKey="aadhaarFront" showExtracted />
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
             <ValidatedInput
@@ -110,6 +239,7 @@ function Section4({ data, dispatch, registerNext, onNext }) {
               onBlur={() => validateField("pan", data.pan, data)}
               error={errors.pan}
             />
+            <OcrStatus docKey="pan" showExtracted />
             <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
               {t("s4_pan_sub")}
             </p>

@@ -3,9 +3,17 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
 const dotenv = require("dotenv");
+const path = require("path");
 const connectDB = require("./config/db");
 
-dotenv.config();
+// ✅ Hamesha backend/.env load karo — chahe kahin se bhi start karo
+const env = dotenv.config({ path: path.join(__dirname, ".env") });
+
+// ⚠️ Terminal session ka purana placeholder MONGO_URI override ho jaye toh ignore karo
+if (env.parsed?.MONGO_URI && /cluster\.xxxxx|placeholder/i.test(process.env.MONGO_URI || "")) {
+    process.env.MONGO_URI = env.parsed.MONGO_URI;
+    console.log("⚠️ Terminal session ka placeholder MONGO_URI mila — backend/.env ki value use ki gayi");
+}
 
 const app = express();
 
@@ -19,7 +27,8 @@ app.set("trust proxy", 1);
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
-    "http://192.168.29.4:5173",
+    "http://10.28.208.72:5173",
+    "http://10.28.208.72:5174",
     "https://user.gaontitheudyojak.com",
     "https://admin.gaontitheudyojak.com",
     // Naya Vercel URL aane pe yahan add karo

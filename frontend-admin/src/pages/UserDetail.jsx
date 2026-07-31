@@ -85,6 +85,23 @@ export default function UserDetail() {
         </h2>
       </div>
 
+      {/* ✅ Dates — registration + latest form submit */}
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          marginBottom: 20,
+        }}
+      >
+        <DateChip label="Registered" value={user?.createdAt} />
+        <DateChip
+          label="Form Submitted"
+          value={form?.submittedAt}
+          emptyText="Not submitted yet"
+        />
+      </div>
+
       {msg && (
         <div
           style={{
@@ -358,6 +375,30 @@ function Row({ label, value }) {
     <div style={{ display: "flex", gap: 8, fontSize: 13 }}>
       <span style={{ color: C.textopa, minWidth: 100 }}>{label}:</span>
       <span style={{ fontWeight: 600, color: C.black }}>{value || "—"}</span>
+    </div>
+  );
+}
+
+function DateChip({ label, value, emptyText = "—" }) {
+  const fmt = value
+    ? new Date(value).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : emptyText;
+  return (
+    <div
+      style={{
+        background: C.light,
+        borderRadius: 8,
+        padding: "8px 14px",
+        fontSize: 13,
+        color: C.textopa,
+      }}
+    >
+      <span style={{ fontWeight: 700, color: C.navy }}>{label}:</span>{" "}
+      <span style={{ fontWeight: 600, color: C.black }}>{fmt}</span>
     </div>
   );
 }

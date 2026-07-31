@@ -10,6 +10,7 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { app } from "../config/firebase";
 import { Header } from "../components/Header";
@@ -260,12 +261,8 @@ export default function LoginPage() {
       if (regRecaptchaRef.current) regRecaptchaRef.current.clear();
     } catch (_) {}
     regRecaptchaRef.current = null;
-    const el = document.getElementById("reg-recaptcha-container");
-    if (el && el.parentNode) {
-      const fresh = document.createElement("div");
-      fresh.id = "reg-recaptcha-container";
-      el.parentNode.replaceChild(fresh, el);
-    }
+    // ❌ DOM container replace mat karo — grecaptcha purane detached widget
+    // se bound rehta hai → consumed token → auth/invalid-app-credential (2nd attempt)
   }
 
   const resetRegOtp = () => {
@@ -439,6 +436,8 @@ export default function LoginPage() {
         .join(" ");
       const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid);
       if (data?.success || data?.token) {
+        // ✅ Firebase session reset — agla registration fresh state se chalu ho
+        signOut(auth).catch(() => {});
         setSuccessMsg(t("registration_success", { email }));
         setIsSignup(false);
         setStep(1);

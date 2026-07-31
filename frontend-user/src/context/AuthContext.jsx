@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getMe, getToken, clearToken } from "../services/api";
+import { signOut } from "firebase/auth";
+import { auth } from "../config/firebase";
 
 const AuthContext = createContext(null);
 
@@ -31,6 +33,9 @@ export function AuthProvider({ children }) {
   const logout = () => {
     clearToken();
     localStorage.removeItem("otp_verified"); // ✅ logout pe clear karo
+    // ✅ Firebase session bhi clear karo — warna agla registration purane
+    // user/reCAPTCHA state ke upar chalta hai → auth/invalid-app-credential
+    signOut(auth).catch(() => {});
     setUser(null);
   };
 

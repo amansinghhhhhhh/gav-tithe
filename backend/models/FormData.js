@@ -51,6 +51,11 @@ const FormDataSchema = new mongoose.Schema({
             udyam: { type: mongoose.Schema.Types.Mixed, default: null },
             passport: { type: mongoose.Schema.Types.Mixed, default: null },
         },
+        // ✅ OCR se document se extract kiya number (client se bypass nahi ho sakta — submit pe client value ignore hoti hai)
+        ocr: {
+            aadhaarFront: { type: String, default: null },
+            pan: { type: String, default: null },
+        },
     },
 
     status: {
@@ -58,9 +63,12 @@ const FormDataSchema = new mongoose.Schema({
         enum: ["draft", "submitted", "under_review", "approved", "rejected"],
         default: "draft",
     },
+    editAllowed: { type: Boolean, default: false },
     adminRemark: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    // ✅ Latest submit date — har submit/resubmit pe update (draft save pe nahi)
+    submittedAt: { type: Date, default: null },
 });
 
 module.exports = mongoose.model("FormData", FormDataSchema);

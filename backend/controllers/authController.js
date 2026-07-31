@@ -133,8 +133,9 @@ const registerEmail = async (req, res) => {
                 name: name || email.split("@")[0],
                 email,
                 password,
-                mobile: mobile || null,
-                firebaseUid: firebaseUid || null,
+                // ⚠️ null set mat karo — sparse unique index null ko bhi index karta hai (E11000 dup)
+                mobile: mobile || undefined,
+                firebaseUid: firebaseUid || undefined,
                 isVerified: !!firebaseUid,
                 role: "user",
             });

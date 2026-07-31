@@ -28,15 +28,10 @@ function useOtp() {
             }
         } catch (_) { }
         recaptchaRef.current = null;
-
-        // Element ko replace karo (innerHTML clear karna kaafi nahi — grecaptcha
-        // DOM element reference ya attribute se track karta hai, ID se nahi)
-        const el = document.getElementById("recaptcha-container");
-        if (el && el.parentNode) {
-            const fresh = document.createElement("div");
-            fresh.id = "recaptcha-container";
-            el.parentNode.replaceChild(fresh, el);
-        }
+        // ❌ DOM container replace mat karo — grecaptcha ka global state purane
+        // detached widget se bound rehta hai, naya verifier purana consumed
+        // token uthata hai → auth/invalid-app-credential (2nd attempt pe fail).
+        // clear() hi kaafi hai — same container dobara render hota hai.
     };
 
     // ── reCAPTCHA initialize (ek baar) ─────────────────────────────────────
@@ -65,8 +60,9 @@ function useOtp() {
         setError("");
         setLoading(true);
 
-        // Har baar fresh shuru karo — grecaptcha global state stale ho jaata hai
-        destroyRecaptcha();
+        // ✅ Har send pe destroy mat karo — verifier reuse karo; invisible
+        // reCAPTCHA har signInWithPhoneNumber call pe fresh token deta hai.
+        // (Purana pattern: destroy + DOM replace → consumed token → invalid-app-credential)
 
         try {
             const verifier = getRecaptcha();

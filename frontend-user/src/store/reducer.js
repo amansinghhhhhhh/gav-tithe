@@ -1,6 +1,7 @@
 export const initialState = {
     currentStep: 1,
     submitted: false,
+    editAllowed: false,
     section1: {
         fullName: "", dob: "", gender: "purush", mobile: "",
         otpSent: false, otpVerified: false, email: "", education: "",
@@ -18,6 +19,7 @@ export const initialState = {
     section4: {
         aadhaar: "", pan: "", bankName: "", accountNo: "",
         docs: { aadhaarFront: null, aadhaarBack: null, pan: null, udyam: null, passport: null },
+        ocr: { aadhaarFront: null, pan: null, aadhaarFrontPending: false, panPending: false },
     },
 };
 
@@ -39,10 +41,20 @@ function reducer(state, action) {
                     docs: { ...state.section4.docs, [action.key]: action.file },
                 },
             };
+        case "UPDATE_OCR":
+            return {
+                ...state,
+                section4: {
+                    ...state.section4,
+                    ocr: { ...state.section4.ocr, ...action.payload },
+                },
+            };
         case "SET_STEP":
             return { ...state, currentStep: action.step };
         case "SUBMIT":
             return { ...state, submitted: true };
+        case "SET_EDIT_ALLOWED":
+            return { ...state, editAllowed: action.value };
         default:
             return state;
     }

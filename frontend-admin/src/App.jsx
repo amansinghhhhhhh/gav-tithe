@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import UsersList from "./pages/UsersList";
 import UserDetail from "./pages/UserDetail";
+import EditRequests from "./pages/EditRequests";
 import C from "./constants/colors";
 import { Spinner } from "./components/shared/Spinner";
 
@@ -68,6 +69,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <UserDetail />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/edit-requests"
+        element={
+          <ProtectedLayout>
+            <EditRequests />
           </ProtectedLayout>
         }
       />

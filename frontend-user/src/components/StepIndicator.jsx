@@ -6,7 +6,7 @@ import C from "../constants/colors";
 
 const STEP_PROGRESS = { 1: 0, 2: 25, 3: 50, 4: 75 };
 
-export function StepIndicator({ current }) {
+export function StepIndicator({ current, onStepClick }) {
   const { t } = useLang();
   const { user } = useAuth();
 
@@ -215,15 +215,19 @@ export function StepIndicator({ current }) {
         {steps.map((s, i) => {
           const n = i + 1,
             done = n < current,
-            active = n === current;
+            active = n === current,
+            clickable = !!onStepClick;
           return (
             <div key={n} style={{ display: "flex", alignItems: "center" }}>
               <div
+                onClick={clickable ? () => onStepClick(n) : undefined}
+                title={clickable ? t("step_jump_hint") : ""}
                 style={{
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 4,
+                  cursor: clickable ? "pointer" : "default",
                 }}
               >
                 <div

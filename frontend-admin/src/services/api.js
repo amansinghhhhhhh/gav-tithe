@@ -57,3 +57,19 @@ export const getDocUrl = (fileId) =>
 
 export const getExcelUrl = () =>
     `${BASE}/admin/export/excel?token=${getToken()}`;
+
+export const getEditRequests = async () =>
+    apiFetch(`${BASE}/admin/edit-requests`, { headers: authHeaders() });
+
+export const updateEditRequest = async (id, status, remark = "") =>
+    apiFetch(`${BASE}/admin/edit-requests/${id}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ status, remark }),
+    });
+
+export const deleteUser = async (userId) =>
+    apiFetch(`${BASE}/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });

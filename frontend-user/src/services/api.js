@@ -93,9 +93,22 @@ export const getMyForm = async () => {
     return apiFetch(`${BASE}/form`, { headers: authHeaders() });
 };
 
-export const uploadDoc = async (docType, file) => {
+export const createEditRequest = async (message) => {
+    return apiFetch(`${BASE}/form/edit-request`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ message }),
+    });
+};
+
+export const getEditRequest = async () => {
+    return apiFetch(`${BASE}/form/edit-request`, { headers: authHeaders() });
+};
+
+export const uploadDoc = async (docType, file, ocr = null) => {
     const fd = new FormData();
     fd.append("file", file);
+    if (ocr) fd.append("ocr", ocr);
     return apiFetch(`${BASE}/form/upload/${docType}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${getToken()}` },

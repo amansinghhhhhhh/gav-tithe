@@ -62,6 +62,13 @@ const saveToGridFS = (fileBuffer, filename, mimetype) => {
     });
 };
 
+// GridFS se file delete karne ka helper (files + chunks dono)
+const deleteFromGridFS = async (fileId) => {
+    const db = mongoose.connection.db;
+    const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+    await bucket.delete(new mongoose.Types.ObjectId(fileId.toString()));
+};
+
 const handleMulterError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         return res.status(400).json({ message: err.code === "LIMIT_FILE_SIZE" ? "File size max 5MB" : err.message });
@@ -70,4 +77,4 @@ const handleMulterError = (err, req, res, next) => {
     next();
 };
 
-module.exports = { upload, saveToGridFS, verifyMagicBytes, handleMulterError };
+module.exports = { upload, saveToGridFS, deleteFromGridFS, verifyMagicBytes, handleMulterError };

@@ -13,6 +13,7 @@ const translations = {
         step2: "व्यवसाय",
         step3: "आर्थिक",
         step4: "KYC",
+        step_jump_hint: "या टप्प्यावर जा",
 
         // Form Banner
         form_title: "गाव तिथे उद्योजक: ऑनबोर्डिंग फॉर्म",
@@ -27,6 +28,17 @@ const translations = {
 
         // Success
         success_msg: "तुमचा फॉर्म सबमिट झाला आहे. आम्ही लवकरच तुमच्याशी संपर्क करू.",
+
+        // Edit Request
+        edit_req_button: "माहिती बदलण्यासाठी विनंती करा",
+        edit_req_title: "तुमची विनंती लिहा",
+        edit_req_placeholder: "उदा. मला माझी काही माहिती बदलायची आहे...",
+        edit_req_submit: "विनंती पाठवा",
+        edit_req_sending: "पाठवत आहोत...",
+        edit_req_cancel: "रद्द करा",
+        edit_req_sent: "✅ तुमची विनंती पाठवली गेली आहे. प्रशासक मंजूर करेपर्यंत प्रतीक्षा करा.",
+        edit_req_pending: "⏳ तुमची विनंती प्रलंबित आहे. प्रशासक मंजूर केल्यावर तुम्ही फॉर्म संपादित करू शकाल.",
+        edit_req_approved: "✅ प्रशासकाने विनंती मंजूर केली आहे. फॉर्म संपादित करण्यासाठी पृष्ठ रिफ्रेश करा.",
 
         // Section 1
         s1_title: "विभाग १: तुमची ओळख (वैयक्तिक माहिती)",
@@ -188,6 +200,18 @@ const translations = {
         err_acc_digits: "खाते क्रमांकात फक्त अंक असावेत",
         err_acc_length: "खाते क्रमांक 9 ते 18 अंकी असावा",
         err_doc_required: "हा दस्तऐवज अपलोड करणे आवश्यक आहे",
+        ocr_checking: "डॉक्युमेंट तपासले जात आहे...",
+        ocr_match: "नंबर डॉक्युमेंटशी जुळतो",
+        ocr_mismatch: "नंबर डॉक्युमेंटशी जुळत नाही",
+        ocr_suggest: "दस्तऐवजातील क्रमांक:",
+        ocr_use: "हा वापरा",
+        ocr_unreadable: "डॉक्युमेंट स्पष्ट नाही — पुन्हा फोटो/PDF अपलोड करा",
+        ocr_reupload: "सुरक्षेसाठी कृपया दस्तऐवज पुन्हा अपलोड करा",
+        ocr_type: "नंबर टाकल्यावर आपोआप तपासले जाईल",
+        err_ocr_mismatch_aadhaar: "आधार नंबर डॉक्युमेंटशी जुळत नाही — योग्य नंबर टाका किंवा योग्य डॉक्युमेंट अपलोड करा.",
+        err_ocr_mismatch_pan: "PAN नंबर डॉक्युमेंटशी जुळत नाही — योग्य नंबर टाका किंवा योग्य डॉक्युमेंट अपलोड करा.",
+        err_ocr_unreadable: "डॉक्युमेंट वाचता आला नाही — स्पष्ट फोटो/PDF पुन्हा अपलोड करा.",
+        err_ocr_reupload: "सुरक्षेसाठी आधार/पॅन दस्तऐवज पुन्हा अपलोड करणे आवश्यक आहे.",
 
         // Login Page
         login_title: "उद्योजक नोंदणी",
@@ -278,6 +302,7 @@ const translations = {
         step2: "Business",
         step3: "Financial",
         step4: "KYC",
+        step_jump_hint: "Go to this step",
 
         // Form Banner
         form_title: "Gav Tithe Udyojak: Onboarding Form",
@@ -292,6 +317,17 @@ const translations = {
 
         // Success
         success_msg: "Your form has been submitted. We will contact you soon.",
+
+        // Edit Request
+        edit_req_button: "Request to Edit Information",
+        edit_req_title: "Write your request",
+        edit_req_placeholder: "e.g. I want to change some of my information...",
+        edit_req_submit: "Send Request",
+        edit_req_sending: "Sending...",
+        edit_req_cancel: "Cancel",
+        edit_req_sent: "✅ Your request has been sent. Please wait until admin approves it.",
+        edit_req_pending: "⏳ Your request is pending. You can edit the form once admin approves it.",
+        edit_req_approved: "✅ Admin has approved your request. Refresh the page to edit the form.",
 
         // Section 1
         s1_title: "Section 1: Your Identity (Personal Information)",
@@ -452,6 +488,18 @@ const translations = {
         err_acc_digits: "Account number must contain only digits",
         err_acc_length: "Account number must be 9 to 18 digits",
         err_doc_required: "This document upload is required",
+        ocr_checking: "Checking document...",
+        ocr_match: "Number matches the document",
+        ocr_mismatch: "Number does not match the document",
+        ocr_suggest: "Number on the document:",
+        ocr_use: "Use this",
+        ocr_unreadable: "Document not clear — please re-upload photo/PDF",
+        ocr_reupload: "For security reasons, please re-upload the document",
+        ocr_type: "Will be verified automatically once you enter the number",
+        err_ocr_mismatch_aadhaar: "Aadhaar number does not match the document — enter the correct number or upload the correct document.",
+        err_ocr_mismatch_pan: "PAN number does not match the document — enter the correct number or upload the correct document.",
+        err_ocr_unreadable: "Could not read the document — please re-upload a clear photo/PDF.",
+        err_ocr_reupload: "For security reasons, you must re-upload the Aadhaar/PAN documents.",
 
         // Login Page
         login_title: "Entrepreneur Registration",
