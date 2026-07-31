@@ -42,6 +42,23 @@ export const panMatches = (typed, ocr) => {
     return diff === 1;
 };
 
+// ── Udyam: UDYAM-MH-08-0001234 (hyphens/spaces ignore; canonical misread tolerance) ──
+const normalizeUdyam = (s) => canonical(String(s || "").toUpperCase()).replace(/[^A-Z0-9]/g, "");
+
+export const udyamDiff = (typed, ocr) => {
+    const a = normalizeUdyam(typed);
+    const b = normalizeUdyam(ocr);
+    if (!a || !b || a.length !== b.length) return null;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff++;
+    return diff;
+};
+
+export const udyamMatches = (typed, ocr) => {
+    const diff = udyamDiff(typed, ocr);
+    return diff === 0 || diff === 1;
+};
+
 let workerPromise = null;
 
 const getWorker = () => {
@@ -139,6 +156,16 @@ const extractPan = (text) => {
     return null;
 };
 
+const extractUdyam = (text) => {
+    // 1. separators ke saath: UDYAM-MH-08-0001234 ya UDYAM MH 08 0001234
+    const spaced = text.match(/UDYAM[-\s]?[A-Z]{2}[-\s]?\d{2}[-\s]?\d{6,7}/g);
+    if (spaced) return spaced[0].replace(/[^A-Z0-9]/g, "");
+    // 2. compact: UDYAMMH080001234
+    const compact = text.replace(/[^A-Z0-9]/g, "");
+    const m = compact.match(/UDYAM[A-Z]{2}\d{2}\d{6,7}/);
+    return m ? m[0] : null;
+};
+
 const recognize = async (worker, input, sparse) => {
     await worker.setParameters({
         tessedit_pageseg_mode: sparse ? PSM.SPARSE_TEXT : PSM.AUTO,
@@ -168,13 +195,14 @@ export const extractDocNumber = async (file) => {
                 attempts.push(text);
                 const aadhaar = extractAadhaar(text);
                 const pan = extractPan(text);
-                if (aadhaar || pan) {
-                    console.debug("[OCR] FOUND aadhaar:", aadhaar, "pan:", pan);
-                    return { ok: true, aadhaar, pan, rawText: text, attempts };
+                const udyam = extractUdyam(text);
+                if (aadhaar || pan || udyam) {
+                    console.debug("[OCR] FOUND aadhaar:", aadhaar, "pan:", pan, "udyam:", udyam);
+                    return { ok: true, aadhaar, pan, udyam, rawText: text, attempts };
                 }
             }
         }
-        return { ok: true, aadhaar: null, pan: null, rawText: "", attempts };
+        return { ok: true, aadhaar: null, pan: null, udyam: null, rawText: "", attempts };
     } catch (err) {
         console.error("OCR error:", err);
         return { ok: false, error: err.message, attempts };

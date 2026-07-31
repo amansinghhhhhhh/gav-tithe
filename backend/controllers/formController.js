@@ -24,11 +24,23 @@ const panMatches = (typed, ocr) => {
     return diff === 1;
 };
 
+// ── Udyam: UDYAM-MH-08-0001234 — hyphens/spaces ignore + canonical tolerance ──
+const udyamMatches = (typed, ocr) => {
+    const norm = (s) => canonical(String(s || "").toUpperCase()).replace(/[^A-Z0-9]/g, "");
+    const a = norm(typed);
+    const b = norm(ocr);
+    if (!a || !b || a.length !== b.length) return false;
+    if (a === b) return true;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff++;
+    return diff === 1;
+};
+
 const SECTION_ALLOWED_KEYS = {
     section1: ["fullName", "dob", "gender", "mobile", "email", "education", "address", "otpVerified"],
     section2: ["businessName", "businessType", "sector", "sectorOther", "businessStatus", "employment", "investment"],
     section3: ["hadLoan", "loanType", "loanTypeOther", "repaymentStatus", "cibilScore", "pastDifficulty"],
-    section4: ["aadhaar", "pan", "bankName", "accountNo", "docs"],
+    section4: ["aadhaar", "pan", "udyam", "bankName", "accountNo", "docs"],
 };
 
 // ── Section save (draft) ──────────────────────────────────────────────────────
@@ -113,6 +125,22 @@ const submitForm = async (req, res) => {
             }
         }
 
+        if (docs.udyam) {
+            const typedUdyam = String(form.section4?.udyam || "").trim().toUpperCase();
+            if (!typedUdyam) {
+                return res.status(400).json({ success: false, message: "Udyam certificate upload kiya hai — Udyam Registration Number daalein." });
+            }
+            if (!ocr.udyam) {
+                const msg = form.editAllowed
+                    ? "Security ke liye Udyam document dobara upload karein."
+                    : "Udyam document clear nahi pada — dobara clear photo/PDF upload karein.";
+                return res.status(400).json({ success: false, message: msg });
+            }
+            if (!udyamMatches(typedUdyam, ocr.udyam)) {
+                return res.status(400).json({ success: false, message: "Udyam number document se match nahi karta. Sahi number daalein ya sahi document upload karein." });
+            }
+        }
+
         form.status = "submitted";
         form.editAllowed = false;
         form.updatedAt = Date.now();
@@ -184,10 +212,10 @@ const uploadDoc = async (req, res) => {
             }
         }
 
-        // ✅ OCR extracted number store karo (sirf aadhaarFront/pan ke liye)
-        if (docType === "aadhaarFront" || docType === "pan") {
+        // ✅ OCR extracted number store karo (aadhaarFront/pan/udyam ke liye)
+        if (docType === "aadhaarFront" || docType === "pan" || docType === "udyam") {
             if (!form.section4.ocr) form.section4.ocr = {};
-            const ocrValue = typeof req.body.ocr === "string" ? req.body.ocr.trim().toUpperCase().slice(0, 16) : "";
+            const ocrValue = typeof req.body.ocr === "string" ? req.body.ocr.trim().toUpperCase().slice(0, 32) : "";
             form.section4.ocr[docType] = ocrValue || null;
         }
 

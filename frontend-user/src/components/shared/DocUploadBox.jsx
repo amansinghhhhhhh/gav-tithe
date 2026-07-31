@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useLang } from "../../context/LangContext";
+import { Spinner } from "./Spinner";
 import C from "../../constants/colors";
 
 const FILE_MAX = 5 * 1024 * 1024;   // 5 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
-function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
+function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, error }) {
+  const { t } = useLang();
+  const inputRef = useRef(null);
   const [err, setErr] = useState("");
 
   const handleChange = (e) => {
@@ -12,13 +16,13 @@ function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setErr("फक्त PDF, JPG, PNG, WEBP मान्य आहे");
+      setErr(t("s4_doc_type_err") || "फक्त PDF, JPG, PNG, WEBP मान्य आहे");
       e.target.value = "";
       return;
     }
 
     if (file.size > FILE_MAX) {
-      setErr("File जास्तीत जास्त 5MB असावे");
+      setErr(t("s4_doc_size_err") || "File जास्तीत जास्त 5MB असावे");
       e.target.value = "";
       return;
     }
@@ -26,6 +30,9 @@ function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
     setErr("");
     onUpload(file);
   };
+
+  const showSpinner = loading && !uploaded;
+  const disabled = loading || uploaded;
 
   return (
     <div style={{ flex: 1, minWidth: 110 }}>
@@ -37,35 +44,47 @@ function DocUploadBox({ label, sublabel, uploaded, onUpload, error }) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          cursor: "pointer",
-          background: uploaded ? "#f0fff4" : "#fafafa",
+          cursor: loading ? "wait" : "pointer",
+          background: uploaded ? "#f0fff4" : loading ? "#fffdf5" : "#fafafa",
           textAlign: "center",
+          pointerEvents: disabled ? "none" : "auto",
+          opacity: loading ? 0.9 : 1,
         }}
       >
         <input
+          ref={inputRef}
           type="file"
           accept=".pdf,.jpg,.jpeg,.png,.webp"
           style={{ display: "none" }}
           onChange={handleChange}
+          disabled={disabled}
         />
 
-        <span style={{ fontSize: 22, marginBottom: 6 }}>
-          {uploaded ? "✅" : "☁️"}
+        <span style={{ fontSize: 22, marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 26 }}>
+          {showSpinner ? (
+            <Spinner size={20} />
+          ) : uploaded ? (
+            "✅"
+          ) : (
+            "☁️"
+          )}
         </span>
 
         <span style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>
-          {label}
+          {showSpinner ? t("s4_uploading") : label}
         </span>
 
-        {sublabel && (
+        {sublabel && !showSpinner && (
           <span style={{ fontSize: 10, color: "#888", marginTop: 3 }}>
             {sublabel}
           </span>
         )}
 
-        <span style={{ fontSize: 9, color: "#aaa", marginTop: 4 }}>
-          ≤5MB
-        </span>
+        {!showSpinner && (
+          <span style={{ fontSize: 9, color: "#aaa", marginTop: 4 }}>
+            ≤5MB
+          </span>
+        )}
       </label>
 
       {(err || error) && (

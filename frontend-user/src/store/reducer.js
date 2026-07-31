@@ -17,9 +17,9 @@ export const initialState = {
         cibilScore: "", pastDifficulty: "",
     },
     section4: {
-        aadhaar: "", pan: "", bankName: "", accountNo: "",
+        aadhaar: "", pan: "", udyam: "", bankName: "", accountNo: "",
         docs: { aadhaarFront: null, aadhaarBack: null, pan: null, udyam: null, passport: null },
-        ocr: { aadhaarFront: null, pan: null, aadhaarFrontPending: false, panPending: false },
+        ocr: { aadhaarFront: null, pan: null, udyam: null, aadhaarFrontPending: false, panPending: false, udyamPending: false },
     },
 };
 

@@ -163,6 +163,7 @@ const exportExcel = async (req, res) => {
             { header: "CIBIL Score", key: "cibilScore", width: 12 },
             { header: "Aadhaar", key: "aadhaar", width: 16 },
             { header: "PAN", key: "pan", width: 12 },
+            { header: "Udyam", key: "udyam", width: 18 },
             { header: "Bank Name", key: "bankName", width: 18 },
             { header: "Account No", key: "accountNo", width: 18 },
         ];
@@ -204,6 +205,7 @@ const exportExcel = async (req, res) => {
                 cibilScore: s3.cibilScore,
                 aadhaar: s4.aadhaar,
                 pan: s4.pan,
+                udyam: s4.udyam,
                 bankName: s4.bankName,
                 accountNo: s4.accountNo,
             });
@@ -270,7 +272,7 @@ const updateEditRequest = async (req, res) => {
             if (form) {
                 form.editAllowed = true;
                 if (form.section4) {
-                    form.section4.ocr = { aadhaarFront: null, pan: null };
+                    form.section4.ocr = { aadhaarFront: null, pan: null, udyam: null };
                     form.markModified("section4");
                 }
                 form.updatedAt = Date.now();

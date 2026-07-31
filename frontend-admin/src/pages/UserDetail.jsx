@@ -164,6 +164,7 @@ export default function UserDetail() {
         <Card title="KYC Details" icon="📄">
           <Row label="Aadhaar" value={s4.aadhaar} />
           <Row label="PAN" value={s4.pan} />
+          <Row label="Udyam" value={s4.udyam} />
           <Row label="Bank" value={s4.bankName} />
           <Row label="Account No" value={s4.accountNo} />
         </Card>

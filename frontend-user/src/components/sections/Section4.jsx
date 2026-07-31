@@ -1,15 +1,17 @@
 import SectionHeader from "../shared/SectionHeader";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLang } from "../../context/LangContext";
 import DocUploadBox from "../shared/DocUploadBox";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
 import { uploadDoc } from "../../services/api";
-import { extractDocNumber, aadhaarDiff, panMatches } from "../../services/ocr";
+import { extractDocNumber, aadhaarDiff, panMatches, udyamDiff } from "../../services/ocr";
 
 // Jin doc types ke liye document-number match check hoga
-const OCR_KEYS = { aadhaarFront: "aadhaar", pan: "pan" };
+const OCR_KEYS = { aadhaarFront: "aadhaar", pan: "pan", udyam: "udyam" };
+
+const UDYAM_RE = /^UDYAM-[A-Z]{2}-\d{2}-\d{7}$/;
 
 const makeRules = (t) => ({
   aadhaar: (v) =>
@@ -24,6 +26,10 @@ const makeRules = (t) => ({
       : !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.trim())
         ? t("err_pan")
         : null,
+  udyam: (v) => {
+    if (!v?.trim()) return null; // optional field
+    return UDYAM_RE.test(v.trim()) ? null : t("err_udyam");
+  },
   accountNo: (v) => {
     if (!v?.trim()) return null; // optional field
     if (!/^\d+$/.test(v)) return t("err_acc_digits");
@@ -36,6 +42,15 @@ const makeRules = (t) => ({
 });
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+// "UDYAMMH080001234" → "UDYAM-MH-08-0001234"
+const formatUdyam = (v) => {
+  const s = (v || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 16);
+  if (s.length <= 5) return s;
+  if (s.length <= 7) return `${s.slice(0, 5)}-${s.slice(5)}`;
+  if (s.length <= 9) return `${s.slice(0, 5)}-${s.slice(5, 7)}-${s.slice(7)}`;
+  return `${s.slice(0, 5)}-${s.slice(5, 7)}-${s.slice(7, 9)}-${s.slice(9)}`;
+};
 
 const OCR_STATUS_STYLE = {
   checking: { color: "#d97706", icon: "⏳" },
@@ -77,8 +92,24 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     return panMatches(typed, ocr) ? "suggest" : "mismatch";
   };
 
+  // Udyam — optional, lekin doc upload hua toh number + match zaroori
+  const getUdyamStatus = () => {
+    if (!data.docs?.udyam) return null; // doc nahi → optional, koi status nahi
+    const ocr = data.ocr?.udyam;
+    if (data.ocr?.udyamPending) return "checking";
+    if (!ocr) {
+      return editAllowed ? "reupload" : "unreadable";
+    }
+    const typed = (data.udyam || "").trim();
+    if (!typed) return "type";
+    const diff = udyamDiff(typed, ocr);
+    if (diff === 0) return "match";
+    return diff === 1 ? "suggest" : "mismatch";
+  };
+
   const OcrStatus = ({ docKey, showExtracted }) => {
-    const status = getOcrStatus(docKey);
+    const status =
+      docKey === "udyam" ? getUdyamStatus() : getOcrStatus(docKey);
     if (!status) return null;
     const s = OCR_STATUS_STYLE[status];
     const extracted = data.ocr?.[docKey];
@@ -94,9 +125,11 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               const value =
                 docKey === "aadhaarFront"
                   ? (extracted || "").replace(/(\d{4})(?=\d)/g, "$1 ").trim()
-                  : extracted;
-              u(docKey === "aadhaarFront" ? { aadhaar: value } : { pan: value });
-              clearError(docKey === "aadhaarFront" ? "aadhaar" : "pan");
+                  : docKey === "udyam"
+                    ? formatUdyam(extracted)
+                    : extracted;
+              u(docKey === "aadhaarFront" ? { aadhaar: value } : docKey === "udyam" ? { udyam: value } : { pan: value });
+              clearError(docKey === "aadhaarFront" ? "aadhaar" : docKey === "udyam" ? "udyam" : "pan");
             }}
             style={{
               marginLeft: 4,
@@ -125,19 +158,27 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     );
   };
 
+  const [uploadingKey, setUploadingKey] = useState(null);
+
   const handleDocUpload = async (key, file) => {
     if (file && file.size > MAX_FILE_SIZE) {
       alert(t("s4_file_too_large") || "File 5MB se choti honi chahiye");
       return;
     }
 
+    setUploadingKey(key);
     let ocrNumber = null;
     if (OCR_KEYS[key]) {
       uo({ [`${key}Pending`]: true, [key]: null });
       try {
         const result = await extractDocNumber(file);
         if (result.ok) {
-          ocrNumber = key === "aadhaarFront" ? result.aadhaar : result.pan;
+          ocrNumber =
+            key === "aadhaarFront"
+              ? result.aadhaar
+              : key === "udyam"
+                ? result.udyam
+                : result.pan;
           uo({ [key]: ocrNumber || null });
         }
       } catch (err) {
@@ -157,6 +198,8 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
       }
     } catch (err) {
       alert("Upload failed: " + err.message);
+    } finally {
+      setUploadingKey(null);
     }
   };
 
@@ -168,6 +211,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     const isValid = validateAll({
       aadhaar: data.aadhaar,
       pan: data.pan,
+      udyam: data.udyam,
       accountNo: data.accountNo,
       "docs.aadhaarFront": data.docs.aadhaarFront,
       "docs.aadhaarBack": data.docs.aadhaarBack,
@@ -177,7 +221,8 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
 
     const aStatus = getOcrStatus("aadhaarFront");
     const pStatus = getOcrStatus("pan");
-    if (aStatus === "checking" || pStatus === "checking") {
+    const uStatus = getUdyamStatus();
+    if (aStatus === "checking" || pStatus === "checking" || uStatus === "checking") {
       alert(t("ocr_checking"));
       return;
     }
@@ -189,11 +234,19 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
       alert(t("err_ocr_mismatch_pan"));
       return;
     }
-    if (aStatus === "reupload" || pStatus === "reupload") {
+    if (uStatus === "mismatch" || uStatus === "suggest") {
+      alert(t("err_ocr_mismatch_udyam"));
+      return;
+    }
+    if (uStatus === "type") {
+      alert(t("err_ocr_udyam_type"));
+      return;
+    }
+    if (aStatus === "reupload" || pStatus === "reupload" || uStatus === "reupload") {
       alert(t("err_ocr_reupload"));
       return;
     }
-    if (aStatus === "unreadable" || pStatus === "unreadable") {
+    if (aStatus === "unreadable" || pStatus === "unreadable" || uStatus === "unreadable") {
       alert(t("err_ocr_unreadable"));
       return;
     }
@@ -244,6 +297,24 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               {t("s4_pan_sub")}
             </p>
           </div>
+          <div style={{ flex: 1, minWidth: 180 }}>
+            <ValidatedInput
+              label={t("s4_udyam")}
+              placeholder={t("s4_udyam_ph")}
+              maxLength={22}
+              value={data.udyam}
+              onChange={(e) => {
+                u({ udyam: formatUdyam(e.target.value) });
+                clearError("udyam");
+              }}
+              onBlur={() => validateField("udyam", data.udyam, data)}
+              error={errors.udyam}
+            />
+            <OcrStatus docKey="udyam" showExtracted />
+            <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
+              {t("s4_udyam_sub")}
+            </p>
+          </div>
         </div>
 
         {/* Bank Details optional */}
@@ -285,18 +356,21 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
             <DocUploadBox
               label={t("s4_doc_aadh_front")}
               uploaded={!!data.docs.aadhaarFront}
+              loading={uploadingKey === "aadhaarFront"}
               onUpload={(f) => handleDocUpload("aadhaarFront", f)}
               error={errors["docs.aadhaarFront"]}
             />
             <DocUploadBox
               label={t("s4_doc_aadh_back")}
               uploaded={!!data.docs.aadhaarBack}
+              loading={uploadingKey === "aadhaarBack"}
               onUpload={(f) => handleDocUpload("aadhaarBack", f)}
               error={errors["docs.aadhaarBack"]}
             />
             <DocUploadBox
               label={t("s4_doc_pan")}
               uploaded={!!data.docs.pan}
+              loading={uploadingKey === "pan"}
               onUpload={(f) => handleDocUpload("pan", f)}
               error={errors["docs.pan"]}
             />
@@ -304,11 +378,13 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               label={t("s4_doc_udyam")}
               sublabel={t("s4_doc_udyam_sub")}
               uploaded={!!data.docs.udyam}
+              loading={uploadingKey === "udyam"}
               onUpload={(f) => handleDocUpload("udyam", f)}
             />
             <DocUploadBox
               label={t("s4_doc_pass")}
               uploaded={!!data.docs.passport}
+              loading={uploadingKey === "passport"}
               onUpload={(f) => handleDocUpload("passport", f)}
             />
           </div>

@@ -42,6 +42,7 @@ const FormDataSchema = new mongoose.Schema({
     section4: {
         aadhaar: String,
         pan: String,
+        udyam: String,
         bankName: String,
         accountNo: String,
         docs: {
@@ -55,6 +56,7 @@ const FormDataSchema = new mongoose.Schema({
         ocr: {
             aadhaarFront: { type: String, default: null },
             pan: { type: String, default: null },
+            udyam: { type: String, default: null },
         },
     },
 
