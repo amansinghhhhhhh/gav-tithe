@@ -5,7 +5,7 @@ import DocUploadBox from "../shared/DocUploadBox";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
-import { uploadDoc } from "../../services/api";
+import { uploadDoc, removeDoc } from "../../services/api";
 import { extractDocNumber, aadhaarDiff, panMatches, udyamDiff } from "../../services/ocr";
 
 // Jin doc types ke liye document-number match check hoga
@@ -203,6 +203,14 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     }
   };
 
+  const handleRemoveDoc = (key) => {
+    if (!window.confirm(t("s4_remove_confirm") || "Uploaded file remove karein?")) return;
+    ud(key, null);
+    uo({ [key]: null, [`${key}Pending`]: false });
+    clearError(`docs.${key}`);
+    removeDoc(key).catch(() => {});
+  };
+
   const { errors, validateField, validateAll, clearError } = useValidation(
     makeRules(t),
   );
@@ -358,6 +366,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               uploaded={!!data.docs.aadhaarFront}
               loading={uploadingKey === "aadhaarFront"}
               onUpload={(f) => handleDocUpload("aadhaarFront", f)}
+              onRemove={() => handleRemoveDoc("aadhaarFront")}
               error={errors["docs.aadhaarFront"]}
             />
             <DocUploadBox
@@ -365,6 +374,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               uploaded={!!data.docs.aadhaarBack}
               loading={uploadingKey === "aadhaarBack"}
               onUpload={(f) => handleDocUpload("aadhaarBack", f)}
+              onRemove={() => handleRemoveDoc("aadhaarBack")}
               error={errors["docs.aadhaarBack"]}
             />
             <DocUploadBox
@@ -372,6 +382,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               uploaded={!!data.docs.pan}
               loading={uploadingKey === "pan"}
               onUpload={(f) => handleDocUpload("pan", f)}
+              onRemove={() => handleRemoveDoc("pan")}
               error={errors["docs.pan"]}
             />
             <DocUploadBox
@@ -380,12 +391,14 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               uploaded={!!data.docs.udyam}
               loading={uploadingKey === "udyam"}
               onUpload={(f) => handleDocUpload("udyam", f)}
+              onRemove={() => handleRemoveDoc("udyam")}
             />
             <DocUploadBox
               label={t("s4_doc_pass")}
               uploaded={!!data.docs.passport}
               loading={uploadingKey === "passport"}
               onUpload={(f) => handleDocUpload("passport", f)}
+              onRemove={() => handleRemoveDoc("passport")}
             />
           </div>
         </div>

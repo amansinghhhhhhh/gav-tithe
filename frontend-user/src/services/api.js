@@ -116,6 +116,13 @@ export const uploadDoc = async (docType, file, ocr = null) => {
     });
 };
 
+export const removeDoc = async (docType) => {
+    return apiFetch(`${BASE}/form/doc/${docType}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });
+};
+
 export const markEmailVerified = async () => {
     return apiFetch(`${BASE}/auth/verify-email`, {
         method: "POST",

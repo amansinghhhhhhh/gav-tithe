@@ -6,7 +6,7 @@ import C from "../../constants/colors";
 const FILE_MAX = 5 * 1024 * 1024;   // 5 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
-function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, error }) {
+function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, onRemove, error }) {
   const { t } = useLang();
   const inputRef = useRef(null);
   const [err, setErr] = useState("");
@@ -32,10 +32,38 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, er
   };
 
   const showSpinner = loading && !uploaded;
-  const disabled = loading || uploaded;
 
   return (
-    <div style={{ flex: 1, minWidth: 110 }}>
+    <div style={{ flex: 1, minWidth: 110, position: "relative" }}>
+      {uploaded && !loading && onRemove && (
+        <button
+          type="button"
+          aria-label="Remove"
+          onClick={onRemove}
+          style={{
+            position: "absolute",
+            top: -8,
+            right: -8,
+            zIndex: 2,
+            width: 22,
+            height: 22,
+            borderRadius: "50%",
+            background: "#dc2626",
+            color: "#fff",
+            border: "2px solid #fff",
+            fontSize: 12,
+            fontWeight: 700,
+            lineHeight: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 1px 3px rgba(0,0,0,.25)",
+          }}
+        >
+          ✕
+        </button>
+      )}
       <label
         style={{
           border: `2px dashed ${err ? "#e53e3e" : uploaded ? C.green : "#bbb"}`,
@@ -47,7 +75,7 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, er
           cursor: loading ? "wait" : "pointer",
           background: uploaded ? "#f0fff4" : loading ? "#fffdf5" : "#fafafa",
           textAlign: "center",
-          pointerEvents: disabled ? "none" : "auto",
+          pointerEvents: loading ? "none" : "auto",
           opacity: loading ? 0.9 : 1,
         }}
       >
@@ -57,7 +85,7 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, er
           accept=".pdf,.jpg,.jpeg,.png,.webp"
           style={{ display: "none" }}
           onChange={handleChange}
-          disabled={disabled}
+          disabled={loading}
         />
 
         <span style={{ fontSize: 22, marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 26 }}>

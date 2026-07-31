@@ -230,6 +230,46 @@ const uploadDoc = async (req, res) => {
     }
 };
 
+// ── Remove document (GridFS + form fields) ────────────────────────────────────
+const removeDoc = async (req, res) => {
+    try {
+        const { docType } = req.params;
+
+        if (!ALLOWED_DOC_TYPES.includes(docType)) {
+            return res.status(400).json({ message: "Invalid document type" });
+        }
+
+        const form = await FormData.findOne({ userId: req.user.id });
+        if (!form || !form.section4?.docs?.[docType]) {
+            return res.json({ success: true, message: "No file to remove" });
+        }
+
+        const fileId = form.section4.docs[docType];
+
+        // GridFS se file + chunks delete karo (fail ho to sirf orphan rehta hai)
+        try {
+            await deleteFromGridFS(fileId);
+            console.log("🗑️ File deleted (remove):", fileId, "(", docType, ")");
+        } catch (e) {
+            console.log("⚠️ File delete failed (skip):", fileId, e.message);
+        }
+
+        // Subdocument se `delete` persist nahi hota — plain object bana ke reassign karo
+        const docs = form.section4.docs?.toObject ? form.section4.docs.toObject() : form.section4.docs || {};
+        delete docs[docType];
+        form.section4.docs = docs;
+        if (form.section4.ocr) form.section4.ocr[docType] = null;
+        form.markModified("section4");
+        form.updatedAt = Date.now();
+        await form.save();
+
+        res.json({ success: true, message: `${docType} removed` });
+    } catch (err) {
+        console.error("Remove error:", err.message);
+        res.status(500).json({ message: "Remove failed" });
+    }
+};
+
 // ── Create edit request (ticket) ──────────────────────────────────────────────
 const createEditRequest = async (req, res) => {
     try {
@@ -280,4 +320,4 @@ const getMyEditRequest = async (req, res) => {
     }
 };
 
-module.exports = { saveSection, submitForm, getMyForm, uploadDoc, createEditRequest, getMyEditRequest };
+module.exports = { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest };
