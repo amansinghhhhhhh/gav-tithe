@@ -52,38 +52,40 @@ function Dashboard() {
   const { currentStep, submitted } = state;
   const validateAndGoNext = useRef(null);
 
-  useEffect(() => {
-    const loadDraft = async () => {
-      try {
-        const res = await getMyForm();
-        if (res.success && res.form) {
-          const { section1, section2, section3, section4, status, editAllowed } = res.form;
-          if (section1)
-            dispatch({ type: "UPDATE_SECTION1", payload: section1 });
-          if (section2)
-            dispatch({ type: "UPDATE_SECTION2", payload: section2 });
-          if (section3)
-            dispatch({ type: "UPDATE_SECTION3", payload: section3 });
-          if (section4)
-            dispatch({ type: "UPDATE_SECTION4", payload: section4 });
-          dispatch({ type: "SET_EDIT_ALLOWED", value: !!editAllowed });
-          if (status === "submitted" && !editAllowed)
-            dispatch({ type: "SUBMIT" });
-          else if (section4?.aadhaar)
-            dispatch({ type: "SET_STEP", step: 4 });
-          else if (section3?.cibilScore)
-            dispatch({ type: "SET_STEP", step: 4 });
-          else if (section2?.businessType)
-            dispatch({ type: "SET_STEP", step: 3 });
-          else if (section1?.fullName) dispatch({ type: "SET_STEP", step: 2 });
-        }
-      } catch (err) {
-        console.error("Draft load error:", err);
-      } finally {
-        setLoadingForm(false);
+  const loadFormData = async (silent = false) => {
+    if (!silent) setLoadingForm(true);
+    try {
+      const res = await getMyForm();
+      if (res.success && res.form) {
+        const { section1, section2, section3, section4, status, editAllowed } = res.form;
+        if (section1)
+          dispatch({ type: "UPDATE_SECTION1", payload: section1 });
+        if (section2)
+          dispatch({ type: "UPDATE_SECTION2", payload: section2 });
+        if (section3)
+          dispatch({ type: "UPDATE_SECTION3", payload: section3 });
+        if (section4)
+          dispatch({ type: "UPDATE_SECTION4", payload: section4 });
+        dispatch({ type: "SET_EDIT_ALLOWED", value: !!editAllowed });
+        if (status === "submitted" && !editAllowed)
+          dispatch({ type: "SUBMIT" });
+        else if (section4?.aadhaar)
+          dispatch({ type: "SET_STEP", step: 4 });
+        else if (section3?.cibilScore)
+          dispatch({ type: "SET_STEP", step: 4 });
+        else if (section2?.businessType)
+          dispatch({ type: "SET_STEP", step: 3 });
+        else if (section1?.fullName) dispatch({ type: "SET_STEP", step: 2 });
       }
-    };
-    loadDraft();
+    } catch (err) {
+      console.error("Draft load error:", err);
+    } finally {
+      if (!silent) setLoadingForm(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFormData();
   }, []);
 
   const handleLogout = () => {
@@ -215,15 +217,7 @@ function Dashboard() {
           ) : submitted && !state.editAllowed ? (
             <SuccessPage
               onApproved={async () => {
-                try {
-                  const res = await getMyForm();
-                  if (res.success && res.form?.editAllowed) {
-                    dispatch({ type: "SET_EDIT_ALLOWED", value: true });
-                    dispatch({ type: "SET_STEP", step: 1 });
-                  }
-                } catch (err) {
-                  console.error("Status refresh error:", err);
-                }
+                await loadFormData(true);
               }}
             />
           ) : (
