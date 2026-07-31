@@ -1,24 +1,43 @@
 import { useEffect, useState } from "react";
 import C from "./constants/colors";
 import { useLang } from "./context/LangContext";
-import { getEditRequest, createEditRequest } from "./services/api";
+import { getEditRequest, getMyForm, createEditRequest } from "./services/api";
 import { Spinner } from "./components/shared/Spinner";
 
-export function SuccessPage() {
+export function SuccessPage({ onApproved }) {
   const { t } = useLang();
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [msg, setMsg] = useState("");
 
-  useEffect(() => {
-    getEditRequest().then((res) => {
-      if (res.success) setRequest(res.request);
+  const loadRequest = async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const res = await getEditRequest();
+      if (res.success) {
+        setRequest(res.request);
+        if (res.request?.status === "approved" && onApproved) {
+          await onApproved();
+        }
+      }
+    } finally {
       setLoading(false);
-    });
+    }
+  };
+
+  useEffect(() => {
+    loadRequest();
   }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadRequest(true);
+    setRefreshing(false);
+  };
 
   const activeRequest = request && ["pending", "approved"].includes(request.status);
 
@@ -91,9 +110,33 @@ export function SuccessPage() {
               fontWeight: 600,
             }}
           >
-            {request.status === "approved"
-              ? t("edit_req_approved")
-              : t("edit_req_pending")}
+            <div style={{ marginBottom: 10 }}>
+              {request.status === "approved"
+                ? t("edit_req_approved")
+                : t("edit_req_pending")}
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                margin: "0 auto",
+                padding: "8px 18px",
+                background: "#fff",
+                color: "#7c2d12",
+                border: "1.5px solid #fdba74",
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: refreshing ? "wait" : "pointer",
+              }}
+            >
+              {refreshing && <Spinner size={14} />}
+              {refreshing ? t("edit_req_checking") : t("edit_req_refresh")}
+            </button>
           </div>
         ) : showForm ? (
           <div

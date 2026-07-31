@@ -213,7 +213,19 @@ function Dashboard() {
               </div>
             </div>
           ) : submitted && !state.editAllowed ? (
-            <SuccessPage />
+            <SuccessPage
+              onApproved={async () => {
+                try {
+                  const res = await getMyForm();
+                  if (res.success && res.form?.editAllowed) {
+                    dispatch({ type: "SET_EDIT_ALLOWED", value: true });
+                    dispatch({ type: "SET_STEP", step: 1 });
+                  }
+                } catch (err) {
+                  console.error("Status refresh error:", err);
+                }
+              }}
+            />
           ) : (
             <>
               <StepIndicator
