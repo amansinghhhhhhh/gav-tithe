@@ -394,13 +394,32 @@ export default function LoginPage() {
 
   const handleStep1Next = () => {
     setErr("");
-    if (!email) {
+    const val = email.trim();
+    if (!val) {
       setErr(t("login_error_email"));
       return;
     }
     if (password.length < 6) {
       setErr(t("login_error_pass"));
       return;
+    }
+    if (val.includes("@")) {
+      // ── Email mode ──
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        setErr(t("login_error_email"));
+        return;
+      }
+      setEmail(val);
+      setMobile("");
+    } else {
+      // ── Mobile mode ──
+      const digits = val.replace(/\D/g, "");
+      if (digits.length !== 10) {
+        setErr(t("login_error_mobile"));
+        return;
+      }
+      setMobile(digits);
+      setEmail("");
     }
     setStep(2);
   };
@@ -413,6 +432,11 @@ export default function LoginPage() {
     }
     if (!surname.trim()) {
       setErr(t("login_error_surname"));
+      return;
+    }
+    // Email hamesha required — step 2 me yahin se edit ho sakta hai
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErr(t("login_error_email"));
       return;
     }
     if (mobile && mobile.length !== 10) {
@@ -682,13 +706,14 @@ export default function LoginPage() {
               >
                 <div>
                   <label style={labelStyle}>
-                    {t("login_email")}{" "}
+                    {t("login_email_or_mobile")}{" "}
                     <span style={{ color: "#ef4444" }}>*</span>
                   </label>
                   <input
                     style={inp}
-                    type="email"
-                    placeholder={t("login_email_ph")}
+                    type="text"
+                    inputMode="email"
+                    placeholder={t("login_email_or_mobile_ph")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onFocus={focusStyle}
@@ -958,13 +983,17 @@ export default function LoginPage() {
                 </div>
                 <div>
                   <label style={labelStyle}>
-                    {t("login_email_readonly")}{" "}
+                    {t("login_email")}{" "}
                     <span style={{ color: "#ef4444" }}>*</span>
                   </label>
                   <input
-                    style={{ ...inp, background: "#f9fafb", color: "#6b7280" }}
+                    style={inp}
+                    type="email"
+                    placeholder={t("login_email_ph")}
                     value={email}
-                    readOnly
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={focusStyle}
+                    onBlur={blurStyle}
                   />
                 </div>
                 <div>
@@ -1003,6 +1032,26 @@ export default function LoginPage() {
                 >
                   {loading && <Spinner size={20} style={{ filter: "brightness(0) invert(1)" }} />}
                   {loading ? t("login_registering") : t("login_register_btn")}
+                </button>
+                <button
+                  onClick={() => {
+                    setErr("");
+                    setStep(1);
+                    if (mobile) setEmail(mobile);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "12px 0",
+                    background: "#fff",
+                    border: "1.5px solid #e5e7eb",
+                    borderRadius: 10,
+                    color: "#6b7280",
+                    fontWeight: 700,
+                    fontSize: 14,
+                    cursor: "pointer",
+                  }}
+                >
+                  ← {t("login_back")}
                 </button>
                 <p
                   style={{
