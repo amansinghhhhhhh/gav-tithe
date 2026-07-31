@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { app } from "../config/firebase";
+import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
 
@@ -53,7 +54,8 @@ export default function ForgotPasswordPage() {
       setSuccessMsg(t("forgot_success", { email }));
       setEmail("");
     } catch (e) {
-      setErr(t("forgot_error_failed", { msg: e.message }));
+      console.error("Reset error:", e);
+      setErr(t(firebaseErrorKey(e.code)));
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginEmail, registerEmail } from "../services/api";
+import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
 import {
@@ -306,7 +307,8 @@ export default function LoginPage() {
       setRegOtpSent(true);
       setCountdown(59);
     } catch (e) {
-      setErr(e.message);
+      console.error("OTP send error:", e);
+      setErr(t(firebaseErrorKey(e.code)));
       destroyRegRecaptcha();
     } finally {
       setRegOtpLoading(false);
@@ -324,7 +326,8 @@ export default function LoginPage() {
       setPhoneFirebaseUid(uid);
       setRegOtpVerified(true);
     } catch (e) {
-      setErr(e.message || "OTP galat hai");
+      console.error("OTP verify error:", e);
+      setErr(t(firebaseErrorKey(e.code)));
     } finally {
       setRegOtpLoading(false);
     }
@@ -348,12 +351,7 @@ export default function LoginPage() {
         try {
           fbCred = await signInWithEmailAndPassword(auth, email, password);
         } catch (firebaseErr) {
-          setErr(
-            firebaseErr.code === "auth/invalid-credential" ||
-              firebaseErr.code === "auth/user-not-found"
-              ? t("login_error1")
-              : firebaseErr.message,
-          );
+          setErr(t(firebaseErrorKey(firebaseErr.code)));
           setLoading(false);
           return;
         }
@@ -386,7 +384,8 @@ export default function LoginPage() {
         }
       }
     } catch (e) {
-      setErr(t("login_failed", { msg: e.message }));
+      console.error("Login error:", e);
+      setErr(t("fb_generic"));
     } finally {
       setLoading(false);
     }
@@ -472,9 +471,8 @@ export default function LoginPage() {
         setErr(data?.message || t("login_error"));
       }
     } catch (e) {
-      setErr(
-        e.code === "auth/email-already-in-use" ? t("login_error2") : e.message,
-      );
+      console.error("Register error:", e);
+      setErr(t(firebaseErrorKey(e.code)));
     } finally {
       setLoading(false);
     }

@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { verifyOtpApi } from "../services/api";
+import { firebaseErrorKey } from "../services/firebaseErrors";
+import { useLang } from "../context/LangContext";
 
 function useOtp() {
+    const { t } = useLang();
     const [otpSent, setOtpSent] = useState(false);
     // Fix 2: localStorage se verified state load karo refresh pe
     const [otpVerified, setOtpVerified] = useState(
@@ -46,7 +49,7 @@ function useOtp() {
                 size: "invisible",
                 callback: () => { },
                 "expired-callback": () => {
-                    setError("reCAPTCHA expire ho gaya, dobara try karo");
+                    setError(t("fb_captcha"));
                     destroyRecaptcha();
                 },
             }
@@ -73,7 +76,7 @@ function useOtp() {
             setOtpSent(true);
         } catch (err) {
             console.error("OTP send error:", err);
-            setError(getErrorMessage(err.code) || "OTP bhejne mein problem aayi");
+            setError(t(firebaseErrorKey(err.code)));
             destroyRecaptcha();
         } finally {
             setLoading(false);
@@ -98,7 +101,7 @@ function useOtp() {
             return data;
         } catch (err) {
             console.error("OTP verify error:", err);
-            setError(getErrorMessage(err.code) || err.message);
+            setError(t(firebaseErrorKey(err.code)));
             return null;
         } finally {
             setLoading(false);
@@ -116,21 +119,6 @@ function useOtp() {
     };
 
     return { otpSent, otpVerified, loading, error, sendOtp, verifyOtp, reset };
-}
-
-// ── Firebase error codes → readable messages ────────────────────────────────
-function getErrorMessage(code) {
-    const messages = {
-        "auth/invalid-phone-number": "Phone number galat hai",
-        "auth/too-many-requests": "Bahut zyada requests, thodi der baad try karo",
-        "auth/invalid-verification-code": "OTP galat hai",
-        "auth/code-expired": "OTP expire ho gaya, dobara bhejo",
-        "auth/missing-phone-number": "Phone number daalo",
-        "auth/quota-exceeded": "SMS quota exceed ho gaya",
-        "auth/captcha-check-failed": "reCAPTCHA fail hua, page refresh karo",
-        "auth/network-request-failed": "Network error, internet check karo",
-    };
-    return messages[code] || null;
 }
 
 export default useOtp;

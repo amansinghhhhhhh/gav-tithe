@@ -7,6 +7,7 @@ import {
   getAuth,
 } from "firebase/auth";
 import { app } from "../config/firebase";
+import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 
@@ -47,11 +48,7 @@ export default function VerifyEmailPage() {
           setStatus("success");
           setTimeout(() => navigate("/login"), 3000);
         } catch (e) {
-          setMsg(
-            e.code === "auth/invalid-action-code"
-              ? t("verify_expired")
-              : e.message,
-          );
+          setMsg(t(firebaseErrorKey(e.code)));
           setStatus("error");
         }
       };
@@ -64,11 +61,7 @@ export default function VerifyEmailPage() {
           setResetEmail(email);
           setStatus("reset_form"); // show password form
         } catch (e) {
-          setMsg(
-            e.code === "auth/invalid-action-code"
-              ? t("verify_expired")
-              : e.message,
-          );
+          setMsg(t(firebaseErrorKey(e.code)));
           setStatus("error");
         }
       };
@@ -96,9 +89,7 @@ export default function VerifyEmailPage() {
       setStatus("reset_success");
       setTimeout(() => navigate("/login"), 3000);
     } catch (e) {
-      setMsg(
-        e.code === "auth/invalid-action-code" ? t("verify_expired") : e.message,
-      );
+      setMsg(t(firebaseErrorKey(e.code)));
     } finally {
       setResetLoading(false);
     }
