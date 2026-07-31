@@ -37,8 +37,8 @@ const translations = {
         edit_req_sending: "पाठवत आहोत...",
         edit_req_cancel: "रद्द करा",
         edit_req_sent: "✅ तुमची विनंती पाठवली गेली आहे. प्रशासक मंजूर करेपर्यंत प्रतीक्षा करा.",
-        edit_req_pending: "⏳ तुमची विनंती प्रलंबित आहे. प्रशासक मंजूर केल्यावर तुम्ही फॉर्म संपादित करू शकाल.",
-        edit_req_approved: "✅ प्रशासकाने तुमची विनंती मंजूर केली आहे. जास्तीत जास्त २४ तासांच्या आत तुम्हाला फॉर्म संपादित करण्याचा ऍक्सेस मिळेल.",
+        edit_req_pending: "⏳ तुमची विनंती प्रलंबित आहे. मंजूर झाल्यावर जास्तीत जास्त २४ तासांच्या आत तुम्हाला फॉर्म संपादित करण्याचा ऍक्सेस मिळेल.",
+        edit_req_approved: "✅ प्रशासकाने तुमची विनंती मंजूर केली आहे. फॉर्म संपादित करण्यासाठी पृष्ठ रिफ्रेश करा.",
         edit_req_refresh: "🔄 स्थिती तपासा",
         edit_req_checking: "तपासत आहोत...",
 
@@ -360,8 +360,8 @@ const translations = {
         edit_req_sending: "Sending...",
         edit_req_cancel: "Cancel",
         edit_req_sent: "✅ Your request has been sent. Please wait until admin approves it.",
-        edit_req_pending: "⏳ Your request is pending. You can edit the form once admin approves it.",
-        edit_req_approved: "✅ Admin has approved your request. You will get edit access to the form within a maximum of 24 hours.",
+        edit_req_pending: "⏳ Your request is pending. Once approved, you will get edit access to the form within a maximum of 24 hours.",
+        edit_req_approved: "✅ Admin has approved your request. Refresh the page to edit the form.",
         edit_req_refresh: "🔄 Refresh status",
         edit_req_checking: "Checking...",
 
