@@ -19,7 +19,7 @@ const apiFetch = async (url, options = {}) => {
         const res = await fetch(url, options);
         const data = await res.json();
         if (!res.ok) {
-            return { success: false, message: data.message || "Kuch gadbad hui, dobara try karo." };
+            return { success: false, message: data.message || "Something went wrong, please try again." };
         }
         return data;
     } catch (err) {

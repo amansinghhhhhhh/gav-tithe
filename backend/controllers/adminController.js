@@ -287,6 +287,37 @@ const updateEditRequest = async (req, res) => {
     }
 };
 
+// ── Allow / revoke edit access directly ───────────────────────────────────────
+const updateEditAllowed = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { allow, remark } = req.body;
+
+        if (typeof allow !== "boolean") {
+            return res.status(400).json({ message: "Invalid value for allow" });
+        }
+
+        const form = await FormData.findOne({ userId });
+        if (!form) return res.status(404).json({ message: "Form not found" });
+
+        form.editAllowed = allow;
+        if (remark) form.adminRemark = remark;
+
+        // ⚠️ Security: purana OCR verification invalid karo — user ko docs dobara upload karne padenge
+        if (allow && form.section4) {
+            form.section4.ocr = { aadhaarFront: null, pan: null, udyam: null };
+            form.markModified("section4");
+        }
+        form.updatedAt = Date.now();
+        await form.save();
+
+        res.json({ success: true, message: allow ? "Edit access granted" : "Edit access revoked" });
+    } catch (err) {
+        console.error("Update edit allowed error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 // ── Delete user + saara related data ──────────────────────────────────────────
 const deleteUser = async (req, res) => {
     try {
@@ -299,7 +330,7 @@ const deleteUser = async (req, res) => {
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
         if (user.role === "admin") {
-            return res.status(400).json({ message: "Admin user delete nahi kar sakte" });
+            return res.status(400).json({ message: "Cannot delete admin users" });
         }
 
         const form = await FormData.findOne({ userId });
@@ -325,11 +356,11 @@ const deleteUser = async (req, res) => {
         await User.deleteOne({ _id: userId });
 
         console.log("🗑️ User deleted:", userId);
-        res.json({ success: true, message: "User aur saara data delete ho gaya" });
+        res.json({ success: true, message: "User and all related data deleted" });
     } catch (err) {
         console.error("Delete user error:", err.message);
         res.status(500).json({ message: "Internal server error" });
     }
 };
 
-module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, deleteUser };
+module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser };

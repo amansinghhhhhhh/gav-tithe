@@ -21,8 +21,8 @@ export default function UsersList() {
 
   const handleDelete = async (u) => {
     const name = u.fullName || u.name || "this user";
-    if (!window.confirm(`"${name}" ko delete karein? Uske saath saara data (form, documents, edit requests) bhi delete ho jayega.`)) return;
-    if (!window.confirm("Pakka? Yeh action wapas nahi ho sakta.")) return;
+    if (!window.confirm(`Delete "${name}"? All related data (form, documents, edit requests) will also be deleted.`)) return;
+    if (!window.confirm("Are you sure? This action cannot be undone.")) return;
     setDeletingId(u._id);
     const res = await deleteUser(u._id);
     setDeletingId(null);
@@ -156,7 +156,7 @@ export default function UsersList() {
                       color: C.textopa,
                     }}
                   >
-                    Koi user nahi mila
+                    No users found
                   </td>
                 </tr>
               ) : (

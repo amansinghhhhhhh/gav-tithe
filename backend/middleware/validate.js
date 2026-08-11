@@ -23,11 +23,11 @@ const validateOtp = [
         .notEmpty().withMessage("Firebase ID token required"),
     body("mobile")
         .optional()
-        .isMobilePhone("en-IN").withMessage("Valid 10-digit mobile number daalo"),
+        .isMobilePhone("en-IN").withMessage("Valid 10-digit mobile number required"),
     body("name")
         .optional()
         .trim()
-        .isLength({ min: 2, max: 100 }).withMessage("Naam 2-100 characters ka hona chahiye"),
+        .isLength({ min: 2, max: 100 }).withMessage("Name must be 2-100 characters"),
     validate,
 ];
 
@@ -35,11 +35,11 @@ const validateOtp = [
 const validateRegister = [
     body("email")
         .isEmail()
-        .withMessage("Valid email daalo"),
+        .withMessage("Enter a valid email"),
 
     body("password")
         .isLength({ min: 6 })
-        .withMessage("Password min 6 chars hona chahiye"),
+        .withMessage("Password must be at least 6 characters"),
 
     body("name")
         .optional()
@@ -59,7 +59,7 @@ const validateLogin = [
     body()
         .custom((_, { req }) => {
             if (!req.body.identifier && !req.body.email) {
-                throw new Error("Email ya mobile number required");
+                throw new Error("Email or mobile number required");
             }
             return true;
         }),
@@ -76,16 +76,16 @@ const validateSaveSection = [
         .withMessage("Invalid section name"),
     body("data")
         .notEmpty().withMessage("Section data required")
-        .isObject().withMessage("Data object hona chahiye"),
+        .isObject().withMessage("Data must be an object"),
     validate,
 ];
 
 // Submit form
 const validateSubmitForm = [
-    body("section1").optional().isObject().withMessage("Section1 object hona chahiye"),
-    body("section2").optional().isObject().withMessage("Section2 object hona chahiye"),
-    body("section3").optional().isObject().withMessage("Section3 object hona chahiye"),
-    body("section4").optional().isObject().withMessage("Section4 object hona chahiye"),
+    body("section1").optional().isObject().withMessage("Section1 must be an object"),
+    body("section2").optional().isObject().withMessage("Section2 must be an object"),
+    body("section3").optional().isObject().withMessage("Section3 must be an object"),
+    body("section4").optional().isObject().withMessage("Section4 must be an object"),
     validate,
 ];
 

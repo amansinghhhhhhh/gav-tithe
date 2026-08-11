@@ -1,6 +1,7 @@
 import { useState, useReducer, useRef, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { LangProvider } from "./context/LangContext";
+import { useLang } from "./context/LangContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import reducer, { initialState } from "./store/reducer";
 import Sidebar from "./components/Sidebar";
@@ -17,6 +18,7 @@ import LoginPage from "./pages/LoginPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import { Spinner } from "./components/shared/Spinner";
+import { RegistrationPopup } from "./components/RegistrationPopup";
 
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
@@ -49,6 +51,7 @@ function Dashboard() {
   const [loadingForm, setLoadingForm] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLang();
   const { currentStep, submitted } = state;
   const validateAndGoNext = useRef(null);
 
@@ -303,6 +306,14 @@ function Dashboard() {
           )}
         </main>
       </div>
+      {!submitted && !state.editAllowed && (
+        <RegistrationPopup
+          title={t("popup_dash_title")}
+          message={t("popup_dash_message")}
+          points={[t("popup_dash_p1"), t("popup_dash_p2"), t("popup_dash_p3")]}
+          cta={t("popup_dash_cta")}
+        />
+      )}
     </div>
   );
 }

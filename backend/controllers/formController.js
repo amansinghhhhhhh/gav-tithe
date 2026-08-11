@@ -103,12 +103,12 @@ const submitForm = async (req, res) => {
             const typedAadhaar = String(form.section4?.aadhaar || "").replace(/\s/g, "");
             if (!ocr.aadhaarFront) {
                 const msg = form.editAllowed
-                    ? "Security ke liye Aadhaar document dobara upload karein."
-                    : "Aadhaar document clear nahi pada — dobara clear photo/PDF upload karein.";
+                    ? "For security reasons, please re-upload the Aadhaar document."
+                    : "Aadhaar document could not be read clearly — please re-upload a clear photo/PDF.";
                 return res.status(400).json({ success: false, message: msg });
             }
             if (!aadhaarMatches(typedAadhaar, ocr.aadhaarFront)) {
-                return res.status(400).json({ success: false, message: "Aadhaar number document se match nahi karta. Sahi number daalein ya sahi document upload karein." });
+                return res.status(400).json({ success: false, message: "Aadhaar number does not match the document. Enter the correct number or upload the correct document." });
             }
         }
 
@@ -116,28 +116,28 @@ const submitForm = async (req, res) => {
             const typedPan = String(form.section4?.pan || "").trim().toUpperCase();
             if (!ocr.pan) {
                 const msg = form.editAllowed
-                    ? "Security ke liye PAN document dobara upload karein."
-                    : "PAN document clear nahi pada — dobara clear photo/PDF upload karein.";
+                    ? "For security reasons, please re-upload the PAN document."
+                    : "PAN document could not be read clearly — please re-upload a clear photo/PDF.";
                 return res.status(400).json({ success: false, message: msg });
             }
             if (!panMatches(typedPan, ocr.pan)) {
-                return res.status(400).json({ success: false, message: "PAN number document se match nahi karta. Sahi number daalein ya sahi document upload karein." });
+                return res.status(400).json({ success: false, message: "PAN number does not match the document. Enter the correct number or upload the correct document." });
             }
         }
 
         if (docs.udyam) {
             const typedUdyam = String(form.section4?.udyam || "").trim().toUpperCase();
             if (!typedUdyam) {
-                return res.status(400).json({ success: false, message: "Udyam certificate upload kiya hai — Udyam Registration Number daalein." });
+                return res.status(400).json({ success: false, message: "Udyam certificate uploaded — please enter the Udyam Registration Number." });
             }
             if (!ocr.udyam) {
                 const msg = form.editAllowed
-                    ? "Security ke liye Udyam document dobara upload karein."
-                    : "Udyam document clear nahi pada — dobara clear photo/PDF upload karein.";
+                    ? "For security reasons, please re-upload the Udyam document."
+                    : "Udyam document could not be read clearly — please re-upload a clear photo/PDF.";
                 return res.status(400).json({ success: false, message: msg });
             }
             if (!udyamMatches(typedUdyam, ocr.udyam)) {
-                return res.status(400).json({ success: false, message: "Udyam number document se match nahi karta. Sahi number daalein ya sahi document upload karein." });
+                return res.status(400).json({ success: false, message: "Udyam number does not match the document. Enter the correct number or upload the correct document." });
             }
         }
 
@@ -282,7 +282,7 @@ const createEditRequest = async (req, res) => {
 
         const form = await FormData.findOne({ userId });
         if (!form || form.status !== "submitted") {
-            return res.status(400).json({ success: false, message: "Edit request sirf submitted form ke liye hai" });
+            return res.status(400).json({ success: false, message: "Edit requests are only allowed for submitted forms" });
         }
 
         const existing = await EditRequest.findOne({
@@ -292,7 +292,7 @@ const createEditRequest = async (req, res) => {
         if (existing) {
             return res.status(400).json({
                 success: false,
-                message: "Pehle se request pending hai",
+                message: "A request is already pending",
                 request: existing,
             });
         }

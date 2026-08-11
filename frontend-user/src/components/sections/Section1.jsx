@@ -310,7 +310,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               >
                 {countdown > 0
                   ? `${t("s1_resend_wait") || "Resend in"} ${countdown}s`
-                  : t("s1_resend_otp") || "OTP Resend करा"}
+                  : t("s1_resend_otp") || "Resend OTP"}
               </button>
             )}
 
@@ -446,7 +446,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 {getVillages(data.address?.dist, data.address?.taluka).map((v) => (
                   <option key={v} value={v}>{v}</option>
                 ))}
-                <option value="__other__">इतर (Other)</option>
+                <option value="__other__">{t("s1_village_other") || "Other"}</option>
               </select>
               {errors["address.village"] && (
                 <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.village"]}</span>
@@ -454,7 +454,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               {data.address?.village === "__other__" && (
                 <input
                   style={{ ...inputStyle, marginTop: 8 }}
-                  placeholder="तुमचे गाव लिहा..."
+                  placeholder={t("s1_village_custom_ph") || "Type your village..."}
                   value={data.address?.villageCustom || ""}
                   onChange={(e) => uAddr("villageCustom", e.target.value)}
                 />

@@ -46,7 +46,7 @@ const verifyOtp = async (req, res) => {
             if (mobileConflict) {
                 return res.status(400).json({
                     success: false,
-                    message: "Yeh mobile number kisi aur account se linked hai",
+                    message: "This mobile number is linked to another account",
                 });
             }
 
@@ -160,7 +160,7 @@ const loginEmail = async (req, res) => {
         // Backward compat: accept `email` field too (admin login, older clients)
         const loginId = identifier || req.body.email;
         if (!loginId)
-            return res.status(400).json({ message: "Email ya mobile number required" });
+            return res.status(400).json({ message: "Email or mobile number required" });
 
         const isEmail = loginId.includes("@");
         let user;

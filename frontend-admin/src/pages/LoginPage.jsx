@@ -16,7 +16,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setErr("");
     if (!email || !password) {
-      setErr("Email aur password daalo");
+      setErr("Enter your email and password");
       return;
     }
     setLoading(true);
@@ -28,7 +28,7 @@ export default function LoginPage() {
     } else if (data?.retryAfterMinutes) {
       setErr(`Too many login attempts. Please try again in ${data.retryAfterMinutes} minutes.`);
     } else if (data?.user?.role !== "admin") {
-      setErr("Admin access nahi hai");
+      setErr("This account does not have admin access");
     } else {
       setErr(data?.message || "Login failed");
     }
@@ -70,7 +70,7 @@ export default function LoginPage() {
               marginBottom: 10,
             }}
           >
-            गाव
+            GU
           </div>
           <h2
             style={{
@@ -138,7 +138,7 @@ export default function LoginPage() {
             disabled={loading}
           >
             {loading && <Spinner size={18} style={{ filter: "brightness(0) invert(1)" }} />}
-            {loading ? "Login ho raha hai..." : "Login Karo"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </div>
       </div>

@@ -16,6 +16,7 @@ import {
 import { app } from "../config/firebase";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
+import { RegistrationPopup } from "../components/RegistrationPopup";
 
 const inp = {
   width: "100%",
@@ -320,7 +321,7 @@ export default function LoginPage() {
     setErr("");
     setRegOtpLoading(true);
     try {
-      if (!regConfirmRef.current) throw new Error("Pehle OTP bhejo");
+      if (!regConfirmRef.current) throw new Error("Send OTP first");
       const result = await regConfirmRef.current.confirm(regOtpInput);
       const uid = result.user.uid;
       setPhoneFirebaseUid(uid);
@@ -926,7 +927,7 @@ export default function LoginPage() {
                     <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                       <input
                         style={{ ...inp, flex: 1 }}
-                        placeholder={t("s1_otp_ph") || "OTP enter karo"}
+                        placeholder={t("s1_otp_ph") || "Enter OTP"}
                         value={regOtpInput}
                         onChange={(e) => setRegOtpInput(e.target.value.replace(/\D/g, ""))}
                         maxLength={6}
@@ -1081,6 +1082,15 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      <RegistrationPopup
+        onRegister={() => {
+          setIsSignup(true);
+          setStep(1);
+          setErr("");
+          setSuccessMsg("");
+          resetRegOtp();
+        }}
+      />
     </>
   );
 }

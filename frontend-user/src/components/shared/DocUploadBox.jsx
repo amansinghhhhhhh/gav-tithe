@@ -16,13 +16,13 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, on
     if (!file) return;
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setErr(t("s4_doc_type_err") || "फक्त PDF, JPG, PNG, WEBP मान्य आहे");
+      setErr(t("s4_doc_type_err") || "Only PDF, JPG, PNG, WEBP are allowed");
       e.target.value = "";
       return;
     }
 
     if (file.size > FILE_MAX) {
-      setErr(t("s4_doc_size_err") || "File जास्तीत जास्त 5MB असावे");
+      setErr(t("s4_doc_size_err") || "File must be under 5MB");
       e.target.value = "";
       return;
     }

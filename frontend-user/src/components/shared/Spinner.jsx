@@ -75,7 +75,7 @@ export function OtpVerifyLoader() {
         </div>
       </div>
       <span style={{ fontSize: 13, color: "#F97316", fontWeight: 600 }}>
-        OTP Verify होत आहे...
+        Verifying OTP...
       </span>
     </div>
   );

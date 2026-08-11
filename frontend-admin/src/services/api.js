@@ -68,6 +68,19 @@ export const updateEditRequest = async (id, status, remark = "") =>
         body: JSON.stringify({ status, remark }),
     });
 
+export const updateEditAllowed = async (userId, allow, remark = "") =>
+    apiFetch(`${BASE}/admin/users/${userId}/edit-allow`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ allow, remark }),
+    });
+
+export const getFormPdfUrl = (userId) =>
+    `${BASE}/admin/users/${userId}/export/pdf?token=${getToken()}`;
+
+export const getFormDocxUrl = (userId) =>
+    `${BASE}/admin/users/${userId}/export/docx?token=${getToken()}`;
+
 export const deleteUser = async (userId) =>
     apiFetch(`${BASE}/admin/users/${userId}`, {
         method: "DELETE",

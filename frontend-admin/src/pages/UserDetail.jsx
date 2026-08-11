@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getUserDetail, updateUserStatus, getDocUrl } from "../services/api";
+import { getUserDetail, updateUserStatus, updateEditAllowed, getDocUrl, getFormPdfUrl, getFormDocxUrl } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 
@@ -13,6 +13,8 @@ export default function UserDetail() {
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [editAllowed, setEditAllowed] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     getUserDetail(userId).then((res) => {
@@ -20,6 +22,7 @@ export default function UserDetail() {
         setData(res);
         setStatus(res.form?.status || "");
         setRemark(res.form?.adminRemark || "");
+        setEditAllowed(!!res.form?.editAllowed);
       }
       setLoading(false);
     });
@@ -31,6 +34,19 @@ export default function UserDetail() {
     setSaving(false);
     if (res.success) setMsg("✅ Status updated!");
     else setMsg("❌ Update failed");
+    setTimeout(() => setMsg(""), 3000);
+  };
+
+  const handleEditToggle = async (allow) => {
+    setEditSaving(true);
+    const res = await updateEditAllowed(userId, allow, remark);
+    setEditSaving(false);
+    if (res.success) {
+      setEditAllowed(allow);
+      setMsg(allow ? "✅ Edit access granted" : "✅ Edit access revoked");
+    } else {
+      setMsg("❌ " + (res.message || "Update failed"));
+    }
     setTimeout(() => setMsg(""), 3000);
   };
 
@@ -83,6 +99,40 @@ export default function UserDetail() {
         <h2 style={{ color: C.navy, fontWeight: 800, margin: 0 }}>
           {s1.fullName || user.name || "User Detail"}
         </h2>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
+          <a
+            href={getFormPdfUrl(userId)}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: "9px 16px",
+              background: C.navy,
+              color: "#fff",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 13,
+              textDecoration: "none",
+            }}
+          >
+            ⬇ Download PDF
+          </a>
+          <a
+            href={getFormDocxUrl(userId)}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: "9px 16px",
+              background: C.maroon,
+              color: "#fff",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 13,
+              textDecoration: "none",
+            }}
+          >
+            ⬇ Download DOCX
+          </a>
+        </div>
       </div>
 
       {/* ✅ Dates — registration + latest form submit */}
@@ -337,6 +387,72 @@ export default function UserDetail() {
             }}
           >
             {saving ? "Saving..." : "Update"}
+          </button>
+        </div>
+      </div>
+
+      {/* Edit Access */}
+      <div
+        style={{
+          background: C.white,
+          borderRadius: 12,
+          padding: 24,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+          marginTop: 20,
+        }}
+      >
+        <h3 style={{ color: C.navy, fontWeight: 700, marginBottom: 16 }}>
+          ✏️ Edit Access
+        </h3>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            alignItems: "flex-end",
+          }}
+        >
+          <div>
+            <label
+              style={{
+                fontSize: 13,
+                color: C.textopa,
+                display: "block",
+                marginBottom: 6,
+              }}
+            >
+              Current status
+            </label>
+            <span
+              style={{
+                display: "inline-block",
+                padding: "8px 16px",
+                borderRadius: 20,
+                fontSize: 13,
+                fontWeight: 700,
+                background: editAllowed ? "#dcfce7" : "#fee2e2",
+                color: editAllowed ? "#166534" : "#991b1b",
+                border: `1px solid ${editAllowed ? "#86efac" : "#fca5a5"}`,
+              }}
+            >
+              {editAllowed ? "Edit allowed" : "Locked"}
+            </span>
+          </div>
+          <button
+            onClick={() => handleEditToggle(!editAllowed)}
+            disabled={editSaving}
+            style={{
+              padding: "10px 24px",
+              background: editAllowed ? "#b91c1c" : C.green,
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+            }}
+          >
+            {editSaving ? "Saving..." : editAllowed ? "Revoke Edit" : "Allow Edit"}
           </button>
         </div>
       </div>
