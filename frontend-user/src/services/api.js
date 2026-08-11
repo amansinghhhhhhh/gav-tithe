@@ -19,7 +19,11 @@ const apiFetch = async (url, options = {}) => {
         const res = await fetch(url, options);
         const data = await res.json();
         if (!res.ok) {
-            return { success: false, message: data.message || "Something went wrong, please try again." };
+            return {
+                success: false,
+                message: data.message || "Something went wrong, please try again.",
+                retryAfterMinutes: data.retryAfterMinutes,
+            };
         }
         return data;
     } catch (err) {
