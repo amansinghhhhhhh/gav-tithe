@@ -15,6 +15,7 @@ import C from "./constants/colors";
 import { SuccessPage } from "./SuccessPage";
 import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import { Spinner } from "./components/shared/Spinner";
@@ -323,6 +324,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signin" element={<RegisterPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />{" "}
       {/* ✅ handles both modes via searchParams */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

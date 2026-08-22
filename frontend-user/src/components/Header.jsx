@@ -105,7 +105,7 @@ export function Header() {
                 borderRadius: 8,
               }}
             >
-              EN
+              English
             </button>
             <button
               onClick={() => setLang("mr")}
