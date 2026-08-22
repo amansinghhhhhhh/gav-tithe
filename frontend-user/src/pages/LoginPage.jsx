@@ -196,7 +196,7 @@ export default function LoginPage() {
                 letterSpacing: "-0.3px",
               }}
             >
-              {t("login_title")}
+              {t("login_title_login")}
             </h2>
             <p
               style={{
