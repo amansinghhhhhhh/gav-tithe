@@ -1,37 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getEntrepreneurHeatmap } from "../services/api";
-import RegionMap from "../components/RegionMap";
 import C from "../constants/colors";
 
 const TIER_COLORS = {
-    "High Potential": { bg: "#dcfce7", color: "#16a34a", dot: "#16a34a" },
-    "Medium Potential": { bg: "#fff7ed", color: "#F97316", dot: "#F97316" },
-    "Needs Development": { bg: "#fee2e2", color: "#dc2626", dot: "#dc2626" },
+    "High Potential": { bg: "#dcfce7", color: "#16a34a" },
+    "Medium Potential": { bg: "#fff7ed", color: "#F97316" },
+    "Needs Development": { bg: "#fee2e2", color: "#dc2626" },
 };
 
-const REGION_BG = {
-    0: "#f9fafb",
-    1: "#ecfdf5",
-    2: "#d1fae5",
-    3: "#a7f3d0",
-    4: "#6ee7b7",
-    5: "#34d399",
-    6: "#10b981",
+const selectStyle = {
+    padding: "10px 14px",
+    borderRadius: 8,
+    border: "1.5px solid #d1d5db",
+    fontSize: 14,
+    fontWeight: 600,
+    color: C.navy,
+    background: "#fff",
+    cursor: "pointer",
+    minWidth: 160,
 };
-
-function getHeatBg(count) {
-    if (count === 0) return REGION_BG[0];
-    if (count <= 2) return REGION_BG[1];
-    if (count <= 5) return REGION_BG[2];
-    if (count <= 10) return REGION_BG[3];
-    if (count <= 15) return REGION_BG[4];
-    return REGION_BG[5];
-}
 
 export default function EntrepreneurHeatmap() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [selectedRegion, setSelectedRegion] = useState(null);
+    const [selDist, setSelDist] = useState("");
+    const [selTaluka, setSelTaluka] = useState("");
+    const [selVillage, setSelVillage] = useState("");
     const [sortKey, setSortKey] = useState("score");
     const [sortDir, setSortDir] = useState("desc");
 
@@ -44,31 +38,78 @@ export default function EntrepreneurHeatmap() {
             .finally(() => setLoading(false));
     }, []);
 
-    const handleSort = (key) => {
-        if (sortKey === key) {
-            setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-        } else {
-            setSortKey(key);
-            setSortDir("desc");
+    // Cascade: district → taluka options
+    const talukaOptions = useMemo(() => {
+        if (!selDist || !data) return [];
+        const set = new Set();
+        data.byTaluka.forEach((t) => {
+            if (t.district === selDist) set.add(t.taluka);
+        });
+        return [...set].sort();
+    }, [selDist, data]);
+
+    // Cascade: district + taluka → village options
+    const villageOptions = useMemo(() => {
+        if (!selDist || !selTaluka || !data) return [];
+        const set = new Set();
+        data.byVillage.forEach((v) => {
+            if (v.district === selDist && v.taluka === selTaluka) set.add(v.village);
+        });
+        return [...set].sort();
+    }, [selDist, selTaluka, data]);
+
+    // Filter users
+    const filteredUsers = useMemo(() => {
+        if (!data?.users) return [];
+        return data.users.filter((u) => {
+            if (selDist && u.district !== selDist) return false;
+            if (selTaluka && u.taluka !== selTaluka) return false;
+            if (selVillage && u.village !== selVillage) return false;
+            return true;
+        });
+    }, [data, selDist, selTaluka, selVillage]);
+
+    // District bar chart data (filtered by current selection)
+    const barData = useMemo(() => {
+        if (!data) return [];
+        if (selDist && selTaluka) {
+            // Show village-wise
+            return data.byVillage
+                .filter((v) => v.district === selDist && v.taluka === selTaluka)
+                .map((v) => ({ label: v.village, total: v.total, high: v.high, medium: v.medium, low: v.low }));
         }
+        if (selDist) {
+            // Show taluka-wise
+            return data.byTaluka
+                .filter((t) => t.district === selDist)
+                .map((t) => ({ label: t.taluka, total: t.total, high: t.high, medium: t.medium, low: t.low }));
+        }
+        // Show district-wise
+        return data.byDistrict.map((d) => ({ label: d.district, total: d.total, high: d.high, medium: d.medium, low: d.low }));
+    }, [data, selDist, selTaluka]);
+
+    const maxBar = Math.max(...barData.map((b) => b.total), 1);
+
+    const handleSort = (key) => {
+        if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        else { setSortKey(key); setSortDir("desc"); }
     };
 
-    const filteredUsers = data?.users
-        ? (selectedRegion
-            ? data.users.filter((u) => u.region === selectedRegion)
-            : data.users
-          ).sort((a, b) => {
-              const va = a[sortKey] ?? "";
-              const vb = b[sortKey] ?? "";
-              if (sortKey === "score") return sortDir === "asc" ? va - vb : vb - va;
-              if (sortKey === "date") return sortDir === "asc" ? new Date(va) - new Date(vb) : new Date(vb) - new Date(va);
-              return sortDir === "asc"
-                ? String(va).localeCompare(String(vb))
-                : String(vb).localeCompare(String(va));
-          })
-        : [];
-
     const sortIcon = (key) => (sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "");
+
+    const sortedUsers = [...filteredUsers].sort((a, b) => {
+        const va = a[sortKey] ?? "";
+        const vb = b[sortKey] ?? "";
+        if (sortKey === "score") return sortDir === "asc" ? va - vb : vb - va;
+        if (sortKey === "date") return sortDir === "asc" ? new Date(va) - new Date(vb) : new Date(vb) - new Date(va);
+        return sortDir === "asc" ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+
+    const clearFilters = () => {
+        setSelDist("");
+        setSelTaluka("");
+        setSelVillage("");
+    };
 
     if (loading) {
         return (
@@ -86,7 +127,7 @@ export default function EntrepreneurHeatmap() {
         );
     }
 
-    const { summary, byRegion } = data;
+    const { summary } = data;
 
     return (
         <div style={{ padding: "28px 24px", maxWidth: 1200, margin: "0 auto" }}>
@@ -95,7 +136,7 @@ export default function EntrepreneurHeatmap() {
             </h2>
 
             {/* ── Summary Cards ── */}
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 28 }}>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
                 {[
                     { label: "Total Users", value: summary.total, color: C.navy },
                     { label: "High Potential", value: summary.highPotential, color: "#16a34a" },
@@ -113,138 +154,113 @@ export default function EntrepreneurHeatmap() {
                             borderTop: `4px solid ${c.color}`,
                         }}
                     >
-                        <div style={{ fontSize: 28, fontWeight: 800, color: c.color }}>
-                            {c.value}
-                        </div>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: c.color }}>{c.value}</div>
                         <div style={{ fontSize: 13, color: C.textopa }}>{c.label}</div>
                     </div>
                 ))}
             </div>
 
-            {/* ── Map ── */}
-            <div style={{ marginBottom: 28 }}>
-                <RegionMap
-                    byRegion={byRegion}
-                    selectedRegion={selectedRegion}
-                    onRegionClick={(region) =>
-                        setSelectedRegion(selectedRegion === region ? null : region)
-                    }
-                />
-            </div>
-
-            {/* ── Region Grid ── */}
+            {/* ── Filters ── */}
             <div
                 style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                    gap: 16,
-                    marginBottom: 28,
+                    background: C.white,
+                    borderRadius: 12,
+                    padding: "16px 20px",
+                    marginBottom: 24,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    flexWrap: "wrap",
                 }}
             >
-                {byRegion.map((r) => (
-                    <div
-                        key={r.region}
-                        onClick={() => setSelectedRegion(selectedRegion === r.region ? null : r.region)}
+                <span style={{ fontSize: 13, fontWeight: 700, color: C.navy }}>Filters:</span>
+                <select
+                    style={selectStyle}
+                    value={selDist}
+                    onChange={(e) => { setSelDist(e.target.value); setSelTaluka(""); setSelVillage(""); }}
+                >
+                    <option value="">All Districts</option>
+                    {data.byDistrict.map((d) => (
+                        <option key={d.district} value={d.district}>{d.district} ({d.total})</option>
+                    ))}
+                </select>
+                <select
+                    style={{ ...selectStyle, opacity: selDist ? 1 : 0.5 }}
+                    value={selTaluka}
+                    disabled={!selDist}
+                    onChange={(e) => { setSelTaluka(e.target.value); setSelVillage(""); }}
+                >
+                    <option value="">All Talukas</option>
+                    {talukaOptions.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                    ))}
+                </select>
+                <select
+                    style={{ ...selectStyle, opacity: selTaluka ? 1 : 0.5 }}
+                    value={selVillage}
+                    disabled={!selTaluka}
+                    onChange={(e) => setSelVillage(e.target.value)}
+                >
+                    <option value="">All Villages</option>
+                    {villageOptions.map((v) => (
+                        <option key={v} value={v}>{v}</option>
+                    ))}
+                </select>
+                {(selDist || selTaluka || selVillage) && (
+                    <button
+                        onClick={clearFilters}
                         style={{
-                            background: getHeatBg(r.total),
-                            borderRadius: 14,
-                            padding: "20px",
+                            padding: "8px 16px",
+                            background: "#f0f0f0",
+                            border: "none",
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 600,
                             cursor: "pointer",
-                            border: selectedRegion === r.region ? `3px solid ${C.navy}` : "3px solid transparent",
-                            transition: "all 0.2s",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                            color: C.textopa,
                         }}
                     >
-                        <div style={{ fontSize: 15, fontWeight: 700, color: C.navy, marginBottom: 6 }}>
-                            {r.region}
-                        </div>
-                        <div style={{ fontSize: 32, fontWeight: 800, color: C.navy, marginBottom: 10 }}>
-                            {r.total}
-                        </div>
-                        <div style={{ display: "flex", gap: 12, fontSize: 12, fontWeight: 600 }}>
-                            <span style={{ color: "#16a34a" }}>🟢 {r.high}</span>
-                            <span style={{ color: "#F97316" }}>🟡 {r.medium}</span>
-                            <span style={{ color: "#dc2626" }}>🔴 {r.low}</span>
-                        </div>
-                    </div>
-                ))}
+                        ✕ Clear
+                    </button>
+                )}
             </div>
 
-            {/* ── District Drill-down ── */}
-            {selectedRegion && (
-                <div
-                    style={{
-                        background: C.white,
-                        borderRadius: 12,
-                        padding: 20,
-                        marginBottom: 28,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-                    }}
-                >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                        <h3 style={{ color: C.navy, margin: 0, fontWeight: 700 }}>
-                            📊 {selectedRegion} — District Breakdown
-                        </h3>
-                        <button
-                            onClick={() => setSelectedRegion(null)}
-                            style={{
-                                padding: "6px 14px",
-                                background: "#f0f0f0",
-                                border: "none",
-                                borderRadius: 6,
-                                fontSize: 12,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                            }}
-                        >
-                            ✕ Clear
-                        </button>
+            {/* ── Bar Chart ── */}
+            <div
+                style={{
+                    background: C.white,
+                    borderRadius: 12,
+                    padding: 20,
+                    marginBottom: 24,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                }}
+            >
+                <h3 style={{ color: C.navy, margin: "0 0 16px", fontWeight: 700, fontSize: 14 }}>
+                    📊 {selTaluka ? `${selTaluka} — Village-wise` : selDist ? `${selDist} — Taluka-wise` : "District-wise Breakdown"}
+                </h3>
+                {barData.length === 0 ? (
+                    <div style={{ color: C.textopa, fontSize: 13, padding: 12 }}>No data available.</div>
+                ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {barData.map((b) => (
+                            <div key={b.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                <div style={{ width: 140, fontSize: 13, fontWeight: 600, color: C.navy, textAlign: "right", flexShrink: 0 }}>
+                                    {b.label}
+                                </div>
+                                <div style={{ flex: 1, display: "flex", height: 26, borderRadius: 6, overflow: "hidden", background: "#f3f4f6" }}>
+                                    <div style={{ width: `${(b.high / maxBar) * 100}%`, background: "#16a34a", transition: "width 0.3s" }} />
+                                    <div style={{ width: `${(b.medium / maxBar) * 100}%`, background: "#F97316", transition: "width 0.3s" }} />
+                                    <div style={{ width: `${(b.low / maxBar) * 100}%`, background: "#dc2626", transition: "width 0.3s" }} />
+                                </div>
+                                <div style={{ width: 40, fontSize: 13, fontWeight: 700, color: C.navy, textAlign: "right" }}>
+                                    {b.total}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <thead>
-                            <tr style={{ borderBottom: "1px solid #eee" }}>
-                                {["District", "Total", "High", "Medium", "Low"].map((h) => (
-                                    <th
-                                        key={h}
-                                        style={{
-                                            padding: "10px 12px",
-                                            textAlign: "left",
-                                            fontSize: 11,
-                                            color: C.textopa,
-                                            fontWeight: 600,
-                                        }}
-                                    >
-                                        {h}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {byRegion
-                                .find((r) => r.region === selectedRegion)
-                                ?.districts.map((d) => (
-                                    <tr key={d.district} style={{ borderBottom: "1px solid #f5f5f5" }}>
-                                        <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 600, color: C.navy }}>
-                                            {d.district}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>
-                                            {d.total}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13, color: "#16a34a" }}>
-                                            {d.high}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13, color: "#F97316" }}>
-                                            {d.medium}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13, color: "#dc2626" }}>
-                                            {d.low}
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* ── User Table ── */}
             <div
@@ -255,8 +271,8 @@ export default function EntrepreneurHeatmap() {
                     boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
                 }}
             >
-                <h3 style={{ color: C.navy, marginBottom: 16, fontWeight: 700 }}>
-                    📋 User Details {selectedRegion && `— ${selectedRegion}`} ({filteredUsers.length})
+                <h3 style={{ color: C.navy, marginBottom: 16, fontWeight: 700, fontSize: 14 }}>
+                    📋 User Details ({sortedUsers.length})
                 </h3>
                 <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -264,7 +280,6 @@ export default function EntrepreneurHeatmap() {
                             <tr style={{ borderBottom: "1px solid #eee" }}>
                                 {[
                                     { key: "name", label: "Name" },
-                                    { key: "region", label: "Region" },
                                     { key: "district", label: "District" },
                                     { key: "taluka", label: "Taluka" },
                                     { key: "village", label: "Village" },
@@ -291,65 +306,40 @@ export default function EntrepreneurHeatmap() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredUsers.map((u) => {
-                                const tierStyle = TIER_COLORS[u.tier] || TIER_COLORS["Needs Development"];
+                            {sortedUsers.map((u) => {
+                                const ts = TIER_COLORS[u.tier] || TIER_COLORS["Needs Development"];
                                 return (
                                     <tr key={u._id} style={{ borderBottom: "1px solid #f5f5f5" }}>
                                         <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 600, color: C.navy }}>
                                             {u.name || "—"}
                                         </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>
-                                            {u.region}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>
-                                            {u.district || "—"}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>
-                                            {u.taluka || "—"}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>
-                                            {u.village || "—"}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>
-                                            {u.score}/15
-                                        </td>
+                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.district || "—"}</td>
+                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.taluka || "—"}</td>
+                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.village || "—"}</td>
+                                        <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>{u.score}/15</td>
                                         <td style={{ padding: "10px 12px" }}>
-                                            <span
-                                                style={{
-                                                    background: tierStyle.bg,
-                                                    color: tierStyle.color,
-                                                    padding: "3px 10px",
-                                                    borderRadius: 20,
-                                                    fontSize: 11,
-                                                    fontWeight: 600,
-                                                }}
-                                            >
+                                            <span style={{
+                                                background: ts.bg,
+                                                color: ts.color,
+                                                padding: "3px 10px",
+                                                borderRadius: 20,
+                                                fontSize: 11,
+                                                fontWeight: 600,
+                                            }}>
                                                 {u.tier}
                                             </span>
                                         </td>
                                         <td style={{ padding: "10px 12px", fontSize: 13, color: C.textopa }}>
                                             {u.date
-                                                ? new Date(u.date).toLocaleDateString("en-IN", {
-                                                    day: "2-digit",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                })
+                                                ? new Date(u.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
                                                 : "—"}
                                         </td>
                                     </tr>
                                 );
                             })}
-                            {filteredUsers.length === 0 && (
+                            {sortedUsers.length === 0 && (
                                 <tr>
-                                    <td
-                                        colSpan={8}
-                                        style={{
-                                            padding: "24px",
-                                            textAlign: "center",
-                                            color: C.textopa,
-                                            fontSize: 14,
-                                        }}
-                                    >
+                                    <td colSpan={7} style={{ padding: 24, textAlign: "center", color: C.textopa, fontSize: 14 }}>
                                         No users found.
                                     </td>
                                 </tr>

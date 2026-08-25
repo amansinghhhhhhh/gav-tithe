@@ -526,30 +526,13 @@ const migrateAssessments = async (req, res) => {
     }
 };
 
-// ── Region Mapping (Maharashtra 6 Revenue Divisions) ─────────────────────────
-const REGION_MAP = {
-    Konkan: ["Mumbai City", "Mumbai Suburban", "Thane", "Palghar", "Raigad", "Ratnagiri", "Sindhudurg"],
-    Pune: ["Pune", "Satara", "Sangli", "Solapur", "Kolhapur", "Ahmednagar"],
-    Nashik: ["Nashik", "Dhule", "Nandurbar", "Jalgaon"],
-    Aurangabad: ["Aurangabad", "Jalna", "Beed", "Osmanabad", "Hingoli", "Parbhani", "Latur", "Nanded"],
-    Amravati: ["Amravati", "Akola", "Buldhana", "Washim"],
-    Nagpur: ["Nagpur", "Wardha", "Bhandara", "Gondia", "Chandrapur", "Gadchiroli", "Yavatmal"],
-};
-
-const getRegionForDistrict = (district) => {
-    for (const [region, districts] of Object.entries(REGION_MAP)) {
-        if (districts.includes(district)) return region;
-    }
-    return "Other";
-};
-
+// ── Entrepreneur Heatmap ──────────────────────────────────────────────────────
 const getTierForScore = (score) => {
     if (score >= 12) return "High Potential";
     if (score >= 8) return "Medium Potential";
     return "Needs Development";
 };
 
-// ── Entrepreneur Heatmap ──────────────────────────────────────────────────────
 const getEntrepreneurHeatmap = async (req, res) => {
     try {
         const User = require("../models/User");
@@ -573,17 +556,15 @@ const getEntrepreneurHeatmap = async (req, res) => {
         for (const f of forms) {
             const uid = f.userId.toString();
             const a = assessmentMap[uid];
-            const dist = f.section1?.address?.dist || "";
-            const taluka = f.section1?.address?.taluka || "";
-            const village = f.section1?.address?.village || "";
-            const region = getRegionForDistrict(dist);
+            const dist = (f.section1?.address?.dist || "").trim();
+            const taluka = (f.section1?.address?.taluka || "").trim();
+            const village = (f.section1?.address?.village || "").trim();
             const score = a?.score || 0;
             const tier = getTierForScore(score);
 
             enriched.push({
                 _id: uid,
                 name: f.section1?.fullName || "",
-                region,
                 district: dist,
                 taluka,
                 village,
@@ -601,31 +582,51 @@ const getEntrepreneurHeatmap = async (req, res) => {
             needsDevelopment: enriched.filter((u) => u.tier === "Needs Development").length,
         };
 
-        const regionMap = {};
+        // District-wise breakdown
+        const distMap = {};
         for (const u of enriched) {
-            if (!regionMap[u.region]) {
-                regionMap[u.region] = { region: u.region, total: 0, high: 0, medium: 0, low: 0, districts: {} };
+            if (!u.district) continue;
+            if (!distMap[u.district]) {
+                distMap[u.district] = { district: u.district, total: 0, high: 0, medium: 0, low: 0 };
             }
-            regionMap[u.region].total++;
-            if (u.tier === "High Potential") regionMap[u.region].high++;
-            else if (u.tier === "Medium Potential") regionMap[u.region].medium++;
-            else regionMap[u.region].low++;
-
-            if (!regionMap[u.region].districts[u.district]) {
-                regionMap[u.region].districts[u.district] = { district: u.district, total: 0, high: 0, medium: 0, low: 0 };
-            }
-            regionMap[u.region].districts[u.district].total++;
-            if (u.tier === "High Potential") regionMap[u.region].districts[u.district].high++;
-            else if (u.tier === "Medium Potential") regionMap[u.region].districts[u.district].medium++;
-            else regionMap[u.region].districts[u.district].low++;
+            distMap[u.district].total++;
+            if (u.tier === "High Potential") distMap[u.district].high++;
+            else if (u.tier === "Medium Potential") distMap[u.district].medium++;
+            else distMap[u.district].low++;
         }
+        const byDistrict = Object.values(distMap).sort((a, b) => b.total - a.total);
 
-        const byRegion = Object.values(regionMap).map((r) => ({
-            ...r,
-            districts: Object.values(r.districts).sort((a, b) => b.total - a.total),
-        })).sort((a, b) => b.total - a.total);
+        // Taluka-wise breakdown
+        const talukaMap = {};
+        for (const u of enriched) {
+            if (!u.district || !u.taluka) continue;
+            const key = `${u.district}|${u.taluka}`;
+            if (!talukaMap[key]) {
+                talukaMap[key] = { district: u.district, taluka: u.taluka, total: 0, high: 0, medium: 0, low: 0 };
+            }
+            talukaMap[key].total++;
+            if (u.tier === "High Potential") talukaMap[key].high++;
+            else if (u.tier === "Medium Potential") talukaMap[key].medium++;
+            else talukaMap[key].low++;
+        }
+        const byTaluka = Object.values(talukaMap).sort((a, b) => b.total - a.total);
 
-        res.json({ success: true, summary, byRegion, users: enriched });
+        // Village-wise breakdown
+        const villageMap = {};
+        for (const u of enriched) {
+            if (!u.district || !u.taluka || !u.village) continue;
+            const key = `${u.district}|${u.taluka}|${u.village}`;
+            if (!villageMap[key]) {
+                villageMap[key] = { district: u.district, taluka: u.taluka, village: u.village, total: 0, high: 0, medium: 0, low: 0 };
+            }
+            villageMap[key].total++;
+            if (u.tier === "High Potential") villageMap[key].high++;
+            else if (u.tier === "Medium Potential") villageMap[key].medium++;
+            else villageMap[key].low++;
+        }
+        const byVillage = Object.values(villageMap).sort((a, b) => b.total - a.total);
+
+        res.json({ success: true, summary, byDistrict, byTaluka, byVillage, users: enriched });
     } catch (err) {
         console.error("Get entrepreneur heatmap error:", err.message);
         res.status(500).json({ message: "Internal server error" });
