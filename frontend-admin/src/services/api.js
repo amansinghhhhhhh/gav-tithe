@@ -90,3 +90,12 @@ export const deleteUser = async (userId) =>
         method: "DELETE",
         headers: authHeaders(),
     });
+
+export const getReports = async () =>
+    apiFetch(`${BASE}/admin/reports`, { headers: authHeaders() });
+
+export const getVillageDetail = async (dist, taluka, village) =>
+    apiFetch(
+        `${BASE}/admin/reports/village/${encodeURIComponent(dist)}/${encodeURIComponent(taluka)}/${encodeURIComponent(village)}`,
+        { headers: authHeaders() }
+    );

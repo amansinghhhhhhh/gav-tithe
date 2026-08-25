@@ -12,6 +12,8 @@ const {
     updateEditRequest,
     updateEditAllowed,
     deleteUser,
+    getReports,
+    getVillageDetail,
 } = require("../controllers/adminController");
 
 const { exportFormPdf, exportFormDocx } = require("../controllers/exportController");
@@ -27,5 +29,8 @@ router.get("/docs/:fileId", protect, adminOnly, getDocument);
 router.get("/export/excel", protect, adminOnly, exportExcel);
 router.get("/edit-requests", protect, adminOnly, getEditRequests);
 router.put("/edit-requests/:id", protect, adminOnly, updateEditRequest);
+
+router.get("/reports", protect, adminOnly, getReports);
+router.get("/reports/village/:dist/:taluka/:village", protect, adminOnly, getVillageDetail);
 
 module.exports = router;

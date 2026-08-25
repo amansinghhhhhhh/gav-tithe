@@ -1,9 +1,12 @@
 const express2 = require("express");
 const router2 = express2.Router();
-const { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest } = require("../controllers/formController");
+const { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest, getFormByUniqueId } = require("../controllers/formController");
 const { protect: protect2 } = require("../middleware/authMiddleware");
 const { upload, verifyMagicBytes, handleMulterError } = require("../middleware/upload");
 const { validateSaveSection } = require("../middleware/validate");
+
+// Public route — bina auth ke status check
+router2.get("/status/:uniqueId", getFormByUniqueId);
 
 router2.get("/", protect2, getMyForm);
 

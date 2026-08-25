@@ -133,3 +133,8 @@ export const markEmailVerified = async () => {
         headers: authHeaders(),
     });
 };
+
+// ── Status check (public — no auth) ──────────────────────────────────────────
+export const checkStatusById = async (uniqueId) => {
+    return apiFetch(`${BASE}/form/status/${encodeURIComponent(uniqueId)}`);
+};

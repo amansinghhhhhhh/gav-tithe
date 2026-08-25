@@ -39,7 +39,8 @@ export default function UsersList() {
         .toLowerCase()
         .includes(search.toLowerCase()) ||
       (u.mobile || "").includes(search) ||
-      (u.email || "").toLowerCase().includes(search.toLowerCase());
+      (u.email || "").toLowerCase().includes(search.toLowerCase()) ||
+      (u.uniqueId || "").toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "all" || u.formStatus === filter;
     return matchSearch && matchFilter;
   });
@@ -123,6 +124,7 @@ export default function UsersList() {
               <tr style={{ background: C.light }}>
                 {[
                   "#",
+                  "ID",
                   "Name",
                   "Mobile",
                   "Email",
@@ -149,7 +151,7 @@ export default function UsersList() {
               {filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     style={{
                       padding: 32,
                       textAlign: "center",
@@ -170,6 +172,18 @@ export default function UsersList() {
                       }}
                     >
                       {i + 1}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px 14px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: C.navy,
+                        fontFamily: "monospace",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      {u.uniqueId || "—"}
                     </td>
                     <td
                       style={{

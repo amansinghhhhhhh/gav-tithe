@@ -24,6 +24,11 @@ const NAV = [
     label: "Edit Requests",
     icon: <img src={editRequest} />,
   },
+  {
+    key: "/reports",
+    label: "Reports",
+    icon: "📊",
+  },
 ];
 
 const EXPANDED_W = 240;

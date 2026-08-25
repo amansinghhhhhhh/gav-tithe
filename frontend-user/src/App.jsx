@@ -18,6 +18,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import StatusCheckPage from "./StatusCheckPage";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
 
@@ -328,6 +329,7 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />{" "}
       {/* ✅ handles both modes via searchParams */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/status" element={<StatusCheckPage />} />
       <Route
         path="/dashboard"
         element={

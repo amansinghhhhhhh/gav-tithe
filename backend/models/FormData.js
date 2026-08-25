@@ -60,6 +60,8 @@ const FormDataSchema = new mongoose.Schema({
         },
     },
 
+    uniqueId: { type: String, unique: true, sparse: true, default: null },
+
     status: {
         type: String,
         enum: ["draft", "submitted", "under_review", "approved", "rejected"],

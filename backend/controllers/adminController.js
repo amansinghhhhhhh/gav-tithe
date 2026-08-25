@@ -15,7 +15,7 @@ const getAllUsers = async (req, res) => {
         const userIds = users.map((u) => u._id);
 
         const forms = await FormData.find({ userId: { $in: userIds } })
-            .select("userId status updatedAt submittedAt section1");
+            .select("userId status updatedAt submittedAt section1 uniqueId");
 
         const formMap = {};
         for (const form of forms) {
@@ -30,6 +30,7 @@ const getAllUsers = async (req, res) => {
                 mobile: user.mobile,
                 email: user.email,
                 createdAt: user.createdAt,
+                uniqueId: form?.uniqueId || null,
                 formStatus: form?.status || "not_started",
                 formUpdatedAt: form?.updatedAt || null,
                 formSubmittedAt: form?.submittedAt || null,
@@ -363,4 +364,126 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser };
+// ── Get reports — village-wise, taluka-wise, dist-wise counts ────────────────
+const getReports = async (req, res) => {
+    try {
+        const users = await User.find({ role: "user" }).select("_id").lean();
+        const userIds = users.map(u => u._id);
+
+        const forms = await FormData.find({ userId: { $in: userIds } })
+            .select("userId status section1.address")
+            .lean();
+
+        // Summary
+        const totalUsers = users.length;
+        const totalSubmitted = forms.filter(f => f.status === "submitted").length;
+        const totalApproved = forms.filter(f => f.status === "approved").length;
+        const totalRejected = forms.filter(f => f.status === "rejected").length;
+        const totalUnderReview = forms.filter(f => f.status === "under_review").length;
+        const totalDraft = forms.filter(f => f.status === "draft").length;
+
+        // Group by district
+        const distMap = {};
+        const talukaMap = {};
+        const villageMap = {};
+
+        for (const form of forms) {
+            const addr = form.section1?.address || {};
+            const dist = addr.dist || "Unknown";
+            const taluka = addr.taluka || "Unknown";
+            const village = addr.village || "Unknown";
+            const key = `${dist}|${taluka}|${village}`;
+
+            // District
+            if (!distMap[dist]) distMap[dist] = { dist, count: 0, submitted: 0, approved: 0, rejected: 0 };
+            distMap[dist].count++;
+            if (form.status === "submitted") distMap[dist].submitted++;
+            if (form.status === "approved") distMap[dist].approved++;
+            if (form.status === "rejected") distMap[dist].rejected++;
+
+            // Taluka
+            const tKey = `${dist}|${taluka}`;
+            if (!talukaMap[tKey]) talukaMap[tKey] = { dist, taluka, count: 0, submitted: 0, approved: 0, rejected: 0 };
+            talukaMap[tKey].count++;
+            if (form.status === "submitted") talukaMap[tKey].submitted++;
+            if (form.status === "approved") talukaMap[tKey].approved++;
+            if (form.status === "rejected") talukaMap[tKey].rejected++;
+
+            // Village
+            if (!villageMap[key]) villageMap[key] = { dist, taluka, village, count: 0, submitted: 0, approved: 0, rejected: 0 };
+            villageMap[key].count++;
+            if (form.status === "submitted") villageMap[key].submitted++;
+            if (form.status === "approved") villageMap[key].approved++;
+            if (form.status === "rejected") villageMap[key].rejected++;
+        }
+
+        const sortByCount = (arr) => arr.sort((a, b) => b.count - a.count);
+
+        res.json({
+            success: true,
+            summary: {
+                totalUsers,
+                totalSubmitted,
+                totalApproved,
+                totalRejected,
+                totalUnderReview,
+                totalDraft,
+            },
+            byDistrict: sortByCount(Object.values(distMap)),
+            byTaluka: sortByCount(Object.values(talukaMap)),
+            byVillage: sortByCount(Object.values(villageMap)),
+        });
+    } catch (err) {
+        console.error("Get reports error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// ── Get village detail — specific village ke saare users ──────────────────────
+const getVillageDetail = async (req, res) => {
+    try {
+        const { dist, taluka, village } = req.params;
+
+        const users = await User.find({ role: "user" }).select("-password").lean();
+        const userIds = users.map(u => u._id);
+
+        const forms = await FormData.find({ userId: { $in: userIds } })
+            .select("userId status uniqueId section1.fullName section1.mobile section1.email section1.address submittedAt")
+            .lean();
+
+        const formMap = {};
+        for (const f of forms) formMap[f.userId.toString()] = f;
+
+        const filtered = users
+            .map(user => {
+                const form = formMap[user._id.toString()];
+                const addr = form?.section1?.address || {};
+                if (addr.dist === dist && addr.taluka === taluka && addr.village === village) {
+                    return {
+                        _id: user._id,
+                        name: user.name,
+                        fullName: form?.section1?.fullName || null,
+                        mobile: form?.section1?.mobile || user.mobile,
+                        email: form?.section1?.email || user.email,
+                        uniqueId: form?.uniqueId || null,
+                        status: form?.status || "not_started",
+                        submittedAt: form?.submittedAt || null,
+                    };
+                }
+                return null;
+            })
+            .filter(Boolean);
+
+        res.json({
+            success: true,
+            village: { dist, taluka, village },
+            users: filtered,
+            total: filtered.length,
+        });
+    } catch (err) {
+        console.error("Get village detail error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail };

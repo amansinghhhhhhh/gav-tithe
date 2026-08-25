@@ -99,6 +99,23 @@ export default function UserDetail() {
         <h2 style={{ color: C.navy, fontWeight: 800, margin: 0 }}>
           {s1.fullName || user.name || "User Detail"}
         </h2>
+        {form?.uniqueId && (
+          <span
+            style={{
+              background: C.light,
+              border: "1px solid #ddd",
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontWeight: 700,
+              color: C.navy,
+              fontFamily: "monospace",
+              letterSpacing: "0.5px",
+            }}
+          >
+            {form.uniqueId}
+          </span>
+        )}
         <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
           <a
             href={getFormPdfUrl(userId)}

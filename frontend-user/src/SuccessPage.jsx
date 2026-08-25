@@ -13,16 +13,24 @@ export function SuccessPage({ onApproved }) {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [msg, setMsg] = useState("");
+  const [uniqueId, setUniqueId] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const loadRequest = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const res = await getEditRequest();
-      if (res.success) {
-        setRequest(res.request);
-        if (res.request?.status === "approved" && onApproved) {
+      const [editRes, formRes] = await Promise.all([
+        getEditRequest(),
+        getMyForm(),
+      ]);
+      if (editRes.success) {
+        setRequest(editRes.request);
+        if (editRes.request?.status === "approved" && onApproved) {
           await onApproved();
         }
+      }
+      if (formRes.success && formRes.form?.uniqueId) {
+        setUniqueId(formRes.form.uniqueId);
       }
     } finally {
       setLoading(false);
@@ -32,6 +40,25 @@ export function SuccessPage({ onApproved }) {
   useEffect(() => {
     loadRequest();
   }, []);
+
+  const handleCopyId = async () => {
+    if (!uniqueId) return;
+    try {
+      await navigator.clipboard.writeText(uniqueId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const el = document.createElement("textarea");
+      el.value = uniqueId;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -86,6 +113,50 @@ export function SuccessPage({ onApproved }) {
       <p style={{ fontSize: 18, fontWeight: 700, color: C.green, margin: 0 }}>
         {t("success_msg")}
       </p>
+
+      {uniqueId && (
+        <div style={{
+          marginTop: 20,
+          padding: "16px 20px",
+          background: "#f0fdf4",
+          border: "2px solid #86efac",
+          borderRadius: 12,
+          maxWidth: 340,
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}>
+          <p style={{ fontSize: 12, color: "#166534", margin: "0 0 6px", fontWeight: 600 }}>
+            Your Application ID
+          </p>
+          <p style={{
+            fontSize: 22,
+            fontWeight: 800,
+            color: C.navy,
+            margin: 0,
+            letterSpacing: "1px",
+            fontFamily: "monospace",
+          }}>
+            {uniqueId}
+          </p>
+          <button
+            onClick={handleCopyId}
+            style={{
+              marginTop: 10,
+              padding: "7px 18px",
+              background: copied ? "#16a34a" : C.navy,
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: "pointer",
+              transition: "background 0.2s",
+            }}
+          >
+            {copied ? "Copied!" : "Copy ID"}
+          </button>
+        </div>
+      )}
 
       {msg && (
         <p style={{ fontSize: 13, color: C.maroon, fontWeight: 600, marginTop: 12 }}>

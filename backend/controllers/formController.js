@@ -1,6 +1,7 @@
 const FormData = require("../models/FormData");
 const EditRequest = require("../models/EditRequest");
 const { saveToGridFS, deleteFromGridFS } = require("../middleware/upload");
+const { generateUniqueId } = require("../utils/generateUniqueId");
 
 const ALLOWED_DOC_TYPES = ["aadhaarFront", "aadhaarBack", "pan", "udyam", "passport"];
 
@@ -141,6 +142,12 @@ const submitForm = async (req, res) => {
             }
         }
 
+        // Unique ID generate karo (sirf first submission pe)
+        if (!form.uniqueId) {
+            const { dist, taluka, village } = form.section1?.address || {};
+            form.uniqueId = await generateUniqueId(dist, taluka, village);
+        }
+
         form.status = "submitted";
         form.editAllowed = false;
         form.updatedAt = Date.now();
@@ -153,8 +160,8 @@ const submitForm = async (req, res) => {
             { $set: { status: "resolved", updatedAt: Date.now() } }
         );
 
-        console.log("✅ Form submitted:", form._id);
-        res.json({ success: true, message: "Form submitted!", formId: form._id });
+        console.log("✅ Form submitted:", form._id, "| ID:", form.uniqueId);
+        res.json({ success: true, message: "Form submitted!", formId: form._id, uniqueId: form.uniqueId });
 
     } catch (err) {
         console.error("❌ Submit error:", err.message);
@@ -320,4 +327,35 @@ const getMyEditRequest = async (req, res) => {
     }
 };
 
-module.exports = { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest };
+// ── Get form status by unique ID (public — no auth required) ─────────────────
+const getFormByUniqueId = async (req, res) => {
+    try {
+        const { uniqueId } = req.params;
+
+        if (!uniqueId || !uniqueId.trim()) {
+            return res.status(400).json({ success: false, message: "Unique ID is required" });
+        }
+
+        const form = await FormData.findOne({ uniqueId: uniqueId.trim().toUpperCase() })
+            .select("uniqueId status adminRemark submittedAt updatedAt")
+            .lean();
+
+        if (!form) {
+            return res.status(404).json({ success: false, message: "No application found with this ID" });
+        }
+
+        res.json({
+            success: true,
+            uniqueId: form.uniqueId,
+            status: form.status,
+            adminRemark: form.adminRemark || "",
+            submittedAt: form.submittedAt,
+            updatedAt: form.updatedAt,
+        });
+    } catch (err) {
+        console.error("Get form by uniqueId error:", err.message);
+        res.status(500).json({ message: "Fetch failed" });
+    }
+};
+
+module.exports = { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest, getFormByUniqueId };
