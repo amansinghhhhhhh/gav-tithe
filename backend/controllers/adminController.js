@@ -4,7 +4,6 @@ const EditRequest = require("../models/EditRequest");
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
 const ExcelJS = require("exceljs");
-const { generateUniqueId } = require("../utils/generateUniqueId");
 
 // ── Get all users ─────────────────────────────────────────────────────────────
 const getAllUsers = async (req, res) => {
@@ -487,45 +486,4 @@ const getVillageDetail = async (req, res) => {
     }
 };
 
-// ── Migrate old forms — assign unique IDs to existing forms ───────────────────
-const migrateUniqueIds = async (req, res) => {
-    try {
-        const forms = await FormData.find({
-            uniqueId: null,
-            status: { $ne: "draft" },
-        }).sort({ createdAt: 1 });
-
-        let migrated = 0;
-        let errors = 0;
-        const results = [];
-
-        for (const form of forms) {
-            try {
-                const { dist, taluka, village } = form.section1?.address || {};
-                const uniqueId = await generateUniqueId(dist, taluka, village);
-                form.uniqueId = uniqueId;
-                await form.save();
-                migrated++;
-                results.push({ userId: form.userId.toString(), uniqueId });
-                console.log(`✅ Migrated: ${uniqueId} (user: ${form.userId})`);
-            } catch (err) {
-                errors++;
-                console.error(`❌ Failed for user ${form.userId}:`, err.message);
-            }
-        }
-
-        console.log(`\n📊 Migration complete: ${migrated} migrated, ${errors} errors`);
-        res.json({
-            success: true,
-            message: `Migration complete! ${migrated} forms migrated, ${errors} errors.`,
-            migrated,
-            errors,
-            results,
-        });
-    } catch (err) {
-        console.error("Migration error:", err.message);
-        res.status(500).json({ message: "Migration failed" });
-    }
-};
-
-module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail, migrateUniqueIds };
+module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail };
