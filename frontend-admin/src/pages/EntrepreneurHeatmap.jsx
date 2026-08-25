@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { getEntrepreneurHeatmap } from "../services/api";
+import RegionMap from "../components/RegionMap";
 import C from "../constants/colors";
 
 const TIER_COLORS = {
@@ -158,6 +159,19 @@ export default function EntrepreneurHeatmap() {
                         <div style={{ fontSize: 13, color: C.textopa }}>{c.label}</div>
                     </div>
                 ))}
+            </div>
+
+            {/* ── Map ── */}
+            <div style={{ marginBottom: 24 }}>
+                <RegionMap
+                    byDistrict={data.byDistrict}
+                    selectedDistrict={selDist}
+                    onDistrictClick={(dist) => {
+                        setSelDist(selDist === dist ? "" : dist);
+                        setSelTaluka("");
+                        setSelVillage("");
+                    }}
+                />
             </div>
 
             {/* ── Filters ── */}

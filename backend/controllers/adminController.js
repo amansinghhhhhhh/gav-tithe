@@ -543,7 +543,7 @@ const getEntrepreneurHeatmap = async (req, res) => {
         const userIds = users.map((u) => u._id);
 
         const [forms, assessments] = await Promise.all([
-            FormData.find({ userId: { $in: userIds } }).select("userId section1.fullName section1.address createdAt submittedAt status"),
+            FormData.find({ userId: { $in: userIds } }).select("userId section1.fullName section1.address createdAt submittedAt status").sort({ createdAt: -1 }),
             Assessment.find({ userId: { $in: userIds } }).select("userId score completed completedAt"),
         ]);
 
@@ -552,9 +552,13 @@ const getEntrepreneurHeatmap = async (req, res) => {
             assessmentMap[a.userId.toString()] = a;
         }
 
+        // Deduplicate: keep latest form per user
+        const seen = new Set();
         const enriched = [];
         for (const f of forms) {
             const uid = f.userId.toString();
+            if (seen.has(uid)) continue;
+            seen.add(uid);
             const a = assessmentMap[uid];
             const dist = (f.section1?.address?.dist || "").trim();
             const taluka = (f.section1?.address?.taluka || "").trim();
