@@ -7,6 +7,7 @@ import UsersList from "./pages/UsersList";
 import UserDetail from "./pages/UserDetail";
 import EditRequests from "./pages/EditRequests";
 import Reports from "./pages/Reports";
+import EntrepreneurHeatmap from "./pages/EntrepreneurHeatmap";
 import C from "./constants/colors";
 import { Spinner } from "./components/shared/Spinner";
 
@@ -86,6 +87,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <Reports />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/entrepreneur-heatmap"
+        element={
+          <ProtectedLayout>
+            <EntrepreneurHeatmap />
           </ProtectedLayout>
         }
       />

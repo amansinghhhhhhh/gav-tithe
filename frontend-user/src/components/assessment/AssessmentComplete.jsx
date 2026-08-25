@@ -2,7 +2,7 @@ import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
 
 export default function AssessmentComplete({ completedAt, onRetake, saving, onBackToJourney, score }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
 
   const formattedDate = completedAt
     ? new Date(completedAt).toLocaleDateString("en-IN", {
@@ -137,7 +137,7 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
               }}
             >
               <p style={{ margin: 0, fontSize: 13, color: "#9a3412" }}>
-                {lang === "mr" ? "तुमचे स्कोअर" : "Your Score"}
+                {t("mindset_score_label")}
               </p>
               <p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 800, color: C.orange }}>
                 {score} / 15
@@ -184,7 +184,7 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
                   transition: "all 0.2s",
                 }}
               >
-                {lang === "mr" ? "➡ माझा प्रवास" : "➡ Back to My Journey"}
+                {t("mindset_back")}
               </button>
             )}
             <button

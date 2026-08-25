@@ -15,6 +15,7 @@ const {
     getReports,
     getVillageDetail,
     migrateAssessments,
+    getEntrepreneurHeatmap,
 } = require("../controllers/adminController");
 
 const { exportFormPdf, exportFormDocx } = require("../controllers/exportController");
@@ -35,5 +36,7 @@ router.get("/reports", protect, adminOnly, getReports);
 router.get("/reports/village/:dist/:taluka/:village", protect, adminOnly, getVillageDetail);
 
 router.post("/migrate-assessments", protect, adminOnly, migrateAssessments);
+
+router.get("/entrepreneur-heatmap", protect, adminOnly, getEntrepreneurHeatmap);
 
 module.exports = router;

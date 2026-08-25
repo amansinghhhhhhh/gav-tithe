@@ -29,6 +29,11 @@ const NAV = [
     label: "Reports",
     icon: "📊",
   },
+  {
+    key: "/entrepreneur-heatmap",
+    label: "Entrepreneur Heatmap",
+    icon: "🗺️",
+  },
 ];
 
 const EXPANDED_W = 240;

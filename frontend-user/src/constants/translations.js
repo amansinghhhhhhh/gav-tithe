@@ -339,6 +339,16 @@ const translations = {
         popup_dash_p2: "व्यवसाय आणि आर्थिक माहिती भरा (विभाग 2 आणि 3)",
         popup_dash_p3: "कागदपत्रे अपलोड करून सबमिट करा (विभाग 4)",
         popup_dash_cta: "नोंदणी सुरू ठेवा →",
+
+        // Mindset Assessment Card
+        mindset_title: "मानसिकता निर्माण मूल्यांकन",
+        mindset_desc: "'उद्योजकीय मानसिकता निर्माण' क्विझ पूर्ण करा रोजगार तयारी साबित करण्यासाठी",
+        mindset_completed_title: "मानसिकता मूल्यांकन पूर्ण",
+        mindset_completed_desc: "स्कोअर: {{score}}/15 | तुम्ही पुढच्या टप्प्यावर जाऊ शकता",
+        mindset_score_label: "तुमचा स्कोअर",
+        mindset_start_btn: "▶ मूल्यांकन सुरू करा",
+        mindset_done_badge: "✅ स्कोअर: {{score}}/15",
+        mindset_back: "➡ माझा प्रवास",
     },
 
     en: {
@@ -693,6 +703,16 @@ const translations = {
         reset_pass_mismatch: "Passwords do not match",
         reset_success_title: "Password Changed! 🎉",
         reset_success_msg: "Your password has been successfully changed.",
+
+        // Mindset Assessment Card
+        mindset_title: "Mindset Creation Assessment",
+        mindset_desc: "Complete the 'Entrepreneurial Mindset Creation' quiz to prove employer readiness",
+        mindset_completed_title: "Mindset Assessment Completed",
+        mindset_completed_desc: "Score: {{score}}/15 | You can proceed to the next step",
+        mindset_score_label: "Your Score",
+        mindset_start_btn: "▶ Start Assessment",
+        mindset_done_badge: "✅ Score: {{score}}/15",
+        mindset_back: "➡ Back to My Journey",
 
 
 

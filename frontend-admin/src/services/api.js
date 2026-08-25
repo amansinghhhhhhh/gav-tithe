@@ -105,3 +105,6 @@ export const migrateAssessments = async () =>
         method: "POST",
         headers: authHeaders(),
     });
+
+export const getEntrepreneurHeatmap = async () =>
+    apiFetch(`${BASE}/admin/entrepreneur-heatmap`, { headers: authHeaders() });

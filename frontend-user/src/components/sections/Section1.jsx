@@ -166,8 +166,8 @@ function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, a
               }}
             >
               {assessmentCompleted
-                ? "Mindset Assessment Completed"
-                : "Mindset Creation Assessment"}
+                ? t("mindset_completed_title")
+                : t("mindset_title")}
             </h3>
             <p
               style={{
@@ -178,8 +178,8 @@ function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, a
               }}
             >
               {assessmentCompleted
-                ? `Score: ${assessmentScore}/15 | You can proceed to the next step`
-                : "Complete the 'Entrepreneurial Mindset Creation' quiz to prove employer readiness"}
+                ? t("mindset_completed_desc", { score: assessmentScore })
+                : t("mindset_desc")}
             </p>
             {!assessmentCompleted && (
               <button
@@ -199,7 +199,7 @@ function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, a
                   gap: 6,
                 }}
               >
-                ▶ Start Assessment
+                {t("mindset_start_btn")}
               </button>
             )}
             {assessmentCompleted && (
@@ -215,7 +215,7 @@ function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, a
                   fontWeight: 700,
                 }}
               >
-                ✅ Score: {assessmentScore}/15
+                {t("mindset_done_badge", { score: assessmentScore })}
               </span>
             )}
           </div>
