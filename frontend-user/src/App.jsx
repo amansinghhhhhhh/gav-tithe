@@ -19,6 +19,7 @@ import RegisterPage from "./pages/RegisterPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import StatusCheckPage from "./StatusCheckPage";
+import MyAssessment from "./components/assessment/MyAssessment";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
 
@@ -219,6 +220,8 @@ function Dashboard() {
                 Loading your form...
               </div>
             </div>
+          ) : activeNav === "my_assessment" ? (
+            <MyAssessment />
           ) : submitted && !state.editAllowed ? (
             <SuccessPage
               onApproved={async () => {

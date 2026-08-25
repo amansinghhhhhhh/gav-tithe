@@ -1,0 +1,167 @@
+export const questions = [
+  {
+    id: 1,
+    en: "When you face a major setback, what do you do?",
+    mr: "मोठा अडथळा आल्यावर तुम्ही काय करता?",
+    options: [
+      { key: "A", en: "I give up", mr: "मी सोडून देतो" },
+      { key: "B", en: "I feel bad but try again", mr: "वाईट वाटतो परंतु पुन्हा प्रयत्न करतो" },
+      { key: "C", en: "I find what went wrong and fix it", mr: "चूक काय झाली ते शोधून दुरुस्त करतो" },
+      { key: "D", en: "I learn from it and try a new way", mr: "त्यापासून शिकतो आणि नवीन मार्ग शोधतो" },
+    ],
+  },
+  {
+    id: 2,
+    en: "Can you work 12-14 hours daily for 2 years to build your business?",
+    mr: "व्यवसाय उभारण्यासाठी २ वर्षे दररोज १२-१४ तास काम करू शकता?",
+    options: [
+      { key: "A", en: "Not possible for me", mr: "माझ्यासाठी शक्य नाही" },
+      { key: "B", en: "I can try but not sure", mr: "प्रयत्न करू शकतो परंतु खात्री नाही" },
+      { key: "C", en: "Yes, if it leads to success", mr: "हो, यामुळे यश मिळालं तर" },
+      { key: "D", en: "I already work hard like this", mr: "मी आधीच असे कठोर काम करतो" },
+    ],
+  },
+  {
+    id: 3,
+    en: "What motivates you most to start a business?",
+    mr: "व्यवसाय सुरू करण्याची सर्वात मोठी प्रेरणा कोणती?",
+    options: [
+      { key: "A", en: "I want to avoid a regular job", mr: "मला नियमित नोकरी टाळायची आहे" },
+      { key: "B", en: "I want more money than salary", mr: "मला पगारपेक्षा अधिक पैसे हवे आहेत" },
+      { key: "C", en: "I want to solve a community problem", mr: "मी समुदायाचा प्रश्न सोडवू इच्छितो" },
+      { key: "D", en: "I want to create lasting impact", mr: "मी टिकाऊ प्रभाव निर्माण करू इच्छितो" },
+    ],
+  },
+  {
+    id: 4,
+    en: "If your first business fails, what will you do?",
+    mr: "पहिला व्यवसाय अयशस्वी झाल्यास काय कराल?",
+    options: [
+      { key: "A", en: "Never try business again", mr: "पुन्हा कधी व्यवसाय करणार नाही" },
+      { key: "B", en: "Wait a long time before trying", mr: "प्रयत्न करण्यापूर्वी खूप वेळ थांबेन" },
+      { key: "C", en: "Learn from mistakes and try again", mr: "चुकांमधून शिकून पुन्हा प्रयत्न करेन" },
+      { key: "D", en: "Start next venture immediately with lessons", mr: "शिकलेल्या गोष्टींसह लगेच पुढचा व्यवसाय सुरू करेन" },
+    ],
+  },
+  {
+    id: 5,
+    en: "How comfortable are you with uncertain income?",
+    mr: "अनिश्चित उत्पन्नाबद्दल तुम्ही किती सोयीस्कर आहात?",
+    options: [
+      { key: "A", en: "I need fixed income every month", mr: "मला दरमहा निश्चित उत्पन्न हवे आहे" },
+      { key: "B", en: "I can manage short-term uncertainty", mr: "मी अल्पकालीन अनिश्चितता व्यवस्थापित करू शकतो" },
+      { key: "C", en: "I'm okay if I have a plan", mr: "माझ्याकडे योजना असल्यास मला ठीक आहे" },
+      { key: "D", en: "Uncertainty excites me — it's opportunity", mr: "अनिश्चितता मला उत्साहित करते — ती संधी आहे" },
+    ],
+  },
+  {
+    id: 6,
+    en: "Would you invest your family savings to start a business?",
+    mr: "व्यवसाय सुरू करण्यासाठी कुटुंबाची बचत गुंतवाल का?",
+    options: [
+      { key: "A", en: "Never, too risky", mr: "कधी नाही, खूप धोकादायक" },
+      { key: "B", en: "Only a small amount", mr: "फक्त थोडी रक्कम" },
+      { key: "C", en: "Yes, with a solid plan", mr: "हो, एक मजबूत योजनेसह" },
+      { key: "D", en: "Yes, I believe in my ability", mr: "हो, मला माझ्या क्षमतेवर विश्वास आहे" },
+    ],
+  },
+  {
+    id: 7,
+    en: "Do you track your daily expenses?",
+    mr: "तुम्ही रोजचा खर्च लिहून ठेवता का?",
+    options: [
+      { key: "A", en: "No, I never track expenses", mr: "नाही, मी कधीच खर्च नोंदवत नाही" },
+      { key: "B", en: "Sometimes, not regularly", mr: "कधी कधी, नियमितपणे नाही" },
+      { key: "C", en: "Yes, I track monthly income & expense", mr: "हो, मी मासिक उत्पन्न आणि खर्च नोंदवतो" },
+      { key: "D", en: "Yes, I use tools and plan budgets", mr: "हो, मी उपकरणे वापरतो आणि अर्थसंकल्प करतो" },
+    ],
+  },
+  {
+    id: 8,
+    en: "Do you know the difference between profit and revenue?",
+    mr: "उलाढाल आणि नफा यातील फरक माहीत आहे का?",
+    options: [
+      { key: "A", en: "No, I don't understand these terms", mr: "नाही, मला हे संकल्प समजत नाहीत" },
+      { key: "B", en: "I have a rough idea", mr: "माझ्याकडे अंदाजे कल्पना आहे" },
+      { key: "C", en: "Yes, I understand basic accounting", mr: "हो, मला मूलभूत हिशोब समजतो" },
+      { key: "D", en: "Yes, I can prepare profit & loss statements", mr: "हो, मी नफा-तोटा विवरण तयार करू शकतो" },
+    ],
+  },
+  {
+    id: 9,
+    en: "How would you price your product?",
+    mr: "तुमच्या उत्पादनाची किंमत कशी ठरवाल?",
+    options: [
+      { key: "A", en: "I'll copy competitor's price", mr: "मी स्पर्धकाची किंमत कॉपी करेन" },
+      { key: "B", en: "I'll guess a reasonable price", mr: "मी एक योग्य किंमत अंदाजे ठरवेन" },
+      { key: "C", en: "I'll calculate cost + profit margin", mr: "मी खर्च + नफा मार्जिन मोजेन" },
+      { key: "D", en: "I'll do market research + cost analysis", mr: "मी बाजार संशोधन + खर्च विश्लेषण करेन" },
+    ],
+  },
+  {
+    id: 10,
+    en: "If a customer complains about your product quality, what do you do?",
+    mr: "ग्राहकाने गुणवत्तेबद्दल तक्रार केल्यास काय कराल?",
+    options: [
+      { key: "A", en: "Ignore the complaint", mr: "तक्राकडे दुर्लक्ष करेन" },
+      { key: "B", en: "Feel bad but do nothing", mr: "वाईट वाटेल परंतु काही करणार नाही" },
+      { key: "C", en: "Fix the issue and apologize", mr: "समस्या सोडवेन आणि माफी मागेन" },
+      { key: "D", en: "Fix it, prevent recurrence, follow up", mr: "सोडवेन, पुनरावृत्ती रोखेन, फॉलो अप करेन" },
+    ],
+  },
+  {
+    id: 11,
+    en: "How important is consistency in product quality for you?",
+    mr: "उत्पादनाच्या गुणवत्तेत सातत्य किती महत्त्वाचे?",
+    options: [
+      { key: "A", en: "Quality varies, that's normal", mr: "गुणवत्ता बदलते, हे सामान्य आहे" },
+      { key: "B", en: "I try to maintain quality", mr: "मी गुणवत्ता टिकवून ठेवण्याचा प्रयत्न करतो" },
+      { key: "C", en: "I follow standard processes", mr: "मी मानक प्रक्रिया पाळतो" },
+      { key: "D", en: "Zero defect is my goal", mr: "शून्य दोष हे माझे ध्येय आहे" },
+    ],
+  },
+  {
+    id: 12,
+    en: "Can you manage 3-4 things at once — production, sales, accounts?",
+    mr: "उत्पादन, विक्री, हिशोब — एकाच वेळी ३-४ गोष्टी सांभाळू शकता?",
+    options: [
+      { key: "A", en: "No, I can only focus on one thing", mr: "नाही, मी एकाच गोष्टीवर लक्ष केंद्रित करू शकतो" },
+      { key: "B", en: "I struggle but manage somehow", mr: "मी झुंजतो परंतु कशीतरी व्यवस्थापित करतो" },
+      { key: "C", en: "Yes, I prioritize and manage", mr: "हो, मी प्राधान्ये ठरवून व्यवस्थापित करतो" },
+      { key: "D", en: "Yes, I delegate and use systems", mr: "हो, मी वाटप करतो आणि प्रणाली वापरतो" },
+    ],
+  },
+  {
+    id: 13,
+    en: "Do you know who your target customer is?",
+    mr: "तुमचा लक्ष्य ग्राहक कोण आहे हे माहीत आहे का?",
+    options: [
+      { key: "A", en: "No, I'll sell to everyone", mr: "नाही, मी सर्वांना विक्री करेन" },
+      { key: "B", en: "I have a rough idea", mr: "माझ्याकडे अंदाजे कल्पना आहे" },
+      { key: "C", en: "Yes, I've identified my segment", mr: "हो, मी माझे विभाग ओळखला आहे" },
+      { key: "D", en: "Yes, I've talked to potential customers", mr: "हो, मी संभाव्य ग्राहकांशी बोललो आहे" },
+    ],
+  },
+  {
+    id: 14,
+    en: "How will you sell your product?",
+    mr: "तुमचे उत्पादन कसे विकाल?",
+    options: [
+      { key: "A", en: "I haven't thought about it", mr: "मी याबद्दल विचार केला नाही" },
+      { key: "B", en: "I'll sell from my shop/home", mr: "मी माझ्या दुकानात/घरून विक्री करेन" },
+      { key: "C", en: "Local market + word of mouth", mr: "स्थानिक बाजार + तोंडी प्रचार" },
+      { key: "D", en: "Online + offline + B2B channels", mr: "ऑनलाइन + ऑफलाइन + B2B चॅनेल्स" },
+    ],
+  },
+  {
+    id: 15,
+    en: "Have you studied your competition?",
+    mr: "तुमच्या स्पर्धकांचा अभ्यास केला आहे का?",
+    options: [
+      { key: "A", en: "No, I don't know my competitors", mr: "नाही, मला माझे स्पर्धक माहीत नाहीत" },
+      { key: "B", en: "I know some competitors exist", mr: "मला माहीत आहे काही स्पर्धक आहेत" },
+      { key: "C", en: "Yes, I know their strengths & weaknesses", mr: "हो, मला त्यांची शक्ती आणि कमकुवतपणा माहीत आहे" },
+      { key: "D", en: "Yes, I have a plan to differentiate", mr: "हो, माझ्याकडे भिन्नता दर्शवण्याची योजना आहे" },
+    ],
+  },
+];

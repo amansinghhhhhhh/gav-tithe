@@ -138,3 +138,30 @@ export const markEmailVerified = async () => {
 export const checkStatusById = async (uniqueId) => {
     return apiFetch(`${BASE}/form/status/${encodeURIComponent(uniqueId)}`);
 };
+
+// ── Assessment ───────────────────────────────────────────────────────────────
+export const getMyAssessment = async () => {
+    return apiFetch(`${BASE}/assessment`, { headers: authHeaders() });
+};
+
+export const saveAssessmentAnswer = async (step, selectedOptions) => {
+    return apiFetch(`${BASE}/assessment/answer`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ step, selectedOptions }),
+    });
+};
+
+export const completeAssessment = async () => {
+    return apiFetch(`${BASE}/assessment/complete`, {
+        method: "POST",
+        headers: authHeaders(),
+    });
+};
+
+export const retakeAssessment = async () => {
+    return apiFetch(`${BASE}/assessment/retake`, {
+        method: "POST",
+        headers: authHeaders(),
+    });
+};
