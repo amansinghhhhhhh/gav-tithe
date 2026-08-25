@@ -99,3 +99,9 @@ export const getVillageDetail = async (dist, taluka, village) =>
         `${BASE}/admin/reports/village/${encodeURIComponent(dist)}/${encodeURIComponent(taluka)}/${encodeURIComponent(village)}`,
         { headers: authHeaders() }
     );
+
+export const migrateOldForms = async () =>
+    apiFetch(`${BASE}/admin/migrate-unique-ids`, {
+        method: "POST",
+        headers: authHeaders(),
+    });

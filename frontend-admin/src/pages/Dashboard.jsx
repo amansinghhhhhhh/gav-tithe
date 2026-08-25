@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers } from "../services/api";
+import { getAllUsers, migrateOldForms } from "../services/api";
 
 // images/icons
 import totalUser from "../assets/totalUser.svg";
@@ -14,6 +14,8 @@ import C from "../constants/colors";
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [migrating, setMigrating] = useState(false);
+  const [migrateResult, setMigrateResult] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,11 +66,65 @@ export default function Dashboard() {
     },
   ];
 
+  const handleMigrate = async () => {
+    if (!window.confirm("This will assign Unique IDs to all old submitted forms. Continue?")) return;
+    setMigrating(true);
+    const res = await migrateOldForms();
+    setMigrating(false);
+    if (res.success) {
+      setMigrateResult(res);
+      // Refresh users list
+      const refresh = await getAllUsers();
+      if (refresh.success) setUsers(refresh.users);
+    } else {
+      setMigrateResult({ success: false, message: res.message || "Migration failed" });
+    }
+  };
+
   return (
     <div style={{ padding: "28px 24px" }}>
-      <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24 }}>
-        Dashboard
-      </h2>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+        <h2 style={{ color: C.navy, fontWeight: 800, margin: 0 }}>
+          Dashboard
+        </h2>
+        {!migrateResult && (
+          <button
+            onClick={handleMigrate}
+            disabled={migrating}
+            style={{
+              padding: "8px 18px",
+              background: migrating ? "#fdba74" : "#F97316",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: migrating ? "not-allowed" : "pointer",
+            }}
+          >
+            {migrating ? "Migrating..." : "🔄 Migrate Old Forms"}
+          </button>
+        )}
+      </div>
+
+      {migrateResult && (
+        <div
+          style={{
+            background: migrateResult.success ? "#dcfce7" : "#fee2e2",
+            border: `1px solid ${migrateResult.success ? "#86efac" : "#fca5a5"}`,
+            color: migrateResult.success ? "#166534" : "#991b1b",
+            padding: "12px 18px",
+            borderRadius: 10,
+            marginBottom: 20,
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          {migrateResult.success
+            ? `✅ ${migrateResult.message}`
+            : `❌ ${migrateResult.message}`}
+        </div>
+      )}
 
       {loading ? (
         <div style={{ textAlign: "center", color: C.textopa, marginTop: 60 }}>

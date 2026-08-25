@@ -14,6 +14,7 @@ const {
     deleteUser,
     getReports,
     getVillageDetail,
+    migrateUniqueIds,
 } = require("../controllers/adminController");
 
 const { exportFormPdf, exportFormDocx } = require("../controllers/exportController");
@@ -32,5 +33,8 @@ router.put("/edit-requests/:id", protect, adminOnly, updateEditRequest);
 
 router.get("/reports", protect, adminOnly, getReports);
 router.get("/reports/village/:dist/:taluka/:village", protect, adminOnly, getVillageDetail);
+
+// Temporary — baad mein hata dena
+router.post("/migrate-unique-ids", protect, adminOnly, migrateUniqueIds);
 
 module.exports = router;
