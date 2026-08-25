@@ -1,5 +1,16 @@
 const Assessment = require("../models/Assessment");
 
+const CORRECT_KEYS = ["D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D", "D"];
+
+const calculateScore = (answers) => {
+    let score = 0;
+    for (const ans of answers) {
+        const correct = CORRECT_KEYS[ans.questionIndex];
+        if (ans.selectedOptions.includes(correct)) score++;
+    }
+    return score;
+};
+
 // ── Get my assessment progress ────────────────────────────────────────────────
 const getMyAssessment = async (req, res) => {
     try {
@@ -15,6 +26,7 @@ const getMyAssessment = async (req, res) => {
                 completed: assessment.completed,
                 completedAt: assessment.completedAt,
                 totalAttempts: assessment.totalAttempts,
+                score: assessment.score,
             },
         });
     } catch (err) {
@@ -103,6 +115,7 @@ const completeAssessment = async (req, res) => {
         assessment.completed = true;
         assessment.completedAt = Date.now();
         assessment.totalAttempts += 1;
+        assessment.score = calculateScore(assessment.answers);
         assessment.updatedAt = Date.now();
         await assessment.save();
 
@@ -110,6 +123,7 @@ const completeAssessment = async (req, res) => {
             success: true,
             message: "Assessment completed!",
             completedAt: assessment.completedAt,
+            score: assessment.score,
         });
     } catch (err) {
         console.error("Complete assessment error:", err.message);
@@ -129,6 +143,7 @@ const retakeAssessment = async (req, res) => {
         assessment.answers = [];
         assessment.completed = false;
         assessment.completedAt = null;
+        assessment.score = 0;
         assessment.updatedAt = Date.now();
         await assessment.save();
 

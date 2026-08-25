@@ -486,4 +486,44 @@ const getVillageDetail = async (req, res) => {
     }
 };
 
-module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail };
+// ── Temporary: Migrate existing users' assessments ────────────────────────────
+const migrateAssessments = async (req, res) => {
+    try {
+        const User = require("../models/User");
+        const Assessment = require("../models/Assessment");
+
+        const users = await User.find({ role: "user" }).select("_id");
+        let migrated = 0;
+        let skipped = 0;
+
+        for (const u of users) {
+            const exists = await Assessment.findOne({ userId: u._id });
+            if (exists) {
+                skipped++;
+                continue;
+            }
+            await Assessment.create({
+                userId: u._id,
+                currentStep: 15,
+                answers: [],
+                completed: true,
+                completedAt: new Date(),
+                totalAttempts: 1,
+                score: 15,
+            });
+            migrated++;
+        }
+
+        res.json({
+            success: true,
+            message: `Migration done. Migrated: ${migrated}, Skipped: ${skipped}`,
+            migrated,
+            skipped,
+        });
+    } catch (err) {
+        console.error("Migrate assessments error:", err.message);
+        res.status(500).json({ message: "Migration failed" });
+    }
+};
+
+module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail, migrateAssessments };

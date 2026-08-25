@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
 import { Spinner } from "../shared/Spinner";
@@ -14,6 +15,7 @@ import AssessmentComplete from "./AssessmentComplete";
 
 export default function MyAssessment() {
   const { lang } = useLang();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [assessment, setAssessment] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
@@ -125,6 +127,10 @@ export default function MyAssessment() {
     }
   };
 
+  const handleBackToJourney = () => {
+    navigate("/");
+  };
+
   const answeredCount = Object.keys(answers).length;
 
   if (loading) {
@@ -154,6 +160,8 @@ export default function MyAssessment() {
         completedAt={assessment.completedAt}
         onRetake={handleRetake}
         saving={saving}
+        onBackToJourney={handleBackToJourney}
+        score={assessment.score}
       />
     );
   }

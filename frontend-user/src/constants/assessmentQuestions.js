@@ -3,6 +3,7 @@ export const questions = [
     id: 1,
     en: "When you face a major setback, what do you do?",
     mr: "मोठा अडथळा आल्यावर तुम्ही काय करता?",
+    correctKey: "D",
     options: [
       { key: "A", en: "I give up", mr: "मी सोडून देतो" },
       { key: "B", en: "I feel bad but try again", mr: "वाईट वाटतो परंतु पुन्हा प्रयत्न करतो" },
@@ -14,6 +15,7 @@ export const questions = [
     id: 2,
     en: "Can you work 12-14 hours daily for 2 years to build your business?",
     mr: "व्यवसाय उभारण्यासाठी २ वर्षे दररोज १२-१४ तास काम करू शकता?",
+    correctKey: "D",
     options: [
       { key: "A", en: "Not possible for me", mr: "माझ्यासाठी शक्य नाही" },
       { key: "B", en: "I can try but not sure", mr: "प्रयत्न करू शकतो परंतु खात्री नाही" },
@@ -25,6 +27,7 @@ export const questions = [
     id: 3,
     en: "What motivates you most to start a business?",
     mr: "व्यवसाय सुरू करण्याची सर्वात मोठी प्रेरणा कोणती?",
+    correctKey: "D",
     options: [
       { key: "A", en: "I want to avoid a regular job", mr: "मला नियमित नोकरी टाळायची आहे" },
       { key: "B", en: "I want more money than salary", mr: "मला पगारपेक्षा अधिक पैसे हवे आहेत" },
@@ -36,6 +39,7 @@ export const questions = [
     id: 4,
     en: "If your first business fails, what will you do?",
     mr: "पहिला व्यवसाय अयशस्वी झाल्यास काय कराल?",
+    correctKey: "D",
     options: [
       { key: "A", en: "Never try business again", mr: "पुन्हा कधी व्यवसाय करणार नाही" },
       { key: "B", en: "Wait a long time before trying", mr: "प्रयत्न करण्यापूर्वी खूप वेळ थांबेन" },
@@ -47,6 +51,7 @@ export const questions = [
     id: 5,
     en: "How comfortable are you with uncertain income?",
     mr: "अनिश्चित उत्पन्नाबद्दल तुम्ही किती सोयीस्कर आहात?",
+    correctKey: "D",
     options: [
       { key: "A", en: "I need fixed income every month", mr: "मला दरमहा निश्चित उत्पन्न हवे आहे" },
       { key: "B", en: "I can manage short-term uncertainty", mr: "मी अल्पकालीन अनिश्चितता व्यवस्थापित करू शकतो" },
@@ -58,6 +63,7 @@ export const questions = [
     id: 6,
     en: "Would you invest your family savings to start a business?",
     mr: "व्यवसाय सुरू करण्यासाठी कुटुंबाची बचत गुंतवाल का?",
+    correctKey: "C",
     options: [
       { key: "A", en: "Never, too risky", mr: "कधी नाही, खूप धोकादायक" },
       { key: "B", en: "Only a small amount", mr: "फक्त थोडी रक्कम" },
@@ -69,6 +75,7 @@ export const questions = [
     id: 7,
     en: "Do you track your daily expenses?",
     mr: "तुम्ही रोजचा खर्च लिहून ठेवता का?",
+    correctKey: "D",
     options: [
       { key: "A", en: "No, I never track expenses", mr: "नाही, मी कधीच खर्च नोंदवत नाही" },
       { key: "B", en: "Sometimes, not regularly", mr: "कधी कधी, नियमितपणे नाही" },
@@ -80,6 +87,7 @@ export const questions = [
     id: 8,
     en: "Do you know the difference between profit and revenue?",
     mr: "उलाढाल आणि नफा यातील फरक माहीत आहे का?",
+    correctKey: "D",
     options: [
       { key: "A", en: "No, I don't understand these terms", mr: "नाही, मला हे संकल्प समजत नाहीत" },
       { key: "B", en: "I have a rough idea", mr: "माझ्याकडे अंदाजे कल्पना आहे" },
@@ -91,6 +99,7 @@ export const questions = [
     id: 9,
     en: "How would you price your product?",
     mr: "तुमच्या उत्पादनाची किंमत कशी ठरवाल?",
+    correctKey: "D",
     options: [
       { key: "A", en: "I'll copy competitor's price", mr: "मी स्पर्धकाची किंमत कॉपी करेन" },
       { key: "B", en: "I'll guess a reasonable price", mr: "मी एक योग्य किंमत अंदाजे ठरवेन" },
@@ -102,6 +111,7 @@ export const questions = [
     id: 10,
     en: "If a customer complains about your product quality, what do you do?",
     mr: "ग्राहकाने गुणवत्तेबद्दल तक्रार केल्यास काय कराल?",
+    correctKey: "D",
     options: [
       { key: "A", en: "Ignore the complaint", mr: "तक्राकडे दुर्लक्ष करेन" },
       { key: "B", en: "Feel bad but do nothing", mr: "वाईट वाटेल परंतु काही करणार नाही" },
@@ -113,6 +123,7 @@ export const questions = [
     id: 11,
     en: "How important is consistency in product quality for you?",
     mr: "उत्पादनाच्या गुणवत्तेत सातत्य किती महत्त्वाचे?",
+    correctKey: "D",
     options: [
       { key: "A", en: "Quality varies, that's normal", mr: "गुणवत्ता बदलते, हे सामान्य आहे" },
       { key: "B", en: "I try to maintain quality", mr: "मी गुणवत्ता टिकवून ठेवण्याचा प्रयत्न करतो" },
@@ -124,6 +135,7 @@ export const questions = [
     id: 12,
     en: "Can you manage 3-4 things at once — production, sales, accounts?",
     mr: "उत्पादन, विक्री, हिशोब — एकाच वेळी ३-४ गोष्टी सांभाळू शकता?",
+    correctKey: "D",
     options: [
       { key: "A", en: "No, I can only focus on one thing", mr: "नाही, मी एकाच गोष्टीवर लक्ष केंद्रित करू शकतो" },
       { key: "B", en: "I struggle but manage somehow", mr: "मी झुंजतो परंतु कशीतरी व्यवस्थापित करतो" },
@@ -135,6 +147,7 @@ export const questions = [
     id: 13,
     en: "Do you know who your target customer is?",
     mr: "तुमचा लक्ष्य ग्राहक कोण आहे हे माहीत आहे का?",
+    correctKey: "D",
     options: [
       { key: "A", en: "No, I'll sell to everyone", mr: "नाही, मी सर्वांना विक्री करेन" },
       { key: "B", en: "I have a rough idea", mr: "माझ्याकडे अंदाजे कल्पना आहे" },
@@ -146,6 +159,7 @@ export const questions = [
     id: 14,
     en: "How will you sell your product?",
     mr: "तुमचे उत्पादन कसे विकाल?",
+    correctKey: "D",
     options: [
       { key: "A", en: "I haven't thought about it", mr: "मी याबद्दल विचार केला नाही" },
       { key: "B", en: "I'll sell from my shop/home", mr: "मी माझ्या दुकानात/घरून विक्री करेन" },
@@ -157,6 +171,7 @@ export const questions = [
     id: 15,
     en: "Have you studied your competition?",
     mr: "तुमच्या स्पर्धकांचा अभ्यास केला आहे का?",
+    correctKey: "D",
     options: [
       { key: "A", en: "No, I don't know my competitors", mr: "नाही, मला माझे स्पर्धक माहीत नाहीत" },
       { key: "B", en: "I know some competitors exist", mr: "मला माहीत आहे काही स्पर्धक आहेत" },

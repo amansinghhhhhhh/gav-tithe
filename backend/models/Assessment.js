@@ -13,6 +13,7 @@ const AssessmentSchema = new mongoose.Schema({
     completed: { type: Boolean, default: false },
     completedAt: { type: Date, default: null },
     totalAttempts: { type: Number, default: 0 },
+    score: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

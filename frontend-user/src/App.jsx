@@ -13,7 +13,7 @@ import Section3 from "./components/sections/Section3";
 import Section4 from "./components/sections/Section4";
 import C from "./constants/colors";
 import { SuccessPage } from "./SuccessPage";
-import { submitForm, saveSection, getMyForm } from "./services/api";
+import { submitForm, saveSection, getMyForm, getMyAssessment } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
@@ -52,6 +52,8 @@ function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [loadingForm, setLoadingForm] = useState(true);
+  const [assessmentCompleted, setAssessmentCompleted] = useState(false);
+  const [assessmentScore, setAssessmentScore] = useState(0);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useLang();
@@ -61,9 +63,12 @@ function Dashboard() {
   const loadFormData = async (silent = false) => {
     if (!silent) setLoadingForm(true);
     try {
-      const res = await getMyForm();
-      if (res.success && res.form) {
-        const { section1, section2, section3, section4, status, editAllowed } = res.form;
+      const [formRes, assessRes] = await Promise.all([
+        getMyForm(),
+        getMyAssessment().catch(() => null),
+      ]);
+      if (formRes.success && formRes.form) {
+        const { section1, section2, section3, section4, status, editAllowed } = formRes.form;
         if (section1)
           dispatch({ type: "UPDATE_SECTION1", payload: section1 });
         if (section2)
@@ -82,6 +87,10 @@ function Dashboard() {
         else if (section2?.businessType)
           dispatch({ type: "SET_STEP", step: 3 });
         else if (section1?.fullName) dispatch({ type: "SET_STEP", step: 2 });
+      }
+      if (assessRes?.success && assessRes.assessment) {
+        setAssessmentCompleted(assessRes.assessment.completed);
+        setAssessmentScore(assessRes.assessment.score || 0);
       }
     } catch (err) {
       console.error("Draft load error:", err);
@@ -123,6 +132,10 @@ function Dashboard() {
   };
 
   const goNext = async () => {
+    if (currentStep === 1 && !assessmentCompleted) {
+      showMsg("⚠ Please complete the Mindset Assessment first", true);
+      return;
+    }
     const saved = await saveCurrent(currentStep);
     if (saved) {
       showMsg("✅ Saved!");
@@ -266,6 +279,9 @@ function Dashboard() {
                     validateAndGoNext.current = fn;
                   }}
                   onNext={goNext}
+                  assessmentCompleted={assessmentCompleted}
+                  assessmentScore={assessmentScore}
+                  onGoToAssessment={() => setActiveNav("my_assessment")}
                 />
               )}
               {currentStep === 2 && (

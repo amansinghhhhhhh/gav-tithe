@@ -1,7 +1,7 @@
 import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
 
-export default function AssessmentComplete({ completedAt, onRetake, saving }) {
+export default function AssessmentComplete({ completedAt, onRetake, saving, onBackToJourney, score }) {
   const { lang } = useLang();
 
   const formattedDate = completedAt
@@ -125,6 +125,26 @@ export default function AssessmentComplete({ completedAt, onRetake, saving }) {
             </p>
           )}
 
+          {typeof score === "number" && (
+            <div
+              style={{
+                background: "#fff7ed",
+                border: "2px solid #fdba74",
+                borderRadius: 12,
+                padding: "14px 20px",
+                marginBottom: 20,
+                textAlign: "center",
+              }}
+            >
+              <p style={{ margin: 0, fontSize: 13, color: "#9a3412" }}>
+                {lang === "mr" ? "तुमचे स्कोअर" : "Your Score"}
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 800, color: C.orange }}>
+                {score} / 15
+              </p>
+            </div>
+          )}
+
           <div
             style={{
               background: "#f0fdf4",
@@ -148,27 +168,47 @@ export default function AssessmentComplete({ completedAt, onRetake, saving }) {
             </p>
           </div>
 
-          <button
-            onClick={onRetake}
-            disabled={saving}
-            style={{
-              padding: "13px 32px",
-              background: "#fff",
-              color: C.navy,
-              border: `2px solid ${C.navy}`,
-              borderRadius: 10,
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: saving ? "not-allowed" : "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            {saving
-              ? "Saving..."
-              : lang === "mr"
-              ? "🔄 पुन्हा प्रयत्न करा"
-              : "🔄 Retake Assessment"}
-          </button>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            {onBackToJourney && (
+              <button
+                onClick={onBackToJourney}
+                style={{
+                  padding: "13px 32px",
+                  background: C.navy,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {lang === "mr" ? "➡ माझा प्रवास" : "➡ Back to My Journey"}
+              </button>
+            )}
+            <button
+              onClick={onRetake}
+              disabled={saving}
+              style={{
+                padding: "13px 32px",
+                background: "#fff",
+                color: C.navy,
+                border: `2px solid ${C.navy}`,
+                borderRadius: 10,
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: saving ? "not-allowed" : "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {saving
+                ? "Saving..."
+                : lang === "mr"
+                ? "🔄 पुन्हा प्रयत्न करा"
+                : "🔄 Retake Assessment"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

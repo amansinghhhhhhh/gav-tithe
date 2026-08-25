@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers } from "../services/api";
+import { getAllUsers, migrateAssessments } from "../services/api";
 
 // images/icons
 import totalUser from "../assets/totalUser.svg";
@@ -14,6 +14,8 @@ import C from "../constants/colors";
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [migrating, setMigrating] = useState(false);
+  const [migrateMsg, setMigrateMsg] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,6 +110,43 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Temporary: Migration Button */}
+          <div style={{ marginBottom: 24 }}>
+            <button
+              disabled={migrating}
+              onClick={async () => {
+                if (!window.confirm("Migrate all existing users' assessments? This will mark them as completed.")) return;
+                setMigrating(true);
+                setMigrateMsg("");
+                try {
+                  const res = await migrateAssessments();
+                  setMigrateMsg(res.message || "Done!");
+                } catch (err) {
+                  setMigrateMsg("Error: " + err.message);
+                } finally {
+                  setMigrating(false);
+                }
+              }}
+              style={{
+                padding: "10px 24px",
+                background: migrating ? "#9ca3af" : "#F97316",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: migrating ? "not-allowed" : "pointer",
+              }}
+            >
+              {migrating ? "Migrating..." : "🔄 Migrate Assessments"}
+            </button>
+            {migrateMsg && (
+              <span style={{ marginLeft: 12, fontSize: 13, color: C.green, fontWeight: 600 }}>
+                {migrateMsg}
+              </span>
+            )}
           </div>
 
           {/* Recent Users */}
