@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEntrepreneurHeatmap } from "../services/api";
+import RegionMap from "../components/RegionMap";
 import C from "../constants/colors";
 
 const TIER_COLORS = {
@@ -118,6 +119,17 @@ export default function EntrepreneurHeatmap() {
                         <div style={{ fontSize: 13, color: C.textopa }}>{c.label}</div>
                     </div>
                 ))}
+            </div>
+
+            {/* ── Map ── */}
+            <div style={{ marginBottom: 28 }}>
+                <RegionMap
+                    byRegion={byRegion}
+                    selectedRegion={selectedRegion}
+                    onRegionClick={(region) =>
+                        setSelectedRegion(selectedRegion === region ? null : region)
+                    }
+                />
             </div>
 
             {/* ── Region Grid ── */}
