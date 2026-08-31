@@ -20,6 +20,7 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import StatusCheckPage from "./StatusCheckPage";
 import MyAssessment from "./components/assessment/MyAssessment";
+import DRPLibrary from "./components/DRPLibrary";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
 
@@ -235,6 +236,8 @@ function Dashboard() {
             </div>
           ) : activeNav === "my_assessment" ? (
             <MyAssessment />
+          ) : activeNav === "dpr_library" ? (
+            <DRPLibrary />
           ) : submitted && !state.editAllowed ? (
             <SuccessPage
               onApproved={async () => {

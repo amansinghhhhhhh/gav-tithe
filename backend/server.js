@@ -87,6 +87,7 @@ app.use("/api/auth", authLimiter, require("./routes/authRoutes"));
 app.use("/api/form", apiLimiter, require("./routes/formRoutes"));
 app.use("/api/admin", apiLimiter, require("./routes/adminRoutes"));
 app.use("/api/assessment", apiLimiter, require("./routes/assessmentRoutes"));
+app.use("/api/drp", apiLimiter, require("./routes/drpRoutes"));
 
 // ── 7. Health check ───────────────────────────────────────────────────────────
 app.get("/", (req, res) => res.json({ message: "Gav Tithe API running ✅" }));

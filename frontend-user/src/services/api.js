@@ -165,3 +165,13 @@ export const retakeAssessment = async () => {
         headers: authHeaders(),
     });
 };
+
+// ── DRP Library ────────────────────────────────────────────────────────────
+export const getDRPEntries = async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.sector && params.sector !== "All") query.set("sector", params.sector);
+    if (params.investmentRange && params.investmentRange !== "All") query.set("investmentRange", params.investmentRange);
+    if (params.district && params.district !== "All Districts") query.set("district", params.district);
+    const qs = query.toString();
+    return apiFetch(`${BASE}/drp${qs ? "?" + qs : ""}`, { headers: authHeaders() });
+};
