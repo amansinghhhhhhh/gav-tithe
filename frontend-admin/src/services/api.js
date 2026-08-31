@@ -108,3 +108,30 @@ export const migrateAssessments = async () =>
 
 export const getEntrepreneurHeatmap = async () =>
     apiFetch(`${BASE}/admin/entrepreneur-heatmap`, { headers: authHeaders() });
+
+// ── DRP Library ─────────────────────────────────────────────────────────────
+export const getDRPLibraries = async () =>
+    apiFetch(`${BASE}/drp/admin/all`, { headers: authHeaders() });
+
+export const getDRPLibrary = async (id) =>
+    apiFetch(`${BASE}/drp/admin/${id}`, { headers: authHeaders() });
+
+export const createDRPLibrary = async (data) =>
+    apiFetch(`${BASE}/drp/admin`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+    });
+
+export const updateDRPLibrary = async (id, data) =>
+    apiFetch(`${BASE}/drp/admin/${id}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+    });
+
+export const deleteDRPLibrary = async (id) =>
+    apiFetch(`${BASE}/drp/admin/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });

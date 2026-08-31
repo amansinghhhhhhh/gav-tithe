@@ -8,6 +8,7 @@ import UserDetail from "./pages/UserDetail";
 import EditRequests from "./pages/EditRequests";
 import Reports from "./pages/Reports";
 import EntrepreneurHeatmap from "./pages/EntrepreneurHeatmap";
+import DRPLibraries from "./pages/DRPLibraries";
 import C from "./constants/colors";
 import { Spinner } from "./components/shared/Spinner";
 
@@ -95,6 +96,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <EntrepreneurHeatmap />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/drp-libraries"
+        element={
+          <ProtectedLayout>
+            <DRPLibraries />
           </ProtectedLayout>
         }
       />

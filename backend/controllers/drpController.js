@@ -112,3 +112,98 @@ exports.seedDRPEntries = async (req, res) => {
     res.status(500).json({ success: false, message: "Seed failed" });
   }
 };
+
+// ── Admin: Get all entries (including inactive) ─────────────────────────────
+exports.adminGetAll = async (req, res) => {
+  try {
+    const entries = await DRPEntry.find().sort({ variantId: 1 });
+    res.json({ success: true, entries, count: entries.length });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch" });
+  }
+};
+
+// ── Admin: Get single entry ─────────────────────────────────────────────────
+exports.adminGetOne = async (req, res) => {
+  try {
+    const entry = await DRPEntry.findById(req.params.id);
+    if (!entry) return res.status(404).json({ success: false, message: "Entry not found" });
+    res.json({ success: true, entry });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch" });
+  }
+};
+
+// ── Admin: Create entry ─────────────────────────────────────────────────────
+exports.adminCreate = async (req, res) => {
+  try {
+    const { sector, odop, variantName, variantId, location, investmentRange, investmentMin, investmentMax, roi, jobs, subsidyPercent, tags, category } = req.body;
+
+    if (!sector || !variantName || !variantId || !location) {
+      return res.status(400).json({ success: false, message: "Sector, Variant Name, Variant ID, and Location are required" });
+    }
+
+    const exists = await DRPEntry.findOne({ variantId });
+    if (exists) {
+      return res.status(400).json({ success: false, message: `Variant ID ${variantId} already exists` });
+    }
+
+    const entry = await DRPEntry.create({
+      sector, odop, variantName, variantId, location,
+      investmentRange, investmentMin, investmentMax,
+      roi, jobs, subsidyPercent, tags, category,
+    });
+
+    res.status(201).json({ success: true, entry });
+  } catch (err) {
+    console.error("DRP create error:", err);
+    res.status(500).json({ success: false, message: "Failed to create" });
+  }
+};
+
+// ── Admin: Update entry ─────────────────────────────────────────────────────
+exports.adminUpdate = async (req, res) => {
+  try {
+    const entry = await DRPEntry.findById(req.params.id);
+    if (!entry) return res.status(404).json({ success: false, message: "Entry not found" });
+
+    const { sector, odop, variantName, variantId, location, investmentRange, investmentMin, investmentMax, roi, jobs, subsidyPercent, tags, category, isActive } = req.body;
+
+    if (variantId && variantId !== entry.variantId) {
+      const dup = await DRPEntry.findOne({ variantId });
+      if (dup) return res.status(400).json({ success: false, message: `Variant ID ${variantId} already exists` });
+    }
+
+    if (sector !== undefined) entry.sector = sector;
+    if (odop !== undefined) entry.odop = odop;
+    if (variantName !== undefined) entry.variantName = variantName;
+    if (variantId !== undefined) entry.variantId = variantId;
+    if (location !== undefined) entry.location = location;
+    if (investmentRange !== undefined) entry.investmentRange = investmentRange;
+    if (investmentMin !== undefined) entry.investmentMin = investmentMin;
+    if (investmentMax !== undefined) entry.investmentMax = investmentMax;
+    if (roi !== undefined) entry.roi = roi;
+    if (jobs !== undefined) entry.jobs = jobs;
+    if (subsidyPercent !== undefined) entry.subsidyPercent = subsidyPercent;
+    if (tags !== undefined) entry.tags = tags;
+    if (category !== undefined) entry.category = category;
+    if (isActive !== undefined) entry.isActive = isActive;
+
+    await entry.save();
+    res.json({ success: true, entry });
+  } catch (err) {
+    console.error("DRP update error:", err);
+    res.status(500).json({ success: false, message: "Failed to update" });
+  }
+};
+
+// ── Admin: Delete entry ─────────────────────────────────────────────────────
+exports.adminDelete = async (req, res) => {
+  try {
+    const entry = await DRPEntry.findByIdAndDelete(req.params.id);
+    if (!entry) return res.status(404).json({ success: false, message: "Entry not found" });
+    res.json({ success: true, message: "Deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to delete" });
+  }
+};

@@ -34,6 +34,11 @@ const NAV = [
     label: "Entrepreneur Heatmap",
     icon: "🗺️",
   },
+  {
+    key: "/drp-libraries",
+    label: "DRP Libraries",
+    icon: "📚",
+  },
 ];
 
 const EXPANDED_W = 240;
