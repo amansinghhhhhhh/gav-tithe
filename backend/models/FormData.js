@@ -60,7 +60,7 @@ const FormDataSchema = new mongoose.Schema({
         },
     },
 
-    uniqueId: { type: String, unique: true, sparse: true, default: null },
+    uniqueId: { type: String, unique: true, sparse: true },
 
     status: {
         type: String,

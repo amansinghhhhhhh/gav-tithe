@@ -114,7 +114,18 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 connectDB()
-    .then(() => {
+    .then(async () => {
+        // ✅ Fix: Remove stale uniqueId: null from formdatas (duplicate key fix)
+        try {
+            const FormData = require("./models/FormData");
+            const result = await FormData.updateMany(
+                { uniqueId: { $exists: true, $eq: null } },
+                { $unset: { uniqueId: "" } }
+            );
+            if (result.modifiedCount > 0) {
+                console.log(`⚠️ Cleaned ${result.modifiedCount} forms with null uniqueId`);
+            }
+        } catch (_) {}
         app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
     })
     .catch((err) => {

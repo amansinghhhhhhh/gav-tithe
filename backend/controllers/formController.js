@@ -46,10 +46,9 @@ const SECTION_ALLOWED_KEYS = {
 
 // ── Section save (draft) ──────────────────────────────────────────────────────
 const saveSection = async (req, res) => {
+    const { section, data } = req.body;
+    const userId = req.user?.id;
     try {
-        const { section, data } = req.body;
-        const userId = req.user.id;
-
         let form = await FormData.findOne({ userId });
         if (!form) form = new FormData({ userId });
 
