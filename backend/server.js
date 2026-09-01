@@ -18,7 +18,10 @@ if (env.parsed?.MONGO_URI && /cluster\.xxxxx|placeholder/i.test(process.env.MONG
 const app = express();
 
 // ── 1. Helmet — HTTP security headers ────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+}));
 
 // ✅ Railway/Vercel proxy trust karo
 app.set("trust proxy", 1);
@@ -47,6 +50,7 @@ app.use((req, res, next) => {
     }
     res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
     if (req.method === "OPTIONS") return res.sendStatus(200);
     next();
 });
@@ -56,7 +60,13 @@ app.use((req, res, next) => {
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100,                  // 100 requests per 15 min
-    message: { message: "Too many requests, please try again later" },
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        res.status(429).json({
+            message: "Too many requests, please try again later",
+        });
+    },
 });
 
 // Auth routes ke liye strict limit
@@ -95,6 +105,11 @@ app.get("/", (req, res) => res.json({ message: "Gav Tithe API running ✅" }));
 // ── 8. Global error handler ───────────────────────────────────────────────────
 app.use((err, req, res, next) => {
     console.error("❌ Error:", err.message);
+    console.error("❌ Stack:", err.stack);
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.header("Access-Control-Allow-Origin", origin);
+    }
     res.status(err.status || 500).json({
         message: err.status ? err.message : "Internal server error",
     });
