@@ -251,6 +251,8 @@ const loginEmail = async (req, res) => {
         });
     } catch (err) {
         console.error("Login error:", err.message);
+        console.error("Login stack:", err.stack);
+        console.error("Login context:", JSON.stringify({ identifier: req.body?.identifier, hasPassword: !!req.body?.password, hasFirebaseToken: !!req.body?.firebaseIdToken }));
         res.status(500).json({ message: "Login failed" });
     }
 };

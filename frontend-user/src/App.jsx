@@ -68,6 +68,11 @@ function Dashboard() {
         getMyForm(),
         getMyAssessment().catch(() => null),
       ]);
+      if (formRes.status === 401) {
+        showMsg("Session expired. Please login again.", true);
+        setTimeout(() => { logout(); navigate("/login"); }, 1500);
+        return;
+      }
       if (formRes.success && formRes.form) {
         const { section1, section2, section3, section4, status, editAllowed } = formRes.form;
         if (section1)
@@ -118,7 +123,14 @@ function Dashboard() {
     setSaving(true);
     try {
       const res = await saveSection(`section${step}`, state[`section${step}`]);
-      if (!res.success) throw new Error(res.message);
+      if (!res.success) {
+        if (res.status === 401) {
+          showMsg("Session expired. Please login again.", true);
+          setTimeout(() => { logout(); navigate("/login"); }, 1500);
+          return false;
+        }
+        throw new Error(res.message);
+      }
       return true;
     } catch (err) {
       showMsg("Save failed: " + err.message, true);
@@ -165,8 +177,14 @@ function Dashboard() {
       if (res.success) {
         dispatch({ type: "SET_EDIT_ALLOWED", value: false });
         dispatch({ type: "SUBMIT" });
+      } else {
+        if (res.status === 401) {
+          showMsg("Session expired. Please login again.", true);
+          setTimeout(() => { logout(); navigate("/login"); }, 1500);
+          return;
+        }
+        showMsg("Submit failed: " + res.message, true);
       }
-      else showMsg("Submit failed: " + res.message, true);
     } catch (err) {
       showMsg("Submit failed: " + err.message, true);
     } finally {

@@ -68,6 +68,8 @@ const saveSection = async (req, res) => {
         res.json({ success: true, message: "Draft saved", formId: form._id });
     } catch (err) {
         console.error("Save error:", err.message);
+        console.error("Save stack:", err.stack);
+        console.error("Save context:", JSON.stringify({ userId, section, hasData: !!data }));
         res.status(500).json({ message: "Save failed" });
     }
 };

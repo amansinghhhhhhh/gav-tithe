@@ -21,6 +21,7 @@ const apiFetch = async (url, options = {}) => {
         if (!res.ok) {
             return {
                 success: false,
+                status: res.status,
                 message: data.message || "Something went wrong, please try again.",
                 retryAfterMinutes: data.retryAfterMinutes,
             };
@@ -28,7 +29,7 @@ const apiFetch = async (url, options = {}) => {
         return data;
     } catch (err) {
         console.error("API error:", err);
-        return { success: false, message: "Network error — backend chal raha hai?" };
+        return { success: false, status: 0, message: "Network error — backend chal raha hai?" };
     }
 };
 

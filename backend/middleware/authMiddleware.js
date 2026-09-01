@@ -10,7 +10,12 @@ const protect = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id).select("-password");
+        try {
+            req.user = await User.findById(decoded.id).select("-password");
+        } catch (dbErr) {
+            console.error("Auth DB error:", dbErr.message);
+            return res.status(503).json({ message: "Database unavailable, please try again" });
+        }
         if (!req.user) return res.status(401).json({ message: "User not found" });
         next();
     } catch {
