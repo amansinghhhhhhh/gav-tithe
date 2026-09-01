@@ -1,5 +1,6 @@
 const express = require("express");
 const helmet = require("helmet");
+const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
 const dotenv = require("dotenv");
@@ -34,7 +35,6 @@ const allowedOrigins = [
     "http://10.28.208.72:5174",
     "https://user.gaontitheudyojak.com",
     "https://admin.gaontitheudyojak.com",
-    // Naya Vercel URL aane pe yahan add karo
 ];
 
 // DEV: FRONTEND_URL env se local network IP allow karo
@@ -42,18 +42,18 @@ if (process.env.FRONTEND_URL) {
     allowedOrigins.push(process.env.FRONTEND_URL);
 }
 
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (origin && allowedOrigins.includes(origin)) {
-        res.header("Access-Control-Allow-Origin", origin);
-        res.header("Vary", "Origin");
-    }
-    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    if (req.method === "OPTIONS") return res.sendStatus(200);
-    next();
-});
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, true);
+        }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
 // ── 3. Rate Limiting ──────────────────────────────────────────────────────────
 // General API limit
@@ -106,10 +106,6 @@ app.get("/", (req, res) => res.json({ message: "Gav Tithe API running ✅" }));
 app.use((err, req, res, next) => {
     console.error("❌ Error:", err.message);
     console.error("❌ Stack:", err.stack);
-    const origin = req.headers.origin;
-    if (origin && allowedOrigins.includes(origin)) {
-        res.header("Access-Control-Allow-Origin", origin);
-    }
     res.status(err.status || 500).json({
         message: err.status ? err.message : "Internal server error",
     });
