@@ -87,9 +87,11 @@ export default function VerifyEmailPage() {
     setResetLoading(true);
     try {
       if (resetEmail) {
+        console.log("Checking same password for:", resetEmail);
         const sameCheck = await checkSamePassword(resetEmail, newPassword);
+        console.log("Same check result:", sameCheck);
         if (!sameCheck.success) {
-          setMsg(t("reset_same_password"));
+          setMsg(sameCheck.message || t("reset_same_password"));
           setResetLoading(false);
           return;
         }

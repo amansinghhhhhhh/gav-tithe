@@ -25,10 +25,13 @@ router.post("/check-email", async (req, res) => {
 router.post("/check-same-password", async (req, res) => {
     try {
         const { email, newPassword } = req.body;
+        console.log("check-same-password called:", { email, newPasswordLength: newPassword?.length });
         if (!email || !newPassword) return res.status(400).json({ success: false, message: "Email and password required" });
         const user = await User.findOne({ email: email.toLowerCase() });
+        console.log("User found:", !!user, "hasPassword:", !!user?.password);
         if (!user || !user.password) return res.json({ success: true, message: "No password to compare" });
         const isSame = await bcrypt.compare(newPassword, user.password);
+        console.log("Password same:", isSame);
         if (isSame) return res.status(400).json({ success: false, message: "Same password" });
         res.json({ success: true, message: "Different password" });
     } catch (err) {
