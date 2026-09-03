@@ -7,6 +7,7 @@ import {
   getAuth,
 } from "firebase/auth";
 import { app } from "../config/firebase";
+import { checkSamePassword } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
@@ -85,6 +86,14 @@ export default function VerifyEmailPage() {
     setMsg("");
     setResetLoading(true);
     try {
+      if (resetEmail) {
+        const sameCheck = await checkSamePassword(resetEmail, newPassword);
+        if (!sameCheck.success) {
+          setMsg(t("reset_same_password"));
+          setResetLoading(false);
+          return;
+        }
+      }
       await confirmPasswordReset(auth, oobCode, newPassword);
       setStatus("reset_success");
       setTimeout(() => navigate("/login"), 3000);

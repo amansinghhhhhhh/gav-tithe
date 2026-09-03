@@ -83,6 +83,13 @@ export const checkEmail = (email) =>
         body: JSON.stringify({ email }),
     });
 
+export const checkSamePassword = (email, newPassword) =>
+    apiFetch(`${BASE}/auth/check-same-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, newPassword }),
+    });
+
 // ── Form ──────────────────────────────────────────────────────────────────────
 
 export const saveSection = async (section, data) => {

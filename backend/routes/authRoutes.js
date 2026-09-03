@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User"); // ← YEH ADD KARO
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 const { verifyOtp, registerEmail, loginEmail, getMe } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 const { validateOtp, validateRegister, validateLogin } = require("../middleware/validate");
@@ -18,6 +19,20 @@ router.post("/check-email", async (req, res) => {
         res.json({ success: true, message: "Email found" });
     } catch (err) {
         console.error("Check email error:", err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+router.post("/check-same-password", async (req, res) => {
+    try {
+        const { email, newPassword } = req.body;
+        if (!email || !newPassword) return res.status(400).json({ success: false, message: "Email and password required" });
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user || !user.password) return res.json({ success: true, message: "No password to compare" });
+        const isSame = await bcrypt.compare(newPassword, user.password);
+        if (isSame) return res.status(400).json({ success: false, message: "Same password" });
+        res.json({ success: true, message: "Different password" });
+    } catch (err) {
+        console.error("Check same password error:", err.message);
         res.status(500).json({ message: "Server error" });
     }
 });
