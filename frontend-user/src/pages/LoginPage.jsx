@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+  import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { loginEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useAuth } from "../context/AuthContext";
@@ -36,6 +36,7 @@ const labelStyle = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const { t } = useLang();
 
@@ -45,9 +46,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [showRegSuccessPopup, setShowRegSuccessPopup] = useState(false);
+  const [regSuccessMsg, setRegSuccessMsg] = useState("");
 
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
+
+  useEffect(() => {
+    if (location.state?.successMsg) {
+      setRegSuccessMsg(location.state.successMsg);
+      setShowRegSuccessPopup(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   const handleLogin = async () => {
     setErr("");
@@ -433,6 +444,83 @@ export default function LoginPage() {
       <RegistrationPopup
         onRegister={() => navigate("/register")}
       />
+
+      {showRegSuccessPopup && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: 20,
+          }}
+          onClick={() => setShowRegSuccessPopup(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              maxWidth: 400,
+              width: "100%",
+              overflow: "hidden",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div
+              style={{
+                background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                padding: "28px 24px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 14px",
+                  fontSize: 28,
+                }}
+              >
+                ✅
+              </div>
+              <h2 style={{ margin: 0, color: "#fff", fontWeight: 800, fontSize: 19 }}>
+                {t("registration_success_title") || "Registration Successful!"}
+              </h2>
+            </div>
+            <div style={{ padding: "24px" }}>
+              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 20px", textAlign: "center" }}>
+                {regSuccessMsg}
+              </p>
+              <button
+                onClick={() => setShowRegSuccessPopup(false)}
+                style={{
+                  width: "100%",
+                  padding: "13px 0",
+                  background: "linear-gradient(135deg, #F97316, #fb923c)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                }}
+              >
+                {t("ok") || "OK"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

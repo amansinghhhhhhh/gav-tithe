@@ -186,7 +186,7 @@ export default function RegisterPage() {
         setSurname("");
         setMobile("");
         resetRegOtp();
-        setTimeout(() => navigate("/login"), 2000);
+        setTimeout(() => navigate("/login", { state: { successMsg: t("registration_success", { email }) } }), 2000);
       } else {
         setErr(data?.message || t("login_error"));
       }
