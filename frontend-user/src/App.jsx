@@ -365,7 +365,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/signin" element={<RegisterPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />{" "}
       {/* ✅ handles both modes via searchParams */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

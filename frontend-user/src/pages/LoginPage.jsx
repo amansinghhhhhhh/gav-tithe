@@ -416,7 +416,7 @@ export default function LoginPage() {
               >
                 {t("login_new")}{" "}
                 <span
-                  onClick={() => navigate("/signin")}
+                  onClick={() => navigate("/register")}
                   style={{
                     color: "#F97316",
                     cursor: "pointer",
@@ -431,7 +431,7 @@ export default function LoginPage() {
         </div>
       </div>
       <RegistrationPopup
-        onRegister={() => navigate("/signin")}
+        onRegister={() => navigate("/register")}
       />
     </>
   );
