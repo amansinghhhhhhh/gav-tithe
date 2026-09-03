@@ -71,6 +71,13 @@ const verifyOtp = async (req, res) => {
                     isVerified: true,
                 });
             } else {
+                // ── Agar mobile se mila hai aur firebaseUid alag hai → duplicate mobile
+                if (user.mobile === mobileNumber && user.firebaseUid && user.firebaseUid !== uid) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "This mobile number is already registered. Please use a different number or login with existing account.",
+                    });
+                }
                 user.firebaseUid = uid;
                 user.mobile = mobileNumber;
                 user.isVerified = true;
@@ -105,6 +112,24 @@ const registerEmail = async (req, res) => {
         const existingEmail = await User.findOne({ email });
         if (existingEmail)
             return res.status(400).json({ success: false, message: "Email already registered" });
+
+        if (mobile) {
+            const cleanMobile = mobile.replace(/[^0-9]/g, "").slice(-10);
+            const mobileFormats = [
+                `+91${cleanMobile}`,
+                cleanMobile,
+                `91${cleanMobile}`,
+            ];
+            const existingMobile = await User.findOne({
+                mobile: { $in: mobileFormats },
+            });
+            if (existingMobile && existingMobile.firebaseUid !== firebaseUid) {
+                return res.status(400).json({
+                    success: false,
+                    message: "This mobile number is already registered. Please use a different number or login with existing account.",
+                });
+            }
+        }
 
         // Pehle se koi user is mobile/firebaseUid se exist karta hai? → UPDATE karo
         let user;
