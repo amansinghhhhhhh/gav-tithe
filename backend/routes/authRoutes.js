@@ -22,6 +22,20 @@ router.post("/check-email", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+router.post("/check-mobile", async (req, res) => {
+    try {
+        const { mobile } = req.body;
+        if (!mobile) return res.status(400).json({ success: false, message: "Mobile required" });
+        const clean = mobile.replace(/[^0-9]/g, "").slice(-10);
+        if (clean.length !== 10) return res.status(400).json({ success: false, message: "Invalid mobile" });
+        const user = await User.findOne({ mobile: { $in: [`+91${clean}`, `91${clean}`, clean] } });
+        if (user) return res.status(400).json({ success: false, message: "already_registered" });
+        res.json({ success: true, message: "Mobile available" });
+    } catch (err) {
+        console.error("Check mobile error:", err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 router.post("/check-same-password", async (req, res) => {
     try {
         const { email, newPassword } = req.body;

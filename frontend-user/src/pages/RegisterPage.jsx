@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerEmail } from "../services/api";
+import { registerEmail, checkMobile } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import {
@@ -106,6 +106,12 @@ export default function RegisterPage() {
     if (mobile.length !== 10) { setErr(t("login_error_mobile")); return; }
     setRegOtpLoading(true);
     try {
+      const mobileCheck = await checkMobile(mobile);
+      if (!mobileCheck.success) {
+        setErr(t("login_error_mobile_exists"));
+        setRegOtpLoading(false);
+        return;
+      }
       const verifier = getRegRecaptcha();
       const confirmation = await signInWithPhoneNumber(auth, `+91${mobile}`, verifier);
       regConfirmRef.current = confirmation;

@@ -83,6 +83,13 @@ export const checkEmail = (email) =>
         body: JSON.stringify({ email }),
     });
 
+export const checkMobile = (mobile) =>
+    apiFetch(`${BASE}/auth/check-mobile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile }),
+    });
+
 export const checkSamePassword = (email, newPassword) =>
     apiFetch(`${BASE}/auth/check-same-password`, {
         method: "POST",
