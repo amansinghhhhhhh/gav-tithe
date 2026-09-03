@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { app } from "../config/firebase";
+import { checkEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
@@ -50,6 +51,12 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true);
     try {
+      const emailCheck = await checkEmail(email);
+      if (!emailCheck.success) {
+        setErr(t("forgot_error_not_registered"));
+        setLoading(false);
+        return;
+      }
       await sendPasswordResetEmail(auth, email);
       setSuccessMsg(t("forgot_success", { email }));
       setEmail("");

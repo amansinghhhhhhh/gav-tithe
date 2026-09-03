@@ -76,6 +76,13 @@ export const getMe = async () => {
 
 export const logout = () => clearToken();
 
+export const checkEmail = (email) =>
+    apiFetch(`${BASE}/auth/check-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+    });
+
 // ── Form ──────────────────────────────────────────────────────────────────────
 
 export const saveSection = async (section, data) => {
