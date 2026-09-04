@@ -365,6 +365,7 @@ const translations = {
         // Customer Care
         cc_title: "काही अडचण आहे? आम्ही मदतीसाठी आहोत.",
         cc_contact: "रजिस्ट्रेशन, लॉगिन किंवा इतर कोणत्याही अडचणीसाठी संपर्क साधा.",
+        cc_button: "संपर्क करा",
     },
 
     en: {
@@ -736,6 +737,7 @@ const translations = {
         // Customer Care
         cc_title: "Need help? We're here to assist.",
         cc_contact: "For any issues related to registration, login, or any other portal-related assistance, please contact us.",
+        cc_button: "Contact Us",
 
 
 
