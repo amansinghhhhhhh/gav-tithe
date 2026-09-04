@@ -194,7 +194,7 @@ export default function RegisterPage() {
         resetRegOtp();
         setTimeout(() => navigate("/login", { state: { successMsg: t("registration_success", { email }) } }), 2000);
       } else {
-        setErr(data?.message || t("login_error"));
+        setErr(t(data?.message) || t("login_error"));
       }
     } catch (e) {
       console.error("Register error:", e);

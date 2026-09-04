@@ -14,22 +14,37 @@ const authHeaders = () => ({
 });
 
 // ── Generic fetch wrapper ─────────────────────────────────────────────────────
-const apiFetch = async (url, options = {}) => {
-    try {
-        const res = await fetch(url, options);
-        const data = await res.json();
-        if (!res.ok) {
-            return {
-                success: false,
-                status: res.status,
-                message: data.message || "Something went wrong, please try again.",
-                retryAfterMinutes: data.retryAfterMinutes,
-            };
+const apiFetch = async (url, options = {}, retries = 1) => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const res = await fetch(url, { ...options, signal: controller.signal });
+            clearTimeout(timeoutId);
+            const data = await res.json();
+            if (!res.ok) {
+                if (res.status === 429 && data.retryAfterMinutes) {
+                    return { success: false, status: 429, message: data.message || "Too many requests", retryAfterMinutes: data.retryAfterMinutes };
+                }
+                return {
+                    success: false,
+                    status: res.status,
+                    message: data.message || "Something went wrong, please try again.",
+                    retryAfterMinutes: data.retryAfterMinutes,
+                };
+            }
+            return data;
+        } catch (err) {
+            console.error(`API error (attempt ${attempt + 1}):`, err);
+            if (attempt < retries) {
+                await new Promise((r) => setTimeout(r, 2000));
+                continue;
+            }
+            if (err.name === "AbortError") {
+                return { success: false, status: 0, message: "api_timeout" };
+            }
+            return { success: false, status: 0, message: "api_network" };
         }
-        return data;
-    } catch (err) {
-        console.error("API error:", err);
-        return { success: false, status: 0, message: "Network error — backend chal raha hai?" };
     }
 };
 

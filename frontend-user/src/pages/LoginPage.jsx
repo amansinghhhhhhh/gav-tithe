@@ -94,7 +94,7 @@ export default function LoginPage() {
         } else if (data?.retryAfterMinutes) {
           setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
         } else {
-          setErr(data?.message || t("login_error1"));
+          setErr(t(data?.message) || t("login_error1"));
         }
       } else {
         const data = await loginEmail(cleanInput, password);
@@ -104,7 +104,7 @@ export default function LoginPage() {
         } else if (data?.retryAfterMinutes) {
           setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
         } else {
-          setErr(data?.message || t("login_error1"));
+          setErr(t(data?.message) || t("login_error1"));
         }
       }
     } catch (e) {

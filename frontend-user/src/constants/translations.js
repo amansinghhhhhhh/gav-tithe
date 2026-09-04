@@ -292,6 +292,8 @@ const translations = {
         fb_quota: "सध्या OTP पाठवणे शक्य नाही. थोड्या वेळाने प्रयत्न करा.",
         fb_captcha: "सत्यापन अयशस्वी. पेज रिफ्रेश करून पुन्हा प्रयत्न करा.",
         fb_invalid_link: "ही लिंक अवैध आहे. पुन्हा प्रयत्न करा.",
+        api_timeout: "सर्व्हर धीमा आहे — थोड्या वेळा थांबा आणि पुन्हा प्रयत्न करा.",
+        api_network: "इंटरनेट कनेक्शन तपासा — पुन्हा प्रयत्न करा.",
         fb_expired_link: "ही लिंक कालबाह्य झाली आहे.",
         fb_popup_closed: "लॉगिन रद्द केले.",
         fb_account_exists: "या खात्यावर आधीच नोंदणी झाली आहे. कृपया लॉगिन करा.",
@@ -361,11 +363,7 @@ const translations = {
         mindset_start_btn: "▶ मूल्यांकन सुरू करा",
         mindset_done_badge: "✅ स्कोअर: {{score}}/15",
         mindset_back: "➡ माझा प्रवास",
-
-        // Customer Care
-        cc_title: "काही अडचण आहे? आम्ही मदतीसाठी आहोत.",
-        cc_contact: "रजिस्ट्रेशन, लॉगिन किंवा इतर कोणत्याही अडचणीसाठी संपर्क साधा.",
-        cc_button: "संपर्क करा",
+        cc_help_text: "मदत हवी आहे का?",
     },
 
     en: {
@@ -660,6 +658,8 @@ const translations = {
         fb_quota: "Unable to send OTP right now. Please try again after some time.",
         fb_captcha: "Verification failed. Please refresh the page and try again.",
         fb_invalid_link: "This link is invalid. Please try again.",
+        api_timeout: "Server is slow — wait a moment and try again.",
+        api_network: "Check your internet connection and try again.",
         fb_expired_link: "This link has expired.",
         fb_popup_closed: "Login was cancelled.",
         fb_account_exists: "An account already exists with this login. Please login.",
@@ -733,14 +733,7 @@ const translations = {
         mindset_start_btn: "▶ Start Assessment",
         mindset_done_badge: "✅ Score: {{score}}/15",
         mindset_back: "➡ Back to My Journey",
-
-        // Customer Care
-        cc_title: "Need help? We're here to assist.",
-        cc_contact: "For any issues related to registration, login, or any other portal-related assistance, please contact us.",
-        cc_button: "Contact Us",
-
-
-
+        cc_help_text: "Need help?",
     },
 };
 

@@ -72,7 +72,7 @@ const apiLimiter = rateLimit({
 // Auth routes ke liye strict limit
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 15,
+    max: 30,
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res) => {
