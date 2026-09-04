@@ -36,7 +36,7 @@ const makeRules = (t) => ({
         : null,
 });
 
-function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, assessmentScore, onGoToAssessment }) {
+function Section1({ data, dispatch, registerNext, onNext }) {
   const { t } = useLang();
   const { user } = useAuth();
   const [otpInput, setOtpInput] = useState("");
@@ -135,102 +135,6 @@ function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, a
     <div style={sectionCardStyle}>
       <div id="recaptcha-container" />
       <SectionHeader title={t("s1_title")} badge={t("s1_badge")} />
-
-      {/* ── Mindset Assessment Card ── */}
-      <div
-        style={{
-          background: assessmentCompleted
-            ? "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)"
-            : "linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)",
-          border: assessmentCompleted
-            ? "2px solid #86efac"
-            : "2px solid #fdba74",
-          borderRadius: 14,
-          padding: "20px 24px",
-          marginBottom: 24,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
-              background: assessmentCompleted ? "#16a34a" : C.orange,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 22,
-              flexShrink: 0,
-            }}
-          >
-            {assessmentCompleted ? "✓" : "🎓"}
-          </div>
-          <div style={{ flex: 1 }}>
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 16,
-                fontWeight: 700,
-                color: assessmentCompleted ? "#166534" : C.navy,
-              }}
-            >
-              {assessmentCompleted
-                ? t("mindset_completed_title")
-                : t("mindset_title")}
-            </h3>
-            <p
-              style={{
-                margin: "6px 0 0",
-                fontSize: 13,
-                color: assessmentCompleted ? "#166534" : "#78350f",
-                lineHeight: 1.5,
-              }}
-            >
-              {assessmentCompleted
-                ? t("mindset_completed_desc", { score: assessmentScore })
-                : t("mindset_desc")}
-            </p>
-            {!assessmentCompleted && (
-              <button
-                onClick={onGoToAssessment}
-                style={{
-                  marginTop: 12,
-                  padding: "10px 24px",
-                  background: C.orange,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 8,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                {t("mindset_start_btn")}
-              </button>
-            )}
-            {assessmentCompleted && (
-              <span
-                style={{
-                  display: "inline-block",
-                  marginTop: 10,
-                  padding: "5px 14px",
-                  background: "#16a34a",
-                  color: "#fff",
-                  borderRadius: 20,
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
-              >
-                {t("mindset_done_badge", { score: assessmentScore })}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <ValidatedInput

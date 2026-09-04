@@ -146,10 +146,6 @@ function Dashboard() {
   };
 
   const goNext = async () => {
-    if (currentStep === 1 && !assessmentCompleted) {
-      showMsg("⚠ Please complete the Mindset Assessment first", true);
-      return;
-    }
     const saved = await saveCurrent(currentStep);
     if (saved) {
       showMsg("✅ Saved!");
@@ -301,9 +297,6 @@ function Dashboard() {
                     validateAndGoNext.current = fn;
                   }}
                   onNext={goNext}
-                  assessmentCompleted={assessmentCompleted}
-                  assessmentScore={assessmentScore}
-                  onGoToAssessment={() => setActiveNav("my_assessment")}
                 />
               )}
               {currentStep === 2 && (
