@@ -19,7 +19,7 @@ export function FooterBar({
         padding: "14px 24px",
         display: "flex",
         alignItems: "center",
-        justifyContent: "flex-end",
+        justifyContent: "flex-start",
         gap: 12,
         boxShadow: "0 -2px 10px rgba(0,0,0,0.07)",
         marginTop: 8,
