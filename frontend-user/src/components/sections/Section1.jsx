@@ -165,16 +165,18 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
             <label style={labelStyle}>{t("s1_gender")}</label>
-            <RadioGroup
-              name="gender"
-              value={data.gender}
-              options={[
-                { value: "purush", label: t("s1_male") },
-                { value: "mahila", label: t("s1_female") },
-                { value: "itar", label: t("s1_other") },
-              ]}
-              onChange={(v) => u({ gender: v })}
-            />
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <RadioGroup
+                name="gender"
+                value={data.gender}
+                options={[
+                  { value: "purush", label: t("s1_male") },
+                  { value: "mahila", label: t("s1_female") },
+                  { value: "itar", label: t("s1_other") },
+                ]}
+                onChange={(v) => u({ gender: v })}
+              />
+            </div>
           </div>
         </div>
 
