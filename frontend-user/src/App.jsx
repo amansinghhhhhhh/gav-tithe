@@ -23,6 +23,7 @@ import MyAssessment from "./components/assessment/MyAssessment";
 import DRPLibrary from "./components/DRPLibrary";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
+import CustomerCareButton from "./components/CustomerCareButton";
 
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
@@ -363,6 +364,7 @@ function Dashboard() {
 // ── Root App ──────────────────────────────────────────────────────────────────
 function AppRoutes() {
   return (
+    <>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
@@ -380,6 +382,8 @@ function AppRoutes() {
       />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
+    <CustomerCareButton />
+    </>
   );
 }
 

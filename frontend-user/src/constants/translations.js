@@ -361,6 +361,10 @@ const translations = {
         mindset_start_btn: "▶ मूल्यांकन सुरू करा",
         mindset_done_badge: "✅ स्कोअर: {{score}}/15",
         mindset_back: "➡ माझा प्रवास",
+
+        // Customer Care
+        cc_title: "काही अडचण आहे? आम्ही मदतीसाठी आहोत.",
+        cc_contact: "रजिस्ट्रेशन, लॉगिन किंवा इतर कोणत्याही अडचणीसाठी संपर्क साधा.",
     },
 
     en: {
@@ -728,6 +732,10 @@ const translations = {
         mindset_start_btn: "▶ Start Assessment",
         mindset_done_badge: "✅ Score: {{score}}/15",
         mindset_back: "➡ Back to My Journey",
+
+        // Customer Care
+        cc_title: "Need help? We're here to assist.",
+        cc_contact: "For any issues related to registration, login, or any other portal-related assistance, please contact us.",
 
 
 
