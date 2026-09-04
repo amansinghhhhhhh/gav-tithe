@@ -77,6 +77,16 @@ function Section1({ data, dispatch, registerNext, onNext, assessmentCompleted, a
     }
   }, [user?.firebaseUid, user?.mobile]);
 
+  // Auto-fill name & email from registration data (sirf jab form empty ho)
+  useEffect(() => {
+    if (user?.name && !data.fullName) {
+      u({ fullName: user.name });
+    }
+    if (user?.email && !data.email) {
+      u({ email: user.email });
+    }
+  }, [user?.name, user?.email]);
+
   useEffect(() => {
     if (firebaseVerified) {
       u({ otpVerified: true });
