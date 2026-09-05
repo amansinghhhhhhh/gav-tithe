@@ -34,6 +34,7 @@ const labelStyle = {
   color: "#374151",
   marginBottom: 6,
   display: "block",
+  textAlign: "left",
 };
 
 export default function RegisterPage() {
