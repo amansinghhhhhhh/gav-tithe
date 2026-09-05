@@ -220,10 +220,6 @@ const loginEmail = async (req, res) => {
                     if (!emailMatch && !uidMatch) {
                         return res.status(401).json({ message: "Invalid credentials" });
                     }
-                    if (password && user.password) {
-                        user.password = password;
-                        await user.save();
-                    }
                     return res.json({
                         success: true,
                         token: generateToken(user._id),

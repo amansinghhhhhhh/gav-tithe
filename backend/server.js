@@ -25,7 +25,7 @@ app.use(helmet({
 }));
 
 // ✅ Railway/Vercel proxy trust karo
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
 
 // ── 2. CORS — sirf allowed origins ───────────────────────────────────────────
 const allowedOrigins = [
@@ -93,7 +93,7 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(mongoSanitize());
 
 // ── 6. Routes ─────────────────────────────────────────────────────────────────
-app.use("/api/auth", authLimiter, require("./routes/authRoutes"));
+app.use("/api/auth", apiLimiter, require("./routes/authRoutes"));
 app.use("/api/form", apiLimiter, require("./routes/formRoutes"));
 app.use("/api/admin", apiLimiter, require("./routes/adminRoutes"));
 app.use("/api/assessment", apiLimiter, require("./routes/assessmentRoutes"));

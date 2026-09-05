@@ -1,14 +1,31 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
 const { verifyOtp, registerEmail, loginEmail, getMe } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 const { validateOtp, validateRegister, validateLogin } = require("../middleware/validate");
 
-router.post("/otp/verify", validateOtp, verifyOtp);
-router.post("/register", validateRegister, registerEmail);
-router.post("/login", validateLogin, loginEmail);
+// ── Strict limiter sirf login/register/otp ke liye ──
+const strictLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+        const waitMs = req.rateLimit.resetTime - Date.now();
+        const waitMin = Math.ceil(waitMs / 60000);
+        res.status(429).json({
+            message: `Too many login attempts. Please try again in ${waitMin} minute(s).`,
+            retryAfterMinutes: waitMin,
+        });
+    },
+});
+
+router.post("/otp/verify", strictLimiter, validateOtp, verifyOtp);
+router.post("/register", strictLimiter, validateRegister, registerEmail);
+router.post("/login", strictLimiter, validateLogin, loginEmail);
 router.get("/me", protect, getMe);
 router.post("/check-email", async (req, res) => {
     try {

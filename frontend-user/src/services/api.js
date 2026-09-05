@@ -18,7 +18,7 @@ const apiFetch = async (url, options = {}, retries = 1) => {
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
             const res = await fetch(url, { ...options, signal: controller.signal });
             clearTimeout(timeoutId);
             const data = await res.json();
