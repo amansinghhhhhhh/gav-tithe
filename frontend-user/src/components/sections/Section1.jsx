@@ -162,7 +162,20 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               onBlur={(e) => validateField("dob", e.target.value, data)}
               error={errors.dob}
               suffix={
-                <span style={{ cursor: "pointer", fontSize: 18, padding: "0 10px" }}>📅</span>
+                <span
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const input = e.target.closest("div[style]").querySelector('input[type="date"]');
+                    if (input) {
+                      if (input.showPicker) input.showPicker();
+                      else input.focus();
+                    }
+                  }}
+                  style={{ cursor: "pointer", fontSize: 18 }}
+                >
+                  📅
+                </span>
               }
             />
           </div>

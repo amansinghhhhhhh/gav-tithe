@@ -53,17 +53,34 @@ export function ValidatedInput({
               {prefix}
             </div>
           )}
-          <input
-            type={type}
-            placeholder={placeholder}
-            value={value}
-            onChange={onChange}
-            onBlur={onBlur}
-            maxLength={maxLength}
-            disabled={disabled}
-            style={{ ...borderStyle, flex: 1 }}
-          />
-          {suffix}
+          <div style={{ position: "relative", flex: 1 }}>
+            <input
+              type={type}
+              placeholder={placeholder}
+              value={value}
+              onChange={onChange}
+              onBlur={onBlur}
+              maxLength={maxLength}
+              disabled={disabled}
+              style={{ ...borderStyle, width: "100%", boxSizing: "border-box", paddingRight: suffix ? 40 : undefined }}
+            />
+            {suffix && (
+              <span
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  fontSize: 18,
+                  lineHeight: 1,
+                  userSelect: "none",
+                }}
+              >
+                {suffix}
+              </span>
+            )}
+          </div>
         </div>
       )}
 
