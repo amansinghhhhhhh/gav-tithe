@@ -161,6 +161,9 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               }}
               onBlur={(e) => validateField("dob", e.target.value, data)}
               error={errors.dob}
+              suffix={
+                <span style={{ cursor: "pointer", fontSize: 18, padding: "0 10px" }}>📅</span>
+              }
             />
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
