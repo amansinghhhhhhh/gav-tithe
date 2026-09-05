@@ -35,9 +35,9 @@ const allowedOrigins = [
     "http://10.28.208.72:5174",
     "https://user.gaontitheudyojak.com",
     "https://admin.gaontitheudyojak.com",
+    "https://gav-tithe-production.up.railway.app",
 ];
 
-// DEV: FRONTEND_URL env se local network IP allow karo
 if (process.env.FRONTEND_URL) {
     allowedOrigins.push(process.env.FRONTEND_URL);
 }
