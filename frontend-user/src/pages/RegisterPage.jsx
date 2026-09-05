@@ -379,7 +379,7 @@ export default function RegisterPage() {
                 ))}
               </div>
 
-              {/* Step 1: Names */}
+              {/* Names — always editable */}
               <div
                 style={{
                   display: "grid",
@@ -427,171 +427,164 @@ export default function RegisterPage() {
                 ))}
               </div>
 
-              {/* Step 2: Mobile + OTP */}
-              {step >= 2 && (
-                <>
-                  <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14 }}>
-                    <div id="reg-recaptcha-container" />
-                    <label style={labelStyle}>{t("login_mobile")}</label>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <div style={{ position: "relative", flex: 1 }}>
-                        <span
-                          style={{
-                            position: "absolute",
-                            left: 14,
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            color: "#9ca3af",
-                            fontSize: 14,
-                          }}
-                        >
-                          📱
-                        </span>
-                        <input
-                          style={{ ...inp, paddingLeft: 38 }}
-                          placeholder={t("login_mobile_ph")}
-                          value={mobile}
-                          maxLength={10}
-                          inputMode="numeric"
-                          disabled={regOtpSent}
-                          onChange={(e) =>
-                            setMobile(e.target.value.replace(/\D/g, ""))
-                          }
-                          onFocus={focusStyle}
-                          onBlur={blurStyle}
-                        />
-                      </div>
-                      {!regOtpSent && !regOtpVerified && (
-                        <button
-                          onClick={sendRegOtp}
-                          disabled={regOtpLoading || mobile.length !== 10}
-                          style={{
-                            padding: "10px 16px",
-                            background: regOtpLoading ? "#aaa" : "#22c55e",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 10,
-                            fontWeight: 700,
-                            fontSize: 13,
-                            cursor: regOtpLoading || mobile.length !== 10 ? "not-allowed" : "pointer",
-                            whiteSpace: "nowrap",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                          }}
-                        >
-                          {regOtpLoading && <Spinner size={16} style={{ filter: "brightness(0) invert(1)" }} />}
-                          {regOtpLoading ? "..." : t("s1_get_otp")}
-                        </button>
-                      )}
-                      {regOtpSent && !regOtpVerified && (
-                        <button
-                          onClick={() => { setRegOtpSent(false); setRegOtpInput(""); destroyRegRecaptcha(); }}
-                          style={{
-                            padding: "10px 12px",
-                            background: "none",
-                            border: "1.5px solid #1e3a5f",
-                            borderRadius: 10,
-                            color: "#1e3a5f",
-                            fontWeight: 700,
-                            fontSize: 13,
-                            cursor: "pointer",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          ✏ {t("s1_edit_number") || "Edit"}
-                        </button>
-                      )}
-                    </div>
-
-                    {regOtpSent && !regOtpVerified && (
-                      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                        <input
-                          style={{ ...inp, flex: 1 }}
-                          placeholder={t("s1_otp_ph") || "Enter OTP"}
-                          value={regOtpInput}
-                          onChange={(e) => setRegOtpInput(e.target.value.replace(/\D/g, ""))}
-                          maxLength={6}
-                          disabled={regOtpLoading}
-                        />
-                        <button
-                          onClick={handleVerifyRegOtp}
-                          disabled={regOtpLoading || regOtpInput.length < 4}
-                          style={{
-                            padding: "10px 16px",
-                            background: regOtpLoading ? "#aaa" : "#1e3a5f",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 10,
-                            fontWeight: 700,
-                            fontSize: 13,
-                            cursor: regOtpLoading || regOtpInput.length < 4 ? "not-allowed" : "pointer",
-                          }}
-                        >
-                          {t("s1_verify")}
-                        </button>
-                      </div>
-                    )}
-
-                    {regOtpSent && !regOtpVerified && (
-                      <button
-                        onClick={sendRegOtp}
-                        disabled={regOtpLoading || countdown > 0}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: countdown > 0 ? "#9ca3af" : "#22c55e",
-                          cursor: countdown > 0 ? "not-allowed" : "pointer",
-                          fontSize: 12,
-                          marginTop: 4,
-                          padding: 0,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {countdown > 0
-                          ? `${t("s1_resend_wait") || "Resend in"} ${countdown}s`
-                          : t("s1_resend_otp") || "Resend OTP"}
-                      </button>
-                    )}
-
-                    {regOtpVerified && (
-                      <div style={{ color: "#22c55e", fontSize: 13, marginTop: 6, fontWeight: 600 }}>
-                        ✅ {t("s1_verified") || "Verified"}
-                      </div>
-                    )}
+              {/* Mobile — visible always, disabled until step 2 */}
+              <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14, opacity: step >= 2 ? 1 : 0.5, pointerEvents: step >= 2 ? "auto" : "none" }}>
+                <div id="reg-recaptcha-container" />
+                <label style={labelStyle}>{t("login_mobile")}</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#9ca3af",
+                        fontSize: 14,
+                      }}
+                    >
+                      📱
+                    </span>
+                    <input
+                      style={{ ...inp, paddingLeft: 38, background: step >= 2 ? "#fff" : "#f9fafb" }}
+                      placeholder={t("login_mobile_ph")}
+                      value={mobile}
+                      maxLength={10}
+                      inputMode="numeric"
+                      disabled={regOtpSent}
+                      onChange={(e) =>
+                        setMobile(e.target.value.replace(/\D/g, ""))
+                      }
+                      onFocus={focusStyle}
+                      onBlur={blurStyle}
+                    />
                   </div>
-                </>
-              )}
-
-              {/* Step 3: Email */}
-              {step >= 3 && (
-                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14 }}>
-                  <label style={labelStyle}>
-                    {t("login_email")}{" "}
-                    <span style={{ color: "#ef4444" }}>*</span>
-                  </label>
-                  <input
-                    style={inp}
-                    type="email"
-                    placeholder={t("login_email_ph")}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onFocus={focusStyle}
-                    onBlur={blurStyle}
-                  />
+                  {!regOtpSent && !regOtpVerified && (
+                    <button
+                      onClick={sendRegOtp}
+                      disabled={regOtpLoading || mobile.length !== 10}
+                      style={{
+                        padding: "10px 16px",
+                        background: regOtpLoading ? "#aaa" : "#22c55e",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 10,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: regOtpLoading || mobile.length !== 10 ? "not-allowed" : "pointer",
+                        whiteSpace: "nowrap",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      {regOtpLoading && <Spinner size={16} style={{ filter: "brightness(0) invert(1)" }} />}
+                      {regOtpLoading ? "..." : t("s1_get_otp")}
+                    </button>
+                  )}
+                  {regOtpSent && !regOtpVerified && (
+                    <button
+                      onClick={() => { setRegOtpSent(false); setRegOtpInput(""); destroyRegRecaptcha(); }}
+                      style={{
+                        padding: "10px 12px",
+                        background: "none",
+                        border: "1.5px solid #1e3a5f",
+                        borderRadius: 10,
+                        color: "#1e3a5f",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      ✏ {t("s1_edit_number") || "Edit"}
+                    </button>
+                  )}
                 </div>
-              )}
 
-              {/* Step 4: Password */}
-              {step >= 4 && (
-                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14 }}>
-                  <label style={labelStyle}>
-                    {t("login_pass_readonly")}{" "}
-                    <span style={{ color: "#ef4444" }}>*</span>
-                  </label>
-                  <div style={{ position: "relative" }}>
+                {regOtpSent && !regOtpVerified && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <input
+                      style={{ ...inp, flex: 1 }}
+                      placeholder={t("s1_otp_ph") || "Enter OTP"}
+                      value={regOtpInput}
+                      onChange={(e) => setRegOtpInput(e.target.value.replace(/\D/g, ""))}
+                      maxLength={6}
+                      disabled={regOtpLoading}
+                    />
+                    <button
+                      onClick={handleVerifyRegOtp}
+                      disabled={regOtpLoading || regOtpInput.length < 4}
+                      style={{
+                        padding: "10px 16px",
+                        background: regOtpLoading ? "#aaa" : "#1e3a5f",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 10,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: regOtpLoading || regOtpInput.length < 4 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      {t("s1_verify")}
+                    </button>
+                  </div>
+                )}
+
+                {regOtpSent && !regOtpVerified && (
+                  <button
+                    onClick={sendRegOtp}
+                    disabled={regOtpLoading || countdown > 0}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: countdown > 0 ? "#9ca3af" : "#22c55e",
+                      cursor: countdown > 0 ? "not-allowed" : "pointer",
+                      fontSize: 12,
+                      marginTop: 4,
+                      padding: 0,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {countdown > 0
+                      ? `${t("s1_resend_wait") || "Resend in"} ${countdown}s`
+                      : t("s1_resend_otp") || "Resend OTP"}
+                  </button>
+                )}
+
+                {regOtpVerified && (
+                  <div style={{ color: "#22c55e", fontSize: 13, marginTop: 6, fontWeight: 600 }}>
+                    ✅ {t("s1_verified") || "Verified"}
+                  </div>
+                )}
+              </div>
+
+              {/* Email — visible always, disabled until step 3 */}
+              <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14, opacity: step >= 3 ? 1 : 0.5, pointerEvents: step >= 3 ? "auto" : "none" }}>
+                <label style={labelStyle}>
+                  {t("login_email")}{" "}
+                  <span style={{ color: "#ef4444" }}>*</span>
+                </label>
+                <input
+                  style={{ ...inp, background: step >= 3 ? "#fff" : "#f9fafb" }}
+                  type="email"
+                  placeholder={t("login_email_ph")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={focusStyle}
+                  onBlur={blurStyle}
+                />
+              </div>
+
+              {/* Password — visible always, disabled until step 4 */}
+              <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14, opacity: step >= 4 ? 1 : 0.5, pointerEvents: step >= 4 ? "auto" : "none" }}>
+                <label style={labelStyle}>
+                  {t("login_pass_readonly")}{" "}
+                  <span style={{ color: "#ef4444" }}>*</span>
+                </label>
+                <div style={{ position: "relative" }}>
                   <input
-                    style={inp}
+                    style={{ ...inp, background: step >= 4 ? "#fff" : "#f9fafb" }}
                     type={showPass ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
@@ -600,13 +593,13 @@ export default function RegisterPage() {
                     onBlur={blurStyle}
                   />
                   <span
-                    onClick={() => setShowPass(!showPass)}
+                    onClick={() => step >= 4 && setShowPass(!showPass)}
                     style={{
                       position: "absolute",
                       right: 14,
                       top: "50%",
                       transform: "translateY(-50%)",
-                      cursor: "pointer",
+                      cursor: step >= 4 ? "pointer" : "default",
                       color: "#9ca3af",
                       fontSize: 18,
                     }}
@@ -614,37 +607,37 @@ export default function RegisterPage() {
                     {showPass ? "🙈" : "👁"}
                   </span>
                 </div>
-                </div>
-              )}
+              </div>
 
-              {/* Step 5: Register Button */}
-              {step >= 5 && (
-                <button
+              {/* Register Button — visible always, disabled until step 5 */}
+              <button
                 onClick={handleRegister}
-                disabled={loading}
+                disabled={loading || step < 5}
                 style={{
                   width: "100%",
                   padding: "14px 0",
                   background: loading
                     ? "#fdba74"
-                    : "linear-gradient(135deg, #F97316, #fb923c)",
+                    : step >= 5
+                    ? "linear-gradient(135deg, #F97316, #fb923c)"
+                    : "#d1d5db",
                   color: "#fff",
                   border: "none",
                   borderRadius: 10,
                   fontWeight: 700,
                   fontSize: 15,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                  cursor: loading || step < 5 ? "not-allowed" : "pointer",
+                  boxShadow: step >= 5 ? "0 4px 14px rgba(249,115,22,0.35)" : "none",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 8,
+                  transition: "all 0.3s",
                 }}
               >
                 {loading && <Spinner size={20} style={{ filter: "brightness(0) invert(1)" }} />}
                 {loading ? t("login_registering") : t("login_register_btn")}
               </button>
-              )}
               <p
                 style={{
                   textAlign: "center",
