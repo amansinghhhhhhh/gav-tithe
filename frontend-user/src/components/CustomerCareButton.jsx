@@ -1,7 +1,13 @@
+import { useState } from "react";
 import { useLang } from "../context/LangContext";
 
 export default function CustomerCareButton() {
   const { t } = useLang();
+  const [dismissed, setDismissed] = useState(false);
+
+  const handleDismiss = () => {
+    setDismissed(true);
+  };
 
   return (
     <>
@@ -19,23 +25,57 @@ export default function CustomerCareButton() {
           zIndex: 9999,
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: 8,
         }}
       >
-        <span
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: "#142952",
-            background: "#fff",
-            padding: "8px 14px",
-            borderRadius: 20,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {t("cc_help_text")}
-        </span>
+        {!dismissed && (
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              background: "#fff",
+              borderRadius: 20,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+              padding: "8px 14px",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#142952",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("cc_help_text")}
+            </span>
+            <button
+              onClick={handleDismiss}
+              style={{
+                position: "absolute",
+                top: -8,
+                left: -8,
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
+                border: "none",
+                background: "#e5e7eb",
+                color: "#6b7280",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                lineHeight: 1,
+                boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <a
           href="https://wa.link/aze647"
           target="_blank"
