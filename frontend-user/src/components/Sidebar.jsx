@@ -22,8 +22,8 @@ const NAV = {
   MY_JOURNEY: [
     {
       key: "my_journey",
-      label: "My Journey (5 Steps)",
-      labelMr: "माझा प्रवास (5 टप्पे)",
+      label: "My Introduction",
+      labelMr: "माझा परिचय",
       icon: <img src={Journey} />,
     },
     {
@@ -331,7 +331,7 @@ function Sidebar({ activeKey, onNav, onLogout }) {
             </div>
           )}
 
-          <SectionLabel label="My Journey" expanded={expanded} />
+          <SectionLabel label="माझा परिचय" expanded={expanded} />
           {NAV.MY_JOURNEY.map((item) => (
             <NavItem
               key={item.key}

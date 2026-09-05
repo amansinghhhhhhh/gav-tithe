@@ -362,7 +362,7 @@ const translations = {
         mindset_score_label: "तुमचा स्कोअर",
         mindset_start_btn: "▶ मूल्यांकन सुरू करा",
         mindset_done_badge: "✅ स्कोअर: {{score}}/15",
-        mindset_back: "➡ माझा प्रवास",
+        mindset_back: "➡ माझा परिचय",
         cc_help_text: "मदत हवी आहे का?",
     },
 
@@ -732,7 +732,7 @@ const translations = {
         mindset_score_label: "Your Score",
         mindset_start_btn: "▶ Start Assessment",
         mindset_done_badge: "✅ Score: {{score}}/15",
-        mindset_back: "➡ Back to My Journey",
+        mindset_back: "➡ My Introduction",
         cc_help_text: "Need help?",
     },
 };
