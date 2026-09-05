@@ -16,8 +16,8 @@ const translations = {
         step_jump_hint: "या टप्प्यावर जा",
 
         // Form Banner
-        form_title: "गाव तिथे उद्योजक: ऑनबोर्डिंग फॉर्म",
-        form_welcome: "नमस्कार! गाव तिथे उद्योजक अभियान अंतर्गत तुमच्या उद्योजकतेच्या प्रवासात उद्योग विचार मंचाकडून तुमचे स्वागत आहे.",
+        form_title: "गांव तिथे उद्योजक: ऑनबोर्डिंग फॉर्म",
+        form_welcome: "नमस्कार! गांव तिथे उद्योजक अभियान अंतर्गत तुमच्या उद्योजकतेच्या प्रवासात उद्योग विचार मंचाकडून तुमचे स्वागत आहे.",
         form_subtitle: "हा फॉर्म अतिशय सोप्या टप्प्यांत विभागला आहे, जेणेकरून तुम्हाला माहिती भरणे अगदी सोपे आणि सुटसुटीत जाईल.",
 
         // Footer Buttons
@@ -189,7 +189,7 @@ const translations = {
         f_address: "महाराष्ट्र चेंबर ऑफ कॉमर्स, इंडस्ट्री अँड अॅग्रीकल्चर (MACCIA), 6वा मजला, ओरिकॉन हाउस, काळा घोडा, फोर्ट, मुंबई – 400001",
         f_email: "maccia@maccia.org.in",
         f_phone: "022-22855859 / 5860 | Mob: +91 87797 58864",
-        f_copy: "© 2026 गाव तिथे उद्योजक अभियान. MACCIA — महाराष्ट्र चेंबर ऑफ कॉमर्स, इंडस्ट्री अँड अॅग्रीकल्चर. सर्व हक्क राखीव.",
+        f_copy: "© 2026 गांव तिथे उद्योजक अभियान. MACCIA — महाराष्ट्र चेंबर ऑफ कॉमर्स, इंडस्ट्री अँड अॅग्रीकल्चर. सर्व हक्क राखीव.",
 
         // Banner
         banner_greeting: "नमस्कार,",
@@ -383,8 +383,8 @@ const translations = {
         step_jump_hint: "Go to this step",
 
         // Form Banner
-        form_title: "Gav Tithe Udyojak: Onboarding Form",
-        form_welcome: "We welcome you on behalf of Udyog Vichar Manch in your entrepreneurial journey under the Gav Tithe Udyojak campaign.",
+        form_title: "Gaon Tithe Udyojak: Onboarding Form",
+        form_welcome: "We welcome you on behalf of Udyog Vichar Manch in your entrepreneurial journey under the Gaon Tithe Udyojak campaign.",
         form_subtitle: "This form is divided into very simple steps, so that filling in the information will be easy and convenient for you.",
 
         // Footer Buttons
@@ -555,7 +555,7 @@ const translations = {
         f_address: "Maharashtra Chamber of Commerce, Industry & Agriculture (MACCIA), 6th Floor, Oricon House, Maharashtra Chamber Lane, Kala Ghoda, Fort, Mumbai – 400001",
         f_email: "maccia@maccia.org.in",
         f_phone: "022-22855859 / 5860 | Mob: +91 87797 58864",
-        f_copy: "© 2026 Gav Tithe Udyojak Abhiyan. MACCIA — Maharashtra Chamber of Commerce, Industry & Agriculture. All rights reserved.",
+        f_copy: "© 2026 Gaon Tithe Udyojak Abhiyan. MACCIA — Maharashtra Chamber of Commerce, Industry & Agriculture. All rights reserved.",
 
         // Banner
         banner_greeting: "Hello,",

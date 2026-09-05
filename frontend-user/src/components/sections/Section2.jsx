@@ -8,7 +8,6 @@ import useValidation from "../../hooks/useValidation";
 import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
 
 const makeRules = (t) => ({
-  businessName: (v) => (!v?.trim() ? t("err_required") : null),
   businessType: (v) => (!v ? t("err_required") : null),
   sector: (v) => (!v ? t("err_required") : null),
   sectorOther: (v, all) =>
@@ -28,7 +27,6 @@ function Section2({ data, dispatch, registerNext, onNext }) {
 
   const handleNext = () => {
     const isValid = validateAll({
-      businessName: data.businessName,
       businessType: data.businessType,
       sector: data.sector,
       sectorOther: data.sectorOther,
@@ -54,7 +52,7 @@ function Section2({ data, dispatch, registerNext, onNext }) {
       <SectionHeader title={t("s2_title")} badge={t("s2_badge")} />
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <ValidatedInput
-          label={t("s2_biz_name") + " *"}
+          label={t("s2_biz_name")}
           placeholder={t("s2_biz_name_ph")}
           value={data.businessName}
           onChange={(e) => {
