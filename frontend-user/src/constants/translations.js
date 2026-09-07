@@ -821,7 +821,7 @@ const translations = {
 
         // Watch Video
         watch_video_title: "Watch Video",
-        watch_video_more_info: "Watch video for more info",
+        watch_video_more_info: "Watch Video For More Info",
 
         // Login FAQs
         faq_login_title: "Login Related Questions",
