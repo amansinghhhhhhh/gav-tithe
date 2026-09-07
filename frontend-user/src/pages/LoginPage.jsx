@@ -53,6 +53,14 @@ export default function LoginPage() {
   const [regSuccessMsg, setRegSuccessMsg] = useState("");
   const [showFaq, setShowFaq] = useState(false);
 
+  const loginFaqs = [
+    { qKey: "faq_login_q1", aKey: "faq_login_a1" },
+    { qKey: "faq_login_q2", aKey: "faq_login_a2" },
+    { qKey: "faq_login_q3", aKey: "faq_login_a3" },
+    { qKey: "faq_login_q4", aKey: "faq_login_a4" },
+    { qKey: "faq_login_q5", aKey: "faq_login_a5" },
+  ];
+
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
@@ -543,7 +551,7 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-      <FaqModal open={showFaq} onClose={() => setShowFaq(false)} />
+      <FaqModal open={showFaq} onClose={() => setShowFaq(false)} faqs={loginFaqs} titleKey="faq_login_title" />
     </>
   );
 }

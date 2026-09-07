@@ -63,6 +63,14 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [showFaq, setShowFaq] = useState(false);
 
+  const registerFaqs = [
+    { qKey: "faq_reg_q1", aKey: "faq_reg_a1" },
+    { qKey: "faq_reg_q2", aKey: "faq_reg_a2" },
+    { qKey: "faq_reg_q3", aKey: "faq_reg_a3" },
+    { qKey: "faq_reg_q4", aKey: "faq_reg_a4" },
+    { qKey: "faq_reg_q5", aKey: "faq_reg_a5" },
+  ];
+
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
@@ -684,7 +692,7 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-      <FaqModal open={showFaq} onClose={() => setShowFaq(false)} />
+      <FaqModal open={showFaq} onClose={() => setShowFaq(false)} faqs={registerFaqs} titleKey="faq_reg_title" />
     </>
   );
 }

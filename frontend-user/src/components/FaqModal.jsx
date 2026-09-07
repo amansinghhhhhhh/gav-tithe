@@ -1,17 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLang } from "../context/LangContext";
 
-const faqs = [
-  { qKey: "faq_q1", aKey: "faq_a1" },
-  { qKey: "faq_q2", aKey: "faq_a2" },
-  { qKey: "faq_q3", aKey: "faq_a3" },
-  { qKey: "faq_q4", aKey: "faq_a4" },
-  { qKey: "faq_q5", aKey: "faq_a5" },
-];
-
-export default function FaqModal({ open, onClose }) {
+export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_title" }) {
   const { t } = useLang();
   const [openIdx, setOpenIdx] = useState(null);
+
+  useEffect(() => {
+    setOpenIdx(null);
+  }, [open]);
 
   if (!open) return null;
 
@@ -55,7 +51,7 @@ export default function FaqModal({ open, onClose }) {
           }}
         >
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#1a1a1a" }}>
-            {t("faq_title")}
+            {t(titleKey)}
           </h3>
           <button
             onClick={onClose}
