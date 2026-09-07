@@ -105,11 +105,11 @@ export const checkMobile = (mobile) =>
         body: JSON.stringify({ mobile }),
     });
 
-export const checkSamePassword = (email, newPassword) =>
+export const checkSamePassword = (identifier, newPassword) =>
     apiFetch(`${BASE}/auth/check-same-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword }),
+        body: JSON.stringify({ email: identifier.includes("@") ? identifier : undefined, mobile: !identifier.includes("@") ? identifier : undefined, newPassword }),
     });
 
 export const resetPasswordMobile = async (idToken, newPassword) => {

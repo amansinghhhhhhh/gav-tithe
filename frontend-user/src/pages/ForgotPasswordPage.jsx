@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { app } from "../config/firebase";
-import { checkMobile, resetPasswordMobile } from "../services/api";
+import { checkMobile, resetPasswordMobile, checkSamePassword } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
@@ -177,9 +177,15 @@ export default function ForgotPasswordPage() {
       setErr(t("forgot_error_password_match"));
       return;
     }
-      setLoading(true);
-      try {
-        const data = await resetPasswordMobile(idToken, newPassword);
+    setLoading(true);
+    try {
+      const sameCheck = await checkSamePassword(`+91${mobile.replace(/\D/g, "").slice(-10)}`, newPassword);
+      if (!sameCheck.success) {
+        setErr(t("forgot_error_same_password"));
+        setLoading(false);
+        return;
+      }
+      const data = await resetPasswordMobile(idToken, newPassword);
       if (!data.success) {
         const msg = data.message === "Same password" ? t("forgot_error_same_password") : data.message;
         setErr(msg);
@@ -603,8 +609,8 @@ export default function ForgotPasswordPage() {
               </div>
             )}
 
-            {/* Back to Login — always visible except step 4 */}
-            {step !== 4 && (
+            {/* Back to Login — visible only on steps that don't have their own back */}
+            {step !== 4 && step !== 2 && (
               <button
                 onClick={() => navigate("/login")}
                 style={{

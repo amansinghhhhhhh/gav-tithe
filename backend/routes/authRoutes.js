@@ -56,10 +56,19 @@ router.post("/check-mobile", async (req, res) => {
 });
 router.post("/check-same-password", async (req, res) => {
     try {
-        const { email, newPassword } = req.body;
-        console.log("check-same-password called:", { email, newPasswordLength: newPassword?.length });
-        if (!email || !newPassword) return res.status(400).json({ success: false, message: "Email and password required" });
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const { email, mobile, newPassword } = req.body;
+        const identifier = email || mobile;
+        console.log("check-same-password called:", { identifier, newPasswordLength: newPassword?.length });
+        if (!identifier || !newPassword) return res.status(400).json({ success: false, message: "Identifier and password required" });
+
+        let user;
+        if (email) {
+            user = await User.findOne({ email: email.toLowerCase() });
+        } else if (mobile) {
+            const clean = mobile.replace(/[^0-9]/g, "").slice(-10);
+            user = await User.findOne({ $or: [{ mobile }, { mobile: `+91${clean}` }, { mobile: clean }] });
+        }
+
         console.log("User found:", !!user, "hasPassword:", !!user?.password);
         if (!user || !user.password) return res.json({ success: true, message: "No password to compare" });
         const isSame = await bcrypt.compare(newPassword, user.password);
