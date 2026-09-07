@@ -14,8 +14,8 @@ import { auth } from "../config/firebase";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import FaqModal from "../components/FaqModal";
-import WatchVideoButton from "../components/WatchVideoButton";
 import faqIcon from "../assets/faq.png";
+import videoSrc from "../assets/gtu-register.mp4";
 
 const inp = {
   width: "100%",
@@ -63,6 +63,7 @@ export default function RegisterPage() {
   const [countdown, setCountdown] = useState(0);
   const [step, setStep] = useState(1);
   const [showFaq, setShowFaq] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   const registerFaqs = [
     { qKey: "faq_reg_q1", aKey: "faq_reg_a1" },
@@ -689,12 +690,106 @@ export default function RegisterPage() {
                   {t("login_signin_link")}
                 </span>
               </p>
+              <button
+                onClick={() => setShowVideo(true)}
+                style={{
+                  width: "100%",
+                  padding: "12px 0",
+                  background: "#f3f4f6",
+                  color: "#F97316",
+                  border: "1.5px solid #F97316",
+                  borderRadius: 10,
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                ▶️ {t("watch_video_more_info")}
+              </button>
             </div>
           </div>
         </div>
       </div>
       <FaqModal open={showFaq} onClose={() => setShowFaq(false)} faqs={registerFaqs} titleKey="faq_reg_title" />
-      <WatchVideoButton />
+
+      {showVideo && (
+        <div
+          onClick={() => setShowVideo(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.7)",
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#000",
+              borderRadius: 16,
+              width: "100%",
+              maxWidth: 360,
+              maxHeight: "85vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 16px",
+                background: "#1a1a1a",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>
+                {t("watch_video_title")}
+              </span>
+              <button
+                onClick={() => setShowVideo(false)}
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "rgba(255,255,255,0.15)",
+                  color: "#fff",
+                  fontSize: 14,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            <video
+              src={videoSrc}
+              controls
+              autoPlay
+              style={{
+                width: "100%",
+                aspectRatio: "9/16",
+                objectFit: "contain",
+                background: "#000",
+              }}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

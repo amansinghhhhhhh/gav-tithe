@@ -394,6 +394,7 @@ const translations = {
 
         // Watch Video
         watch_video_title: "व्हिडिओ पहा",
+        watch_video_more_info: "अधिक माहिती साठी विडियो पहा",
 
         // Login FAQs
         faq_login_title: "लॉगिन विषयक प्रश्न",
@@ -820,6 +821,7 @@ const translations = {
 
         // Watch Video
         watch_video_title: "Watch Video",
+        watch_video_more_info: "Watch video for more info",
 
         // Login FAQs
         faq_login_title: "Login Related Questions",
