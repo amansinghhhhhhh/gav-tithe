@@ -14,6 +14,7 @@ import { auth } from "../config/firebase";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import FaqModal from "../components/FaqModal";
+import WatchVideoButton from "../components/WatchVideoButton";
 import faqIcon from "../assets/faq.png";
 
 const inp = {
@@ -693,6 +694,7 @@ export default function RegisterPage() {
         </div>
       </div>
       <FaqModal open={showFaq} onClose={() => setShowFaq(false)} faqs={registerFaqs} titleKey="faq_reg_title" />
+      <WatchVideoButton />
     </>
   );
 }

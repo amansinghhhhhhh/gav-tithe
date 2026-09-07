@@ -12,6 +12,7 @@ import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import { RegistrationPopup } from "../components/RegistrationPopup";
 import FaqModal from "../components/FaqModal";
+import WatchVideoButton from "../components/WatchVideoButton";
 import faqIcon from "../assets/faq.png";
 
 const inp = {
@@ -552,6 +553,7 @@ export default function LoginPage() {
         </div>
       )}
       <FaqModal open={showFaq} onClose={() => setShowFaq(false)} faqs={loginFaqs} titleKey="faq_login_title" />
+      <WatchVideoButton />
     </>
   );
 }

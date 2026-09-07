@@ -392,6 +392,9 @@ const translations = {
         mindset_back: "➡ माझा परिचय",
         cc_help_text: "मदत हवी आहे का?",
 
+        // Watch Video
+        watch_video_title: "व्हिडिओ पहा",
+
         // Login FAQs
         faq_login_title: "लॉगिन विषयक प्रश्न",
         faq_login_q1: "ईमेल/मोबाईल नंबर नसेल तर काय करावे?",
@@ -814,6 +817,9 @@ const translations = {
         mindset_done_badge: "✅ Score: {{score}}/15",
         mindset_back: "➡ My Introduction",
         cc_help_text: "Need help?",
+
+        // Watch Video
+        watch_video_title: "Watch Video",
 
         // Login FAQs
         faq_login_title: "Login Related Questions",
