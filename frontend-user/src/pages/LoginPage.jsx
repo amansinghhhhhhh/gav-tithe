@@ -11,6 +11,8 @@ import { auth } from "../config/firebase";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import { RegistrationPopup } from "../components/RegistrationPopup";
+import FaqModal from "../components/FaqModal";
+import faqIcon from "../assets/faq.png";
 
 const inp = {
   width: "100%",
@@ -49,6 +51,7 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [showRegSuccessPopup, setShowRegSuccessPopup] = useState(false);
   const [regSuccessMsg, setRegSuccessMsg] = useState("");
+  const [showFaq, setShowFaq] = useState(false);
 
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
@@ -162,6 +165,24 @@ export default function LoginPage() {
               overflow: "hidden",
             }}
           >
+            <button
+              onClick={() => setShowFaq(true)}
+              style={{
+                position: "absolute",
+                top: 14,
+                right: 14,
+                width: 45,
+                height: 45,
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1,
+              }}
+            >
+              <img src={faqIcon} alt="FAQ" style={{ width: 45, height: 45 }} />
+            </button>
             <div
               style={{
                 position: "absolute",
@@ -522,6 +543,7 @@ export default function LoginPage() {
           </div>
         </div>
       )}
+      <FaqModal open={showFaq} onClose={() => setShowFaq(false)} />
     </>
   );
 }

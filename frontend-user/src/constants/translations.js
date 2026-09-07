@@ -365,6 +365,19 @@ const translations = {
         mindset_done_badge: "✅ स्कोअर: {{score}}/15",
         mindset_back: "➡ माझा परिचय",
         cc_help_text: "मदत हवी आहे का?",
+
+        // FAQs
+        faq_title: "वारंवार विचारले जाणारे प्रश्न",
+        faq_q1: "नोंदणीसाठी काय लागते?",
+        faq_a1: "तुमचे नाव, मोबाईल नंबर, ईमेल आणि पासवर्ड लागतो.",
+        faq_q2: "ईमेल verify कशी करावी?",
+        faq_a2: "नोंदणीनंतर तुमच्या ईमेलवर verification link येईल. त्यावर click करा.",
+        faq_q3: "Mobile number verify कसा होतो?",
+        faq_a3: "OTP येईल SMS मधून. तो टाका आणि Verify दाबा.",
+        faq_q4: "Password कसा असावा?",
+        faq_a4: "किमान 6 अक्षरांचा असावा.",
+        faq_q5: "नोंदणी नंतर काय होते?",
+        faq_a5: "Login page वर जा आणि तुमचे ईमेल/मोबाईल व पासवर्ड टाकून login करा.",
     },
 
     en: {
@@ -736,6 +749,19 @@ const translations = {
         mindset_done_badge: "✅ Score: {{score}}/15",
         mindset_back: "➡ My Introduction",
         cc_help_text: "Need help?",
+
+        // FAQs
+        faq_title: "Frequently Asked Questions",
+        faq_q1: "What do I need to register?",
+        faq_a1: "You need your name, mobile number, email, and password.",
+        faq_q2: "How do I verify my email?",
+        faq_a2: "After registration, a verification link is sent to your email. Click on it.",
+        faq_q3: "How does mobile verification work?",
+        faq_a3: "You'll receive an OTP via SMS. Enter it and click Verify.",
+        faq_q4: "What should my password be?",
+        faq_a4: "It must be at least 6 characters long.",
+        faq_q5: "What happens after registration?",
+        faq_a5: "Go to the login page and enter your email/mobile and password to log in.",
     },
 };
 
