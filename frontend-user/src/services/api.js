@@ -112,6 +112,14 @@ export const checkSamePassword = (email, newPassword) =>
         body: JSON.stringify({ email, newPassword }),
     });
 
+export const resetPasswordMobile = async (idToken, newPassword) => {
+    return apiFetch(`${BASE}/auth/reset-password-mobile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken, newPassword }),
+    });
+};
+
 // ── Form ──────────────────────────────────────────────────────────────────────
 
 export const saveSection = async (section, data) => {

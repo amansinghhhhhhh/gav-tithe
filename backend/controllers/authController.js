@@ -294,4 +294,63 @@ const getMe = async (req, res) => {
     });
 };
 
-module.exports = { verifyOtp, registerEmail, loginEmail, getMe };
+// ── 5. Reset password via mobile OTP (Firebase ID token verification) ─────────
+const resetPasswordMobile = async (req, res) => {
+    try {
+        const { idToken, newPassword } = req.body;
+        if (!idToken || !newPassword) {
+            return res.status(400).json({ success: false, message: "ID token and new password required" });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+        }
+
+        const firebaseAdmin = getAdmin();
+        if (!firebaseAdmin) {
+            return res.status(500).json({ message: "Firebase not configured on server" });
+        }
+
+        // Verify Firebase ID token
+        const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+        const { uid, phone_number } = decoded;
+
+        // Find user by firebaseUid or mobile
+        let user = null;
+        if (uid) user = await User.findOne({ firebaseUid: uid });
+        if (!user && phone_number) {
+            const clean = phone_number.replace(/[^0-9]/g, "").slice(-10);
+            user = await User.findOne({
+                $or: [
+                    { mobile: phone_number },
+                    { mobile: `+91${clean}` },
+                    { mobile: clean },
+                ],
+            });
+        }
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Check same password
+        if (user.password) {
+            const bcrypt = require("bcryptjs");
+            const isSame = await bcrypt.compare(newPassword, user.password);
+            if (isSame) {
+                return res.status(400).json({ success: false, message: "Same password" });
+            }
+        }
+
+        // Update password (pre-save hook will hash it)
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ success: true, message: "Password reset successful" });
+    } catch (err) {
+        console.error("Reset password mobile error:", err.message);
+        res.status(500).json({ message: "Password reset failed" });
+    }
+};
+
+module.exports = { verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile };
