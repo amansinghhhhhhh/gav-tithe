@@ -346,6 +346,17 @@ const resetPasswordMobile = async (req, res) => {
         user.password = newPassword;
         await user.save();
 
+        // Firebase Auth password bhi update karo
+        if (user.email) {
+            try {
+                const firebaseUser = await firebaseAdmin.auth().getUserByEmail(user.email);
+                await firebaseAdmin.auth().updateUser(firebaseUser.uid, { password: newPassword });
+                console.log("Firebase Auth password updated for:", user.email);
+            } catch (e) {
+                console.error("Firebase Auth password update failed:", e.message);
+            }
+        }
+
         res.json({ success: true, message: "Password reset successful" });
     } catch (err) {
         console.error("Reset password mobile error:", err.message);
