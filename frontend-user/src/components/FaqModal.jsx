@@ -25,6 +25,12 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
         padding: 16,
       }}
     >
+      <style>{`
+        .faq-scroll::-webkit-scrollbar { width: 6px; }
+        .faq-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .faq-scroll::-webkit-scrollbar-thumb { background: #F97316; border-radius: 10px; }
+        .faq-scroll::-webkit-scrollbar-thumb:hover { background: #ea580c; }
+      `}</style>
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -42,15 +48,15 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
         {/* Header */}
         <div
           style={{
+            background: "linear-gradient(135deg, #F97316 0%, #fb923c 60%, #fbbf24 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             padding: "18px 20px",
-            borderBottom: "1px solid #f3f4f6",
             flexShrink: 0,
           }}
         >
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#1a1a1a" }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff" }}>
             {t(titleKey)}
           </h3>
           <button
@@ -60,8 +66,8 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
               height: 30,
               borderRadius: "50%",
               border: "none",
-              background: "#f3f4f6",
-              color: "#6b7280",
+              background: "rgba(255,255,255,0.25)",
+              color: "#fff",
               fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
@@ -75,7 +81,10 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
         </div>
 
         {/* FAQ List */}
-        <div style={{ overflowY: "auto", padding: "8px 0" }}>
+        <div
+          className="faq-scroll"
+          style={{ overflowY: "auto", padding: "8px 0" }}
+        >
           {faqs.map((faq, i) => (
             <div
               key={i}
@@ -119,9 +128,32 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
                     fontSize: 13,
                     color: "#6b7280",
                     lineHeight: 1.6,
+                    textAlign: "left",
                   }}
                 >
-                  {t(faq.aKey)}
+                  {t(faq.aKey).split('\n').map((line, idx) => {
+                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    const parts = line.split(urlRegex);
+                    return (
+                      <p key={idx} style={{ margin: idx > 0 ? '8px 0 0' : '0' }}>
+                        {parts.map((part, i) =>
+                          urlRegex.test(part) ? (
+                            <a
+                              key={i}
+                              href={part}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: "#F97316", fontWeight: 600, textDecoration: "underline" }}
+                            >
+                              {part}
+                            </a>
+                          ) : (
+                            part
+                          )
+                        )}
+                      </p>
+                    );
+                  })}
                 </div>
               )}
             </div>

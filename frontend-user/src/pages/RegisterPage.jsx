@@ -71,6 +71,14 @@ export default function RegisterPage() {
     { qKey: "faq_reg_q3", aKey: "faq_reg_a3" },
     { qKey: "faq_reg_q4", aKey: "faq_reg_a4" },
     { qKey: "faq_reg_q5", aKey: "faq_reg_a5" },
+    { qKey: "faq_reg_q6", aKey: "faq_reg_a6" },
+    { qKey: "faq_reg_q7", aKey: "faq_reg_a7" },
+    { qKey: "faq_reg_q8", aKey: "faq_reg_a8" },
+    { qKey: "faq_reg_q9", aKey: "faq_reg_a9" },
+    { qKey: "faq_reg_q10", aKey: "faq_reg_a10" },
+    { qKey: "faq_reg_q11", aKey: "faq_reg_a11" },
+    { qKey: "faq_reg_q12", aKey: "faq_reg_a12" },
+    { qKey: "faq_reg_q13", aKey: "faq_reg_a13" },
   ];
 
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");

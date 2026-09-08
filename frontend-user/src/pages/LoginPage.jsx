@@ -61,6 +61,9 @@ export default function LoginPage() {
     { qKey: "faq_login_q3", aKey: "faq_login_a3" },
     { qKey: "faq_login_q4", aKey: "faq_login_a4" },
     { qKey: "faq_login_q5", aKey: "faq_login_a5" },
+    { qKey: "faq_login_q6", aKey: "faq_login_a6" },
+    { qKey: "faq_login_q7", aKey: "faq_login_a7" },
+    { qKey: "faq_login_q8", aKey: "faq_login_a8" },
   ];
 
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
