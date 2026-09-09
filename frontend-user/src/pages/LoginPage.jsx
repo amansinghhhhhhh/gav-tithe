@@ -4,6 +4,7 @@ import { loginEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
+import VoiceGuide from "../components/VoiceGuide";
 import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
@@ -356,6 +357,12 @@ export default function LoginPage() {
             <div
               style={{ display: "flex", flexDirection: "column", gap: 14 }}
             >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <VoiceGuide textKey="voice_login" />
+                <span style={{ fontSize: 12, color: "#6b7280" }}>
+                  {t("voice_step")} 1
+                </span>
+              </div>
               <div>
                 <label style={labelStyle}>
                   {t("login_email_or_mobile")}{" "}

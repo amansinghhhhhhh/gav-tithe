@@ -396,6 +396,15 @@ const translations = {
         watch_video_title: "व्हिडिओ पहा",
         watch_video_more_info: "अधिक माहिती साठी विडियो पाहा",
 
+        // Voice Guide
+        voice_step: "Step",
+        voice_step1: "Step 1: कृपया तुमचे पहिले नाव, मधले नाव आणि आडनाव टाका",
+        voice_step2: "Step 2: तुमचा मोबाईल नंबर टाका आणि OTP मिळवा",
+        voice_step3: "Step 3: तुमचा ईमेल आईडी टाका",
+        voice_step4: "Step 4: पासवर्ड तयार करा",
+        voice_step5: "Step 5: नोंदणी करा",
+        voice_login: "Email ID आणि Password टाकून Login करा",
+
         // Login FAQs
         faq_login_title: "लॉगिन विषयक प्रश्न",
         faq_login_q1: "गाव तिथे उद्योजक Portal वर Login कसे करायचे?",
@@ -844,6 +853,15 @@ const translations = {
         // Watch Video
         watch_video_title: "Watch Video",
         watch_video_more_info: "Watch Video For More Info",
+
+        // Voice Guide
+        voice_step: "Step",
+        voice_step1: "Step 1: Please enter your first name, middle name and surname",
+        voice_step2: "Step 2: Enter your mobile number and get OTP",
+        voice_step3: "Step 3: Enter your email ID",
+        voice_step4: "Step 4: Create a password",
+        voice_step5: "Step 5: Click Register",
+        voice_login: "Enter your Email ID and Password to login",
 
         // Login FAQs
         faq_login_title: "Login Related Questions",

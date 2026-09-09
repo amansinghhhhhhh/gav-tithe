@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { registerEmail, checkMobile } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
+import VoiceGuide from "../components/VoiceGuide";
 import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -417,6 +418,12 @@ export default function RegisterPage() {
                     }}
                   />
                 ))}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <VoiceGuide textKey={`voice_step${step}`} />
+                <span style={{ fontSize: 12, color: "#6b7280" }}>
+                  {t("voice_step")} {step}
+                </span>
               </div>
 
               {/* Names — always editable */}
