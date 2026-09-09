@@ -358,7 +358,7 @@ export default function LoginPage() {
               style={{ display: "flex", flexDirection: "column", gap: 14 }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <VoiceGuide textKey="voice_login" />
+                <VoiceGuide textKey="voice_login" autoPlay={true} />
                 <span style={{ fontSize: 12, color: "#6b7280" }}>
                   {t("voice_step")} 1
                 </span>

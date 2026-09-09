@@ -1,9 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLang } from "../context/LangContext";
 
-export default function VoiceGuide({ textKey, style }) {
+export default function VoiceGuide({ textKey, autoPlay = false, style }) {
   const { t, lang } = useLang();
   const [speaking, setSpeaking] = useState(false);
+  const utterRef = useRef(null);
+
+  useEffect(() => {
+    if (autoPlay && textKey) {
+      const timer = setTimeout(() => speak(), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [textKey, autoPlay]);
+
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const speak = () => {
     if (!window.speechSynthesis) return;
@@ -19,6 +35,7 @@ export default function VoiceGuide({ textKey, style }) {
     utter.rate = 0.9;
     utter.onend = () => setSpeaking(false);
     utter.onerror = () => setSpeaking(false);
+    utterRef.current = utter;
     setSpeaking(true);
     window.speechSynthesis.speak(utter);
   };

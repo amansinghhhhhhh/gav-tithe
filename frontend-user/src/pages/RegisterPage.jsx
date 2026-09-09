@@ -420,7 +420,7 @@ export default function RegisterPage() {
                 ))}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <VoiceGuide textKey={`voice_step${step}`} />
+                <VoiceGuide textKey={`voice_step${step}`} autoPlay={true} />
                 <span style={{ fontSize: 12, color: "#6b7280" }}>
                   {t("voice_step")} {step}
                 </span>
