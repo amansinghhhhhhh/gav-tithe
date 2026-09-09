@@ -192,7 +192,7 @@ const exportExcel = async (req, res) => {
                 education: s1.education,
                 dist: addr.dist,
                 taluka: addr.taluka,
-                village: addr.village,
+                village: addr.village === "__other__" ? (addr.villageCustom || "Other") : addr.village,
                 pincode: addr.pincode,
                 businessName: s2.businessName,
                 businessType: s2.businessType,
@@ -391,7 +391,7 @@ const getReports = async (req, res) => {
             const addr = form.section1?.address || {};
             const dist = addr.dist || "Unknown";
             const taluka = addr.taluka || "Unknown";
-            const village = addr.village || "Unknown";
+            const village = (addr.village === "__other__" ? (addr.villageCustom || "Other") : addr.village) || "Unknown";
             const key = `${dist}|${taluka}|${village}`;
 
             // District
@@ -562,7 +562,8 @@ const getEntrepreneurHeatmap = async (req, res) => {
             const a = assessmentMap[uid];
             const dist = (f.section1?.address?.dist || "").trim();
             const taluka = (f.section1?.address?.taluka || "").trim();
-            const village = (f.section1?.address?.village || "").trim();
+            const villageRaw = (f.section1?.address?.village || "").trim();
+            const village = villageRaw === "__other__" ? (f.section1?.address?.villageCustom || "Other") : villageRaw;
             const score = a?.score || 0;
             const tier = getTierForScore(score);
 

@@ -15,6 +15,7 @@ const FormDataSchema = new mongoose.Schema({
             dist: { type: String, default: "" },
             taluka: { type: String, default: "" },
             village: { type: String, default: "" },
+            villageCustom: { type: String, default: "" },
             pincode: { type: String, default: "" },
         },
         otpVerified: Boolean,

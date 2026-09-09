@@ -31,7 +31,8 @@ const safe = (v, fallback = "—") =>
 const addressString = (addr) => {
     if (typeof addr === "string") return addr;
     if (!addr) return "—";
-    return [addr.dist, addr.taluka, addr.village, addr.pincode].filter(Boolean).join(", ") || "—";
+    const village = addr.village === "__other__" ? (addr.villageCustom || "Other") : addr.village;
+    return [addr.dist, addr.taluka, village, addr.pincode].filter(Boolean).join(", ") || "—";
 };
 
 const fileName = (name, ext) => {

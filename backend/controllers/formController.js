@@ -9,6 +9,15 @@ const ALLOWED_DOC_TYPES = ["aadhaarFront", "aadhaarBack", "pan", "udyam", "passp
 const CANON = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", G: "6" };
 const canonical = (s) => String(s).replace(/[OQILZSBG]/g, (c) => CANON[c]);
 
+// ── Resolve villageCustom to village ───────────────────────────────────────────
+const resolveVillage = (section1) => {
+    if (section1?.address?.village === "__other__" && section1?.address?.villageCustom) {
+        section1.address.village = section1.address.villageCustom;
+        delete section1.address.villageCustom;
+    }
+    return section1;
+};
+
 const aadhaarMatches = (typed, ocr) => {
     const a = canonical(String(typed || "").toUpperCase()).replace(/\D/g, "");
     const b = canonical(String(ocr || "").toUpperCase()).replace(/\D/g, "");
@@ -58,6 +67,11 @@ const saveSection = async (req, res) => {
                 Object.entries(data).filter(([key]) => allowedKeys.includes(key))
             );
             form[section] = { ...(form[section]?.toObject?.() || {}), ...filteredData };
+
+            // Resolve villageCustom to village for section1
+            if (section === "section1" && form.section1?.address?.village === "__other__") {
+                resolveVillage(form.section1);
+            }
         }
 
         form.status = "draft";
@@ -84,7 +98,11 @@ const submitForm = async (req, res) => {
         let form = await FormData.findOne({ userId });
         if (!form) form = new FormData({ userId });
 
-        if (section1) form.section1 = section1;
+        if (section1) {
+            // Resolve villageCustom to village
+            resolveVillage(section1);
+            form.section1 = section1;
+        }
         if (section2) form.section2 = section2;
         if (section3) form.section3 = section3;
         if (section4) {
@@ -145,8 +163,8 @@ const submitForm = async (req, res) => {
 
         // Unique ID generate karo (sirf first submission pe)
         if (!form.uniqueId) {
-            const { dist, taluka, village } = form.section1?.address || {};
-            form.uniqueId = await generateUniqueId(dist, taluka, village);
+            const { dist, taluka, village, villageCustom } = form.section1?.address || {};
+            form.uniqueId = await generateUniqueId(dist, taluka, village, villageCustom);
         }
 
         form.status = "submitted";

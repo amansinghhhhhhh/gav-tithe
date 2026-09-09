@@ -13,10 +13,11 @@ const extractAbbr = (str) => {
     return cleaned.substring(0, 3).toUpperCase();
 };
 
-const generateUniqueId = async (dist, taluka, village) => {
+const generateUniqueId = async (dist, taluka, village, villageCustom) => {
     const distAbbr = extractAbbr(dist);
     const talukaAbbr = extractAbbr(taluka);
-    const villageAbbr = extractAbbr(village);
+    const actualVillage = village === "__other__" ? (villageCustom || village) : village;
+    const villageAbbr = extractAbbr(actualVillage);
 
     const prefix = `MH-${distAbbr}-${talukaAbbr}-${villageAbbr}`;
 

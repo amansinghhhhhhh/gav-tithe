@@ -202,7 +202,7 @@ export default function UserDetail() {
             <>
               <Row label="Dist." value={addr.dist} />
               <Row label="Taluka" value={addr.taluka} />
-              <Row label="Village" value={addr.village} />
+              <Row label="Village" value={addr.village === "__other__" ? (addr.villageCustom || "Other") : addr.village} />
               <Row label="Pincode" value={addr.pincode} />
             </>
           )}

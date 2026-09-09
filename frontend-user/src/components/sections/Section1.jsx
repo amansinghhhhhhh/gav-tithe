@@ -27,7 +27,13 @@ const makeRules = (t) => ({
   // ✅ address object validation — sabhi fields required
   "address.dist": (v) => (!v?.trim() ? t("err_required") : null),
   "address.taluka": (v) => (!v?.trim() ? t("err_required") : null),
-  "address.village": (v) => (!v?.trim() ? t("err_required") : null),
+  "address.village": (v, allData) => {
+    if (!v?.trim()) return t("err_required");
+    if (v === "__other__" && !allData["address.villageCustom"]?.trim()) {
+      return t("err_required");
+    }
+    return null;
+  },
   "address.pincode": (v) =>
     !v?.trim()
       ? t("err_required")
@@ -104,6 +110,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
       "address.dist": data.address?.dist,
       "address.taluka": data.address?.taluka,
       "address.village": data.address?.village,
+      "address.villageCustom": data.address?.villageCustom,
       "address.pincode": data.address?.pincode,
     });
     if (isValid) onNext();
@@ -481,12 +488,19 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.village"]}</span>
               )}
               {data.address?.village === "__other__" && (
-                <input
-                  style={{ ...inputStyle, marginTop: 8 }}
-                  placeholder={t("s1_village_custom_ph") || "Type your village..."}
-                  value={data.address?.villageCustom || ""}
-                  onChange={(e) => uAddr("villageCustom", e.target.value)}
-                />
+                <>
+                  <input
+                    style={{ ...inputStyle, marginTop: 8 }}
+                    placeholder={t("s1_village_custom_ph") || "Type your village..."}
+                    value={data.address?.villageCustom || ""}
+                    onChange={(e) => uAddr("villageCustom", e.target.value)}
+                  />
+                  {errors["address.village"] && !data.address?.villageCustom?.trim() && (
+                    <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
+                      ⚠ {t("err_required")}
+                    </span>
+                  )}
+                </>
               )}
             </div>
 
