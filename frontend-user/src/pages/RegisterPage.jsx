@@ -159,11 +159,23 @@ export default function RegisterPage() {
     setRegOtpLoading(true);
     try {
       const mobileCheck = await checkMobile(mobile);
+      
+      // Case 1: Already registered in MongoDB
       if (!mobileCheck.success) {
         setErr(t("login_error_mobile_exists"));
         setRegOtpLoading(false);
         return;
       }
+      
+      // Case 2: Firebase me hai, MongoDB me nahi → Skip OTP, show verified
+      if (mobileCheck.message === "firebase_only") {
+        setPhoneFirebaseUid(mobileCheck.firebaseUid);
+        setRegOtpVerified(true);
+        setRegOtpLoading(false);
+        return;
+      }
+      
+      // Case 3: Kahi nahi hai → Normal OTP flow
       const verifier = getRegRecaptcha();
       const confirmation = await signInWithPhoneNumber(auth, `+91${mobile}`, verifier);
       regConfirmRef.current = confirmation;

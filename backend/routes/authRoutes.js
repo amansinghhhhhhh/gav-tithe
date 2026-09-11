@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
+const { getAdmin } = require("../config/firebase");
 const { verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 const { validateOtp, validateRegister, validateLogin } = require("../middleware/validate");
@@ -46,9 +47,28 @@ router.post("/check-mobile", async (req, res) => {
         if (!mobile) return res.status(400).json({ success: false, message: "Mobile required" });
         const clean = mobile.replace(/[^0-9]/g, "").slice(-10);
         if (clean.length !== 10) return res.status(400).json({ success: false, message: "Invalid mobile" });
-        const user = await User.findOne({ mobile: { $in: [`+91${clean}`, `91${clean}`, clean] } });
-        if (user) return res.status(400).json({ success: false, message: "already_registered" });
-        res.json({ success: true, message: "Mobile available" });
+
+        // Check MongoDB
+        const mongoUser = await User.findOne({ mobile: { $in: [`+91${clean}`, `91${clean}`, clean] } });
+        if (mongoUser) return res.status(400).json({ success: false, message: "already_registered" });
+
+        // Check Firebase Auth
+        const firebaseAdmin = getAdmin();
+        if (firebaseAdmin) {
+            try {
+                const firebaseUser = await firebaseAdmin.auth().getUserByPhoneNumber(`+91${clean}`);
+                // Firebase me hai, MongoDB me nahi → special status
+                return res.json({ success: true, message: "firebase_only", firebaseUid: firebaseUser.uid });
+            } catch (fbErr) {
+                // Firebase me bhi nahi hai → available (normal flow)
+                if (fbErr.code !== "auth/user-not-found") {
+                    console.error("Firebase check error:", fbErr.message);
+                }
+            }
+        }
+
+        // Kahi nahi hai → available
+        res.json({ success: true, message: "available" });
     } catch (err) {
         console.error("Check mobile error:", err.message);
         res.status(500).json({ message: "Server error" });
