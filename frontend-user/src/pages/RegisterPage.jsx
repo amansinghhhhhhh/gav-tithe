@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerEmail, checkMobile } from "../services/api";
+import { registerEmail, checkMobile, checkEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import VoiceGuide from "../components/VoiceGuide";
@@ -61,6 +61,7 @@ export default function RegisterPage() {
   const [regOtpLoading, setRegOtpLoading] = useState(false);
   const [regOtpInput, setRegOtpInput] = useState("");
   const [phoneFirebaseUid, setPhoneFirebaseUid] = useState("");
+  const [emailFirebaseUid, setEmailFirebaseUid] = useState(null);
   const [countdown, setCountdown] = useState(0);
   const [step, setStep] = useState(1);
   const [showFaq, setShowFaq] = useState(false);
@@ -129,10 +130,30 @@ export default function RegisterPage() {
     }
   }, [regOtpVerified, step]);
 
-  // Step auto-advance: Valid email → step 4
+  // Step auto-advance: Valid email → check availability → step 4
   useEffect(() => {
     if (step === 3 && email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setStep(4);
+      const timer = setTimeout(async () => {
+        try {
+          const res = await checkEmail(email.trim());
+          if (res.message === "firebase_only") {
+            // Firebase me hai, MongoDB me nahi → allow proceed, store Firebase UID
+            setEmailFirebaseUid(res.firebaseUid);
+            setStep(4);
+          } else if (!res.success) {
+            // Already registered in MongoDB
+            setErr(t("login_error_email_exists"));
+          } else {
+            // Available → proceed
+            setEmailFirebaseUid(null);
+            setStep(4);
+          }
+        } catch {
+          // On error, allow proceed (fallback)
+          setStep(4);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [email, step]);
 
@@ -236,16 +257,17 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      const fbCred = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      await sendEmailVerification(fbCred.user);
-      const fullName = [firstName, middleName, surname]
-        .filter(Boolean)
-        .join(" ");
-      const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid);
+      let emailUid = emailFirebaseUid;
+
+      // If email not in Firebase yet → create Firebase user
+      if (!emailUid) {
+        const fbCred = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(fbCred.user);
+        emailUid = fbCred.user.uid;
+      }
+
+      const fullName = [firstName, middleName, surname].filter(Boolean).join(" ");
+      const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid || emailUid);
       if (data?.success || data?.token) {
         signOut(auth).catch(() => {});
         setSuccessMsg(t("registration_success", { email }));
@@ -255,6 +277,7 @@ export default function RegisterPage() {
         setMiddleName("");
         setSurname("");
         setMobile("");
+        setEmailFirebaseUid(null);
         resetRegOtp();
         setTimeout(() => navigate("/login", { state: { successMsg: t("registration_success", { email }) } }), 2000);
       } else {

@@ -33,9 +33,28 @@ router.post("/check-email", async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ success: false, message: "Email required" });
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) return res.status(404).json({ success: false, message: "Email not registered" });
-        res.json({ success: true, message: "Email found" });
+
+        // Check MongoDB
+        const mongoUser = await User.findOne({ email: email.toLowerCase() });
+        if (mongoUser) return res.status(400).json({ success: false, message: "already_registered" });
+
+        // Check Firebase Auth
+        const firebaseAdmin = getAdmin();
+        if (firebaseAdmin) {
+            try {
+                const firebaseUser = await firebaseAdmin.auth().getUserByEmail(email.toLowerCase());
+                // Firebase me hai, MongoDB me nahi → special status
+                return res.json({ success: true, message: "firebase_only", firebaseUid: firebaseUser.uid });
+            } catch (fbErr) {
+                // Firebase me bhi nahi hai → available (normal flow)
+                if (fbErr.code !== "auth/user-not-found") {
+                    console.error("Firebase email check error:", fbErr.message);
+                }
+            }
+        }
+
+        // Kahi nahi hai → available
+        res.json({ success: true, message: "available" });
     } catch (err) {
         console.error("Check email error:", err.message);
         res.status(500).json({ message: "Server error" });
