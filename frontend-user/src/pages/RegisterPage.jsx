@@ -7,6 +7,7 @@ import VoiceGuide from "../components/VoiceGuide";
 import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  signInWithEmailAndPassword,
   sendEmailVerification,
   createUserWithEmailAndPassword,
   signOut,
@@ -259,18 +260,29 @@ export default function RegisterPage() {
     try {
       let emailUid = emailFirebaseUid;
 
-      // If email not in Firebase yet → create Firebase user
+      // If email not in Firebase yet → create Firebase user + send verification
       if (!emailUid) {
         const fbCred = await createUserWithEmailAndPassword(auth, email, password);
         await sendEmailVerification(fbCred.user);
         emailUid = fbCred.user.uid;
+      } else {
+        // Firebase only hai → sign in karo + naya verification email bhejo
+        try {
+          const fbCred = await signInWithEmailAndPassword(auth, email, password);
+          await sendEmailVerification(fbCred.user);
+        } catch (fbErr) {
+          console.error("Firebase sign-in failed:", fbErr);
+          setErr(t("registration_error_firebase"));
+          setLoading(false);
+          return;
+        }
       }
 
       const fullName = [firstName, middleName, surname].filter(Boolean).join(" ");
       const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid || emailUid);
       if (data?.success || data?.token) {
         signOut(auth).catch(() => {});
-        setSuccessMsg(t("registration_success", { email }));
+        setSuccessMsg(t("registration_success_verify", { email }));
         setEmail("");
         setPassword("");
         setFirstName("");
@@ -279,7 +291,7 @@ export default function RegisterPage() {
         setMobile("");
         setEmailFirebaseUid(null);
         resetRegOtp();
-        setTimeout(() => navigate("/login", { state: { successMsg: t("registration_success", { email }) } }), 2000);
+        setTimeout(() => navigate("/login", { state: { successMsg: t("registration_success_verify", { email }) } }), 2000);
       } else {
         setErr(t(data?.message) || t("login_error"));
       }

@@ -304,7 +304,9 @@ const translations = {
         login_failed: "लॉगिन अयशस्वी: {{msg}}",
         err_rate_limit: "बरेच लॉगिन प्रयत्न झाले. {{min}} मिनिटांनंतर पुन्हा प्रयत्न करा.",
         registration_success: "✅ नोंदणी यशस्वी! \"{{email}}\" वर verification link पाठवली आहे. कृपया email verify करा आणि मग login करा.",
+        registration_success_verify: "✅ नोंदणी यशस्वी! \"{{email}}\" वर सत्यापन लिंक पाठवला आहे. कृपया लॉगिन करण्यापूर्वी सत्यापन करा.",
         registration_success_title: "नोंदणी यशस्वी!",
+        registration_error_firebase: "नोंदणी अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
 
         // Forgot Password
         forgot_title: "पासवर्ड रीसेट करा",
@@ -760,7 +762,9 @@ const translations = {
         login_failed: "Login failed: {{msg}}",
         err_rate_limit: "Too many login attempts. Please try again in {{min}} minutes.",
         registration_success: "✅ Registration successful! A verification link has been sent to \"{{email}}\". Please verify your email and then log in.",
+        registration_success_verify: "✅ Registration successful! A verification link has been sent to \"{{email}}\". Please verify before logging in.",
         registration_success_title: "Registration Successful!",
+        registration_error_firebase: "Registration failed. Please try again.",
 
         // Forgot Password
         forgot_title: "Reset Password",
