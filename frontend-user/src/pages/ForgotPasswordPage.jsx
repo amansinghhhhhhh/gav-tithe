@@ -124,13 +124,22 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const mobileCheck = await checkMobile(`+91${mobile.replace(/\D/g, "").slice(-10)}`);
-      // check-mobile returns 400 if mobile is already registered (good — user exists)
-      // It returns 200 if mobile is available (user doesn't exist)
-      if (mobileCheck.success) {
+      
+      // Mobile is available (not in Firebase or MongoDB) → not registered
+      if (mobileCheck.success && mobileCheck.message === "available") {
         setErr(t("forgot_error_mobile_not_registered"));
         setLoading(false);
         return;
       }
+      
+      // Mobile is in Firebase only (registration incomplete) → block with specific message
+      if (mobileCheck.success && mobileCheck.message === "firebase_only") {
+        setErr(t("forgot_error_account_not_exist"));
+        setLoading(false);
+        return;
+      }
+      
+      // Mobile exists in MongoDB (400 response) → proceed with OTP
       // Mobile exists — send OTP
       const verifier = getRecaptcha();
       const phoneNumber = `+91${mobile.replace(/\D/g, "").slice(-10)}`;
