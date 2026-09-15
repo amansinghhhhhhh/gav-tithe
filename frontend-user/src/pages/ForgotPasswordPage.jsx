@@ -120,10 +120,15 @@ export default function ForgotPasswordPage() {
         return;
       }
       
-      // Email in MongoDB (already_registered) → proceed with reset
-      await sendPasswordResetEmail(auth, email);
-      setSuccessMsg(t("forgot_success", { email }));
-      setEmail("");
+      // Only if explicitly "already_registered" in MongoDB → send reset
+      if (emailCheck.success === false && emailCheck.message === "already_registered") {
+        await sendPasswordResetEmail(auth, email);
+        setSuccessMsg(t("forgot_success", { email }));
+        setEmail("");
+      } else {
+        // Unexpected response → don't send reset
+        setErr(t("forgot_error_not_registered"));
+      }
     } catch (e) {
       console.error("Reset error:", e);
       setErr(t(firebaseErrorKey(e.code)));
