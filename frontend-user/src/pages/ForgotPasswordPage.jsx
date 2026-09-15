@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { app } from "../config/firebase";
-import { checkMobile, resetPasswordMobile, checkSamePassword } from "../services/api";
+import { checkMobile, checkEmail, resetPasswordMobile, checkSamePassword } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
@@ -103,6 +103,24 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true);
     try {
+      // Pehle MongoDB me check karo
+      const emailCheck = await checkEmail(email);
+      
+      // Email nowhere (available) → not registered
+      if (emailCheck.success && emailCheck.message === "available") {
+        setErr(t("forgot_error_not_registered"));
+        setLoading(false);
+        return;
+      }
+      
+      // Email in Firebase only (incomplete registration) → block
+      if (emailCheck.success && emailCheck.message === "firebase_only") {
+        setErr(t("forgot_error_account_not_exist"));
+        setLoading(false);
+        return;
+      }
+      
+      // Email in MongoDB (already_registered) → proceed with reset
       await sendPasswordResetEmail(auth, email);
       setSuccessMsg(t("forgot_success", { email }));
       setEmail("");
