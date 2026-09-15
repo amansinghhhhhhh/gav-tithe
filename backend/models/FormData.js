@@ -10,6 +10,8 @@ const FormDataSchema = new mongoose.Schema({
         mobile: String,
         email: String,
         education: String,
+        referredBy: { type: String, default: "" },
+        referrerMobile: { type: String, default: "" },
         // ✅ address string → object
         address: {
             dist: { type: String, default: "" },

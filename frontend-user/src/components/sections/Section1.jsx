@@ -399,6 +399,22 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           ]}
         />
 
+        {/* Referral fields (optional) */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <ValidatedInput
+            label={t("s1_referredby")}
+            placeholder={t("s1_referredby_ph")}
+            value={data.referredBy || ""}
+            onChange={(e) => u({ referredBy: e.target.value })}
+          />
+          <ValidatedInput
+            label={t("s1_referrer_mobile")}
+            placeholder={t("s1_referrer_mobile_ph")}
+            value={data.referrerMobile || ""}
+            onChange={(e) => u({ referrerMobile: e.target.value })}
+          />
+        </div>
+
         {/* ✅ Address — cascading dropdowns */}
         <div>
           <label style={labelStyle}>{t("s1_address")}</label>

@@ -47,7 +47,7 @@ const udyamMatches = (typed, ocr) => {
 };
 
 const SECTION_ALLOWED_KEYS = {
-    section1: ["fullName", "dob", "gender", "mobile", "email", "education", "address", "otpVerified"],
+    section1: ["fullName", "dob", "gender", "mobile", "email", "education", "referredBy", "referrerMobile", "address", "otpVerified"],
     section2: ["businessName", "businessType", "sector", "sectorOther", "businessStatus", "employment", "investment"],
     section3: ["hadLoan", "loanType", "loanTypeOther", "repaymentStatus", "cibilScore", "pastDifficulty"],
     section4: ["aadhaar", "pan", "udyam", "bankName", "accountNo", "docs"],

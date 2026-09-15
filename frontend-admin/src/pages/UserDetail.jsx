@@ -194,6 +194,8 @@ export default function UserDetail() {
           <Row label="Mobile" value={s1.mobile} />
           <Row label="Email" value={s1.email} />
           <Row label="Education" value={s1.education} />
+          <Row label="Referred By" value={s1.referredBy} />
+          <Row label="Referrer Mobile" value={s1.referrerMobile} />
 
           {/* ✅ Address — object ya string dono handle */}
           {addressDisplay !== null ? (

@@ -87,6 +87,8 @@ const exportFormPdf = async (req, res) => {
             ["Mobile", safe(s1.mobile || user.mobile)],
             ["Email", safe(s1.email || user.email)],
             ["Education", safe(s1.education)],
+            ["Referred By", safe(s1.referredBy)],
+            ["Referrer Mobile", safe(s1.referrerMobile)],
             ["Address", addressString(s1.address)],
         ]);
 
@@ -178,6 +180,8 @@ const exportFormDocx = async (req, res) => {
                     ["Mobile", safe(s1.mobile || user.mobile)],
                     ["Email", safe(s1.email || user.email)],
                     ["Education", safe(s1.education)],
+                    ["Referred By", safe(s1.referredBy)],
+                    ["Referrer Mobile", safe(s1.referrerMobile)],
                     ["Address", addressString(s1.address)],
                 ]),
             }),

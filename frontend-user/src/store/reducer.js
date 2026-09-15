@@ -5,6 +5,7 @@ export const initialState = {
     section1: {
         fullName: "", dob: "", gender: "purush", mobile: "",
         otpSent: false, otpVerified: false, email: "", education: "",
+        referredBy: "", referrerMobile: "",
         // ✅ address string → object
         address: { dist: "", taluka: "", village: "", pincode: "" },
     },
