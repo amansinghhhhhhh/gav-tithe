@@ -59,7 +59,6 @@ export default function RegisterPage() {
 
   const [regOtpSent, setRegOtpSent] = useState(false);
   const [regOtpVerified, setRegOtpVerified] = useState(false);
-  const [otpSkipped, setOtpSkipped] = useState(false);
   const [regOtpLoading, setRegOtpLoading] = useState(false);
   const [regOtpInput, setRegOtpInput] = useState("");
   const [phoneFirebaseUid, setPhoneFirebaseUid] = useState("");
@@ -125,12 +124,13 @@ export default function RegisterPage() {
     }
   }, [firstName, surname, step]);
 
-  // Step auto-advance: OTP verified → step 3 (sirf actual OTP verification pe, firebase_only skip nahi)
+  // Step auto-advance: OTP verified → step 3 (3 sec delay for voice 2)
   useEffect(() => {
-    if (step === 2 && regOtpVerified && !otpSkipped) {
-      setStep(3);
+    if (step === 2 && regOtpVerified) {
+      const timer = setTimeout(() => setStep(3), 3000);
+      return () => clearTimeout(timer);
     }
-  }, [regOtpVerified, otpSkipped, step]);
+  }, [regOtpVerified, step]);
 
   // Step auto-advance: Valid email → check availability → step 4
   useEffect(() => {
@@ -154,7 +154,7 @@ export default function RegisterPage() {
           // On error, allow proceed (fallback)
           setStep(4);
         }
-      }, 500);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [email, step]);
@@ -190,11 +190,10 @@ export default function RegisterPage() {
         return;
       }
       
-      // Case 2: Firebase me hai, MongoDB me nahi → Show verified, DON'T auto-advance
+      // Case 2: Firebase me hai, MongoDB me nahi → Show verified, auto-advance 3 sec baad
       if (mobileCheck.message === "firebase_only") {
         setPhoneFirebaseUid(mobileCheck.firebaseUid);
         setRegOtpVerified(true);
-        setOtpSkipped(true);
         setRegOtpLoading(false);
         return;
       }
@@ -649,27 +648,8 @@ export default function RegisterPage() {
                 )}
 
                 {regOtpVerified && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
-                    <span style={{ color: "#22c55e", fontSize: 13, fontWeight: 600 }}>
-                      ✅ {t("s1_verified") || "Verified"}
-                    </span>
-                    {otpSkipped && step === 2 && (
-                      <button
-                        onClick={() => setStep(3)}
-                        style={{
-                          background: "linear-gradient(135deg, #F97316, #fb923c)",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 8,
-                          padding: "6px 16px",
-                          fontWeight: 700,
-                          fontSize: 12,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {t("s1_next") || "Next →"}
-                      </button>
-                    )}
+                  <div style={{ color: "#22c55e", fontSize: 13, marginTop: 6, fontWeight: 600 }}>
+                    ✅ {t("s1_verified") || "Verified"}
                   </div>
                 )}
               </div>
