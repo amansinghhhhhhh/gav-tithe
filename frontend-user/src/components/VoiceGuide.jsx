@@ -1,56 +1,96 @@
 import { useState, useEffect, useRef } from "react";
 import { useLang } from "../context/LangContext";
 
+import voiceStep1 from "../assets/audio/voice_step1.mp3";
+import voiceStep2 from "../assets/audio/voice_step2.mp3";
+import voiceStep3 from "../assets/audio/voice_step3.mp3";
+import voiceStep4 from "../assets/audio/voice_step4.mp3";
+import voiceStep5 from "../assets/audio/voice_step5.mp3";
+
+const audioMap = {
+  voice_step1: voiceStep1,
+  voice_step2: voiceStep2,
+  voice_step3: voiceStep3,
+  voice_step4: voiceStep4,
+  voice_step5: voiceStep5,
+};
+
 export default function VoiceGuide({ textKey, autoPlay = false, style }) {
   const { t, lang } = useLang();
-  const [speaking, setSpeaking] = useState(false);
-  const utterRef = useRef(null);
-
-  useEffect(() => {
-    if (autoPlay && textKey) {
-      const timer = setTimeout(() => speak(), 500);
-      return () => clearTimeout(timer);
-    }
-  }, [textKey, autoPlay]);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     return () => {
+      if (audioRef.current && lang === "mr") {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };
   }, []);
 
-  const speak = () => {
-    if (!window.speechSynthesis) return;
+  useEffect(() => {
+    if (autoPlay && textKey) {
+      const timer = setTimeout(() => play(), 500);
+      return () => {
+        clearTimeout(timer);
+        stop();
+      };
+    }
+  }, [textKey, autoPlay, lang]);
 
-    if (speaking) {
-      window.speechSynthesis.cancel();
-      setSpeaking(false);
+  const play = () => {
+    if (playing) {
+      stop();
       return;
     }
 
-    const utter = new SpeechSynthesisUtterance(t(textKey));
-    utter.lang = lang === "mr" ? "mr-IN" : "en-US";
-    utter.rate = 0.9;
-    utter.onend = () => setSpeaking(false);
-    utter.onerror = () => setSpeaking(false);
-    utterRef.current = utter;
-    setSpeaking(true);
-    window.speechSynthesis.speak(utter);
+    // Marathi → Pre-recorded audio files
+    if (lang === "mr" && audioMap[textKey]) {
+      const audio = new Audio(audioMap[textKey]);
+      audio.onended = () => setPlaying(false);
+      audio.onerror = () => setPlaying(false);
+      audioRef.current = audio;
+      audio.play();
+      setPlaying(true);
+    }
+    // English → Web Speech API
+    else if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(t(textKey));
+      utter.lang = "en-US";
+      utter.rate = 0.9;
+      utter.onend = () => setPlaying(false);
+      utter.onerror = () => setPlaying(false);
+      window.speechSynthesis.speak(utter);
+      setPlaying(true);
+    }
+  };
+
+  const stop = () => {
+    if (lang === "mr" && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    } else if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setPlaying(false);
   };
 
   return (
     <button
-      onClick={speak}
+      onClick={play}
       title={lang === "mr" ? "सुना" : "Listen"}
       style={{
         width: 32,
         height: 32,
         borderRadius: "50%",
         border: "none",
-        background: speaking ? "#F97316" : "#f3f4f6",
-        color: speaking ? "#fff" : "#F97316",
+        background: playing ? "#F97316" : "#f3f4f6",
+        color: playing ? "#fff" : "#F97316",
         fontSize: 16,
         cursor: "pointer",
         display: "flex",
@@ -61,7 +101,7 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
         ...style,
       }}
     >
-      {speaking ? "⏸" : "🔊"}
+      {playing ? "⏸" : "🔊"}
     </button>
   );
 }
