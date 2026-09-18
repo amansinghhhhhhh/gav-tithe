@@ -61,7 +61,11 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
         setPlaying(false);
       };
       audioRef.current = audio;
-      audio.play();
+      audio.play().catch(() => {
+        playingRef.current = false;
+        setPlaying(false);
+        audioRef.current = null;
+      });
       playingRef.current = true;
       setPlaying(true);
     }
