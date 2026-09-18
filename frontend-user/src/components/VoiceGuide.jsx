@@ -18,6 +18,7 @@ const audioMap = {
 export default function VoiceGuide({ textKey, autoPlay = false, style }) {
   const { t, lang } = useLang();
   const [playing, setPlaying] = useState(false);
+  const playingRef = useRef(false);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
   }, [textKey, autoPlay, lang]);
 
   const play = () => {
-    if (playing) {
+    if (playingRef.current) {
       stop();
       return;
     }
@@ -51,10 +52,17 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
     // Marathi → Pre-recorded audio files
     if (lang === "mr" && audioMap[textKey]) {
       const audio = new Audio(audioMap[textKey]);
-      audio.onended = () => setPlaying(false);
-      audio.onerror = () => setPlaying(false);
+      audio.onended = () => {
+        playingRef.current = false;
+        setPlaying(false);
+      };
+      audio.onerror = () => {
+        playingRef.current = false;
+        setPlaying(false);
+      };
       audioRef.current = audio;
       audio.play();
+      playingRef.current = true;
       setPlaying(true);
     }
     // English → Web Speech API
@@ -63,9 +71,16 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
       const utter = new SpeechSynthesisUtterance(t(textKey));
       utter.lang = "en-US";
       utter.rate = 0.9;
-      utter.onend = () => setPlaying(false);
-      utter.onerror = () => setPlaying(false);
+      utter.onend = () => {
+        playingRef.current = false;
+        setPlaying(false);
+      };
+      utter.onerror = () => {
+        playingRef.current = false;
+        setPlaying(false);
+      };
       window.speechSynthesis.speak(utter);
+      playingRef.current = true;
       setPlaying(true);
     }
   };
@@ -77,6 +92,7 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
     } else if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    playingRef.current = false;
     setPlaying(false);
   };
 
