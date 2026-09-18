@@ -169,6 +169,15 @@ export default function RegisterPage() {
     }
   }, [password, step]);
 
+  const getVoiceKey = () => {
+    if (step === 1) return "voice_step1";
+    if (step === 2 && !regOtpSent && !regOtpVerified) return "voice_step2";
+    if (step === 2 && (regOtpSent || regOtpVerified)) return "voice_step3";
+    if (step === 3) return "voice_step4";
+    if (step === 4) return "voice_step5";
+    return null;
+  };
+
   const getRegRecaptcha = () => {
     if (regRecaptchaRef.current) return regRecaptchaRef.current;
     regRecaptchaRef.current = new RecaptchaVerifier(
@@ -472,7 +481,7 @@ export default function RegisterPage() {
                 ))}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <VoiceGuide textKey={`voice_step${step}`} autoPlay={true} />
+                <VoiceGuide textKey={getVoiceKey()} autoPlay={true} />
                 <span style={{ fontSize: 12, color: "#6b7280" }}>
                   {t("voice_step")} {step}
                 </span>
