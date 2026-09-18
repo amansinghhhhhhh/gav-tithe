@@ -59,7 +59,6 @@ export default function RegisterPage() {
 
   const [regOtpSent, setRegOtpSent] = useState(false);
   const [regOtpVerified, setRegOtpVerified] = useState(false);
-  const [emailSkipped, setEmailSkipped] = useState(false);
   const [regOtpLoading, setRegOtpLoading] = useState(false);
   const [regOtpInput, setRegOtpInput] = useState("");
   const [phoneFirebaseUid, setPhoneFirebaseUid] = useState("");
@@ -125,15 +124,13 @@ export default function RegisterPage() {
     }
   }, [firstName, surname, step]);
 
-  // Step auto-advance: OTP verified → step 3 ya step 4 (3 sec delay for voice 2)
+  // Step auto-advance: OTP verified → step 3 (3 sec delay for voice)
   useEffect(() => {
     if (step === 2 && regOtpVerified) {
-      const timer = setTimeout(() => {
-        setStep(emailSkipped ? 4 : 3);
-      }, 3000);
+      const timer = setTimeout(() => setStep(3), 3000);
       return () => clearTimeout(timer);
     }
-  }, [regOtpVerified, emailSkipped, step]);
+  }, [regOtpVerified, step]);
 
   // Step auto-advance: Valid email → check availability → step 4
   useEffect(() => {
@@ -171,8 +168,7 @@ export default function RegisterPage() {
 
   const getVoiceKey = () => {
     if (step === 1) return "voice_step1";
-    if (step === 2 && !regOtpSent && !regOtpVerified) return "voice_step2";
-    if (step === 2 && (regOtpSent || regOtpVerified)) return "voice_step3";
+    if (step === 2) return regOtpSent ? "voice_step3" : "voice_step2";
     if (step === 3) return "voice_step4";
     if (step === 4) return "voice_step5";
     return null;
@@ -202,11 +198,10 @@ export default function RegisterPage() {
         return;
       }
       
-      // Case 2: Firebase me hai, MongoDB me nahi → Show verified, email skip karke seedha password
+      // Case 2: Firebase me hai, MongoDB me nahi → Show verified, auto-advance 3 sec baad
       if (mobileCheck.message === "firebase_only") {
         setPhoneFirebaseUid(mobileCheck.firebaseUid);
         setRegOtpVerified(true);
-        setEmailSkipped(true);
         setRegOtpLoading(false);
         return;
       }
