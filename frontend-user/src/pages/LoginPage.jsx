@@ -1,7 +1,6 @@
   import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { loginEmail } from "../services/api";
-import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
 import VoiceGuide from "../components/VoiceGuide";
@@ -50,6 +49,7 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [loginMode, setLoginMode] = useState("mobile");
   const [successMsg, setSuccessMsg] = useState("");
   const [showRegSuccessPopup, setShowRegSuccessPopup] = useState(false);
   const [regSuccessMsg, setRegSuccessMsg] = useState("");
@@ -84,17 +84,41 @@ export default function LoginPage() {
       setErr(t("login_error"));
       return;
     }
-    setLoading(true);
-    try {
-      const isEmail = email.includes("@");
-      const cleanInput = isEmail ? email.trim() : email.replace(/[^0-9]/g, "").slice(-10);
 
-      if (isEmail) {
+    if (loginMode === "mobile") {
+      const cleanMobile = email.replace(/[^0-9]/g, "").slice(-10);
+      if (cleanMobile.length !== 10) {
+        setErr(t("login_error_mobile"));
+        return;
+      }
+      setLoading(true);
+      try {
+        const data = await loginEmail(cleanMobile, password);
+        if (data?.success) {
+          login(data.user);
+          navigate("/dashboard");
+        } else if (data?.retryAfterMinutes) {
+          setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
+        } else {
+          setErr(t("login_error_credential"));
+        }
+      } catch (e) {
+        setErr(t("login_error_credential"));
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        setErr(t("login_error_email"));
+        return;
+      }
+      setLoading(true);
+      try {
         let fbCred;
         try {
-          fbCred = await signInWithEmailAndPassword(auth, email, password);
+          fbCred = await signInWithEmailAndPassword(auth, email.trim(), password);
         } catch (firebaseErr) {
-          setErr(t(firebaseErrorKey(firebaseErr.code)));
+          setErr(t("login_error_credential"));
           setLoading(false);
           return;
         }
@@ -103,33 +127,21 @@ export default function LoginPage() {
           setLoading(false);
           return;
         }
-
         const firebaseIdToken = await fbCred.user.getIdToken();
-        const data = await loginEmail(cleanInput, password, firebaseIdToken);
+        const data = await loginEmail(email.trim(), password, firebaseIdToken);
         if (data?.success) {
           login(data.user);
           navigate("/dashboard");
         } else if (data?.retryAfterMinutes) {
           setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
         } else {
-          setErr(t(data?.message) || t("login_error1"));
+          setErr(t("login_error_credential"));
         }
-      } else {
-        const data = await loginEmail(cleanInput, password);
-        if (data?.success) {
-          login(data.user);
-          navigate("/dashboard");
-        } else if (data?.retryAfterMinutes) {
-          setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
-        } else {
-          setErr(t(data?.message) || t("login_error1"));
-        }
+      } catch (e) {
+        setErr(t("login_error_credential"));
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      console.error("Login error:", e);
-      setErr(t("fb_generic"));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -363,16 +375,45 @@ export default function LoginPage() {
                   {t("voice_step")} 1
                 </span>
               </div>
+              <div style={{ display: "flex", gap: 16, marginBottom: 4 }}>
+                {[
+                  { value: "mobile", label: t("login_with_mobile"), icon: "📱" },
+                  { value: "email", label: t("login_with_email"), icon: "✉️" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      cursor: "pointer",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: loginMode === opt.value ? "#F97316" : "#6b7280",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="loginMode"
+                      value={opt.value}
+                      checked={loginMode === opt.value}
+                      onChange={() => { setLoginMode(opt.value); setEmail(""); setErr(""); }}
+                      style={{ accentColor: "#F97316" }}
+                    />
+                    {opt.icon} {opt.label}
+                  </label>
+                ))}
+              </div>
               <div>
                 <label style={labelStyle}>
-                  {t("login_email_or_mobile")}{" "}
+                  {loginMode === "mobile" ? t("login_mobile") : t("login_email")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
                   style={inp}
-                  type="text"
-                  inputMode="email"
-                  placeholder={t("login_email_or_mobile_ph")}
+                  type={loginMode === "mobile" ? "tel" : "email"}
+                  inputMode={loginMode === "mobile" ? "tel" : "email"}
+                  placeholder={loginMode === "mobile" ? t("login_mobile_ph") : t("login_email_ph")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={focusStyle}
