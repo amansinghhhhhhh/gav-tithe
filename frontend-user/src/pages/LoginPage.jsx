@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { loginEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
-import VoiceGuide from "../components/VoiceGuide";
 import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
@@ -369,39 +368,29 @@ export default function LoginPage() {
             <div
               style={{ display: "flex", flexDirection: "column", gap: 14 }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <VoiceGuide textKey="voice_login" autoPlay={true} />
-                <span style={{ fontSize: 12, color: "#6b7280" }}>
-                  {t("voice_step")} 1
-                </span>
-              </div>
-              <div style={{ display: "flex", gap: 16, marginBottom: 4 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                 {[
-                  { value: "mobile", label: t("login_with_mobile"), icon: "📱" },
-                  { value: "email", label: t("login_with_email"), icon: "✉️" },
+                  { value: "mobile", label: t("login_with_mobile") },
+                  { value: "email", label: t("login_with_email") },
                 ].map((opt) => (
-                  <label
+                  <button
                     key={opt.value}
+                    onClick={() => { setLoginMode(opt.value); setEmail(""); setErr(""); }}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      cursor: "pointer",
+                      flex: 1,
+                      padding: "10px 0",
+                      background: loginMode === opt.value ? "#F97316" : "#f3f4f6",
+                      color: loginMode === opt.value ? "#fff" : "#6b7280",
+                      border: "none",
+                      borderRadius: 8,
+                      fontWeight: 700,
                       fontSize: 14,
-                      fontWeight: 600,
-                      color: loginMode === opt.value ? "#F97316" : "#6b7280",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
                     }}
                   >
-                    <input
-                      type="radio"
-                      name="loginMode"
-                      value={opt.value}
-                      checked={loginMode === opt.value}
-                      onChange={() => { setLoginMode(opt.value); setEmail(""); setErr(""); }}
-                      style={{ accentColor: "#F97316" }}
-                    />
-                    {opt.icon} {opt.label}
-                  </label>
+                    {opt.label}
+                  </button>
                 ))}
               </div>
               <div>
