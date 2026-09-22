@@ -500,7 +500,7 @@ export default function RegisterPage() {
                     req: true,
                     ph: t("login_firstname_ph"),
                     infoKey: "info_firstname",
-                    infoAlign: "center",
+                    infoAlign: "left",
                   },
                   {
                     label: t("login_middlename"),
