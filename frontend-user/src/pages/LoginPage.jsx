@@ -99,10 +99,10 @@ export default function LoginPage() {
         } else if (data?.retryAfterMinutes) {
           setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
         } else {
-          setErr(t("login_error_credential"));
+          setErr(t("login_error_credential_mobile"));
         }
       } catch (e) {
-        setErr(t("login_error_credential"));
+        setErr(t("login_error_credential_mobile"));
       } finally {
         setLoading(false);
       }
