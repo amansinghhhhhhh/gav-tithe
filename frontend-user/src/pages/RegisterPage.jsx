@@ -172,6 +172,7 @@ export default function RegisterPage() {
     if (step === 2) return regOtpSent ? "voice_step3" : "voice_step2";
     if (step === 3) return "voice_step4";
     if (step === 4) return "voice_step5";
+    if (step === 5) return "voice_step6";
     return null;
   };
 
@@ -678,7 +679,7 @@ export default function RegisterPage() {
                 <label style={labelStyle}>
                   {t("login_email")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
-                  <InfoTip textKey="info_email" size={14} />
+                  <InfoTip textKey="info_email_register" size={14} />
                 </label>
                 <input
                   style={{ ...inp, background: step >= 3 ? "#fff" : "#f9fafb" }}
