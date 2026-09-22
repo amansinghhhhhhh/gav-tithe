@@ -398,16 +398,44 @@ export default function LoginPage() {
                   {loginMode === "mobile" ? t("login_mobile") : t("login_email")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
                 </label>
-                <input
-                  style={inp}
-                  type={loginMode === "mobile" ? "tel" : "email"}
-                  inputMode={loginMode === "mobile" ? "tel" : "email"}
-                  placeholder={loginMode === "mobile" ? t("login_mobile_ph") : t("login_email_ph")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={focusStyle}
-                  onBlur={blurStyle}
-                />
+                <div style={{ position: "relative" }}>
+                  {loginMode === "mobile" && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        fontSize: 15,
+                        color: "#6b7280",
+                        fontWeight: 600,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      +91
+                    </span>
+                  )}
+                  <input
+                    style={{
+                      ...inp,
+                      paddingLeft: loginMode === "mobile" ? 48 : 14,
+                    }}
+                    type={loginMode === "mobile" ? "tel" : "email"}
+                    inputMode={loginMode === "mobile" ? "tel" : "email"}
+                    maxLength={loginMode === "mobile" ? 10 : undefined}
+                    placeholder={loginMode === "mobile" ? t("login_mobile_ph") : t("login_email_ph")}
+                    value={email}
+                    onChange={(e) => {
+                      if (loginMode === "mobile") {
+                        setEmail(e.target.value.replace(/[^0-9]/g, "").slice(0, 10));
+                      } else {
+                        setEmail(e.target.value);
+                      }
+                    }}
+                    onFocus={focusStyle}
+                    onBlur={blurStyle}
+                  />
+                </div>
               </div>
               <div>
                 <div
