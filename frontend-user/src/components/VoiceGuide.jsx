@@ -6,7 +6,8 @@ import voiceStep2 from "../assets/audio/voice_step2.mp3";
 import voiceStep3 from "../assets/audio/voice_step3.mp3";
 import voiceStep4 from "../assets/audio/voice_step4.mp3";
 import voiceStep5 from "../assets/audio/voice_step5.mp3";
-import loginFeild from "../assets/audio/login-feild.mp3";
+import loginMobile from "../assets/audio/login-mobile.mp3";
+import loginEmailFile from "../assets/audio/login-email.mp3";
 
 const audioMap = {
   voice_step1: voiceStep1,
@@ -14,7 +15,8 @@ const audioMap = {
   voice_step3: voiceStep3,
   voice_step4: voiceStep4,
   voice_step5: voiceStep5,
-  voice_login: loginFeild,
+  voice_login_mobile: loginMobile,
+  voice_login_email: loginEmailFile,
 };
 
 export default function VoiceGuide({ textKey, autoPlay = false, style }) {

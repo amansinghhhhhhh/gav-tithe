@@ -418,7 +418,8 @@ const translations = {
         voice_step3: "Step 3: तुमचा ईमेल आईडी टाका",
         voice_step4: "Step 4: पासवर्ड तयार करा",
         voice_step5: "Step 5: नोंदणी करा",
-        voice_login: "Email ID आणि Password टाकून Login करा",
+        voice_login_mobile: "मोबाईल नंबर आणि पासवर्ड टाकून Login करा",
+        voice_login_email: "ईमेल आयडी आणि पासवर्ड टाकून Login करा",
 
         // Login FAQs
         faq_login_title: "लॉगिन विषयक प्रश्न",
@@ -891,7 +892,8 @@ const translations = {
         voice_step3: "Step 3: Enter your email ID",
         voice_step4: "Step 4: Create a password",
         voice_step5: "Step 5: Click Register",
-        voice_login: "Enter your Email ID and Password to login",
+        voice_login_mobile: "Enter your mobile number and password to login",
+        voice_login_email: "Enter your email ID and password to login",
 
         // Login FAQs
         faq_login_title: "Login Related Questions",

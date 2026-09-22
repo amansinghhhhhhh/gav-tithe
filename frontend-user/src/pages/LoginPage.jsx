@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { loginEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
+import VoiceGuide from "../components/VoiceGuide";
 import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
@@ -368,6 +369,15 @@ export default function LoginPage() {
             <div
               style={{ display: "flex", flexDirection: "column", gap: 14 }}
             >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <VoiceGuide
+                  textKey={loginMode === "mobile" ? "voice_login_mobile" : "voice_login_email"}
+                  autoPlay={true}
+                />
+                <span style={{ fontSize: 12, color: "#6b7280" }}>
+                  {t("voice_step")} 1
+                </span>
+              </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                 {[
                   { value: "mobile", label: t("login_with_mobile") },
