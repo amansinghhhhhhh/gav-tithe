@@ -86,7 +86,7 @@ export default function LoginPage() {
 
     if (loginMode === "mobile") {
       const cleanMobile = email.replace(/[^0-9]/g, "").slice(-10);
-      if (cleanMobile.length !== 10) {
+      if (cleanMobile.length !== 10 || !/^[6-9]/.test(cleanMobile)) {
         setErr(t("login_error_mobile"));
         return;
       }
