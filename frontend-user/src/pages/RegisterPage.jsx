@@ -16,6 +16,7 @@ import { auth } from "../config/firebase";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import FaqModal from "../components/FaqModal";
+import InfoTip from "../components/InfoTip";
 import faqIcon from "../assets/faq.png";
 import videoSrc from "../assets/gtu-register.mp4";
 
@@ -497,6 +498,8 @@ export default function RegisterPage() {
                     set: setFirstName,
                     req: true,
                     ph: t("login_firstname_ph"),
+                    infoKey: "info_firstname",
+                    infoAlign: "center",
                   },
                   {
                     label: t("login_middlename"),
@@ -504,6 +507,8 @@ export default function RegisterPage() {
                     set: setMiddleName,
                     req: false,
                     ph: t("login_middlename_ph"),
+                    infoKey: "info_middlename",
+                    infoAlign: "center",
                   },
                   {
                     label: t("login_surname"),
@@ -511,12 +516,15 @@ export default function RegisterPage() {
                     set: setSurname,
                     req: true,
                     ph: t("login_surname_ph"),
+                    infoKey: "info_lastname",
+                    infoAlign: "right",
                   },
-                ].map(({ label: lbl, val, set, req, ph }) => (
+                ].map(({ label: lbl, val, set, req, ph, infoKey, infoAlign }) => (
                   <div key={lbl}>
                     <label style={labelStyle}>
                       {lbl}{" "}
                       {req && <span style={{ color: "#ef4444" }}>*</span>}
+                      <InfoTip textKey={infoKey} size={14} align={infoAlign} />
                     </label>
                     <input
                       style={{ ...inp, padding: "11px 10px", fontSize: 13 }}
@@ -533,7 +541,10 @@ export default function RegisterPage() {
               {/* Mobile — visible always, disabled until step 2 */}
               <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14, opacity: step >= 2 ? 1 : 0.5, pointerEvents: step >= 2 ? "auto" : "none" }}>
                 <div id="reg-recaptcha-container" />
-                <label style={labelStyle}>{t("login_mobile")}</label>
+                <label style={labelStyle}>
+                  {t("login_mobile")}
+                  <InfoTip textKey="info_mobile_register" size={14} />
+                </label>
                 <div style={{ display: "flex", gap: 8 }}>
                   <div style={{ position: "relative", flex: 1 }}>
                     <span
@@ -667,6 +678,7 @@ export default function RegisterPage() {
                 <label style={labelStyle}>
                   {t("login_email")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
+                  <InfoTip textKey="info_email" size={14} />
                 </label>
                 <input
                   style={{ ...inp, background: step >= 3 ? "#fff" : "#f9fafb" }}
@@ -684,6 +696,7 @@ export default function RegisterPage() {
                 <label style={labelStyle}>
                   {t("login_pass_readonly")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
+                  <InfoTip textKey="info_password" size={14} />
                 </label>
                 <div style={{ position: "relative" }}>
                   <input

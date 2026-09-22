@@ -12,6 +12,7 @@ import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import { RegistrationPopup } from "../components/RegistrationPopup";
 import FaqModal from "../components/FaqModal";
+import InfoTip from "../components/InfoTip";
 import faqIcon from "../assets/faq.png";
 import videoSrc from "../assets/gtu-register.mp4";
 
@@ -407,6 +408,7 @@ export default function LoginPage() {
                 <label style={labelStyle}>
                   {loginMode === "mobile" ? t("login_mobile") : t("login_email")}{" "}
                   <span style={{ color: "#ef4444" }}>*</span>
+                  <InfoTip textKey={loginMode === "mobile" ? "info_mobile" : "info_email"} />
                 </label>
                 <div style={{ position: "relative" }}>
                   {loginMode === "mobile" && (
@@ -462,17 +464,21 @@ export default function LoginPage() {
                     <span style={{ color: "#9ca3af", fontWeight: 400 }}>
                       {t("login_password_hint")}
                     </span>
+                    <InfoTip textKey="info_password_login" />
                   </label>
-                  <span
-                    onClick={() => navigate("/forgot-password")}
-                    style={{
-                      fontSize: 12,
-                      color: "#F97316",
-                      cursor: "pointer",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {t("login_forgot")}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+                    <span
+                      onClick={() => navigate("/forgot-password")}
+                      style={{
+                        fontSize: 12,
+                        color: "#F97316",
+                        cursor: "pointer",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {t("login_forgot")}
+                    </span>
+                    <InfoTip textKey="info_forgot" size={14} align="right" />
                   </span>
                 </div>
                 <div style={{ position: "relative" }}>
