@@ -171,7 +171,13 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     if (OCR_KEYS[key]) {
       uo({ [`${key}Pending`]: true, [key]: null });
       try {
-        const result = await extractDocNumber(file);
+        // Aadhaar: user ne type kiya number hint do — OCR ambiguous ho toh usse prefer karo
+        const aadhaarHint =
+          key === "aadhaarFront" ? (data.aadhaar || "").replace(/\D/g, "") : null;
+        const result = await extractDocNumber(
+          file,
+          aadhaarHint ? { aadhaarHint } : {},
+        );
         if (result.ok) {
           ocrNumber =
             key === "aadhaarFront"

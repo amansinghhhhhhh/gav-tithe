@@ -126,14 +126,117 @@ const preprocessFile = async (file) => {
 };
 
 // ── Number extraction ─────────────────────────────────────────────────────────
-const extractAadhaar = (text) => {
-    const spaced = text.match(/\d{4}\s+\d{4}\s+\d{4}/g);
-    if (spaced) return spaced[0].replace(/\s/g, "");
-    const plain = text.match(/\b\d{12}\b/g);
-    if (plain) return plain[0];
-    const compact = text.replace(/\s+/g, "");
-    const m = compact.match(/\d{12}/g);
-    return m ? m[0] : null;
+const contextAround = (text, index, len) => ({
+    before: text.slice(Math.max(0, index - 50), index),
+    after: text.slice(index + len, index + len + 50),
+});
+
+// Aadhaar candidate scoring: label bonus, masked-mobile / partial-prefix penalty
+const scoreAadhaarCtx = (before, after) => {
+    let score = 0;
+    const b = (before || "").toUpperCase();
+    const a = (after || "").toUpperCase();
+    const bTrim = b.replace(/\s+/g, " ").trim();
+
+    // Positive: Aadhaar label nearby
+    if (/(AADHAAR|AADHAR|UIDAI|भारतीय\s*विशिष्ट\s*पहचान|आधार)/.test(b) || /(AADHAAR|AADHAR|UIDAI|आधार)/.test(a)) {
+        score += 100;
+    }
+
+    // Strong negative: aur digits iske baad aa rahe hain → ye prefix hai, poora number nahi
+    // e.g. "2716 5550 3566 | 9967" → first window incomplete; last window clean
+    if (/^[ \t]*\d/.test(after || "") || /^\d/.test((after || "").trimStart())) {
+        score -= 120;
+    }
+
+    // Strong negative: masked stars / mobile label before
+    if (/\*{2,}\s*\d{0,4}$/.test(bTrim) || /\*{3,}/.test(b.slice(-15))) {
+        score -= 200;
+    }
+    if (/(MOBILE|PHONE|M)\s*:?\s*\d{0,10}$/.test(bTrim.replace(/[^A-Z0-9:* ]/gi, ""))) {
+        score -= 200;
+    }
+
+    // Negative: digits glued just before (mobile-4 spillover)
+    if (/\d\s*$/.test(before || "") && !/\d{4}[ \t]+\d{4}[ \t]+$/.test(before || "")) {
+        score -= 60;
+    }
+    return score;
+};
+
+// Collect ALL 12-digit aadhaar candidates (overlapping spaced + contiguous + sliding glued runs)
+const collectAadhaarCandidates = (text) => {
+    const out = [];
+    const seen = new Set();
+    const push = (value, index, len) => {
+        const v = String(value).replace(/\D/g, "");
+        if (v.length !== 12) return;
+        const key = `${v}@${index}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        const { before, after } = contextAround(text, index, len);
+        out.push({ value: v, index, score: scoreAadhaarCtx(before, after) });
+    };
+
+    // 1) Spaced XXXX XXXX XXXX — overlapping: har position se try karo
+    for (let i = 0; i < text.length; i++) {
+        if (!/\d/.test(text[i])) continue;
+        const m = text.slice(i).match(/^\d{4}[ \t]+\d{4}[ \t]+\d{4}(?!\d)/);
+        if (m) push(m[0], i, m[0].length);
+    }
+
+    // 2) Contiguous exactly-12 with boundaries
+    const plainRe = /(?<!\d)\d{12}(?!\d)/g;
+    let pm;
+    while ((pm = plainRe.exec(text)) !== null) {
+        push(pm[0], pm.index, 12);
+    }
+
+    // 3) Long glued digit runs → sliding 12-digit windows (e.g. 2716555035669967)
+    const runsRe = /\d{13,}/g;
+    let rm;
+    while ((rm = runsRe.exec(text)) !== null) {
+        const run = rm[0];
+        for (let i = 0; i <= run.length - 12; i++) {
+            push(run.slice(i, i + 12), rm.index + i, 12);
+        }
+    }
+
+    return out;
+};
+
+const extractAadhaar = (text, hint) => {
+    const hintDigits = String(hint || "").replace(/\D/g, "");
+    const candidates = collectAadhaarCandidates(text);
+
+    if (candidates.length === 0) {
+        // Last resort: exact-12 tokens after split (no partial gluing)
+        const tokens = String(text || "").split(/[^0-9]+/).filter((t) => t.length === 12);
+        return tokens[0] || null;
+    }
+    if (candidates.length === 1) return candidates[0].value;
+
+    // Priority 1: user ka typed hint se match (exact ya 1-digit OCR misread)
+    if (hintDigits.length === 12) {
+        const exact = candidates.find((c) => c.value === hintDigits);
+        if (exact) return exact.value;
+        const near = candidates.find((c) => {
+            const d = aadhaarDiff(hintDigits, c.value);
+            return d === 0 || d === 1;
+        });
+        if (near) return near.value;
+    }
+
+    // Priority 2: best context score (label bonus, masked-mobile penalty)
+    const sorted = [...candidates].sort((a, b) => b.score - a.score);
+    // Tie → pehla (reading order) prefer
+    if (sorted.length > 1 && sorted[0].score === sorted[1].score) {
+        const first = sorted.reduce((p, c) => (c.index < p.index ? c : p));
+        // Agar score tie hai toh lowest index (card layout mein aadhaar usually upar)
+        // lekin agar kisi pe label bonus hai toh wo already upar hoga
+        return sorted[0].score > 0 ? sorted[0].value : first.value;
+    }
+    return sorted[0].value;
 };
 
 const extractPan = (text) => {
@@ -178,7 +281,7 @@ const recognize = async (worker, input, sparse) => {
 };
 
 // ── Main entry ────────────────────────────────────────────────────────────────
-export const extractDocNumber = async (file) => {
+export const extractDocNumber = async (file, opts = {}) => {
     const attempts = [];
     try {
         const worker = await getWorker();
@@ -193,7 +296,7 @@ export const extractDocNumber = async (file) => {
             for (const sparse of [false, true]) {
                 const text = await recognize(worker, input, sparse);
                 attempts.push(text);
-                const aadhaar = extractAadhaar(text);
+                const aadhaar = extractAadhaar(text, opts.aadhaarHint);
                 const pan = extractPan(text);
                 const udyam = extractUdyam(text);
                 if (aadhaar || pan || udyam) {

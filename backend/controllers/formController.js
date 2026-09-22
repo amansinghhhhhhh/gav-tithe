@@ -241,7 +241,14 @@ const uploadDoc = async (req, res) => {
         // ✅ OCR extracted number store karo (aadhaarFront/pan/udyam ke liye)
         if (docType === "aadhaarFront" || docType === "pan" || docType === "udyam") {
             if (!form.section4.ocr) form.section4.ocr = {};
-            const ocrValue = typeof req.body.ocr === "string" ? req.body.ocr.trim().toUpperCase().slice(0, 32) : "";
+            let ocrValue = typeof req.body.ocr === "string" ? req.body.ocr.trim().toUpperCase().slice(0, 32) : "";
+            // Sanity: format validate karo (client OCR untrusted hai)
+            if (docType === "aadhaarFront") {
+                const digits = ocrValue.replace(/\D/g, "");
+                ocrValue = digits.length === 12 ? digits : "";
+            } else if (docType === "pan") {
+                if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(ocrValue)) ocrValue = "";
+            }
             form.section4.ocr[docType] = ocrValue || null;
         }
 
