@@ -1,33 +1,12 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
 
 export default function RegistrationSuccessPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useLang();
 
-  useEffect(() => {
-    try {
-      sessionStorage.setItem("regSuccessSeen", "1");
-    } catch (_) {}
-    if (!location.state?.regSuccess && sessionStorage.getItem("regSuccessPending") !== "1") {
-      navigate("/login", { replace: true });
-    } else {
-      try {
-        sessionStorage.removeItem("regSuccessPending");
-      } catch (_) {}
-    }
-  }, []);
-
-  const goLogin = () => {
-    try {
-      sessionStorage.removeItem("regSuccessPending");
-      sessionStorage.removeItem("regSuccessSeen");
-    } catch (_) {}
-    navigate("/login");
-  };
+  const goLogin = () => navigate("/login");
 
   const stepNum = {
     fontWeight: 800,
@@ -167,7 +146,7 @@ export default function RegistrationSuccessPage() {
                 boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
               }}
             >
-              {t("ok") || "OK"}
+              {t("login_signin_link")}
             </button>
           </div>
         </div>
