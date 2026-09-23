@@ -70,7 +70,17 @@ export default function RegistrationSuccessPage() {
             >
               ✅
             </div>
-            <h1 style={{ margin: 0, color: "#fff", fontWeight: 800, fontSize: 22, textAlign: "left" }}>
+            <h1
+              style={{
+                margin: 0,
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 22,
+                letterSpacing: 0,
+                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                textAlign: "left",
+              }}
+            >
               {t("reg_popup_title")}
             </h1>
           </div>
