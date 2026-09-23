@@ -482,8 +482,14 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 disabled={!data.address?.taluka}
                 onChange={(e) => {
                   const val = e.target.value;
-                  uAddr("village", val);
-                  if (val !== "__other__") uAddr("villageCustom", "");
+                  u({
+                    address: {
+                      ...data.address,
+                      village: val,
+                      villageCustom:
+                        val === "__other__" ? (data.address?.villageCustom || "") : "",
+                    },
+                  });
                   clearError("address.village");
                 }}
                 onBlur={(e) => validateField("address.village", e.target.value, data)}
