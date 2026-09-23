@@ -14,6 +14,7 @@ export default function SearchSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [dropUp, setDropUp] = useState(false);
   const rootRef = useRef(null);
   const inputRef = useRef(null);
   const hasError = !!error;
@@ -24,9 +25,30 @@ export default function SearchSelect({
     [items, selected]
   );
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((o) => o.label.toLowerCase().includes(q));
+  }, [items, query]);
+
+  const calcDrop = () => {
+    const el = rootRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const listH = Math.min(220, filtered.length * 40 + 8);
+    setDropUp(spaceBelow < listH + 8 && spaceAbove > listH + 8);
+  };
+
   useEffect(() => {
     setQuery("");
   }, [value, disabled]);
+
+  useEffect(() => {
+    if (open) calcDrop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, filtered.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -40,12 +62,6 @@ export default function SearchSelect({
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open, selected, onBlur]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((o) => o.label.toLowerCase().includes(q));
-  }, [items, query]);
 
   const display = open ? query : selectedLabel;
 
@@ -120,10 +136,11 @@ export default function SearchSelect({
         <div
           style={{
             position: "absolute",
-            top: "100%",
             left: 0,
             right: 0,
-            marginTop: 4,
+            ...(dropUp
+              ? { bottom: "100%", marginBottom: 4 }
+              : { top: "100%", marginTop: 4 }),
             background: "#fff",
             border: "1.5px solid #e5e7eb",
             borderRadius: 8,
