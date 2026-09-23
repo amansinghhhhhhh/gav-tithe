@@ -645,15 +645,16 @@ export default function LoginPage() {
                   {t("reg_popup_step1")}
                 </li>
                 <li style={{ marginBottom: 6 }}>{t("reg_popup_step2")}</li>
-                <li>{t("reg_popup_step3")}</li>
+                <li>
+                  {t("reg_popup_step3")}
+                  <ul style={{ margin: "4px 0 0", paddingLeft: 18, lineHeight: 1.7 }}>
+                    <li>{t("reg_popup_doc1")}</li>
+                    <li>{t("reg_popup_doc2")}</li>
+                    <li>{t("reg_popup_doc3")}</li>
+                    <li>{t("reg_popup_doc4")}</li>
+                  </ul>
+                </li>
               </ol>
-
-              <ul style={{ margin: "-6px 0 14px", paddingLeft: 20, fontSize: 13, color: "#4b5563", lineHeight: 1.7 }}>
-                <li>{t("reg_popup_doc1")}</li>
-                <li>{t("reg_popup_doc2")}</li>
-                <li>{t("reg_popup_doc3")}</li>
-                <li>{t("reg_popup_doc4")}</li>
-              </ul>
 
               <div
                 style={{
