@@ -43,7 +43,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const { t } = useLang();
+  const { t, setLang, lang } = useLang();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,7 +53,7 @@ export default function LoginPage() {
   const [loginMode, setLoginMode] = useState("mobile");
   const [successMsg, setSuccessMsg] = useState("");
   const [showRegSuccessPopup, setShowRegSuccessPopup] = useState(false);
-  const [regSuccessMsg, setRegSuccessMsg] = useState("");
+  const [regSuccessEmail, setRegSuccessEmail] = useState("");
   const [showFaq, setShowFaq] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
@@ -72,8 +72,8 @@ export default function LoginPage() {
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
   useEffect(() => {
-    if (location.state?.successMsg) {
-      setRegSuccessMsg(location.state.successMsg);
+    if (location.state?.regSuccess) {
+      setRegSuccessEmail(location.state.email || "");
       setShowRegSuccessPopup(true);
       window.history.replaceState({}, document.title);
     }
@@ -600,8 +600,10 @@ export default function LoginPage() {
             style={{
               background: "#fff",
               borderRadius: 16,
-              maxWidth: 400,
+              maxWidth: 420,
               width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
               overflow: "hidden",
               boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
             }}
@@ -609,7 +611,7 @@ export default function LoginPage() {
             <div
               style={{
                 background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                padding: "28px 24px",
+                padding: "24px 24px 20px",
                 textAlign: "center",
               }}
             >
@@ -622,20 +624,54 @@ export default function LoginPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  margin: "0 auto 14px",
+                  margin: "0 auto 12px",
                   fontSize: 28,
                 }}
               >
                 ✅
               </div>
               <h2 style={{ margin: 0, color: "#fff", fontWeight: 800, fontSize: 19 }}>
-                {t("registration_success_title") || "Registration Successful!"}
+                {t("reg_popup_title")}
               </h2>
             </div>
-            <div style={{ padding: "24px" }}>
-              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 20px", textAlign: "center" }}>
-                {regSuccessMsg}
+            <div style={{ padding: "20px 24px 24px" }}>
+              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 14px" }}>
+                {t("reg_popup_body")}
               </p>
+
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#1f2937", margin: "0 0 8px" }}>
+                {t("reg_popup_next")}
+              </p>
+              <ol style={{ margin: "0 0 14px", paddingLeft: 20, fontSize: 13, color: "#4b5563", lineHeight: 1.7 }}>
+                <li style={{ marginBottom: 6 }}>
+                  {t("reg_popup_step1", { email: regSuccessEmail })}
+                </li>
+                <li style={{ marginBottom: 6 }}>{t("reg_popup_step2")}</li>
+                <li>{t("reg_popup_step3")}</li>
+              </ol>
+
+              <ul style={{ margin: "-6px 0 14px", paddingLeft: 20, fontSize: 13, color: "#4b5563", lineHeight: 1.7 }}>
+                <li>{t("reg_popup_doc1")}</li>
+                <li>{t("reg_popup_doc2")}</li>
+                <li>{t("reg_popup_doc3")}</li>
+                <li>{t("reg_popup_doc4")}</li>
+              </ul>
+
+              <div
+                style={{
+                  background: "#fff7ed",
+                  border: "1.5px solid #fb923c",
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                  fontSize: 13,
+                  color: "#9a3412",
+                  lineHeight: 1.65,
+                  marginBottom: 16,
+                }}
+              >
+                {t("reg_popup_note")}
+              </div>
+
               <button
                 onClick={() => setShowRegSuccessPopup(false)}
                 style={{
@@ -649,9 +685,26 @@ export default function LoginPage() {
                   fontSize: 15,
                   cursor: "pointer",
                   boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                  marginBottom: 10,
                 }}
               >
                 {t("ok") || "OK"}
+              </button>
+              <button
+                onClick={() => setLang(lang === "mr" ? "en" : "mr")}
+                style={{
+                  width: "100%",
+                  padding: "11px 0",
+                  background: "#fff7ed",
+                  color: "#F97316",
+                  border: "1.5px solid #F97316",
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: "pointer",
+                }}
+              >
+                🌐 {t("reg_popup_translate")}
               </button>
             </div>
           </div>

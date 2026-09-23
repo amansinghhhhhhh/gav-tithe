@@ -56,7 +56,6 @@ export default function RegisterPage() {
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
 
   const [regOtpSent, setRegOtpSent] = useState(false);
   const [regOtpVerified, setRegOtpVerified] = useState(false);
@@ -293,7 +292,7 @@ export default function RegisterPage() {
       const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid || emailUid);
       if (data?.success || data?.token) {
         signOut(auth).catch(() => {});
-        setSuccessMsg(t("registration_success_verify", { email }));
+        const regEmail = email;
         setEmail("");
         setPassword("");
         setFirstName("");
@@ -302,7 +301,7 @@ export default function RegisterPage() {
         setMobile("");
         setEmailFirebaseUid(null);
         resetRegOtp();
-        setTimeout(() => navigate("/login", { state: { successMsg: t("registration_success_verify", { email }) } }), 2000);
+        navigate("/login", { state: { regSuccess: true, email: regEmail } });
       } else {
         setErr(t(data?.message) || t("login_error"));
       }
@@ -426,23 +425,6 @@ export default function RegisterPage() {
             </p>
           </div>
           <div style={{ padding: "24px 24px 28px" }}>
-            {successMsg && (
-              <div
-                style={{
-                  background: "#dcfce7",
-                  border: "1px solid #86efac",
-                  borderRadius: 10,
-                  padding: "12px 14px",
-                  color: "#166534",
-                  fontSize: 13,
-                  marginBottom: 16,
-                  lineHeight: 1.6,
-                }}
-              >
-                {successMsg}
-              </div>
-            )}
-
             {err && (
               <div
                 style={{
