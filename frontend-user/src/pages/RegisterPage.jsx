@@ -292,7 +292,6 @@ export default function RegisterPage() {
       const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid || emailUid);
       if (data?.success || data?.token) {
         signOut(auth).catch(() => {});
-        const regEmail = email;
         setEmail("");
         setPassword("");
         setFirstName("");
@@ -301,7 +300,7 @@ export default function RegisterPage() {
         setMobile("");
         setEmailFirebaseUid(null);
         resetRegOtp();
-        navigate("/login", { state: { regSuccess: true, email: regEmail } });
+        navigate("/login", { state: { regSuccess: true } });
       } else {
         setErr(t(data?.message) || t("login_error"));
       }

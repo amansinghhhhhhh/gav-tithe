@@ -53,7 +53,6 @@ export default function LoginPage() {
   const [loginMode, setLoginMode] = useState("mobile");
   const [successMsg, setSuccessMsg] = useState("");
   const [showRegSuccessPopup, setShowRegSuccessPopup] = useState(false);
-  const [regSuccessEmail, setRegSuccessEmail] = useState("");
   const [showFaq, setShowFaq] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
@@ -73,7 +72,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (location.state?.regSuccess) {
-      setRegSuccessEmail(location.state.email || "");
       setShowRegSuccessPopup(true);
       window.history.replaceState({}, document.title);
     }
@@ -644,7 +642,7 @@ export default function LoginPage() {
               </p>
               <ol style={{ margin: "0 0 14px", paddingLeft: 20, fontSize: 13, color: "#4b5563", lineHeight: 1.7 }}>
                 <li style={{ marginBottom: 6 }}>
-                  {t("reg_popup_step1", { email: regSuccessEmail })}
+                  {t("reg_popup_step1")}
                 </li>
                 <li style={{ marginBottom: 6 }}>{t("reg_popup_step2")}</li>
                 <li>{t("reg_popup_step3")}</li>
