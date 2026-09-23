@@ -644,7 +644,7 @@ export default function LoginPage() {
                 {t("reg_popup_title")}
               </h2>
             </div>
-            <div style={{ padding: "20px 24px 24px" }}>
+            <div style={{ padding: "20px 24px 24px", textAlign: "left" }}>
               <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 16px", textAlign: "left" }}>
                 {t("reg_popup_body")}
               </p>
@@ -653,24 +653,24 @@ export default function LoginPage() {
                 {t("reg_popup_next")}
               </p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6 }}>1)</span>
-                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65 }}>{t("reg_popup_step1")}</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16, textAlign: "left" }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left" }}>
+                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6, textAlign: "left" }}>1)</span>
+                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65, textAlign: "left", flex: 1 }}>{t("reg_popup_step1")}</span>
                 </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6 }}>2)</span>
-                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65 }}>{t("reg_popup_step2")}</span>
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left" }}>
+                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6, textAlign: "left" }}>2)</span>
+                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65, textAlign: "left", flex: 1 }}>{t("reg_popup_step2")}</span>
                 </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6 }}>3)</span>
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65 }}>{t("reg_popup_step3")}</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6, paddingLeft: 2 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left" }}>
+                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6, textAlign: "left" }}>3)</span>
+                  <div style={{ flex: 1, textAlign: "left" }}>
+                    <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65, textAlign: "left" }}>{t("reg_popup_step3")}</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6, paddingLeft: 2, textAlign: "left" }}>
                       {[t("reg_popup_doc1"), t("reg_popup_doc2"), t("reg_popup_doc3"), t("reg_popup_doc4")].map((doc, i) => (
-                        <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
-                          <span style={{ color: "#F97316", fontSize: 14, lineHeight: 1.4, flexShrink: 0 }}>•</span>
-                          <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.55 }}>{doc}</span>
+                        <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", textAlign: "left" }}>
+                          <span style={{ color: "#F97316", fontSize: 14, lineHeight: 1.4, flexShrink: 0, textAlign: "left" }}>•</span>
+                          <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.55, textAlign: "left", flex: 1 }}>{doc}</span>
                         </div>
                       ))}
                     </div>
@@ -688,6 +688,7 @@ export default function LoginPage() {
                   color: "#9a3412",
                   lineHeight: 1.65,
                   marginBottom: 16,
+                  textAlign: "left",
                 }}
               >
                 {t("reg_popup_note")}
