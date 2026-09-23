@@ -120,6 +120,15 @@ export const resetPasswordMobile = async (idToken, newPassword) => {
     });
 };
 
+// Email reset ke baad MongoDB hash sync (Firebase already updated by confirmPasswordReset)
+export const resetPasswordEmail = async (idToken, newPassword) => {
+    return apiFetch(`${BASE}/auth/reset-password-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken, newPassword }),
+    });
+};
+
 // ── Form ──────────────────────────────────────────────────────────────────────
 
 export const saveSection = async (section, data) => {

@@ -220,6 +220,15 @@ const loginEmail = async (req, res) => {
                     if (!emailMatch && !uidMatch) {
                         return res.status(401).json({ message: "Invalid credentials" });
                     }
+                    // Sync Mongo hash if missing/stale (email reset updates Firebase only until sync endpoint runs)
+                    if (!user.password || !(await user.matchPassword(password).catch(() => false))) {
+                        try {
+                            user.password = password;
+                            await user.save();
+                        } catch (syncErr) {
+                            console.error("Mongo password sync on email login failed:", syncErr.message);
+                        }
+                    }
                     return res.json({
                         success: true,
                         token: generateToken(user._id),
@@ -231,13 +240,14 @@ const loginEmail = async (req, res) => {
             }
         }
 
-        if (!user.password)
-            return res.status(401).json({ message: "Invalid credentials" });
-
-        const isMatch = await user.matchPassword(password);
+        // Mongo hash match (agar password field hi nahi toh Firebase fallback pe jao)
+        let isMatch = false;
+        if (user.password) {
+            isMatch = await user.matchPassword(password);
+        }
         if (!isMatch) {
             // Firebase fallback: verify password via Firebase REST API
-            // (fixes case where local hash didn't save correctly during registration)
+            // (covers email-reset users where Mongo hash is stale/missing)
             const fbKey = process.env.FIREBASE_WEB_API_KEY;
             if (fbKey && user.email) {
                 try {
@@ -346,15 +356,29 @@ const resetPasswordMobile = async (req, res) => {
         user.password = newPassword;
         await user.save();
 
-        // Firebase Auth password bhi update karo
-        if (user.email) {
-            try {
-                const firebaseUser = await firebaseAdmin.auth().getUserByEmail(user.email);
-                await firebaseAdmin.auth().updateUser(firebaseUser.uid, { password: newPassword });
-                console.log("Firebase Auth password updated for:", user.email);
-            } catch (e) {
-                console.error("Firebase Auth password update failed:", e.message);
+        // Firebase Auth password bhi update karo (email login ke liye)
+        try {
+            let uidToUpdate = user.firebaseUid || null;
+            if (!uidToUpdate && user.email) {
+                try {
+                    const firebaseUser = await firebaseAdmin.auth().getUserByEmail(user.email);
+                    uidToUpdate = firebaseUser.uid;
+                } catch (_) {}
             }
+            if (!uidToUpdate && phone_number) {
+                try {
+                    const firebaseUser = await firebaseAdmin.auth().getUserByPhoneNumber(phone_number);
+                    uidToUpdate = firebaseUser.uid;
+                } catch (_) {}
+            }
+            if (uidToUpdate) {
+                await firebaseAdmin.auth().updateUser(uidToUpdate, { password: newPassword });
+                console.log("Firebase Auth password updated for uid:", uidToUpdate);
+            } else {
+                console.warn("Firebase Auth password update skipped: no uid/email/phone for user", user._id);
+            }
+        } catch (e) {
+            console.error("Firebase Auth password update failed:", e.message);
         }
 
         res.json({ success: true, message: "Password reset successful" });
@@ -364,4 +388,56 @@ const resetPasswordMobile = async (req, res) => {
     }
 };
 
-module.exports = { verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile };
+// ── 5. Email reset ke baad MongoDB password sync ─────────────────────────────
+// Client: confirmPasswordReset → signInWithEmailAndPassword → idToken lekar yahan bhejta hai
+// idToken prove karta hai ki user Firebase me naye password se authenticate ho paya
+const resetPasswordEmail = async (req, res) => {
+    try {
+        const { idToken, newPassword } = req.body;
+        if (!idToken || !newPassword) {
+            return res.status(400).json({ success: false, message: "ID token and new password required" });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+        }
+
+        const firebaseAdmin = getAdmin();
+        if (!firebaseAdmin) {
+            return res.status(500).json({ message: "Firebase not configured on server" });
+        }
+
+        const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+        const { uid, email } = decoded;
+        const loginEmailDecoded = (email || "").toLowerCase();
+
+        // Find user by email / firebaseUid
+        let user = null;
+        if (loginEmailDecoded) user = await User.findOne({ email: loginEmailDecoded });
+        if (!user && uid) user = await User.findOne({ firebaseUid: uid });
+
+        if (!user) {
+            // Mongo me nahi hai → kuch sync nahi (firebase_only); success maano
+            return res.json({ success: true, message: "Password reset successful", synced: false });
+        }
+
+        // Same password guard (Mongo hash se)
+        if (user.password) {
+            const bcrypt = require("bcryptjs");
+            const isSame = await bcrypt.compare(newPassword, user.password);
+            if (isSame) {
+                return res.status(400).json({ success: false, message: "Same password" });
+            }
+        }
+
+        user.password = newPassword;
+        await user.save();
+        console.log("Mongo password synced after email reset for:", user.email || user._id);
+
+        res.json({ success: true, message: "Password reset successful", synced: true });
+    } catch (err) {
+        console.error("Reset password email sync error:", err.message);
+        res.status(500).json({ message: "Password reset failed" });
+    }
+};
+
+module.exports = { verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile, resetPasswordEmail };

@@ -4,10 +4,12 @@ import {
   applyActionCode,
   confirmPasswordReset,
   verifyPasswordResetCode,
+  signInWithEmailAndPassword,
+  signOut,
   getAuth,
 } from "firebase/auth";
 import { app } from "../config/firebase";
-import { checkSamePassword } from "../services/api";
+import { checkSamePassword, resetPasswordEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
@@ -97,6 +99,17 @@ export default function VerifyEmailPage() {
         }
       }
       await confirmPasswordReset(auth, oobCode, newPassword);
+      // Firebase updated → ab naye password se sign-in karke MongoDB hash sync karo
+      // (warna mobile login stale Mongo hash pe fail hota rahega)
+      try {
+        const fbCred = await signInWithEmailAndPassword(auth, resetEmail, newPassword);
+        const idToken = await fbCred.user.getIdToken();
+        await resetPasswordEmail(idToken, newPassword);
+        await signOut(auth);
+      } catch (syncErr) {
+        // Sync fail ho toh bhi Firebase reset success hai — login fallback heal kar lega
+        console.error("Mongo password sync after email reset failed:", syncErr);
+      }
       setStatus("reset_success");
       setTimeout(() => navigate("/login"), 3000);
     } catch (e) {
