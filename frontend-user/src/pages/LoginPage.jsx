@@ -43,7 +43,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const { t, setLang, lang } = useLang();
+  const { t } = useLang();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -622,7 +622,7 @@ export default function LoginPage() {
               style={{
                 background: "linear-gradient(135deg, #22c55e, #16a34a)",
                 padding: "24px 24px 20px",
-                textAlign: "center",
+                textAlign: "left",
               }}
             >
               <div
@@ -634,7 +634,7 @@ export default function LoginPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  margin: "0 auto 12px",
+                  margin: "0 0 12px",
                   fontSize: 28,
                 }}
               >
@@ -711,26 +711,9 @@ export default function LoginPage() {
                   fontSize: 15,
                   cursor: "pointer",
                   boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
-                  marginBottom: 10,
                 }}
               >
                 {t("ok") || "OK"}
-              </button>
-              <button
-                onClick={() => setLang(lang === "mr" ? "en" : "mr")}
-                style={{
-                  width: "100%",
-                  padding: "11px 0",
-                  background: "#fff7ed",
-                  color: "#F97316",
-                  border: "1.5px solid #F97316",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: "pointer",
-                }}
-              >
-                🌐 {t("reg_popup_translate")}
               </button>
             </div>
           </div>

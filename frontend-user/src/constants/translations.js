@@ -340,7 +340,6 @@ const translations = {
         reg_popup_doc3: "उपलब्ध असल्यास उद्यम नोंदणी प्रमाणपत्र",
         reg_popup_doc4: "तुमचा सिबिल स्कोअर",
         reg_popup_note: "साइन-अप पूर्ण झाला आहे, पण अभियान नोंदणी अजून अपूर्ण आहे. कृपया साइन इन करून अभियान नोंदणी पूर्ण करा.",
-        reg_popup_translate: "English",
 
         // Forgot Password
         forgot_title: "पासवर्ड रीसेट करा",
@@ -834,7 +833,6 @@ const translations = {
         reg_popup_doc3: "Udyam Registration Certificate, if available",
         reg_popup_doc4: "Your CIBIL Score",
         reg_popup_note: "Sign-up is complete, but your Abhiyan registration is not yet complete. Please sign in and complete the Abhiyan registration.",
-        reg_popup_translate: "मराठी",
 
         // Forgot Password
         forgot_title: "Reset Password",
