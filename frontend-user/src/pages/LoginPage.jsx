@@ -73,7 +73,17 @@ export default function LoginPage() {
   useEffect(() => {
     if (location.state?.regSuccess) {
       setShowRegSuccessPopup(true);
+      try {
+        sessionStorage.setItem("regSuccessPending", "1");
+      } catch (_) {}
       window.history.replaceState({}, document.title);
+    } else {
+      try {
+        if (sessionStorage.getItem("regSuccessPending") === "1") {
+          setShowRegSuccessPopup(true);
+          sessionStorage.removeItem("regSuccessPending");
+        }
+      } catch (_) {}
     }
   }, []);
 
@@ -575,9 +585,11 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <RegistrationPopup
-        onRegister={() => navigate("/register")}
-      />
+      {!showRegSuccessPopup && (
+        <RegistrationPopup
+          onRegister={() => navigate("/register")}
+        />
+      )}
 
       {showRegSuccessPopup && (
         <div
@@ -588,7 +600,7 @@ export default function LoginPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            zIndex: 9999,
+            zIndex: 10001,
             padding: 20,
           }}
           onClick={() => setShowRegSuccessPopup(false)}
@@ -633,28 +645,38 @@ export default function LoginPage() {
               </h2>
             </div>
             <div style={{ padding: "20px 24px 24px" }}>
-              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 14px" }}>
+              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 16px", textAlign: "left" }}>
                 {t("reg_popup_body")}
               </p>
 
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#1f2937", margin: "0 0 8px" }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "#1f2937", margin: "0 0 10px", textAlign: "left" }}>
                 {t("reg_popup_next")}
               </p>
-              <ol style={{ margin: "0 0 14px", paddingLeft: 20, fontSize: 13, color: "#4b5563", lineHeight: 1.7 }}>
-                <li style={{ marginBottom: 6 }}>
-                  {t("reg_popup_step1")}
-                </li>
-                <li style={{ marginBottom: 6 }}>{t("reg_popup_step2")}</li>
-                <li>
-                  {t("reg_popup_step3")}
-                  <ul style={{ margin: "4px 0 0", paddingLeft: 18, lineHeight: 1.7 }}>
-                    <li>{t("reg_popup_doc1")}</li>
-                    <li>{t("reg_popup_doc2")}</li>
-                    <li>{t("reg_popup_doc3")}</li>
-                    <li>{t("reg_popup_doc4")}</li>
-                  </ul>
-                </li>
-              </ol>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6 }}>1)</span>
+                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65 }}>{t("reg_popup_step1")}</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6 }}>2)</span>
+                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65 }}>{t("reg_popup_step2")}</span>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6 }}>3)</span>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65 }}>{t("reg_popup_step3")}</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6, paddingLeft: 2 }}>
+                      {[t("reg_popup_doc1"), t("reg_popup_doc2"), t("reg_popup_doc3"), t("reg_popup_doc4")].map((doc, i) => (
+                        <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
+                          <span style={{ color: "#F97316", fontSize: 14, lineHeight: 1.4, flexShrink: 0 }}>•</span>
+                          <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.55 }}>{doc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div
                 style={{
@@ -672,7 +694,12 @@ export default function LoginPage() {
               </div>
 
               <button
-                onClick={() => setShowRegSuccessPopup(false)}
+                onClick={() => {
+                  setShowRegSuccessPopup(false);
+                  try {
+                    sessionStorage.removeItem("regSuccessPending");
+                  } catch (_) {}
+                }}
                 style={{
                   width: "100%",
                   padding: "13px 0",
