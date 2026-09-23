@@ -18,6 +18,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import RegistrationSuccessPage from "./pages/RegistrationSuccessPage";
 import StatusCheckPage from "./StatusCheckPage";
 import MyAssessment from "./components/assessment/MyAssessment";
 import DRPLibrary from "./components/DRPLibrary";
@@ -361,6 +362,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/register-success" element={<RegistrationSuccessPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />{" "}
       {/* ✅ handles both modes via searchParams */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

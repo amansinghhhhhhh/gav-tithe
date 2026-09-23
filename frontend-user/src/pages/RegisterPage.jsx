@@ -300,7 +300,7 @@ export default function RegisterPage() {
         setMobile("");
         setEmailFirebaseUid(null);
         resetRegOtp();
-        navigate("/login", { state: { regSuccess: true } });
+        navigate("/register-success", { state: { regSuccess: true } });
       } else {
         setErr(t(data?.message) || t("login_error"));
       }

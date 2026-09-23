@@ -1,5 +1,5 @@
-  import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+  import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
@@ -41,7 +41,6 @@ const labelStyle = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
   const { t } = useLang();
 
@@ -52,7 +51,6 @@ export default function LoginPage() {
   const [err, setErr] = useState("");
   const [loginMode, setLoginMode] = useState("mobile");
   const [successMsg, setSuccessMsg] = useState("");
-  const [showRegSuccessPopup, setShowRegSuccessPopup] = useState(false);
   const [showFaq, setShowFaq] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
@@ -69,23 +67,6 @@ export default function LoginPage() {
 
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
-
-  useEffect(() => {
-    if (location.state?.regSuccess) {
-      setShowRegSuccessPopup(true);
-      try {
-        sessionStorage.setItem("regSuccessPending", "1");
-      } catch (_) {}
-      window.history.replaceState({}, document.title);
-    } else {
-      try {
-        if (sessionStorage.getItem("regSuccessPending") === "1") {
-          setShowRegSuccessPopup(true);
-          sessionStorage.removeItem("regSuccessPending");
-        }
-      } catch (_) {}
-    }
-  }, []);
 
   const handleLogin = async () => {
     setErr("");
@@ -585,141 +566,9 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      {!showRegSuccessPopup && (
-        <RegistrationPopup
-          onRegister={() => navigate("/register")}
-        />
-      )}
-
-      {showRegSuccessPopup && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 10001,
-            padding: 20,
-          }}
-          onClick={() => setShowRegSuccessPopup(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              maxWidth: 420,
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              overflow: "hidden",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-            }}
-          >
-            <div
-              style={{
-                background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                padding: "24px 24px 20px",
-                textAlign: "left",
-              }}
-            >
-              <div
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.25)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  margin: "0 0 12px",
-                  fontSize: 28,
-                }}
-              >
-                ✅
-              </div>
-              <h2 style={{ margin: 0, color: "#fff", fontWeight: 800, fontSize: 19 }}>
-                {t("reg_popup_title")}
-              </h2>
-            </div>
-            <div style={{ padding: "20px 24px 24px", textAlign: "left" }}>
-              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 16px", textAlign: "left" }}>
-                {t("reg_popup_body")}
-              </p>
-
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#1f2937", margin: "0 0 10px", textAlign: "left" }}>
-                {t("reg_popup_next")}
-              </p>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16, textAlign: "left" }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left" }}>
-                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6, textAlign: "left" }}>1)</span>
-                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65, textAlign: "left", flex: 1 }}>{t("reg_popup_step1")}</span>
-                </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left" }}>
-                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6, textAlign: "left" }}>2)</span>
-                  <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65, textAlign: "left", flex: 1 }}>{t("reg_popup_step2")}</span>
-                </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left" }}>
-                  <span style={{ fontWeight: 800, color: "#F97316", fontSize: 13, flexShrink: 0, lineHeight: 1.6, textAlign: "left" }}>3)</span>
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.65, textAlign: "left" }}>{t("reg_popup_step3")}</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6, paddingLeft: 2, textAlign: "left" }}>
-                      {[t("reg_popup_doc1"), t("reg_popup_doc2"), t("reg_popup_doc3"), t("reg_popup_doc4")].map((doc, i) => (
-                        <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", textAlign: "left" }}>
-                          <span style={{ color: "#F97316", fontSize: 14, lineHeight: 1.4, flexShrink: 0, textAlign: "left" }}>•</span>
-                          <span style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.55, textAlign: "left", flex: 1 }}>{doc}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  background: "#fff7ed",
-                  border: "1.5px solid #fb923c",
-                  borderRadius: 10,
-                  padding: "10px 12px",
-                  fontSize: 13,
-                  color: "#9a3412",
-                  lineHeight: 1.65,
-                  marginBottom: 16,
-                  textAlign: "left",
-                }}
-              >
-                {t("reg_popup_note")}
-              </div>
-
-              <button
-                onClick={() => {
-                  setShowRegSuccessPopup(false);
-                  try {
-                    sessionStorage.removeItem("regSuccessPending");
-                  } catch (_) {}
-                }}
-                style={{
-                  width: "100%",
-                  padding: "13px 0",
-                  background: "linear-gradient(135deg, #F97316, #fb923c)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
-                }}
-              >
-                {t("ok") || "OK"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <RegistrationPopup
+        onRegister={() => navigate("/register")}
+      />
       <FaqModal open={showFaq} onClose={() => setShowFaq(false)} faqs={loginFaqs} titleKey="faq_login_title" />
 
       {showVideo && (
