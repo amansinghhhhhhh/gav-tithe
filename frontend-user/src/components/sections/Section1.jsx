@@ -6,11 +6,11 @@ import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import C from "../../constants/colors";
 import SectionHeader from "../shared/SectionHeader";
 import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
+import SearchSelect from "../shared/SearchSelect";
 import useValidation from "../../hooks/useValidation";
 import useOtp from "../../hooks/useOtp";
 import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
 import { districts, getTalukas } from "../../constants/maharashtraData";
-import { getVillages } from "../../constants/maharashtraVillages";
 
 const makeRules = (t) => ({
   fullName: (v) =>
@@ -47,6 +47,19 @@ function Section1({ data, dispatch, registerNext, onNext }) {
   const { user } = useAuth();
   const [otpInput, setOtpInput] = useState("");
   const [countdown, setCountdown] = useState(0);
+  const [villageData, setVillageData] = useState(null);
+
+  // Lazy-load village directory (~850KB) only when address section needs it
+  useEffect(() => {
+    let alive = true;
+    import("../../constants/maharashtraVillages").then((mod) => {
+      if (alive) setVillageData(mod);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  const getVillages = (district, taluka) =>
+    villageData?.getVillages?.(district, taluka) || [];
 
   // countdown timer
   useEffect(() => {
@@ -415,101 +428,103 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           />
         </div>
 
-        {/* ✅ Address — cascading dropdowns */}
+        {/* ✅ Address — cascading searchable dropdowns */}
         <div>
           <label style={labelStyle}>{t("s1_address")}</label>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
 
-            {/* District dropdown */}
+            {/* District */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <select
-                style={{
-                  ...inputStyle,
-                  border: `1.5px solid ${errors["address.dist"] ? "#e53e3e" : "#ddd"}`,
-                  cursor: "pointer",
-                }}
+              <SearchSelect
                 value={data.address?.dist || ""}
+                placeholder={t("s1_dist_ph")}
+                options={districts}
                 onChange={(e) => {
-                  u({ address: { ...data.address, dist: e.target.value, taluka: "", village: "", pincode: "" } });
+                  u({ address: { ...data.address, dist: e.target.value, taluka: "", village: "", villageCustom: "", pincode: "" } });
                   clearError("address.dist");
                   clearError("address.taluka");
                   clearError("address.village");
                 }}
                 onBlur={(e) => validateField("address.dist", e.target.value, data)}
-              >
-                <option value="">{t("s1_dist_ph")}</option>
-                {districts.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-              {errors["address.dist"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.dist"]}</span>
-              )}
+                error={errors["address.dist"]}
+              />
             </div>
 
-            {/* Taluka dropdown */}
+            {/* Taluka */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <select
-                style={{
-                  ...inputStyle,
-                  border: `1.5px solid ${errors["address.taluka"] ? "#e53e3e" : "#ddd"}`,
-                  background: data.address?.dist ? "#fff" : "#f9fafb",
-                  cursor: data.address?.dist ? "pointer" : "not-allowed",
-                  color: data.address?.dist ? "#222" : "#9ca3af",
-                }}
+              <SearchSelect
                 value={data.address?.taluka || ""}
+                placeholder={t("s1_taluka_ph")}
+                options={getTalukas(data.address?.dist)}
                 disabled={!data.address?.dist}
                 onChange={(e) => {
-                  u({ address: { ...data.address, taluka: e.target.value, village: "", pincode: "" } });
+                  u({ address: { ...data.address, taluka: e.target.value, village: "", villageCustom: "", pincode: "" } });
                   clearError("address.taluka");
                   clearError("address.village");
                 }}
                 onBlur={(e) => validateField("address.taluka", e.target.value, data)}
-              >
-                <option value="">{t("s1_taluka_ph")}</option>
-                {getTalukas(data.address?.dist).map((tk) => (
-                  <option key={tk} value={tk}>{tk}</option>
-                ))}
-              </select>
-              {errors["address.taluka"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.taluka"]}</span>
-              )}
+                error={errors["address.taluka"]}
+              />
             </div>
 
-            {/* Village dropdown */}
+            {/* Village */}
             <div style={{ flex: 1, minWidth: 180 }}>
-              <select
-                style={{
-                  ...inputStyle,
-                  border: `1.5px solid ${errors["address.village"] ? "#e53e3e" : "#ddd"}`,
-                  background: data.address?.taluka ? "#fff" : "#f9fafb",
-                  cursor: data.address?.taluka ? "pointer" : "not-allowed",
-                  color: data.address?.taluka ? "#222" : "#9ca3af",
-                }}
+              <SearchSelect
                 value={data.address?.village || ""}
+                placeholder={t("s1_village_ph")}
+                options={[
+                  ...getVillages(data.address?.dist, data.address?.taluka).map((v) => ({
+                    value: v,
+                    label: v,
+                  })),
+                  { value: "__other__", label: t("s1_village_other") || "Other" },
+                ]}
                 disabled={!data.address?.taluka}
                 onChange={(e) => {
-                  uAddr("village", e.target.value);
+                  const val = e.target.value;
+                  uAddr("village", val);
+                  if (val !== "__other__") uAddr("villageCustom", "");
                   clearError("address.village");
                 }}
                 onBlur={(e) => validateField("address.village", e.target.value, data)}
-              >
-                <option value="">{t("s1_village_ph")}</option>
-                {getVillages(data.address?.dist, data.address?.taluka).map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-                <option value="__other__">{t("s1_village_other") || "Other"}</option>
-              </select>
-              {errors["address.village"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.village"]}</span>
-              )}
+                error={
+                  data.address?.village === "__other__"
+                    ? null
+                    : errors["address.village"]
+                }
+              />
               {data.address?.village === "__other__" && (
                 <>
                   <input
-                    style={{ ...inputStyle, marginTop: 8 }}
+                    style={{
+                      ...inputStyle,
+                      marginTop: 8,
+                      border: `1.5px solid ${
+                        errors["address.village"] && !data.address?.villageCustom?.trim()
+                          ? "#e53e3e"
+                          : "#ddd"
+                      }`,
+                    }}
                     placeholder={t("s1_village_custom_ph") || "Type your village..."}
                     value={data.address?.villageCustom || ""}
-                    onChange={(e) => uAddr("villageCustom", e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      uAddr("villageCustom", val);
+                      if (val.trim()) {
+                        clearError("address.village");
+                      } else {
+                        validateField("address.village", "__other__", {
+                          ...data,
+                          address: { ...data.address, villageCustom: val },
+                        });
+                      }
+                    }}
+                    onBlur={(e) =>
+                      validateField("address.village", "__other__", {
+                        ...data,
+                        address: { ...data.address, villageCustom: e.target.value },
+                      })
+                    }
                   />
                   {errors["address.village"] && !data.address?.villageCustom?.trim() && (
                     <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
