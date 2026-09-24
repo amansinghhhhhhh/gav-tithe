@@ -40,6 +40,10 @@ const makeRules = (t) => ({
       : !/^\d{6}$/.test(v.trim())
         ? t("err_pincode")
         : null,
+  referrerMobile: (v) => {
+    if (!v?.trim()) return null;
+    return /^\d{10}$/.test(v.trim()) ? null : t("err_mobile");
+  },
 });
 
 function Section1({ data, dispatch, registerNext, onNext }) {
@@ -132,6 +136,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
       "address.village": data.address?.village,
       "address.villageCustom": data.address?.villageCustom,
       "address.pincode": data.address?.pincode,
+      referrerMobile: data.referrerMobile,
     });
     if (isValid) onNext();
   };
@@ -460,12 +465,44 @@ function Section1({ data, dispatch, registerNext, onNext }) {
             value={data.referredBy || ""}
             onChange={(e) => u({ referredBy: e.target.value })}
           />
-          <ValidatedInput
-            label={t("s1_referrer_mobile")}
-            placeholder={t("s1_referrer_mobile_ph")}
-            value={data.referrerMobile || ""}
-            onChange={(e) => u({ referrerMobile: e.target.value })}
-          />
+          <div>
+            <label style={labelStyle}>{t("s1_referrer_mobile")}</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              <div
+                style={{
+                  ...inputStyle,
+                  width: 52,
+                  flexShrink: 0,
+                  background: "#f5f5f5",
+                  color: "#555",
+                  textAlign: "center",
+                }}
+              >
+                +91
+              </div>
+              <input
+                style={{
+                  ...inputStyle,
+                  flex: 1,
+                  border: `1.5px solid ${errors.referrerMobile ? "#e53e3e" : "#ddd"}`,
+                }}
+                placeholder={t("s1_referrer_mobile_ph")}
+                maxLength={10}
+                inputMode="numeric"
+                value={data.referrerMobile || ""}
+                onChange={(e) => {
+                  u({ referrerMobile: e.target.value.replace(/\D/g, "").slice(0, 10) });
+                  clearError("referrerMobile");
+                }}
+                onBlur={(e) => validateField("referrerMobile", e.target.value, data)}
+              />
+            </div>
+            {errors.referrerMobile && (
+              <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
+                ⚠ {errors.referrerMobile}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* ✅ Address — cascading searchable dropdowns */}
