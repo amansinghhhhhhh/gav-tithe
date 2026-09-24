@@ -1,4 +1,4 @@
-  import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginEmail } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -6,8 +6,10 @@ import { useLang } from "../context/LangContext";
 import VoiceGuide from "../components/VoiceGuide";
 import {
   signInWithEmailAndPassword,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { firebaseErrorKey } from "../services/firebaseErrors";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import { RegistrationPopup } from "../components/RegistrationPopup";
@@ -53,6 +55,11 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [showFaq, setShowFaq] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  // Pehle login attempt ka unverified Firebase user — resend pe dobara signIn ki zarurat nahi
+  const [pendingVerifyUser, setPendingVerifyUser] = useState(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
+  const resendUserRef = useRef(null);
 
   const loginFaqs = [
     { qKey: "faq_login_q1", aKey: "faq_login_a1" },
@@ -68,8 +75,15 @@ export default function LoginPage() {
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
   const handleLogin = async () => {
     setErr("");
+    setSuccessMsg("");
     if (!email || !password) {
       setErr(t("login_error"));
       return;
@@ -113,6 +127,8 @@ export default function LoginPage() {
           return;
         }
         if (!fbCred.user.emailVerified) {
+          setPendingVerifyUser(fbCred.user);
+          resendUserRef.current = fbCred.user;
           setErr(t("login_not_verified"));
           setLoading(false);
           return;
@@ -136,13 +152,50 @@ export default function LoginPage() {
   };
 
   const handleResendVerification = async () => {
+    if (resendCooldown > 0 || resendLoading) return;
     setErr("");
+    setSuccessMsg("");
+    setResendLoading(true);
     try {
-      const fbCred = await signInWithEmailAndPassword(auth, email, password);
-      await sendEmailVerification(fbCred.user);
+      // Prefer: pehle login attempt ka user (dobara signIn nahi)
+      let user = resendUserRef.current || pendingVerifyUser || auth.currentUser;
+
+      if (!user || user.email !== email.trim()) {
+        // Fallback: tabhi signIn karo jab stored user match nahi karta
+        try {
+          const fbCred = await signInWithEmailAndPassword(auth, email.trim(), password);
+          user = fbCred.user;
+          resendUserRef.current = user;
+          setPendingVerifyUser(user);
+        } catch (signInErr) {
+          const code = signInErr?.code || "";
+          if (code === "auth/too-many-requests") setErr(t("fb_too_many_requests"));
+          else if (code === "auth/network-request-failed") setErr(t("fb_network"));
+          else if (
+            code === "auth/user-not-found" ||
+            code === "auth/wrong-password" ||
+            code === "auth/invalid-credential" ||
+            code === "auth/invalid-login-credentials"
+          ) {
+            setErr(t("login_error_credential"));
+          } else {
+            setErr(t(firebaseErrorKey(code)));
+          }
+          return;
+        }
+      }
+
+      await sendEmailVerification(user);
       setSuccessMsg(t("login_resend_success"));
-    } catch {
-      setErr(t("login_error1"));
+      setResendCooldown(45);
+    } catch (sendErr) {
+      const code = sendErr?.code || "";
+      if (code === "auth/too-many-requests") setErr(t("fb_too_many_requests"));
+      else if (code === "auth/network-request-failed") setErr(t("fb_network"));
+      else if (code === "auth/user-not-found") setErr(t("login_error_credential"));
+      else setErr(t("login_resend_fail"));
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -344,13 +397,18 @@ export default function LoginPage() {
                     style={{
                       display: "block",
                       marginTop: 6,
-                      color: "#F97316",
-                      cursor: "pointer",
+                      color: resendCooldown > 0 || resendLoading ? "#9ca3af" : "#F97316",
+                      cursor: resendCooldown > 0 || resendLoading ? "default" : "pointer",
                       fontWeight: 600,
                       fontSize: 12,
+                      pointerEvents: resendCooldown > 0 || resendLoading ? "none" : "auto",
                     }}
                   >
-                    {t("login_resend")}
+                    {resendLoading
+                      ? t("login_resend_sending") || "…"
+                      : resendCooldown > 0
+                        ? `${t("login_resend")} (${resendCooldown}s)`
+                        : t("login_resend")}
                   </span>
                 )}
               </div>
