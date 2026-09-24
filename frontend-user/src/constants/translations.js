@@ -123,7 +123,7 @@ const translations = {
         s2_employ_ph: "उदा. 5 ते 10",
         s2_invest: "गुंतवणुकीची तयारी *",
         s2_invest_sub: "तुम्ही स्वतः किती प्राथमिक गुंतवणूक करू शकता?",
-        s2_invest_ph: "रक्कम लिहा",
+        s2_invest_ph: "100000",
 
         // Section 3
         s3_title: "विभाग ३: आर्थिक सद्यस्थिती आणि बँक कर्ज इतिहास",
@@ -625,7 +625,7 @@ const translations = {
         s2_employ_ph: "e.g. 5 to 10",
         s2_invest: "Investment Readiness *",
         s2_invest_sub: "How much initial investment can you make yourself?",
-        s2_invest_ph: "Enter amount",
+        s2_invest_ph: "100000",
 
         // Section 3
         s3_title: "Section 3: Financial Status & Bank Loan History",
