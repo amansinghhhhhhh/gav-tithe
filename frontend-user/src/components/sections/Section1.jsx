@@ -296,7 +296,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
         </div>
 
         {/* Mobile + OTP */}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8 }}>
           <div style={{ flex: 1, minWidth: 200 }}>
             <label style={labelStyle}>{t("s1_mobile")}</label>
             <div style={{ display: "flex", gap: 8 }}>
