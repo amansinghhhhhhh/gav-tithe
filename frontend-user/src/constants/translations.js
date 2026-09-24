@@ -240,7 +240,7 @@ const translations = {
         login_point2: "व्यवसाय प्रशिक्षण आणि कौशल्य विकास",
         login_point3: "शासकीय योजना आणि DPR लायब्ररी",
         login_point4: "वैयक्तिक मार्गदर्शन आणि टप्पे ट्रॅकिंग",
-        login_email: "तुमचा ई-मेल पत्ता टाका",
+        login_email: "तुमचा ई-मेल आयडी टाका",
         login_email_ph: "you@example.com",
         login_email_or_mobile: "तुमचा ई-मेल किंवा मोबाईल नंबर टाका",
         login_email_or_mobile_ph: "you@example.com / 9XXXXXXXXX",
