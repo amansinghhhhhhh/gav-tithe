@@ -622,7 +622,7 @@ export default function ForgotPasswordPage() {
             {step === 4 && successMsg && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate("/signin")}
                   style={{
                     width: "100%",
                     padding: "13px 0",
@@ -644,7 +644,7 @@ export default function ForgotPasswordPage() {
             {/* Back to Login — visible only on steps that don't have their own back */}
             {step !== 4 && step !== 2 && (
               <button
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/signin")}
                 style={{
                   width: "100%",
                   padding: "12px 0",

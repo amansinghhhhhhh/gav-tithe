@@ -6,7 +6,7 @@ export default function RegistrationSuccessPage() {
   const navigate = useNavigate();
   const { t } = useLang();
 
-  const goLogin = () => navigate("/login");
+  const goLogin = () => navigate("/signin");
 
   const stepNum = {
     fontWeight: 800,

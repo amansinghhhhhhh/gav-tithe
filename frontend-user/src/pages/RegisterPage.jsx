@@ -746,7 +746,7 @@ export default function RegisterPage() {
               >
                 {t("login_have_account")}{" "}
                 <span
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate("/signin")}
                   style={{
                     color: "#F97316",
                     cursor: "pointer",

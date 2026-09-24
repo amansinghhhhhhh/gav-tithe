@@ -449,7 +449,7 @@ const translations = {
         // Login FAQs
         faq_login_title: "लॉगिन विषयक प्रश्न",
         faq_login_q1: "गाव तिथे उद्योजक Portal वर Login कसे करायचे?",
-        faq_login_a1: "Login करण्यासाठी https://user.gaontitheudyojak.com/login वर जा. तुमचा Registered Email ID आणि Password enter करा आणि Login वर Click करा.",
+        faq_login_a1: "Login करण्यासाठी https://user.gaontitheudyojak.com/signin वर जा. तुमचा Registered Email ID आणि Password enter करा आणि Login वर Click करा.",
         faq_login_q2: "Login करण्यासाठी काय आवश्यक आहे?",
         faq_login_a2: "Login करण्यासाठी Registration करताना दिलेला Registered Email ID / Mobile number आणि Password आवश्यक आहे.",
         faq_login_q3: "माझा Password विसरला असल्यास काय करावे?",
@@ -463,7 +463,7 @@ const translations = {
         faq_login_q7: "Login करताना \"Invalid Email or Password\" असा message आल्यास काय करावे?",
         faq_login_a7: "तुमचा Email ID आणि Password योग्य आहे का ते check करा. Email ID मध्ये spelling किंवा extra space नाही याची खात्री करा. Password विसरला असल्यास Forgot Password option वापरा.",
         faq_login_q8: "गाव तिथे उद्योजक Login Portal कुठे मिळेल?",
-        faq_login_a8: "तुम्ही खालील link वरून थेट Login करू शकता: https://user.gaontitheudyojak.com/login",
+        faq_login_a8: "तुम्ही खालील link वरून थेट Login करू शकता: https://user.gaontitheudyojak.com/signin",
 
         // Register FAQs
         faq_reg_title: "नोंदणी विषयक प्रश्न",
@@ -948,7 +948,7 @@ const translations = {
         // Login FAQs
         faq_login_title: "Login Related Questions",
         faq_login_q1: "How can I log in to the Gaon Tithe Udyojak Portal?",
-        faq_login_a1: "To log in, visit https://user.gaontitheudyojak.com/login. Enter your Registered Email ID and Password, then click on Login.",
+        faq_login_a1: "To log in, visit https://user.gaontitheudyojak.com/signin. Enter your Registered Email ID and Password, then click on Login.",
         faq_login_q2: "What is required to log in?",
         faq_login_a2: "You need the email ID / mobile number, and password that you used during registration.",
         faq_login_q3: "What should I do if I forget my password?",
@@ -962,7 +962,7 @@ const translations = {
         faq_login_q7: "What should I do if I see \"Invalid Email or Password\"?",
         faq_login_a7: "Check that your Email ID and Password are entered correctly. Make sure there are no spelling mistakes or extra spaces. If you have forgotten your password, use the Forgot Password option.",
         faq_login_q8: "Where can I access the Login Portal?",
-        faq_login_a8: "You can access the Gaon Tithe Udyojak Login Portal here: https://user.gaontitheudyojak.com/login",
+        faq_login_a8: "You can access the Gaon Tithe Udyojak Login Portal here: https://user.gaontitheudyojak.com/signin",
 
         // Register FAQs
         faq_reg_title: "Registration Related Questions",

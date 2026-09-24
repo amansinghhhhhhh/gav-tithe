@@ -45,7 +45,7 @@ function ProtectedRoute({ children }) {
         <div style={{ color: C.maroon, fontWeight: 700, fontSize: 15 }}>Loading...</div>
       </div>
     );
-  return user ? children : <Navigate to="/login" replace />;
+  return user ? children : <Navigate to="/signin" replace />;
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ function Dashboard() {
       ]);
       if (formRes.status === 401) {
         showMsg("Session expired. Please login again.", true);
-        setTimeout(() => { logout(); navigate("/login"); }, 1500);
+        setTimeout(() => { logout(); navigate("/signin"); }, 1500);
         return;
       }
       if (formRes.success && formRes.form) {
@@ -113,7 +113,7 @@ function Dashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/signin");
   };
 
   const showMsg = (msg, isError = false) => {
@@ -128,7 +128,7 @@ function Dashboard() {
       if (!res.success) {
         if (res.status === 401) {
           showMsg("Session expired. Please login again.", true);
-          setTimeout(() => { logout(); navigate("/login"); }, 1500);
+          setTimeout(() => { logout(); navigate("/signin"); }, 1500);
           return false;
         }
         throw new Error(res.message);
@@ -178,7 +178,7 @@ function Dashboard() {
       } else {
         if (res.status === 401) {
           showMsg("Session expired. Please login again.", true);
-          setTimeout(() => { logout(); navigate("/login"); }, 1500);
+          setTimeout(() => { logout(); navigate("/signin"); }, 1500);
           return;
         }
         showMsg("Submit failed: " + res.message, true);
@@ -360,7 +360,8 @@ function AppRoutes() {
   return (
     <>
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signin" element={<LoginPage />} />
+      <Route path="/login" element={<Navigate to="/signin" replace />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/register-success" element={<RegistrationSuccessPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />{" "}

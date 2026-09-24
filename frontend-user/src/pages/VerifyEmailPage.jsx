@@ -49,7 +49,7 @@ export default function VerifyEmailPage() {
         try {
           await applyActionCode(auth, oobCode);
           setStatus("success");
-          setTimeout(() => navigate("/login"), 3000);
+          setTimeout(() => navigate("/signin"), 3000);
         } catch (e) {
           setMsg(t(firebaseErrorKey(e.code)));
           setStatus("error");
@@ -111,7 +111,7 @@ export default function VerifyEmailPage() {
         console.error("Mongo password sync after email reset failed:", syncErr);
       }
       setStatus("reset_success");
-      setTimeout(() => navigate("/login"), 3000);
+      setTimeout(() => navigate("/signin"), 3000);
     } catch (e) {
       setMsg(t(firebaseErrorKey(e.code)));
     } finally {
@@ -204,7 +204,7 @@ export default function VerifyEmailPage() {
               {t("verify_redirect")}
             </div>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/signin")}
               style={{
                 width: "100%",
                 padding: "13px 0",
@@ -400,7 +400,7 @@ export default function VerifyEmailPage() {
               {t("verify_redirect")}
             </div>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/signin")}
               style={{
                 width: "100%",
                 padding: "13px 0",
@@ -431,7 +431,7 @@ export default function VerifyEmailPage() {
               {msg}
             </p>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/signin")}
               style={{
                 width: "100%",
                 padding: "13px 0",
