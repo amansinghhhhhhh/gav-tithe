@@ -205,7 +205,7 @@ const loginEmail = async (req, res) => {
             });
         }
 
-        console.log("Login - identifier:", loginId, "isEmail:", isEmail, "found:", !!user, "userMobile:", user?.mobile);
+        console.log("Login - identifier:", loginId, "isEmail:", isEmail, "found:", !!user, "userMobile:", user?.mobile, "hasEmail:", !!user?.email, "hasPassword:", !!user?.password);
         if (!user)
             return res.status(401).json({ message: "Invalid credentials" });
 
@@ -220,15 +220,7 @@ const loginEmail = async (req, res) => {
                     if (!emailMatch && !uidMatch) {
                         return res.status(401).json({ message: "Invalid credentials" });
                     }
-                    // Sync Mongo hash if missing/stale (email reset updates Firebase only until sync endpoint runs)
-                    if (!user.password || !(await user.matchPassword(password).catch(() => false))) {
-                        try {
-                            user.password = password;
-                            await user.save();
-                        } catch (syncErr) {
-                            console.error("Mongo password sync on email login failed:", syncErr.message);
-                        }
-                    }
+                    // ⚠️ Login pe Mongo password KABHI mat likho — sirf reset flows update karte hain
                     return res.json({
                         success: true,
                         token: generateToken(user._id),
@@ -241,13 +233,15 @@ const loginEmail = async (req, res) => {
         }
 
         // Mongo hash match (agar password field hi nahi toh Firebase fallback pe jao)
+        // ⚠️ Fallback success = Firebase (source of truth) → Mongo one-way heal
+        //    Ye SAFE hai: client password Firebase ne already verify kiya
         let isMatch = false;
         if (user.password) {
             isMatch = await user.matchPassword(password);
         }
         if (!isMatch) {
             // Firebase fallback: verify password via Firebase REST API
-            // (covers email-reset users where Mongo hash is stale/missing)
+            // (covers email-reset / mobile-reset users where Mongo hash is stale)
             const fbKey = process.env.FIREBASE_WEB_API_KEY;
             if (fbKey && user.email) {
                 try {
@@ -260,7 +254,7 @@ const loginEmail = async (req, res) => {
                         },
                     );
                     if (resp.ok) {
-                        // Password correct according to Firebase → re-hash and save locally
+                        // Password correct according to Firebase → re-hash and save locally (heal)
                         user.password = password;
                         await user.save();
                         console.log("Password re-hashed from Firebase for:", user.email);
@@ -269,8 +263,14 @@ const loginEmail = async (req, res) => {
                             token: generateToken(user._id),
                             user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
                         });
+                    } else {
+                        console.log("Firebase REST fallback rejected for:", user.email, "status:", resp.status);
                     }
-                } catch (_) {}
+                } catch (e) {
+                    console.error("Firebase REST fallback error:", e.message);
+                }
+            } else {
+                console.log("Firebase REST fallback skipped:", { hasKey: !!fbKey, hasEmail: !!user.email });
             }
             return res.status(401).json({ message: "Invalid credentials" });
         }
@@ -353,35 +353,80 @@ const resetPasswordMobile = async (req, res) => {
         }
 
         // Update password (pre-save hook will hash it)
-        user.password = newPassword;
-        await user.save();
+        // Order: pehle Firebase (email account critical), phir Mongo
+        // Email wala Firebase user alag UID ho sakta hai (phone auth vs email/password)
 
-        // Firebase Auth password bhi update karo (email login ke liye)
-        try {
-            let uidToUpdate = user.firebaseUid || null;
-            if (!uidToUpdate && user.email) {
-                try {
-                    const firebaseUser = await firebaseAdmin.auth().getUserByEmail(user.email);
-                    uidToUpdate = firebaseUser.uid;
-                } catch (_) {}
+        let firebaseUpdated = false;
+        let firebaseSkipReason = null;
+
+        const updateFbUid = async (uidToUse, label) => {
+            if (!uidToUse) return false;
+            try {
+                await firebaseAdmin.auth().updateUser(uidToUse, { password: newPassword });
+                console.log(`Firebase Auth password updated (${label}):`, uidToUse);
+                return true;
+            } catch (e) {
+                console.error(`Firebase Auth password update failed (${label}, ${uidToUse}):`, e.message);
+                return false;
             }
-            if (!uidToUpdate && phone_number) {
-                try {
-                    const firebaseUser = await firebaseAdmin.auth().getUserByPhoneNumber(phone_number);
-                    uidToUpdate = firebaseUser.uid;
-                } catch (_) {}
+        };
+
+        // 1) Email account — email login isliye ye mandatory hai
+        if (user.email) {
+            try {
+                const fbByEmail = await firebaseAdmin.auth().getUserByEmail(user.email);
+                const ok = await updateFbUid(fbByEmail.uid, "email");
+                if (ok) firebaseUpdated = true;
+                else firebaseSkipReason = firebaseSkipReason || "email_update_failed";
+
+                // 2) user.firebaseUid alag ho toh usse bhi update (phone-linked doc)
+                if (user.firebaseUid && user.firebaseUid !== fbByEmail.uid) {
+                    const ok2 = await updateFbUid(user.firebaseUid, "firebaseUid");
+                    if (ok2) firebaseUpdated = true;
+                }
+            } catch (e) {
+                console.error("Firebase getUserByEmail failed:", e.message);
+                firebaseSkipReason = firebaseSkipReason || `getUserByEmail: ${e.message}`;
+                // fallback: firebaseUid se try
+                if (user.firebaseUid) {
+                    const ok = await updateFbUid(user.firebaseUid, "firebaseUid-fallback");
+                    if (ok) firebaseUpdated = true;
+                }
             }
-            if (uidToUpdate) {
-                await firebaseAdmin.auth().updateUser(uidToUpdate, { password: newPassword });
-                console.log("Firebase Auth password updated for uid:", uidToUpdate);
-            } else {
-                console.warn("Firebase Auth password update skipped: no uid/email/phone for user", user._id);
-            }
-        } catch (e) {
-            console.error("Firebase Auth password update failed:", e.message);
+        } else if (user.firebaseUid) {
+            const ok = await updateFbUid(user.firebaseUid, "firebaseUid");
+            if (ok) firebaseUpdated = true;
+            else firebaseSkipReason = "firebaseUid_update_failed";
         }
 
-        res.json({ success: true, message: "Password reset successful" });
+        // 3) Phone number wala Firebase user (alag UID ho toh)
+        if (phone_number) {
+            try {
+                const fbByPhone = await firebaseAdmin.auth().getUserByPhoneNumber(phone_number);
+                if (!user.firebaseUid || fbByPhone.uid !== user.firebaseUid) {
+                    const ok = await updateFbUid(fbByPhone.uid, "phone");
+                    if (ok) firebaseUpdated = true;
+                }
+            } catch (e) {
+                // phone user nahi mila — ignore
+                if (!firebaseSkipReason) firebaseSkipReason = `phone: ${e.message}`;
+            }
+        }
+
+        // Mongo save (pre-save hook hashes)
+        user.password = newPassword;
+        await user.save();
+        console.log("Mongo password updated for mobile reset:", user._id, "firebaseUpdated:", firebaseUpdated, firebaseSkipReason || "");
+
+        // Email account exist karta hai par update fail → partial success flag
+        // (client ko success dikhate hain taaki mobile login chalu rahe;
+        //  log me clear reason Railway pe dikhega)
+        res.json({
+            success: true,
+            message: "Password reset successful",
+            firebaseUpdated,
+            ...(firebaseUpdated ? {} : { firebaseSkipReason: firebaseSkipReason || "no_firebase_account" }),
+        });
     } catch (err) {
         console.error("Reset password mobile error:", err.message);
         res.status(500).json({ message: "Password reset failed" });
