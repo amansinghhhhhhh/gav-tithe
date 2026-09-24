@@ -202,34 +202,19 @@ function Section2({ data, dispatch, registerNext, onNext }) {
             <p style={{ fontSize: 11, color: "#888", margin: "0 0 5px" }}>
               {t("s2_invest_sub")}
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div
-                style={{
-                  ...inputStyle,
-                  width: 52,
-                  flexShrink: 0,
-                  background: "#f5f5f5",
-                  color: "#555",
-                  textAlign: "center",
-                }}
-              >
-                ₹
-              </div>
-              <div style={{ flex: 1 }}>
-                <ValidatedInput
-                  placeholder={t("s2_invest_ph")}
-                  value={data.investment}
-                  onChange={(e) => {
-                    u({ investment: e.target.value });
-                    clearError("investment");
-                  }}
-                  onBlur={(e) =>
-                    validateField("investment", e.target.value, data)
-                  }
-                  error={errors.investment}
-                />
-              </div>
-            </div>
+            <ValidatedInput
+              prefix="₹"
+              placeholder={t("s2_invest_ph")}
+              value={data.investment}
+              onChange={(e) => {
+                u({ investment: e.target.value.replace(/\D/g, "") });
+                clearError("investment");
+              }}
+              onBlur={(e) =>
+                validateField("investment", e.target.value, data)
+              }
+              error={errors.investment}
+            />
           </div>
         </div>
       </div>
