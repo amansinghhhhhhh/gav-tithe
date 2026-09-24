@@ -231,6 +231,11 @@ const translations = {
         err_ocr_udyam_type: "उद्यम प्रमाणपत्र अपलोड केले आहे — कृपया उद्यम नोंदणी क्रमांक टाका.",
         err_ocr_unreadable: "डॉक्युमेंट वाचता आला नाही — स्पष्ट फोटो/PDF पुन्हा अपलोड करा.",
         err_ocr_reupload: "सुरक्षेसाठी आधार/पॅन/उद्यम दस्तऐवज पुन्हा अपलोड करणे आवश्यक आहे.",
+        err_dob_invalid: "कृपया वैध जन्म तारीख निवडा",
+        err_dob_range: "वर्ष 1876 ते 2026 असावा",
+        s1_dob_day_ph: "दिवस",
+        s1_dob_month_ph: "महिना",
+        s1_dob_year_ph: "वर्ष",
 
         // Login Page
         login_title: "उद्योजक नोंदणी",
@@ -727,6 +732,11 @@ const translations = {
         err_ocr_udyam_type: "Udyam certificate uploaded — please enter the Udyam Registration Number.",
         err_ocr_unreadable: "Could not read the document — please re-upload a clear photo/PDF.",
         err_ocr_reupload: "For security reasons, you must re-upload the Aadhaar/PAN/Udyam documents.",
+        err_dob_invalid: "Please select a valid date of birth",
+        err_dob_range: "Year must be between 1876 and 2026",
+        s1_dob_day_ph: "Date",
+        s1_dob_month_ph: "Month",
+        s1_dob_year_ph: "Year",
 
         // Login Page
         login_title: "Entrepreneur Registration",

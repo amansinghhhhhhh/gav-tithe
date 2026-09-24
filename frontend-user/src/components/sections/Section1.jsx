@@ -12,10 +12,40 @@ import useOtp from "../../hooks/useOtp";
 import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
 import { districts, getTalukas } from "../../constants/maharashtraData";
 
+const MONTHS_EN = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+const MONTHS_MR = [
+  "जानेवारी", "फेब्रुवारी", "मार्च", "एप्रिल", "मे", "जून",
+  "जुलै", "ऑगस्ट", "सप्टेंबर", "ऑक्टोबर", "नोव्हेंबर", "डिसेंबर",
+];
+
+const DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => {
+  const d = String(i + 1).padStart(2, "0");
+  return { value: d, label: String(i + 1) };
+});
+const YEAR_OPTIONS = Array.from({ length: 2026 - 1876 + 1 }, (_, i) => {
+  const y = String(2026 - i);
+  return { value: y, label: y };
+});
+
 const makeRules = (t) => ({
   fullName: (v) =>
     !v?.trim() ? t("err_required") : v.trim().length < 3 ? t("err_min3") : null,
-  dob: (v) => (!v ? t("err_required") : null),
+  dob: (v) => {
+    if (!v) return t("err_required");
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    if (!m) return t("err_dob_invalid");
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    if (y < 1876 || y > 2026) return t("err_dob_range");
+    const dt = new Date(y, mo - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d)
+      return t("err_dob_invalid");
+    return null;
+  },
   mobile: (v) =>
     !v?.trim()
       ? t("err_required")
@@ -47,7 +77,7 @@ const makeRules = (t) => ({
 });
 
 function Section1({ data, dispatch, registerNext, onNext }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { user } = useAuth();
   const [otpInput, setOtpInput] = useState("");
   const [countdown, setCountdown] = useState(0);
@@ -163,6 +193,26 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     if (otpInput.length >= 4) await verifyOtp(otpInput, data.mobile);
   };
 
+  // DOB helpers — data.dob stays "YYYY-MM-DD" (backend compatible)
+  const [dobY, dobM, dobD] = (data.dob || "").split("-");
+  const monthOpts = (lang === "mr" ? MONTHS_MR : MONTHS_EN).map((label, i) => ({
+    value: String(i + 1).padStart(2, "0"),
+    label,
+  }));
+
+  const setDobPart = (part, val) => {
+    let y = dobY || "";
+    let m = dobM || "";
+    let d = dobD || "";
+    if (part === "d") d = val;
+    if (part === "m") m = val;
+    if (part === "y") y = val;
+    const assembled = y && m && d ? `${y}-${m}-${d}` : "";
+    u({ dob: assembled });
+    clearError("dob");
+    if (assembled) validateField("dob", assembled, data);
+  };
+
   return (
     <div style={sectionCardStyle}>
       <div id="recaptcha-container" />
@@ -181,36 +231,49 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           error={errors.fullName}
         />
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <ValidatedInput
-              label={t("s1_dob")}
-              type="date"
-              value={data.dob}
-              onChange={(e) => {
-                u({ dob: e.target.value });
-                clearError("dob");
+        {/* DOB — 3 searchable dropdowns (Day / Month / Year) */}
+        <div>
+          <label style={labelStyle}>{t("s1_dob")}</label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 8 }}>
+            <SearchSelect
+              value={dobD || ""}
+              placeholder={t("s1_dob_day_ph")}
+              options={DAY_OPTIONS}
+              onChange={(e) => setDobPart("d", e.target.value)}
+              onBlur={() => {
+                if (data.dob) validateField("dob", data.dob, data);
               }}
-              onBlur={(e) => validateField("dob", e.target.value, data)}
-              error={errors.dob}
-              suffix={
-                <span
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const input = e.target.closest("div[style]").querySelector('input[type="date"]');
-                    if (input) {
-                      if (input.showPicker) input.showPicker();
-                      else input.focus();
-                    }
-                  }}
-                  style={{ cursor: "pointer", fontSize: 18 }}
-                >
-                  📅
-                </span>
-              }
+              error=""
+            />
+            <SearchSelect
+              value={dobM || ""}
+              placeholder={t("s1_dob_month_ph")}
+              options={monthOpts}
+              onChange={(e) => setDobPart("m", e.target.value)}
+              onBlur={() => {
+                if (data.dob) validateField("dob", data.dob, data);
+              }}
+              error=""
+            />
+            <SearchSelect
+              value={dobY || ""}
+              placeholder={t("s1_dob_year_ph")}
+              options={YEAR_OPTIONS}
+              onChange={(e) => setDobPart("y", e.target.value)}
+              onBlur={() => {
+                if (data.dob) validateField("dob", data.dob, data);
+              }}
+              error=""
             />
           </div>
+          {errors.dob && (
+            <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
+              ⚠ {errors.dob}
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 180 }}>
             <label style={labelStyle}>{t("s1_gender")}</label>
             <div style={{ display: "flex", justifyContent: "center" }}>
