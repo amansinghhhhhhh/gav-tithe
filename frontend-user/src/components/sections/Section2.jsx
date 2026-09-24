@@ -203,7 +203,18 @@ function Section2({ data, dispatch, registerNext, onNext }) {
               {t("s2_invest_sub")}
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16, color: "#555" }}>₹</span>
+              <div
+                style={{
+                  ...inputStyle,
+                  width: 52,
+                  flexShrink: 0,
+                  background: "#f5f5f5",
+                  color: "#555",
+                  textAlign: "center",
+                }}
+              >
+                ₹
+              </div>
               <div style={{ flex: 1 }}>
                 <ValidatedInput
                   placeholder={t("s2_invest_ph")}
