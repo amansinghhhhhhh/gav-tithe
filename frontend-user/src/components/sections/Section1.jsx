@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { RadioGroup } from "../shared/RadioGroup";
 import { useLang } from "../../context/LangContext";
 import { useAuth } from "../../context/AuthContext";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
@@ -52,6 +51,7 @@ const makeRules = (t) => ({
       : /^[6-9]\d{9}$/.test(v.trim())
         ? null
         : t("err_mobile"),
+  gender: (v) => (!v ? t("err_required") : null),
   otpVerified: (v) => (!v ? t("err_otp") : null),
   education: (v) => (!v ? t("err_required") : null),
   // ✅ address object validation — sabhi fields required
@@ -158,6 +158,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     const isValid = validateAll({
       fullName: data.fullName,
       dob: data.dob,
+      gender: data.gender,
       mobile: data.mobile,
       otpVerified: data.otpVerified,
       education: data.education,
@@ -231,63 +232,66 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           error={errors.fullName}
         />
 
-        {/* DOB — 3 searchable dropdowns (Day / Month / Year) */}
-        <div>
-          <label style={labelStyle}>{t("s1_dob")}</label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 8 }}>
-            <SearchSelect
-              value={dobD || ""}
-              placeholder={t("s1_dob_day_ph")}
-              options={DAY_OPTIONS}
-              onChange={(e) => setDobPart("d", e.target.value)}
-              onBlur={() => {
-                if (data.dob) validateField("dob", data.dob, data);
-              }}
-              error=""
-            />
-            <SearchSelect
-              value={dobM || ""}
-              placeholder={t("s1_dob_month_ph")}
-              options={monthOpts}
-              onChange={(e) => setDobPart("m", e.target.value)}
-              onBlur={() => {
-                if (data.dob) validateField("dob", data.dob, data);
-              }}
-              error=""
-            />
-            <SearchSelect
-              value={dobY || ""}
-              placeholder={t("s1_dob_year_ph")}
-              options={YEAR_OPTIONS}
-              onChange={(e) => setDobPart("y", e.target.value)}
-              onBlur={() => {
-                if (data.dob) validateField("dob", data.dob, data);
-              }}
-              error=""
-            />
-          </div>
-          {errors.dob && (
-            <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
-              ⚠ {errors.dob}
-            </span>
-          )}
-        </div>
-
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <label style={labelStyle}>{t("s1_gender")}</label>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <RadioGroup
-                name="gender"
-                value={data.gender}
-                options={[
-                  { value: "purush", label: t("s1_male") },
-                  { value: "mahila", label: t("s1_female") },
-                  { value: "itar", label: t("s1_other") },
-                ]}
-                onChange={(v) => u({ gender: v })}
+        {/* DOB + Gender — side by side */}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <div style={{ flex: "2 1 300px", minWidth: 280 }}>
+            <label style={labelStyle}>{t("s1_dob")}</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr 1fr", gap: 8 }}>
+              <SearchSelect
+                value={dobD || ""}
+                placeholder={t("s1_dob_day_ph")}
+                options={DAY_OPTIONS}
+                onChange={(e) => setDobPart("d", e.target.value)}
+                onBlur={() => {
+                  if (data.dob) validateField("dob", data.dob, data);
+                }}
+                error=""
+              />
+              <SearchSelect
+                value={dobM || ""}
+                placeholder={t("s1_dob_month_ph")}
+                options={monthOpts}
+                onChange={(e) => setDobPart("m", e.target.value)}
+                onBlur={() => {
+                  if (data.dob) validateField("dob", data.dob, data);
+                }}
+                error=""
+              />
+              <SearchSelect
+                value={dobY || ""}
+                placeholder={t("s1_dob_year_ph")}
+                options={YEAR_OPTIONS}
+                onChange={(e) => setDobPart("y", e.target.value)}
+                onBlur={() => {
+                  if (data.dob) validateField("dob", data.dob, data);
+                }}
+                error=""
               />
             </div>
+            {errors.dob && (
+              <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
+                ⚠ {errors.dob}
+              </span>
+            )}
+          </div>
+
+          <div style={{ flex: "1 1 180px", minWidth: 180 }}>
+            <label style={labelStyle}>{t("s1_gender")}</label>
+            <SearchSelect
+              value={data.gender || ""}
+              placeholder={t("s1_gender_ph")}
+              options={[
+                { value: "purush", label: t("s1_male") },
+                { value: "mahila", label: t("s1_female") },
+                { value: "itar", label: t("s1_other") },
+              ]}
+              onChange={(e) => {
+                u({ gender: e.target.value });
+                clearError("gender");
+              }}
+              onBlur={(e) => validateField("gender", e.target.value, data)}
+              error={errors.gender || ""}
+            />
           </div>
         </div>
 
