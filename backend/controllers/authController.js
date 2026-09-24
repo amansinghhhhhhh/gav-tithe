@@ -7,6 +7,25 @@ const generateToken = (userId) =>
         expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
+// ── Firebase se emailVerified sync karo → Mongo ─────────────────────────────
+const syncEmailVerified = async (user) => {
+    if (!user?.email) return user;
+    try {
+        const firebaseAdmin = getAdmin();
+        if (!firebaseAdmin) return user;
+        const fbUser = await firebaseAdmin.auth().getUserByEmail(user.email);
+        const verified = !!fbUser.emailVerified;
+        if (user.emailVerified !== verified) {
+            user.emailVerified = verified;
+            await user.save();
+            console.log("emailVerified synced for:", user.email, "=", verified);
+        }
+    } catch (e) {
+        console.error("emailVerified sync failed for:", user.email, e.message);
+    }
+    return user;
+};
+
 // ── 1. Firebase OTP verify ────────────────────────────────────────────────────
 const verifyOtp = async (req, res) => {
     try {
@@ -95,6 +114,7 @@ const verifyOtp = async (req, res) => {
                 mobile: user.mobile,
                 email: user.email,
                 firebaseUid: user.firebaseUid,
+                emailVerified: !!user.emailVerified,
                 role: user.role,
             },
         });
@@ -170,7 +190,7 @@ const registerEmail = async (req, res) => {
         res.json({
             success: true,
             token: generateToken(user._id),
-            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, emailVerified: !!user.emailVerified, role: user.role },
         });
     } catch (err) {
         console.error("Register error:", err.message);
@@ -221,10 +241,17 @@ const loginEmail = async (req, res) => {
                         return res.status(401).json({ message: "Invalid credentials" });
                     }
                     // ⚠️ Login pe Mongo password KABHI mat likho — sirf reset flows update karte hain
+                    // Firebase idToken se emailVerified sync (decoded.email_verified)
+                    try {
+                        if (decoded.email_verified !== undefined && user.emailVerified !== !!decoded.email_verified) {
+                            user.emailVerified = !!decoded.email_verified;
+                            await user.save();
+                        }
+                    } catch (_) {}
                     return res.json({
                         success: true,
                         token: generateToken(user._id),
-                        user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
+                        user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, emailVerified: !!user.emailVerified, role: user.role },
                     });
                 }
             } catch (e) {
@@ -238,6 +265,10 @@ const loginEmail = async (req, res) => {
         let isMatch = false;
         if (user.password) {
             isMatch = await user.matchPassword(password);
+        }
+        // Mongo hash match hone pe bhi emailVerified sync karo (Firebase source of truth)
+        if (isMatch) {
+            await syncEmailVerified(user);
         }
         if (!isMatch) {
             // Firebase fallback: verify password via Firebase REST API
@@ -256,12 +287,24 @@ const loginEmail = async (req, res) => {
                     if (resp.ok) {
                         // Password correct according to Firebase → re-hash and save locally (heal)
                         user.password = password;
+                        // Firebase REST response me idToken aata hai — usse emailVerified sync
+                        try {
+                            if (resp.idToken) {
+                                const fbAdmin = getAdmin();
+                                if (fbAdmin) {
+                                    const dec = await fbAdmin.auth().verifyIdToken(resp.idToken);
+                                    if (dec.email_verified !== undefined && user.emailVerified !== !!dec.email_verified) {
+                                        user.emailVerified = !!dec.email_verified;
+                                    }
+                                }
+                            }
+                        } catch (_) {}
                         await user.save();
                         console.log("Password re-hashed from Firebase for:", user.email);
                         return res.json({
                             success: true,
                             token: generateToken(user._id),
-                            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
+                            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, emailVerified: !!user.emailVerified, role: user.role },
                         });
                     } else {
                         console.log("Firebase REST fallback rejected for:", user.email, "status:", resp.status);
@@ -278,7 +321,7 @@ const loginEmail = async (req, res) => {
         res.json({
             success: true,
             token: generateToken(user._id),
-            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, mobile: user.mobile, firebaseUid: user.firebaseUid, emailVerified: !!user.emailVerified, role: user.role },
         });
     } catch (err) {
         console.error("Login error:", err.message);
@@ -291,6 +334,7 @@ const loginEmail = async (req, res) => {
 // ── 4. Get current user ───────────────────────────────────────────────────────
 const getMe = async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
+    await syncEmailVerified(user);
     res.json({
         success: true,
         user: {
@@ -299,6 +343,7 @@ const getMe = async (req, res) => {
             email: user.email,
             mobile: user.mobile,
             firebaseUid: user.firebaseUid,
+            emailVerified: !!user.emailVerified,
             role: user.role,
         },
     });

@@ -106,6 +106,13 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     }
   }, [user?.name, user?.email]);
 
+  // Email locked — registration email hi source of truth (edit disabled)
+  useEffect(() => {
+    if (user?.email && data.email && data.email !== user.email) {
+      u({ email: user.email });
+    }
+  }, [user?.email]);
+
   useEffect(() => {
     if (firebaseVerified) {
       u({ otpVerified: true });
@@ -383,12 +390,45 @@ function Section1({ data, dispatch, registerNext, onNext }) {
           </div>
 
           <div style={{ flex: 1, minWidth: 200 }}>
-            <ValidatedInput
-              label={t("s1_email")}
+            <label style={labelStyle}>{t("s1_email")}</label>
+            <input
+              style={{
+                ...inputStyle,
+                width: "100%",
+                boxSizing: "border-box",
+                background: "#f5f5f5",
+                color: "#555",
+                cursor: "not-allowed",
+              }}
+              type="email"
               placeholder={t("s1_email_ph")}
-              value={data.email}
-              onChange={(e) => u({ email: e.target.value })}
+              value={data.email || user?.email || ""}
+              disabled
+              readOnly
             />
+            {user?.emailVerified ? (
+              <div
+                style={{
+                  color: C.green,
+                  fontSize: 12,
+                  marginTop: 4,
+                  fontWeight: 600,
+                }}
+              >
+                {t("s1_verified")}
+              </div>
+            ) : (
+              <div
+                style={{
+                  color: "#e53e3e",
+                  fontSize: 12,
+                  marginTop: 4,
+                  fontWeight: 600,
+                }}
+              >
+                {t("s1_email_unverified")}
+              </div>
+            )}
           </div>
         </div>
 

@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
     firebaseUid: { type: String, unique: true, sparse: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isVerified: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
 });
 
