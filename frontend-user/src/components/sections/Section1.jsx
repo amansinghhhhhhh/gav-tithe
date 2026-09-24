@@ -19,9 +19,9 @@ const makeRules = (t) => ({
   mobile: (v) =>
     !v?.trim()
       ? t("err_required")
-      : !/^\d{10}$/.test(v.trim())
-        ? t("err_mobile")
-        : null,
+      : /^[6-9]\d{9}$/.test(v.trim())
+        ? null
+        : t("err_mobile"),
   otpVerified: (v) => (!v ? t("err_otp") : null),
   education: (v) => (!v ? t("err_required") : null),
   // ✅ address object validation — sabhi fields required
@@ -42,7 +42,7 @@ const makeRules = (t) => ({
         : null,
   referrerMobile: (v) => {
     if (!v?.trim()) return null;
-    return /^\d{10}$/.test(v.trim()) ? null : t("err_mobile");
+    return /^[6-9]\d{9}$/.test(v.trim()) ? null : t("err_mobile");
   },
 });
 
