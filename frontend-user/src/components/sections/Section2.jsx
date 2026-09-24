@@ -51,17 +51,46 @@ function Section2({ data, dispatch, registerNext, onNext }) {
     <div style={sectionCardStyle}>
       <SectionHeader title={t("s2_title")} badge={t("s2_badge")} />
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <ValidatedInput
-          label={t("s2_biz_name")}
-          placeholder={t("s2_biz_name_ph")}
-          value={data.businessName}
-          onChange={(e) => {
-            u({ businessName: e.target.value });
-            clearError("businessName");
-          }}
-          onBlur={(e) => validateField("businessName", e.target.value, data)}
-          error={errors.businessName}
-        />
+        {/* Business Status */}
+        <div>
+          <label style={labelStyle}>{t("s2_status")}</label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {statusOptions.map((opt) => (
+              <label
+                key={opt.value}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  border: `2px solid ${data.businessStatus === opt.value ? C.green : errors.businessStatus ? "#e53e3e" : "#ddd"}`,
+                  background:
+                    data.businessStatus === opt.value ? "#f0fff4" : "#fff",
+                }}
+              >
+                <input
+                  type="radio"
+                  name="bizStatus"
+                  value={opt.value}
+                  checked={data.businessStatus === opt.value}
+                  onChange={() => {
+                    u({ businessStatus: opt.value });
+                    clearError("businessStatus");
+                  }}
+                  style={{ accentColor: C.green, width: 16, height: 16 }}
+                />
+                <span style={{ fontSize: 14 }}>{opt.label}</span>
+              </label>
+            ))}
+          </div>
+          {errors.businessStatus && (
+            <span style={{ fontSize: 11, color: "#e53e3e" }}>
+              ⚠ {errors.businessStatus}
+            </span>
+          )}
+        </div>
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 180 }}>
@@ -139,46 +168,17 @@ function Section2({ data, dispatch, registerNext, onNext }) {
           </div>
         </div>
 
-        {/* Business Status */}
-        <div>
-          <label style={labelStyle}>{t("s2_status")}</label>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {statusOptions.map((opt) => (
-              <label
-                key={opt.value}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "12px 16px",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  border: `2px solid ${data.businessStatus === opt.value ? C.green : errors.businessStatus ? "#e53e3e" : "#ddd"}`,
-                  background:
-                    data.businessStatus === opt.value ? "#f0fff4" : "#fff",
-                }}
-              >
-                <input
-                  type="radio"
-                  name="bizStatus"
-                  value={opt.value}
-                  checked={data.businessStatus === opt.value}
-                  onChange={() => {
-                    u({ businessStatus: opt.value });
-                    clearError("businessStatus");
-                  }}
-                  style={{ accentColor: C.green, width: 16, height: 16 }}
-                />
-                <span style={{ fontSize: 14 }}>{opt.label}</span>
-              </label>
-            ))}
-          </div>
-          {errors.businessStatus && (
-            <span style={{ fontSize: 11, color: "#e53e3e" }}>
-              ⚠ {errors.businessStatus}
-            </span>
-          )}
-        </div>
+        <ValidatedInput
+          label={t("s2_biz_name")}
+          placeholder={t("s2_biz_name_ph")}
+          value={data.businessName}
+          onChange={(e) => {
+            u({ businessName: e.target.value });
+            clearError("businessName");
+          }}
+          onBlur={(e) => validateField("businessName", e.target.value, data)}
+          error={errors.businessName}
+        />
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 180 }}>
