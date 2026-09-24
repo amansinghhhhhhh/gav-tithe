@@ -182,8 +182,11 @@ function Section2({ data, dispatch, registerNext, onNext }) {
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 180 }}>
+            <label style={labelStyle}>{t("s2_employ")}</label>
+            <p style={{ fontSize: 11, color: "#888", margin: "0 0 5px" }}>
+              {t("s2_employ_sub")}
+            </p>
             <ValidatedInput
-              label={t("s2_employ")}
               placeholder={t("s2_employ_ph")}
               value={data.employment}
               onChange={(e) => {
@@ -193,9 +196,6 @@ function Section2({ data, dispatch, registerNext, onNext }) {
               onBlur={(e) => validateField("employment", e.target.value, data)}
               error={errors.employment}
             />
-            <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
-              {t("s2_employ_sub")}
-            </p>
           </div>
           <div style={{ flex: 1, minWidth: 180 }}>
             <label style={labelStyle}>{t("s2_invest")}</label>
