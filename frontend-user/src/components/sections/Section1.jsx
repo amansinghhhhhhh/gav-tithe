@@ -35,7 +35,10 @@ const makeRules = (t) => ({
   dob: (v) => {
     if (!v) return t("err_required");
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
-    if (!m) return t("err_dob_invalid");
+    if (!m) {
+      if (v.split("-").some((s) => !s)) return t("err_required");
+      return t("err_dob_invalid");
+    }
     const y = Number(m[1]);
     const mo = Number(m[2]);
     const d = Number(m[3]);
@@ -208,10 +211,10 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     if (part === "d") d = val;
     if (part === "m") m = val;
     if (part === "y") y = val;
-    const assembled = y && m && d ? `${y}-${m}-${d}` : "";
+    const assembled = `${y}-${m}-${d}`;
     u({ dob: assembled });
     clearError("dob");
-    if (assembled) validateField("dob", assembled, data);
+    if (y && m && d) validateField("dob", assembled, data);
   };
 
   return (
@@ -242,9 +245,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 placeholder={t("s1_dob_day_ph")}
                 options={DAY_OPTIONS}
                 onChange={(e) => setDobPart("d", e.target.value)}
-                onBlur={() => {
-                  if (data.dob) validateField("dob", data.dob, data);
-                }}
+                onBlur={() => { if (dobY && dobM && dobD) validateField("dob", data.dob, data); }}
                 error=""
               />
               <SearchSelect
@@ -252,9 +253,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 placeholder={t("s1_dob_month_ph")}
                 options={monthOpts}
                 onChange={(e) => setDobPart("m", e.target.value)}
-                onBlur={() => {
-                  if (data.dob) validateField("dob", data.dob, data);
-                }}
+                onBlur={() => { if (dobY && dobM && dobD) validateField("dob", data.dob, data); }}
                 error=""
               />
               <SearchSelect
@@ -262,9 +261,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 placeholder={t("s1_dob_year_ph")}
                 options={YEAR_OPTIONS}
                 onChange={(e) => setDobPart("y", e.target.value)}
-                onBlur={() => {
-                  if (data.dob) validateField("dob", data.dob, data);
-                }}
+                onBlur={() => { if (dobY && dobM && dobD) validateField("dob", data.dob, data); }}
                 error=""
               />
             </div>
