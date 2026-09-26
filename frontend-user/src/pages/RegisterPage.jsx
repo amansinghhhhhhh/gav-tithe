@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerEmail, checkMobile, checkEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
@@ -43,9 +43,56 @@ const labelStyle = {
   textAlign: "left",
 };
 
+const CONSENT_LINKS = {
+  en: [
+    ["Terms of Service", "/terms"],
+    ["Privacy Policy", "/privacy"],
+    ["Disclaimer", "/disclaimer"],
+  ],
+  mr: [
+    ["सेवा अटी", "/terms"],
+    ["गोपनीयता धोरण", "/privacy"],
+    ["अस्वीकरणास", "/disclaimer"],
+  ],
+};
+
+const consentStyle = { color: "#F97316", textDecoration: "underline", fontWeight: 600 };
+
+function renderConsent(text, lang) {
+  const links = CONSENT_LINKS[lang] || CONSENT_LINKS.en;
+  const parts = [];
+  let rest = text;
+  let key = 0;
+  while (rest.length) {
+    let best = -1;
+    let bestPhrase = "";
+    let bestTo = "";
+    for (const [phrase, to] of links) {
+      const idx = rest.indexOf(phrase);
+      if (idx !== -1 && (best === -1 || idx < best)) {
+        best = idx;
+        bestPhrase = phrase;
+        bestTo = to;
+      }
+    }
+    if (best === -1) {
+      parts.push(rest);
+      break;
+    }
+    if (best > 0) parts.push(rest.slice(0, best));
+    parts.push(
+      <Link key={key++} to={bestTo} style={consentStyle}>
+        {bestPhrase}
+      </Link>
+    );
+    rest = rest.slice(best + bestPhrase.length);
+  }
+  return parts;
+}
+
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -706,6 +753,19 @@ export default function RegisterPage() {
                   </span>
                 </div>
               </div>
+
+              {/* Consent text — above Register button */}
+              <p
+                style={{
+                  textAlign: "center",
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                  color: "#6b7280",
+                  margin: "0 0 12px",
+                }}
+              >
+                {renderConsent(t("reg_consent"), lang)}
+              </p>
 
               {/* Register Button — visible always, disabled until step 5 */}
               <button

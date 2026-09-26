@@ -20,6 +20,7 @@ import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import RegistrationSuccessPage from "./pages/RegistrationSuccessPage";
 import StatusCheckPage from "./StatusCheckPage";
+import LegalPage from "./pages/LegalPage";
 import MyAssessment from "./components/assessment/MyAssessment";
 import DRPLibrary from "./components/DRPLibrary";
 import { Spinner } from "./components/shared/Spinner";
@@ -368,6 +369,9 @@ function AppRoutes() {
       {/* ✅ handles both modes via searchParams */}
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/status" element={<StatusCheckPage />} />
+      <Route path="/privacy" element={<LegalPage doc="privacy" />} />
+      <Route path="/terms" element={<LegalPage doc="terms" />} />
+      <Route path="/disclaimer" element={<LegalPage doc="disclaimer" />} />
       <Route
         path="/dashboard"
         element={
