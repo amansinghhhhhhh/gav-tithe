@@ -2,7 +2,7 @@ import SectionHeader from "../shared/SectionHeader";
 import { useEffect, useState } from "react";
 import { useLang } from "../../context/LangContext";
 import DocUploadBox from "../shared/DocUploadBox";
-import AadhaarGuide from "../AadhaarGuide";
+import DocGuide from "../DocGuide";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
@@ -89,6 +89,29 @@ const kycUploads = {
   flexWrap: "wrap",
   alignContent: "flex-start",
 };
+
+function GuideChip({ t, open, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        marginLeft: "auto",
+        background: open ? "#f59e0b" : "#fef3c7",
+        border: "1.5px solid #f59e0b",
+        color: open ? "#fff" : "#b45309",
+        borderRadius: 999,
+        padding: "4px 12px",
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {open ? `✕ ${t("s4_guide_btn")}` : `📋 ${t("s4_guide_btn")}`}
+    </button>
+  );
+}
 
 function Section4({ data, dispatch, registerNext, onNext, editAllowed = false }) {
   const { t } = useLang();
@@ -187,7 +210,8 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
   };
 
   const [uploadingKey, setUploadingKey] = useState(null);
-  const [guideOpen, setGuideOpen] = useState(false);
+  const [guides, setGuides] = useState({});
+  const toggleGuide = (k) => setGuides((g) => ({ ...g, [k]: !g[k] }));
 
   const handleDocUpload = async (key, file) => {
     if (file && file.size > MAX_FILE_SIZE) {
@@ -308,24 +332,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         <div style={kycCard}>
           <div style={kycHead}>
             <span>🪪</span> {t("s4_doc_aadh")}
-            <button
-              type="button"
-              onClick={() => setGuideOpen((o) => !o)}
-              style={{
-                marginLeft: "auto",
-                background: guideOpen ? "#f59e0b" : "#fef3c7",
-                border: "1.5px solid #f59e0b",
-                color: guideOpen ? "#fff" : "#b45309",
-                borderRadius: 999,
-                padding: "4px 12px",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {guideOpen ? `✕ ${t("s4_guide_btn")}` : `📋 ${t("s4_guide_btn")}`}
-            </button>
+            <GuideChip t={t} open={!!guides.aadhaar} onClick={() => toggleGuide("aadhaar")} />
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <div style={kycField}>
@@ -364,9 +371,9 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               />
             </div>
           </div>
-          {guideOpen && (
+          {guides.aadhaar && (
             <div style={{ marginTop: 12 }}>
-              <AadhaarGuide />
+              <DocGuide doc="aadhaar" />
             </div>
           )}
         </div>
@@ -375,6 +382,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         <div style={kycCard}>
           <div style={kycHead}>
             <span>🪪</span> {t("s4_doc_pan")}
+            <GuideChip t={t} open={!!guides.pan} onClick={() => toggleGuide("pan")} />
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <div style={kycField}>
@@ -406,12 +414,18 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               />
             </div>
           </div>
+          {guides.pan && (
+            <div style={{ marginTop: 12 }}>
+              <DocGuide doc="pan" />
+            </div>
+          )}
         </div>
 
         {/* Udyam card */}
         <div style={kycCard}>
           <div style={kycHead}>
             <span>🏭</span> {t("s4_doc_udyam")}
+            <GuideChip t={t} open={!!guides.udyam} onClick={() => toggleGuide("udyam")} />
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <div style={kycField}>
@@ -443,6 +457,11 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               />
             </div>
           </div>
+          {guides.udyam && (
+            <div style={{ marginTop: 12 }}>
+              <DocGuide doc="udyam" />
+            </div>
+          )}
         </div>
 
         {/* Bank Details optional */}

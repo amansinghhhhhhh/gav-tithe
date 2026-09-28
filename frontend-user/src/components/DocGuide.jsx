@@ -60,6 +60,76 @@ function AadhaarCardSvg({ side = "front", width = 160 }) {
   );
 }
 
+function PanCardSvg({ width = 160 }) {
+  const h = Math.round(width * 0.63);
+  return (
+    <svg viewBox="0 0 160 100" width={width} height={h} style={{ display: "block", borderRadius: 6 }}>
+      <rect x="1" y="1" width="158" height="98" rx="7" fill="#f8fafc" stroke="#94a3b8" strokeWidth="2" />
+      <rect x="3" y="3" width="154" height="14" rx="5" fill="#1e3a6e" />
+      <text x="80" y="13" textAnchor="middle" fontSize="7" fontWeight="700" fill="#fff" fontFamily="sans-serif">
+        INCOME TAX DEPARTMENT OF INDIA
+      </text>
+      <text x="80" y="27" textAnchor="middle" fontSize="7.5" fontWeight="700" fill={C.maroon} fontFamily="sans-serif">
+        पैन कार्ड
+      </text>
+      <rect x="10" y="32" width="34" height="42" rx="4" fill="#e5e7eb" stroke="#b0b3b8" />
+      <circle cx="27" cy="47" r="9" fill="#9aa0a6" />
+      <path d="M 13 72 a 14 12 0 0 1 28 0" fill="#9aa0a6" />
+      <rect x="52" y="34" width="70" height="5" rx="2" fill="#cbd5e1" />
+      <text x="52" y="49" fontSize="7" fontWeight="600" fill="#4b5563" fontFamily="sans-serif">RAHUL SHARMA</text>
+      <rect x="52" y="54" width="54" height="4" rx="2" fill="#cbd5e1" />
+      <text x="52" y="67" fontSize="6.5" fill="#64748b" fontFamily="sans-serif">DOB: 01-01-1990</text>
+      <rect x="52" y="72" width="50" height="5" rx="2" fill="#e2e8f0" transform="rotate(-3 52 72)" />
+      <text x="80" y="93" textAnchor="middle" fontSize="9.5" fontWeight="700" letterSpacing="1.4" fill="#1f2937" fontFamily="sans-serif">
+        ABCDE1234F
+      </text>
+      <rect x="128" y="34" width="22" height="22" fill="#fff" stroke="#9aa0a6" />
+      <g fill="#1f2937">
+        <rect x="130" y="36" width="5" height="5" /><rect x="137" y="36" width="3" height="3" />
+        <rect x="142" y="38" width="4" height="4" /><rect x="130" y="43" width="3" height="4" />
+        <rect x="135" y="42" width="5" height="5" /><rect x="142" y="44" width="4" height="3" />
+        <rect x="131" y="50" width="4" height="4" /><rect x="137" y="49" width="4" height="5" />
+        <rect x="143" y="51" width="3" height="4" />
+      </g>
+    </svg>
+  );
+}
+
+function UdyamCardSvg({ width = 160 }) {
+  const h = Math.round(width * 0.63);
+  return (
+    <svg viewBox="0 0 160 100" width={width} height={h} style={{ display: "block", borderRadius: 6 }}>
+      <rect x="1" y="1" width="158" height="98" rx="7" fill="#fffdf5" stroke="#c9a227" strokeWidth="2" />
+      <rect x="5" y="5" width="150" height="90" rx="4" fill="none" stroke="#c9a227" strokeWidth="1" strokeDasharray="4 3" />
+      <text x="80" y="18" textAnchor="middle" fontSize="6.5" fontWeight="700" fill={C.maroon} fontFamily="sans-serif">
+        सूक्ष्म, लघु और मध्यम उद्यम मंत्रालय
+      </text>
+      <text x="80" y="27" textAnchor="middle" fontSize="5.5" fill="#64748b" fontFamily="sans-serif">
+        Ministry of MSME, Government of India
+      </text>
+      <text x="80" y="41" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#1e3a6e" fontFamily="sans-serif">
+        UDYAM REGISTRATION CERTIFICATE
+      </text>
+      <rect x="24" y="48" width="112" height="5" rx="2" fill="#e2e8f0" />
+      <rect x="34" y="57" width="92" height="5" rx="2" fill="#e2e8f0" />
+      <text x="80" y="76" textAnchor="middle" fontSize="8.5" fontWeight="700" letterSpacing="0.6" fill="#1f2937" fontFamily="sans-serif">
+        UDYAM-MH-08-0001234
+      </text>
+      <text x="80" y="89" textAnchor="middle" fontSize="6" fill="#64748b" fontFamily="sans-serif">
+        Date of Registration: 01-01-2024
+      </text>
+      <circle cx="136" cy="80" r="11" fill="none" stroke="#c9a227" strokeWidth="2" />
+      <circle cx="136" cy="80" r="7" fill="none" stroke="#c9a227" strokeWidth="1" />
+      <rect x="16" y="72" width="16" height="16" fill="#fff" stroke="#9aa0a6" />
+      <g fill="#1f2937">
+        <rect x="18" y="74" width="4" height="4" /><rect x="24" y="74" width="3" height="3" />
+        <rect x="18" y="80" width="3" height="4" /><rect x="23" y="79" width="4" height="4" />
+        <rect x="25" y="85" width="3" height="3" />
+      </g>
+    </svg>
+  );
+}
+
 const panelStyle = (ok) => ({
   flex: "1 1 140px",
   minWidth: 140,
@@ -104,8 +174,16 @@ function Panel({ ok, icon, label, sub, children }) {
   );
 }
 
-function AadhaarGuide() {
+function DocGuide({ doc = "aadhaar" }) {
   const { t } = useLang();
+  const Card = () =>
+    doc === "pan" ? (
+      <PanCardSvg />
+    ) : doc === "udyam" ? (
+      <UdyamCardSvg />
+    ) : (
+      <Card />
+    );
   return (
     <div
       style={{
@@ -118,17 +196,17 @@ function AadhaarGuide() {
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <Panel ok icon="✓" label={t("guide_good")} sub={t("guide_good_sub")}>
           <div style={{ transform: "rotate(-3deg)" }}>
-            <AadhaarCardSvg side="front" />
+            <Card />
           </div>
         </Panel>
         <Panel ok={false} icon="✗" label={t("guide_blur")} sub={t("guide_blur_sub")}>
           <div style={{ filter: "blur(2.2px)" }}>
-            <AadhaarCardSvg side="front" />
+            <Card />
           </div>
         </Panel>
         <Panel ok={false} icon="✗" label={t("guide_glare")} sub={t("guide_glare_sub")}>
           <div style={{ position: "relative" }}>
-            <AadhaarCardSvg side="front" />
+            <Card />
             <div
               style={{
                 position: "absolute",
@@ -178,4 +256,4 @@ function AadhaarGuide() {
   );
 }
 
-export default AadhaarGuide;
+export default DocGuide;
