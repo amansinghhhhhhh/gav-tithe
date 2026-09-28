@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 import { districtMr, talukaMr } from "../constants/maharashtraDataMr";
 import { docFileUrl } from "../services/api";
+import guicon from "../assets/guicon.svg";
 
 const GENDER = { purush: "s1_male", mahila: "s1_female", itar: "s1_other" };
 const EDU = {
@@ -99,9 +100,21 @@ const gridStyle = {
   textAlign: "left",
 };
 
+const loadImage = (src) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("image load failed"));
+    img.src = src;
+  });
+
 export default function FormPreview({ form, onClose }) {
   const { t, lang } = useLang();
   const [villageMr, setVillageMr] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const [dlError, setDlError] = useState(false);
+  const cardRef = useRef(null);
+  const bodyRef = useRef(null);
 
   useEffect(() => {
     if (lang !== "mr") return;
@@ -172,6 +185,97 @@ export default function FormPreview({ form, onClose }) {
     </div>
   );
 
+  const handleDownload = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    setDlError(false);
+    const card = cardRef.current;
+    const body = bodyRef.current;
+    if (!card || !body) {
+      setDownloading(false);
+      return;
+    }
+    const cardPrev = card.getAttribute("style");
+    const bodyPrev = body.getAttribute("style");
+    let canvas = null;
+    try {
+      // Poori form capture ke liye temporarily un-clip
+      card.style.maxHeight = "none";
+      card.style.width = "720px";
+      card.style.maxWidth = "720px";
+      body.style.overflow = "visible";
+      await new Promise((r) => setTimeout(r, 80));
+      const { default: html2canvas } = await import("html2canvas");
+      canvas = await html2canvas(card, {
+        scale: 2,
+        backgroundColor: "#fff",
+        useCORS: true,
+        logging: false,
+      });
+    } catch (err) {
+      console.error("Capture failed:", err);
+    } finally {
+      if (cardPrev !== null) card.setAttribute("style", cardPrev);
+      if (bodyPrev !== null) body.setAttribute("style", bodyPrev);
+    }
+
+    if (!canvas) {
+      setDlError(true);
+      setTimeout(() => setDlError(false), 4000);
+      setDownloading(false);
+      return;
+    }
+
+    try {
+      const { jsPDF } = await import("jspdf");
+      const wm = await loadImage(guicon);
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
+
+      const MARGIN = 6;
+      const PAGE_W = 210 - MARGIN * 2;
+      const PAGE_H = 297 - MARGIN * 2;
+      const mmPerPx = PAGE_W / canvas.width;
+      const totalPages = Math.max(1, Math.ceil((canvas.height * mmPerPx) / PAGE_H));
+
+      for (let p = 0; p < totalPages; p++) {
+        const srcY = Math.round((p * PAGE_H) / mmPerPx);
+        const srcH = Math.min(canvas.height - srcY, Math.round(PAGE_H / mmPerPx));
+        if (srcH <= 0) break;
+
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = srcH;
+        const ctx = pageCanvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, pageCanvas.width, srcH);
+        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+        // Watermark — ek bada centered guicon logo (10% opacity, -30°)
+        const wmPx = 110 / mmPerPx;
+        const wmH = wmPx * (wm.height / wm.width);
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.translate(pageCanvas.width / 2, srcH / 2);
+        ctx.rotate((-30 * Math.PI) / 180);
+        ctx.drawImage(wm, -wmPx / 2, -wmH / 2, wmPx, wmH);
+        ctx.restore();
+
+        const data = pageCanvas.toDataURL("image/jpeg", 0.92);
+        if (p > 0) pdf.addPage();
+        pdf.addImage(data, "JPEG", MARGIN, MARGIN, PAGE_W, srcH * mmPerPx);
+      }
+
+      const name = form.uniqueId ? `GTU_${form.uniqueId}.pdf` : "form_preview.pdf";
+      pdf.save(name);
+    } catch (err) {
+      console.error("PDF download failed:", err);
+      setDlError(true);
+      setTimeout(() => setDlError(false), 4000);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div
       onClick={onClose}
@@ -197,6 +301,7 @@ export default function FormPreview({ form, onClose }) {
         .pv-close:hover { background: rgba(255,255,255,0.45) !important; }
       `}</style>
       <div
+        ref={cardRef}
         onClick={(e) => e.stopPropagation()}
         style={{
           background: "#fff",
@@ -241,35 +346,75 @@ export default function FormPreview({ form, onClose }) {
               </p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            aria-label={t("preview_close")}
-            className="pv-close"
-            style={{
-              width: 30,
-              height: 30,
-              flexShrink: 0,
-              borderRadius: "50%",
-              border: "none",
-              background: "rgba(255,255,255,0.25)",
-              color: "#fff",
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            ✕
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="pv-close"
+              style={{
+                padding: "7px 14px",
+                borderRadius: 999,
+                border: "none",
+                background: "rgba(255,255,255,0.25)",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 12.5,
+                fontFamily: "inherit",
+                cursor: downloading ? "wait" : "pointer",
+                whiteSpace: "nowrap",
+                opacity: downloading ? 0.85 : 1,
+              }}
+            >
+              {downloading ? `⏳ ${t("preview_downloading")}` : `⬇ ${t("preview_download")}`}
+            </button>
+            <button
+              onClick={onClose}
+              aria-label={t("preview_close")}
+              className="pv-close"
+              style={{
+                width: 30,
+                height: 30,
+                flexShrink: 0,
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(255,255,255,0.25)",
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Body — sab left aligned */}
         <div
+          ref={bodyRef}
           className="pv-scroll"
           style={{ overflowY: "auto", padding: "18px 20px 24px", textAlign: "left" }}
         >
+          {dlError && (
+            <div
+              style={{
+                background: "#fef2f2",
+                border: "1.5px solid #fca5a5",
+                color: "#b91c1c",
+                fontSize: 13,
+                fontWeight: 600,
+                padding: "10px 14px",
+                borderRadius: 8,
+                marginBottom: 14,
+                textAlign: "left",
+              }}
+            >
+              ⚠ {t("preview_download_err")}
+            </div>
+          )}
           <Section title={t("s1_title")}>
             <div style={gridStyle}>
               <Row label={t("s1_fullname")} value={raw(s1.fullName)} />

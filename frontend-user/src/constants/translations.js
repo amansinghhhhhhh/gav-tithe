@@ -34,6 +34,9 @@ const translations = {
         preview_title: "तुमचे भरलेले फॉर्म",
         preview_close: "बंद करा",
         preview_docs: "अपलोड केलेले कागदपत्रे",
+        preview_download: "PDF डाउनलोड करा",
+        preview_downloading: "तयार होत आहे...",
+        preview_download_err: "PDF तयार करता आला नाही. पुन्हा प्रयत्न करा.",
 
         // Edit Request
         edit_req_button: "माहिती बदलण्यासाठी विनंती करा",
@@ -555,6 +558,9 @@ const translations = {
         preview_title: "Your Submitted Form",
         preview_close: "Close",
         preview_docs: "Uploaded Documents",
+        preview_download: "Download PDF",
+        preview_downloading: "Preparing...",
+        preview_download_err: "Could not prepare PDF. Please try again.",
 
         // Edit Request
         edit_req_button: "Request to Edit Information",
