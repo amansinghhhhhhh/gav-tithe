@@ -50,43 +50,54 @@ const DOC_LIST = [
   ["passport", "s4_doc_pass"],
 ];
 
-const cardStyle = {
-  background: "#fff",
-  borderRadius: 16,
-  width: "min(760px, 94vw)",
-  maxHeight: "86vh",
-  display: "flex",
-  flexDirection: "column",
-  boxShadow: "0 20px 60px rgba(0,0,0,.35)",
-};
-
-const headStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "16px 20px",
-  borderBottom: "1.5px solid #f3f4f6",
-  background: C.light || "#fafafa",
-  borderRadius: "16px 16px 0 0",
-};
-
-const sectionHeadStyle = {
+const labelStyle = {
   fontSize: 13,
-  fontWeight: 800,
-  color: C.maroon,
-  margin: "18px 0 10px",
-  paddingBottom: 6,
-  borderBottom: "1.5px solid #fde8e8",
+  fontWeight: 600,
+  color: "#333",
+  marginBottom: 5,
+  display: "block",
+  textAlign: "left",
+};
+
+const valueBoxStyle = {
+  width: "100%",
+  boxSizing: "border-box",
+  padding: "10px 14px",
+  border: "1.5px solid #ddd",
+  borderRadius: 8,
+  fontSize: 14,
+  fontWeight: 600,
+  color: "#222",
+  background: "#f5f5f5",
+  lineHeight: 1.45,
+  wordBreak: "break-word",
+  textAlign: "left",
+};
+
+const sectionCard = {
+  background: "#fff",
+  border: "1px solid #eee",
+  borderRadius: 12,
+  overflow: "hidden",
+  marginBottom: 18,
+  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+};
+
+const sectionBar = {
+  background: C.light,
+  padding: "13px 18px",
+  fontSize: 15,
+  fontWeight: 700,
+  color: "#111",
+  textAlign: "left",
 };
 
 const gridStyle = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-  gap: "10px 16px",
+  gridTemplateColumns: "repeat(auto-fit, minmax(215px, 1fr))",
+  gap: 16,
+  textAlign: "left",
 };
-
-const rowLabel = { fontSize: 11.5, color: "#6b7280", fontWeight: 700, marginBottom: 2 };
-const rowValue = { fontSize: 14, color: "#111827", fontWeight: 600, wordBreak: "break-word" };
 
 export default function FormPreview({ form, onClose }) {
   const { t, lang } = useLang();
@@ -122,7 +133,7 @@ export default function FormPreview({ form, onClose }) {
   const addr = s1.address || {};
   const docs = s4.docs || {};
 
-  const raw = (v) => (v !== undefined && v !== null && String(v).trim() !== "" ? String(v) : "—");
+  const raw = (v) => (v !== undefined && v !== null && String(v).trim() !== "" ? String(v).trim() : "—");
   const lbl = (map, v) => {
     if (!v) return "—";
     return (map[v] && t(map[v])) || v;
@@ -145,17 +156,19 @@ export default function FormPreview({ form, onClose }) {
     .filter((x) => x && String(x).trim())
     .join(", ");
 
-  const Row = ({ label, value }) => (
-    <div>
-      <div style={rowLabel}>{label}</div>
-      <div style={rowValue}>{value}</div>
+  const Row = ({ label, value, wide }) => (
+    <div style={wide ? { gridColumn: "1 / -1" } : undefined}>
+      <span style={labelStyle}>{label}</span>
+      <div style={valueBoxStyle}>
+        {value === "—" ? <span style={{ color: "#9ca3af", fontWeight: 500 }}>—</span> : value}
+      </div>
     </div>
   );
 
   const Section = ({ title, children }) => (
-    <div>
-      <div style={sectionHeadStyle}>{title}</div>
-      <div style={gridStyle}>{children}</div>
+    <div style={sectionCard}>
+      <div style={sectionBar}>{title}</div>
+      <div style={{ padding: "18px" }}>{children}</div>
     </div>
   );
 
@@ -165,7 +178,7 @@ export default function FormPreview({ form, onClose }) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,.55)",
+        background: "rgba(0,0,0,0.4)",
         zIndex: 10000,
         display: "flex",
         alignItems: "center",
@@ -173,132 +186,219 @@ export default function FormPreview({ form, onClose }) {
         padding: 16,
       }}
     >
-      <div style={cardStyle} onClick={(e) => e.stopPropagation()}>
-        <div style={headStyle}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: C.maroon }}>
-            📄 {t("preview_title")}
+      <style>{`
+        .pv-scroll::-webkit-scrollbar { width: 6px; }
+        .pv-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .pv-scroll::-webkit-scrollbar-thumb { background: #F97316; border-radius: 10px; }
+        .pv-scroll::-webkit-scrollbar-thumb:hover { background: #ea580c; }
+        .pv-thumb { transition: border-color .2s, transform .2s; }
+        .pv-thumb:hover { border-color: #F97316 !important; transform: translateY(-2px); }
+        .pv-close { transition: background .2s; }
+        .pv-close:hover { background: rgba(255,255,255,0.45) !important; }
+      `}</style>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          borderRadius: 16,
+          width: "100%",
+          maxWidth: 720,
+          maxHeight: "86vh",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        }}
+      >
+        {/* Header — FaqModal orange gradient */}
+        <div
+          style={{
+            background: "linear-gradient(135deg, #F97316 0%, #fb923c 60%, #fbbf24 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            padding: "18px 20px",
+            flexShrink: 0,
+            textAlign: "left",
+          }}
+        >
+          <div>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff" }}>
+              📄 {t("preview_title")}
+            </h3>
+            {form.uniqueId && (
+              <p
+                style={{
+                  margin: "5px 0 0",
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.92)",
+                  fontFamily: "monospace",
+                  letterSpacing: 1,
+                }}
+              >
+                {form.uniqueId}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
             aria-label={t("preview_close")}
+            className="pv-close"
             style={{
-              width: 32,
-              height: 32,
+              width: 30,
+              height: 30,
+              flexShrink: 0,
               borderRadius: "50%",
-              border: "1.5px solid #e5e7eb",
-              background: "#fff",
-              color: "#374151",
+              border: "none",
+              background: "rgba(255,255,255,0.25)",
+              color: "#fff",
               fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
-              lineHeight: "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             ✕
           </button>
         </div>
 
-        <div style={{ overflowY: "auto", padding: "6px 20px 22px" }}>
+        {/* Body — sab left aligned */}
+        <div
+          className="pv-scroll"
+          style={{ overflowY: "auto", padding: "18px 20px 24px", textAlign: "left" }}
+        >
           <Section title={t("s1_title")}>
-            <Row label={t("s1_fullname")} value={raw(s1.fullName)} />
-            <Row label={t("s1_dob")} value={fmtDob(s1.dob)} />
-            <Row label={t("s1_gender")} value={lbl(GENDER, s1.gender)} />
-            <Row label={t("s1_mobile")} value={raw(s1.mobile)} />
-            <Row label={t("s1_email")} value={raw(s1.email)} />
-            <Row label={t("s1_education")} value={lbl(EDU, s1.education)} />
-            <Row label={t("s1_referredby")} value={raw(s1.referredBy)} />
-            <Row label={t("s1_referrer_mobile")} value={raw(s1.referrerMobile)} />
-            <div style={{ gridColumn: "1 / -1" }}>
-              <Row label={t("s1_address")} value={addressLine || "—"} />
+            <div style={gridStyle}>
+              <Row label={t("s1_fullname")} value={raw(s1.fullName)} />
+              <Row label={t("s1_dob")} value={fmtDob(s1.dob)} />
+              <Row label={t("s1_gender")} value={lbl(GENDER, s1.gender)} />
+              <Row label={t("s1_mobile")} value={raw(s1.mobile)} />
+              <Row label={t("s1_email")} value={raw(s1.email)} />
+              <Row label={t("s1_education")} value={lbl(EDU, s1.education)} />
+              <Row label={t("s1_referredby")} value={raw(s1.referredBy)} />
+              <Row label={t("s1_referrer_mobile")} value={raw(s1.referrerMobile)} />
+              <Row label={t("s1_address")} value={addressLine || "—"} wide />
             </div>
           </Section>
 
           <Section title={t("s2_title")}>
-            <Row label={t("s2_biz_name")} value={raw(s2.businessName)} />
-            <Row label={t("s2_biz_type")} value={lbl(BTYPE, s2.businessType)} />
-            <Row
-              label={t("s2_sector")}
-              value={
-                s2.sector === "other" && s2.sectorOther
-                  ? `${lbl(SECTOR, s2.sector)} — ${s2.sectorOther}`
-                  : lbl(SECTOR, s2.sector)
-              }
-            />
-            <Row label={t("s2_status")} value={lbl(BSTATUS, s2.businessStatus)} />
-            <Row label={t("s2_employ")} value={raw(s2.employment)} />
-            <Row label={t("s2_invest")} value={s2.investment ? `₹ ${s2.investment}` : "—"} />
+            <div style={gridStyle}>
+              <Row label={t("s2_biz_name")} value={raw(s2.businessName)} />
+              <Row label={t("s2_biz_type")} value={lbl(BTYPE, s2.businessType)} />
+              <Row
+                label={t("s2_sector")}
+                value={
+                  s2.sector === "other" && s2.sectorOther
+                    ? `${lbl(SECTOR, s2.sector)} — ${s2.sectorOther}`
+                    : lbl(SECTOR, s2.sector)
+                }
+              />
+              <Row label={t("s2_status")} value={lbl(BSTATUS, s2.businessStatus)} />
+              <Row label={t("s2_employ")} value={raw(s2.employment)} />
+              <Row label={t("s2_invest")} value={s2.investment ? `₹ ${s2.investment}` : "—"} />
+            </div>
           </Section>
 
           <Section title={t("s3_title")}>
-            <Row label={t("s3_had_loan")} value={lbl(YESNO, s3.hadLoan)} />
-            <Row
-              label={t("s3_loan_type")}
-              value={
-                s3.loanType === "other" && s3.loanTypeOther
-                  ? `${lbl(LTYPE, s3.loanType)} — ${s3.loanTypeOther}`
-                  : lbl(LTYPE, s3.loanType)
-              }
-            />
-            <Row label={t("s3_repay")} value={lbl(REPAY, s3.repaymentStatus)} />
-            <Row label={t("s3_cibil")} value={raw(s3.cibilScore)} />
-            <Row label={t("s3_difficulty")} value={raw(s3.pastDifficulty)} />
+            <div style={gridStyle}>
+              <Row label={t("s3_had_loan")} value={lbl(YESNO, s3.hadLoan)} />
+              <Row
+                label={t("s3_loan_type")}
+                value={
+                  s3.loanType === "other" && s3.loanTypeOther
+                    ? `${lbl(LTYPE, s3.loanType)} — ${s3.loanTypeOther}`
+                    : lbl(LTYPE, s3.loanType)
+                }
+              />
+              <Row label={t("s3_repay")} value={lbl(REPAY, s3.repaymentStatus)} />
+              <Row label={t("s3_cibil")} value={raw(s3.cibilScore)} />
+              <Row label={t("s3_difficulty")} value={raw(s3.pastDifficulty)} />
+            </div>
           </Section>
 
           <Section title={t("s4_title")}>
-            <Row label={t("s4_aadhaar")} value={raw(s4.aadhaar)} />
-            <Row label={t("s4_pan")} value={raw(s4.pan)} />
-            <Row label={t("s4_udyam")} value={raw(s4.udyam)} />
-            <Row label={t("s4_bank_name_ph")} value={raw(s4.bankName)} />
-            <Row label={t("s4_acc_ph")} value={raw(s4.accountNo)} />
+            <div style={gridStyle}>
+              <Row label={t("s4_aadhaar")} value={raw(s4.aadhaar)} />
+              <Row label={t("s4_pan")} value={raw(s4.pan)} />
+              <Row label={t("s4_udyam")} value={raw(s4.udyam)} />
+              <Row label={t("s4_bank_name_ph")} value={raw(s4.bankName)} />
+              <Row label={t("s4_acc_ph")} value={raw(s4.accountNo)} />
+            </div>
           </Section>
 
-          <div style={sectionHeadStyle}>{t("preview_docs")}</div>
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            {DOC_LIST.map(([key, labelKey]) => {
-              const fileId = docs[key];
-              return (
-                <div key={key} style={{ width: 138 }}>
-                  <div style={rowLabel}>{t(labelKey)}</div>
-                  {fileId ? (
-                    <a href={docFileUrl(fileId)} target="_blank" rel="noreferrer">
-                      <img
-                        src={docFileUrl(fileId)}
-                        alt={t(labelKey)}
-                        onError={(e) => {
-                          e.currentTarget.style.visibility = "hidden";
-                        }}
+          {/* Documents */}
+          <div style={sectionCard}>
+            <div style={sectionBar}>{t("preview_docs")}</div>
+            <div
+              style={{
+                padding: 18,
+                display: "flex",
+                gap: 16,
+                flexWrap: "wrap",
+                textAlign: "left",
+              }}
+            >
+              {DOC_LIST.map(([key, labelKey]) => {
+                const fileId = docs[key];
+                return (
+                  <div key={key} style={{ width: 150 }}>
+                    {fileId ? (
+                      <a href={docFileUrl(fileId)} target="_blank" rel="noreferrer">
+                        <img
+                          src={docFileUrl(fileId)}
+                          alt={t(labelKey)}
+                          className="pv-thumb"
+                          onError={(e) => {
+                            e.currentTarget.style.visibility = "hidden";
+                          }}
+                          style={{
+                            width: 150,
+                            height: 96,
+                            objectFit: "cover",
+                            border: "2px solid #e5e7eb",
+                            borderRadius: 10,
+                            background: "#f3f4f6",
+                            display: "block",
+                          }}
+                        />
+                      </a>
+                    ) : (
+                      <div
+                        className="pv-thumb"
                         style={{
-                          width: 138,
-                          height: 88,
-                          objectFit: "cover",
-                          border: "1.5px solid #e5e7eb",
-                          borderRadius: 8,
-                          background: "#f3f4f6",
-                          display: "block",
+                          width: 150,
+                          height: 96,
+                          border: "2px dashed #d1d5db",
+                          borderRadius: 10,
+                          background: "#f9fafb",
+                          color: "#9ca3af",
+                          fontSize: 22,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
-                      />
-                    </a>
-                  ) : (
+                      >
+                        —
+                      </div>
+                    )}
                     <div
                       style={{
-                        width: 138,
-                        height: 88,
-                        border: "1.5px dashed #d1d5db",
-                        borderRadius: 8,
-                        background: "#f9fafb",
-                        color: "#9ca3af",
-                        fontSize: 20,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "#6b7280",
+                        marginTop: 7,
+                        textAlign: "left",
                       }}
                     >
-                      —
+                      {t(labelKey)}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
