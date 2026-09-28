@@ -346,7 +346,7 @@ const extractAadhaar = (text, hint) => {
     return sorted[0].value;
 };
 
-const extractPanCandidates = (text) => {
+const extractPanCandidates = (text, hint = "") => {
     const out = [];
     const push = (s) => {
         const v = String(s).replace(/\s+/g, "");
@@ -362,6 +362,19 @@ const extractPanCandidates = (text) => {
     // 4. fuzzy fallback — 10-char alphanumeric run (sirf last resort)
     if (!out.length) {
         for (const m of compact.match(/[A-Z0-9]{10}/g) || []) push(m);
+    }
+    // 5. Hint-anchored windows — strict PAN-regex galat window choose kar sakta hai
+    // (e.g. raw "CJUPCO0337F" se pattern "JUPCO0337F" nikalta hai, pehla C chhoot jata hai).
+    // Hint ke length ±2 ke alnum windows jo hint se ≤2 door ho, seedhe candidate banao.
+    if (hint && hint.length >= 9) {
+        const alnum = text.replace(/[^A-Z0-9]/g, "");
+        for (let len = hint.length - 2; len <= hint.length + 2; len++) {
+            if (len < 1 || len > alnum.length) continue;
+            for (let i = 0; i + len <= alnum.length; i++) {
+                const w = alnum.slice(i, i + len);
+                if (levDist(w, hint) <= 2 && !out.includes(w)) out.push(w);
+            }
+        }
     }
     return out;
 };
@@ -413,7 +426,7 @@ export const extractDocNumber = async (file, opts = {}) => {
         const handleText = (text) => {
             attempts.push(text);
             const aadhaar = extractAadhaar(text, opts.aadhaarHint);
-            const panList = extractPanCandidates(text);
+            const panList = extractPanCandidates(text, panHint);
             const udyam = extractUdyam(text);
 
             for (const p of panList) {
@@ -426,16 +439,21 @@ export const extractDocNumber = async (file, opts = {}) => {
                 firstHit = { aadhaar, udyam, rawText: text };
             }
 
-            // PAN hint (user ka typed number): exact ya ≤1 OCR-misread match
-            // milte hi return — taki galat-but-valid candidate choose na ho
+            // PAN hint (user ka typed number): candidate ≤2 door tak mila hi matlab
+            // reading mil gayi (misread theek) — hint value (sahi) auto-correct
+            // karke return karo, taki status/submit dono me exact match rahe
             if (panHint) {
-                const hit = panList.find((p) => p === panHint || panMatches(p, panHint));
+                const hit = panList.find((p) => levDist(p, panHint) <= 2);
                 if (hit) {
-                    console.debug("[OCR] PAN hint match:", hit);
+                    if (hit !== panHint) {
+                        console.debug(`[OCR] PAN auto-corrected: ${hit} -> ${panHint}`);
+                    } else {
+                        console.debug("[OCR] PAN hint match:", hit);
+                    }
                     return {
                         ok: true,
                         aadhaar: firstHit?.aadhaar ?? aadhaar,
-                        pan: hit,
+                        pan: panHint,
                         udyam: firstHit?.udyam ?? udyam,
                         rawText: firstHit?.rawText ?? text,
                         attempts,
@@ -500,13 +518,19 @@ export const extractDocNumber = async (file, opts = {}) => {
             }
         }
 
-        // Hint tha lekin kisi attempt me exact/≤1 match nahi mila —
-        // best available candidate (hint ke sabse paas, warna pehla format-valid)
+        // Hint tha lekin kisi attempt me ≤2 match early-return nahi hua —
+        // fallback: ≤2 candidate mile toh hint (sahi value) auto-correct, warna jo mila wahi
         let pan = null;
         if (panCandidates.length) {
-            pan =
-                panCandidates.find((p) => levDist(p, panHint) <= 2) ||
-                panCandidates[0];
+            const near = panHint ? panCandidates.find((p) => levDist(p, panHint) <= 2) : null;
+            if (near) {
+                if (near !== panHint) {
+                    console.debug(`[OCR] PAN auto-corrected (fallback): ${near} -> ${panHint}`);
+                }
+                pan = panHint;
+            } else {
+                pan = panCandidates[0];
+            }
         }
         if (firstHit) {
             console.debug("[OCR] fallback aadhaar:", firstHit.aadhaar, "pan:", pan, "udyam:", firstHit.udyam);
