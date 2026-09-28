@@ -28,7 +28,9 @@ export default function SearchSelect({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((o) => o.label.toLowerCase().includes(q));
+    return items.filter(
+      (o) => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q)
+    );
   }, [items, query]);
 
   const calcDrop = () => {

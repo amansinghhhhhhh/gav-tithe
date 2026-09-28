@@ -4,6 +4,7 @@ import { useLang } from "../context/LangContext";
 import { Spinner } from "./shared/Spinner";
 import { getDRPEntries } from "../services/api";
 import { districts } from "../constants/maharashtraData";
+import { districtMr } from "../constants/maharashtraDataMr";
 
 const SECTORS = [
   "Agro-Processing",
@@ -364,10 +365,12 @@ export default function DRPLibrary() {
                 backgroundPosition: "right 12px center",
               }}
             >
-              <option value="All Districts">All Districts</option>
+              <option value="All Districts">
+                {lang === "mr" ? "सर्व जिल्हे" : "All Districts"}
+              </option>
               {districts.map((d) => (
                 <option key={d} value={d}>
-                  {d}
+                  {lang === "mr" ? districtMr[d] || d : d}
                 </option>
               ))}
             </select>
@@ -500,7 +503,7 @@ export default function DRPLibrary() {
                   cursor: "pointer",
                 }}
               >
-                📍 {selectedDistrict}
+                📍 {lang === "mr" ? districtMr[selectedDistrict] || selectedDistrict : selectedDistrict}
                 <span style={{ fontSize: 14, lineHeight: 1 }}>×</span>
               </span>
             )}

@@ -10,6 +10,7 @@ import useValidation from "../../hooks/useValidation";
 import useOtp from "../../hooks/useOtp";
 import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
 import { districts, getTalukas } from "../../constants/maharashtraData";
+import { districtMr, talukaMr } from "../../constants/maharashtraDataMr";
 
 const MONTHS_EN = [
   "January", "February", "March", "April", "May", "June",
@@ -85,6 +86,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
   const [otpInput, setOtpInput] = useState("");
   const [countdown, setCountdown] = useState(0);
   const [villageData, setVillageData] = useState(null);
+  const [villageMrData, setVillageMrData] = useState(null);
 
   // Lazy-load village directory (~850KB) only when address section needs it
   useEffect(() => {
@@ -94,6 +96,19 @@ function Section1({ data, dispatch, registerNext, onNext }) {
     }).catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    if (lang !== "mr") return;
+    let alive = true;
+    import("../../constants/maharashtraVillagesMr").then((mod) => {
+      if (alive) setVillageMrData(mod);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [lang]);
+
+  const disp = (map, s) =>
+    lang === "mr" && map && map[s] ? map[s] : s;
+  const dispVillage = (s) => disp(villageMrData?.villageMr, s);
 
   const getVillages = (district, taluka) =>
     villageData?.getVillages?.(district, taluka) || [];
@@ -579,7 +594,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               <SearchSelect
                 value={data.address?.dist || ""}
                 placeholder={t("s1_dist_ph")}
-                options={districts}
+                options={districts.map((d) => ({ value: d, label: disp(districtMr, d) }))}
                 onChange={(e) => {
                   u({ address: { ...data.address, dist: e.target.value, taluka: "", village: "", villageCustom: "", pincode: "" } });
                   clearError("address.dist");
@@ -596,7 +611,10 @@ function Section1({ data, dispatch, registerNext, onNext }) {
               <SearchSelect
                 value={data.address?.taluka || ""}
                 placeholder={t("s1_taluka_ph")}
-                options={getTalukas(data.address?.dist)}
+                options={getTalukas(data.address?.dist).map((x) => ({
+                  value: x,
+                  label: disp(talukaMr, x),
+                }))}
                 disabled={!data.address?.dist}
                 onChange={(e) => {
                   u({ address: { ...data.address, taluka: e.target.value, village: "", villageCustom: "", pincode: "" } });
@@ -616,7 +634,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 options={[
                   ...getVillages(data.address?.dist, data.address?.taluka).map((v) => ({
                     value: v,
-                    label: v,
+                    label: dispVillage(v),
                   })),
                   { value: "__other__", label: t("s1_village_other") || "Other" },
                 ]}
