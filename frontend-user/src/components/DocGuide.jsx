@@ -130,6 +130,35 @@ function UdyamCardSvg({ width = 160 }) {
   );
 }
 
+function OldUdyamSvg({ width = 160 }) {
+  const h = Math.round(width * 0.63);
+  return (
+    <svg viewBox="0 0 160 100" width={width} height={h} style={{ display: "block", borderRadius: 6 }}>
+      <rect x="1" y="1" width="158" height="98" rx="7" fill="#f7f1e3" stroke="#a08b5e" strokeWidth="2" />
+      <rect x="5" y="5" width="150" height="90" rx="4" fill="none" stroke="#b9a06a" strokeWidth="1" />
+      <text x="80" y="19" textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#6b5b2e" fontFamily="sans-serif">
+        उद्योग आधार प्रमाणपत्र
+      </text>
+      <text x="80" y="29" textAnchor="middle" fontSize="5.5" fontWeight="600" fill="#8a7648" fontFamily="sans-serif">
+        UDYOG AADHAAR MEMORANDUM
+      </text>
+      <text x="80" y="38" textAnchor="middle" fontSize="5" fill="#9a8a5e" fontFamily="sans-serif">
+        GOVERNMENT OF INDIA · MINISTRY OF MSME
+      </text>
+      <rect x="26" y="44" width="108" height="5" rx="2" fill="#e0d5bb" />
+      <rect x="38" y="53" width="84" height="5" rx="2" fill="#e0d5bb" />
+      <text x="80" y="74" textAnchor="middle" fontSize="8.5" fontWeight="700" letterSpacing="1" fill="#5c4d24" fontFamily="sans-serif">
+        DL 07 A 0000000
+      </text>
+      <text x="80" y="87" textAnchor="middle" fontSize="6" fill="#9a8a5e" fontFamily="sans-serif">
+        Udyog Aadhaar Number · 2015
+      </text>
+      <circle cx="134" cy="80" r="11" fill="none" stroke="#a08b5e" strokeWidth="2" opacity="0.7" />
+      <circle cx="134" cy="80" r="7" fill="none" stroke="#a08b5e" strokeWidth="1" opacity="0.7" />
+    </svg>
+  );
+}
+
 const panelStyle = (ok) => ({
   flex: "1 1 140px",
   minWidth: 140,
@@ -176,14 +205,94 @@ function Panel({ ok, icon, label, sub, children }) {
 
 function DocGuide({ doc = "aadhaar" }) {
   const { t } = useLang();
-  const Card = () =>
+  const MainCard = () =>
     doc === "pan" ? (
       <PanCardSvg />
     ) : doc === "udyam" ? (
       <UdyamCardSvg />
     ) : (
-      <Card />
+      <AadhaarCardSvg side="front" />
     );
+
+  const blurPanel = (card) => (
+    <Panel ok={false} icon="✗" label={t("guide_blur")} sub={t("guide_blur_sub")}>
+      <div style={{ filter: "blur(2.2px)" }}>{card}</div>
+    </Panel>
+  );
+
+  const glarePanel = (card) => (
+    <Panel ok={false} icon="✗" label={t("guide_glare")} sub={t("guide_glare_sub")}>
+      <div style={{ position: "relative" }}>
+        {card}
+        <div
+          style={{
+            position: "absolute",
+            top: 2,
+            left: 14,
+            width: 70,
+            height: 34,
+            background: "radial-gradient(ellipse at center, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 6,
+            left: 34,
+            width: 74,
+            height: 15,
+            borderRadius: 9,
+            background: "rgba(245,158,11,.85)",
+            border: "1px solid #b45309",
+            transform: "rotate(-6deg)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 2,
+            left: 76,
+            width: 66,
+            height: 14,
+            borderRadius: 9,
+            background: "rgba(251,191,36,.85)",
+            border: "1px solid #b45309",
+            transform: "rotate(4deg)",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+    </Panel>
+  );
+
+  const panels =
+    doc === "udyam"
+      ? [
+          <Panel key="new" ok icon="✓" label={t("guide_udyam_new")} sub={t("guide_udyam_new_sub")}>
+            <div style={{ transform: "rotate(-3deg)" }}>
+              <UdyamCardSvg />
+            </div>
+          </Panel>,
+          <Panel key="old" ok={false} icon="✗" label={t("guide_udyam_old")} sub={t("guide_udyam_old_sub")}>
+            <div style={{ transform: "rotate(3deg)", opacity: 0.9 }}>
+              <OldUdyamSvg />
+            </div>
+          </Panel>,
+          blurPanel(<UdyamCardSvg />),
+          glarePanel(<UdyamCardSvg />),
+        ]
+      : [
+          <Panel key="good" ok icon="✓" label={t("guide_good")} sub={t("guide_good_sub")}>
+            <div style={{ transform: "rotate(-3deg)" }}>
+              <MainCard />
+            </div>
+          </Panel>,
+          blurPanel(<MainCard />),
+          glarePanel(<MainCard />),
+        ];
+
   return (
     <div
       style={{
@@ -193,64 +302,9 @@ function DocGuide({ doc = "aadhaar" }) {
         padding: 12,
       }}
     >
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <Panel ok icon="✓" label={t("guide_good")} sub={t("guide_good_sub")}>
-          <div style={{ transform: "rotate(-3deg)" }}>
-            <Card />
-          </div>
-        </Panel>
-        <Panel ok={false} icon="✗" label={t("guide_blur")} sub={t("guide_blur_sub")}>
-          <div style={{ filter: "blur(2.2px)" }}>
-            <Card />
-          </div>
-        </Panel>
-        <Panel ok={false} icon="✗" label={t("guide_glare")} sub={t("guide_glare_sub")}>
-          <div style={{ position: "relative" }}>
-            <Card />
-            <div
-              style={{
-                position: "absolute",
-                top: 2,
-                left: 14,
-                width: 70,
-                height: 34,
-                background: "radial-gradient(ellipse at center, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%)",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: 6,
-                left: 34,
-                width: 74,
-                height: 15,
-                borderRadius: 9,
-                background: "rgba(245,158,11,.85)",
-                border: "1px solid #b45309",
-                transform: "rotate(-6deg)",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: 2,
-                left: 76,
-                width: 66,
-                height: 14,
-                borderRadius: 9,
-                background: "rgba(251,191,36,.85)",
-                border: "1px solid #b45309",
-                transform: "rotate(4deg)",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
-        </Panel>
-      </div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>{panels}</div>
       <div style={{ fontSize: 11, color: "#6b7280", marginTop: 10, textAlign: "center" }}>
-        📱 {t("guide_rules")}
+        📱 {t(doc === "udyam" ? "guide_rules_udyam" : "guide_rules")}
       </div>
     </div>
   );

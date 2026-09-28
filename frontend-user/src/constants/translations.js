@@ -178,6 +178,11 @@ const translations = {
         guide_glare: "आवरण/बोट नको",
         guide_glare_sub: "फ्लैश बंद, नंबर ढाकू नका",
         guide_rules: "सीधा फोटो · 4 कोने दिसावेत · ब्लर नको · फ्लैश बंद",
+        guide_udyam_new: "नवीन Udyam प्रमाणपत्र",
+        guide_udyam_new_sub: "UDYAM-XX-XX-XXXXXXX फॉरमॅटच मान्य",
+        guide_udyam_old: "जुने प्रमाणपत्र — मान्य नाही",
+        guide_udyam_old_sub: "उद्योग आधार / EM-II / SSI अपलोड करू नका — पुन्हा नोंदणी करा",
+        guide_rules_udyam: "फक्त नवीन Udyam प्रमाणपत्र मान्य · जुने प्रमाणपत्र अपलोड करू नका · स्पष्ट फोटो",
         s4_file_too_large: "फाइल 5MB पेक्षा मोठी आहे. कृपया 5MB पेक्षा लहान फाइल निवडा.",
         s4_doc_type_err: "फक्त PDF, JPG, PNG, WEBP मान्य आहे",
         s4_doc_size_err: "फाइल जास्तीत जास्त 5MB असावी",
@@ -190,7 +195,7 @@ const translations = {
         s4_doc_aadh_back_sub: "Aadhaar Back",
         s4_doc_pan: "पॅन कार्ड",
         s4_doc_udyam: "उद्यम नोंदणी",
-        s4_doc_udyam_sub: "(असल्यास)",
+        s4_doc_udyam_sub: "(नवीन प्रमाणपत्र असल्यास)",
         s4_doc_pass: "पासपोर्ट फोटो",
 
         // Footer
@@ -691,6 +696,11 @@ const translations = {
         guide_glare: "No glare/fingers",
         guide_glare_sub: "Flash off, don't cover the number",
         guide_rules: "Straight · 4 corners visible · no blur · flash off",
+        guide_udyam_new: "New Udyam certificate",
+        guide_udyam_new_sub: "Only UDYAM-XX-XX-XXXXXXX format is valid",
+        guide_udyam_old: "Old certificate — not valid",
+        guide_udyam_old_sub: "Don't upload Udyog Aadhaar / EM-II / SSI — re-register first",
+        guide_rules_udyam: "Only new Udyam certificate valid · no old certificates · clear photo",
         s4_file_too_large: "File exceeds 5MB. Please select a file under 5MB.",
         s4_doc_type_err: "Only PDF, JPG, PNG, WEBP are allowed",
         s4_doc_size_err: "File must be under 5MB",
@@ -703,7 +713,7 @@ const translations = {
         s4_doc_aadh_back_sub: "Back side",
         s4_doc_pan: "PAN Card",
         s4_doc_udyam: "Udyam Registration",
-        s4_doc_udyam_sub: "(If available)",
+        s4_doc_udyam_sub: "(New certificate only, if available)",
         s4_doc_pass: "Passport Photo",
 
         // Footer
