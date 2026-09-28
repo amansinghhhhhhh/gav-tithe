@@ -303,8 +303,18 @@ function DocGuide({ doc = "aadhaar" }) {
       }}
     >
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>{panels}</div>
-      <div style={{ fontSize: 11, color: "#6b7280", marginTop: 10, textAlign: "center" }}>
-        📱 {t(doc === "udyam" ? "guide_rules_udyam" : "guide_rules")}
+      <div style={{ marginTop: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.maroon, marginBottom: 6 }}>
+          📋 {t(doc === "udyam" ? "guide_instr_udyam" : "guide_instr_aadhaar")}
+        </div>
+        <ol style={{ margin: 0, paddingLeft: 18, fontSize: 11.5, color: "#6b7280", lineHeight: 1.6 }}>
+          {(doc === "udyam"
+            ? [1, 2, 3, 4].map((n) => t(`guide_instr_udyam_${n}`))
+            : [1, 2, 3].map((n) => t(`guide_instr_aadhaar_${n}`))
+          ).map((text) => (
+            <li key={text} style={{ marginBottom: 2 }}>{text}</li>
+          ))}
+        </ol>
       </div>
     </div>
   );
