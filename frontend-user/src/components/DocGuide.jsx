@@ -169,10 +169,7 @@ const panelStyle = (ok) => ({
   textAlign: "center",
 });
 
-const captionStyle = { fontSize: 12, fontWeight: 700, marginTop: 6 };
-const subStyle = { fontSize: 10, color: "#6b7280", marginTop: 2, lineHeight: 1.35 };
-
-function Panel({ ok, icon, label, sub, children }) {
+function Panel({ ok, icon, caption, children }) {
   return (
     <div style={panelStyle(ok)}>
       <div style={{ position: "relative", display: "inline-block" }}>
@@ -197,8 +194,9 @@ function Panel({ ok, icon, label, sub, children }) {
           {icon}
         </span>
       </div>
-      <div style={{ ...captionStyle, color: ok ? C.green : "#dc2626" }}>{label}</div>
-      <div style={subStyle}>{sub}</div>
+      <div style={{ fontSize: 11.5, color: "#4b5563", marginTop: 6, lineHeight: 1.4 }}>
+        {caption}
+      </div>
     </div>
   );
 }
@@ -214,14 +212,14 @@ function DocGuide({ doc = "aadhaar" }) {
       <AadhaarCardSvg side="front" />
     );
 
-  const blurPanel = (card) => (
-    <Panel ok={false} icon="✗" label={t("guide_blur")} sub={t("guide_blur_sub")}>
+  const blurPanel = (card, caption) => (
+    <Panel ok={false} icon="✗" caption={caption}>
       <div style={{ filter: "blur(2.2px)" }}>{card}</div>
     </Panel>
   );
 
-  const glarePanel = (card) => (
-    <Panel ok={false} icon="✗" label={t("guide_glare")} sub={t("guide_glare_sub")}>
+  const glarePanel = (card, caption) => (
+    <Panel ok={false} icon="✗" caption={caption}>
       <div style={{ position: "relative" }}>
         {card}
         <div
@@ -270,27 +268,27 @@ function DocGuide({ doc = "aadhaar" }) {
   const panels =
     doc === "udyam"
       ? [
-          <Panel key="new" ok icon="✓" label={t("guide_udyam_new")} sub={t("guide_udyam_new_sub")}>
+          <Panel key="new" ok icon="✓" caption={t("guide_instr_udyam_1")}>
             <div style={{ transform: "rotate(-3deg)" }}>
               <UdyamCardSvg />
             </div>
           </Panel>,
-          <Panel key="old" ok={false} icon="✗" label={t("guide_udyam_old")} sub={t("guide_udyam_old_sub")}>
+          <Panel key="old" ok={false} icon="✗" caption={t("guide_instr_udyam_3")}>
             <div style={{ transform: "rotate(3deg)", opacity: 0.9 }}>
               <OldUdyamSvg />
             </div>
           </Panel>,
-          blurPanel(<UdyamCardSvg />),
-          glarePanel(<UdyamCardSvg />),
+          blurPanel(<UdyamCardSvg />, t("guide_instr_udyam_2")),
+          glarePanel(<UdyamCardSvg />, t("guide_instr_udyam_4")),
         ]
       : [
-          <Panel key="good" ok icon="✓" label={t("guide_good")} sub={t("guide_good_sub")}>
+          <Panel key="good" ok icon="✓" caption={t("guide_instr_aadhaar_3")}>
             <div style={{ transform: "rotate(-3deg)" }}>
               <MainCard />
             </div>
           </Panel>,
-          blurPanel(<MainCard />),
-          glarePanel(<MainCard />),
+          blurPanel(<MainCard />, t("guide_instr_aadhaar_2")),
+          glarePanel(<MainCard />, t("guide_instr_aadhaar_1")),
         ];
 
   return (
@@ -303,19 +301,6 @@ function DocGuide({ doc = "aadhaar" }) {
       }}
     >
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>{panels}</div>
-      <div style={{ marginTop: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.maroon, marginBottom: 6 }}>
-          📋 {t(doc === "udyam" ? "guide_instr_udyam" : "guide_instr_aadhaar")}
-        </div>
-        <ol style={{ margin: 0, paddingLeft: 18, fontSize: 11.5, color: "#6b7280", lineHeight: 1.6 }}>
-          {(doc === "udyam"
-            ? [1, 2, 3, 4].map((n) => t(`guide_instr_udyam_${n}`))
-            : [1, 2, 3].map((n) => t(`guide_instr_aadhaar_${n}`))
-          ).map((text) => (
-            <li key={text} style={{ marginBottom: 2 }}>{text}</li>
-          ))}
-        </ol>
-      </div>
     </div>
   );
 }
