@@ -239,24 +239,24 @@ const extractAadhaar = (text, hint) => {
     return sorted[0].value;
 };
 
-const extractPan = (text) => {
-    // 1. spaces ke saath bhi match karo: "ABCDE 1234 F"
-    const spaced = text.match(/[A-Z](?:\s?[A-Z]){4}(?:\s?[0-9]){4}\s?[A-Z]/g);
-    for (const m of spaced || []) {
-        const s = m.replace(/\s+/g, "");
-        if (PAN_RE.test(s)) return s;
-    }
+const extractPanCandidates = (text) => {
+    const out = [];
+    const push = (s) => {
+        const v = String(s).replace(/\s+/g, "");
+        if (PAN_RE.test(v) && !out.includes(v)) out.push(v);
+    };
+    // 1. spaces ke saath: "ABCDE 1234 F"
+    for (const m of text.match(/[A-Z](?:\s?[A-Z]){4}(?:\s?[0-9]){4}\s?[A-Z]/g) || []) push(m);
     // 2. raw contiguous
-    const contiguous = text.match(/[A-Z]{5}[0-9]{4}[A-Z]/g);
-    if (contiguous) return contiguous[0];
+    for (const m of text.match(/[A-Z]{5}[0-9]{4}[A-Z]/g) || []) push(m);
     // 3. compact (saare spaces hata ke)
     const compact = text.replace(/\s+/g, "");
-    const m = compact.match(/[A-Z]{5}[0-9]{4}[A-Z]/g);
-    if (m) return m[0];
-    // 4. fuzzy fallback — 10-char alphanumeric run (match-time tolerance handle karega)
-    const runs = compact.match(/[A-Z0-9]{10}/g);
-    if (runs && runs.length) return runs[0];
-    return null;
+    for (const m of compact.match(/[A-Z]{5}[0-9]{4}[A-Z]/g) || []) push(m);
+    // 4. fuzzy fallback — 10-char alphanumeric run (sirf last resort)
+    if (!out.length) {
+        for (const m of compact.match(/[A-Z0-9]{10}/g) || []) push(m);
+    }
+    return out;
 };
 
 const extractUdyam = (text) => {
@@ -283,6 +283,10 @@ const recognize = async (worker, input, sparse) => {
 // ── Main entry ────────────────────────────────────────────────────────────────
 export const extractDocNumber = async (file, opts = {}) => {
     const attempts = [];
+    const panCandidates = [];
+    const seenPan = new Set();
+    const panHint = String(opts.panHint || "").toUpperCase().replace(/\s/g, "");
+    let firstHit = null; // pehla attempt jisme kuch mila (aadhaar/udyam usi se)
     try {
         const worker = await getWorker();
         const pdf = isPdf(file);
@@ -297,15 +301,55 @@ export const extractDocNumber = async (file, opts = {}) => {
                 const text = await recognize(worker, input, sparse);
                 attempts.push(text);
                 const aadhaar = extractAadhaar(text, opts.aadhaarHint);
-                const pan = extractPan(text);
+                const panList = extractPanCandidates(text);
                 const udyam = extractUdyam(text);
-                if (aadhaar || pan || udyam) {
-                    console.debug("[OCR] FOUND aadhaar:", aadhaar, "pan:", pan, "udyam:", udyam);
-                    return { ok: true, aadhaar, pan, udyam, rawText: text, attempts };
+
+                for (const p of panList) {
+                    if (!seenPan.has(p)) {
+                        seenPan.add(p);
+                        panCandidates.push(p);
+                    }
+                }
+                if (!firstHit && (aadhaar || panList.length || udyam)) {
+                    firstHit = { aadhaar, udyam, rawText: text };
+                }
+
+                // PAN hint (user ka typed number): exact ya ≤1 OCR-misread match
+                // milte hi return — taki galat-but-valid candidate choose na ho
+                if (panHint) {
+                    const hit = panList.find((p) => p === panHint || panMatches(p, panHint));
+                    if (hit) {
+                        console.debug("[OCR] PAN hint match:", hit);
+                        return {
+                            ok: true,
+                            aadhaar: firstHit?.aadhaar ?? aadhaar,
+                            pan: hit,
+                            udyam: firstHit?.udyam ?? udyam,
+                            rawText: firstHit?.rawText ?? text,
+                            attempts,
+                        };
+                    }
+                } else if (aadhaar || panList.length || udyam) {
+                    // purana behavior: hint nahi toh first hit pe return
+                    console.debug("[OCR] FOUND aadhaar:", aadhaar, "pan:", panList[0], "udyam:", udyam);
+                    return { ok: true, aadhaar, pan: panList[0] || null, udyam, rawText: text, attempts };
                 }
             }
         }
-        return { ok: true, aadhaar: null, pan: null, udyam: null, rawText: "", attempts };
+
+        // Hint tha lekin kisi attempt me exact/≤1 match nahi mila —
+        // best available candidate (hint ke sabse paas, warna pehla format-valid)
+        let pan = null;
+        if (panCandidates.length) {
+            pan =
+                panCandidates.find((p) => panMatches(p, panHint)) ||
+                panCandidates[0];
+        }
+        if (firstHit) {
+            console.debug("[OCR] fallback aadhaar:", firstHit.aadhaar, "pan:", pan, "udyam:", firstHit.udyam);
+            return { ok: true, aadhaar: firstHit.aadhaar, pan, udyam: firstHit.udyam, rawText: firstHit.rawText, attempts };
+        }
+        return { ok: true, aadhaar: null, pan, udyam: null, rawText: "", attempts };
     } catch (err) {
         console.error("OCR error:", err);
         return { ok: false, error: err.message, attempts };

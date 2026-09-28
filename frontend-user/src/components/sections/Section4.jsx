@@ -227,9 +227,12 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         // Aadhaar: user ne type kiya number hint do — OCR ambiguous ho toh usse prefer karo
         const aadhaarHint =
           key === "aadhaarFront" ? (data.aadhaar || "").replace(/\D/g, "") : null;
+        // PAN: typed number hint — sahi attempt choose karne ke liye
+        const panHint =
+          key === "pan" ? (data.pan || "").trim().toUpperCase() : null;
         const result = await extractDocNumber(
           file,
-          aadhaarHint ? { aadhaarHint } : {},
+          { aadhaarHint, panHint },
         );
         if (result.ok) {
           ocrNumber =
