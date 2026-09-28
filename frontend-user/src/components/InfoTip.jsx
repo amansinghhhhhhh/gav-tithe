@@ -75,7 +75,7 @@ export default function InfoTip({ textKey, size = 16, align = "center" }) {
             padding: "8px 11px",
             borderRadius: 10,
             width: 210,
-            whiteSpace: "normal",
+            whiteSpace: "pre-line",
             boxShadow: "0 6px 18px rgba(249,115,22,0.18)",
             zIndex: 100,
             pointerEvents: "none",

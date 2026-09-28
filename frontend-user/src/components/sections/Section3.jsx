@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import SectionHeader from "../shared/SectionHeader";
+import InfoTip from "../InfoTip";
 import { useLang } from "../../context/LangContext";
 import { RadioGroup } from "../shared/RadioGroup";
 import Select from "../shared/Select";
@@ -136,7 +137,12 @@ function Section3({ data, dispatch, registerNext, onNext }) {
         )}
 
         <ValidatedInput
-          label={t("s3_cibil")}
+          label={
+            <>
+              {t("s3_cibil")}
+              <InfoTip textKey="info_cibil" size={14} align="left" />
+            </>
+          }
           placeholder={t("s3_cibil_ph")}
           value={data.cibilScore}
           onChange={(e) => {
