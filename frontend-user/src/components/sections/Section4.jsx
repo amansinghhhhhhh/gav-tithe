@@ -62,6 +62,33 @@ const OCR_STATUS_STYLE = {
   type: { color: "#9ca3af", icon: "ℹ️" },
 };
 
+const kycCard = {
+  border: "1.5px solid #e5e7eb",
+  borderRadius: 12,
+  padding: "16px 18px",
+  background: "#fbfbfd",
+};
+
+const kycHead = {
+  fontSize: 15,
+  fontWeight: 700,
+  color: "#560A0A",
+  marginBottom: 12,
+  display: "flex",
+  alignItems: "center",
+  gap: 7,
+};
+
+const kycField = { flex: "1 1 240px", minWidth: 200 };
+const kycUploads = {
+  flex: "1 1 200px",
+  minWidth: 170,
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  alignContent: "flex-start",
+};
+
 function Section4({ data, dispatch, registerNext, onNext, editAllowed = false }) {
   const { t } = useLang();
   const u = (p) => dispatch({ type: "UPDATE_SECTION4", payload: p });
@@ -274,60 +301,122 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
   return (
     <div style={sectionCardStyle}>
       <SectionHeader title={t("s4_title")} subtitle={t("s4_subtitle")} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <ValidatedInput
-              label={t("s4_aadhaar")}
-              placeholder={t("s4_aadhaar_ph")}
-              maxLength={14}
-              value={data.aadhaar}
-              onChange={(e) => {
-                let v = e.target.value.replace(/\D/g, "").slice(0, 12);
-                v = v.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
-                u({ aadhaar: v });
-                clearError("aadhaar");
-              }}
-              onBlur={() => validateField("aadhaar", data.aadhaar, data)}
-              error={errors.aadhaar}
-            />
-            <OcrStatus docKey="aadhaarFront" showExtracted />
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Aadhaar card */}
+        <div style={kycCard}>
+          <div style={kycHead}>
+            <span>🪪</span> {t("s4_doc_aadh")}
           </div>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <ValidatedInput
-              label={t("s4_pan")}
-              placeholder={t("s4_pan_ph")}
-              maxLength={10}
-              value={data.pan}
-              onChange={(e) => {
-                u({ pan: e.target.value.toUpperCase() });
-                clearError("pan");
-              }}
-              onBlur={() => validateField("pan", data.pan, data)}
-              error={errors.pan}
-            />
-            <OcrStatus docKey="pan" showExtracted />
-            <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
-              {t("s4_pan_sub")}
-            </p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={kycField}>
+              <ValidatedInput
+                label={t("s4_aadhaar")}
+                placeholder={t("s4_aadhaar_ph")}
+                maxLength={14}
+                value={data.aadhaar}
+                onChange={(e) => {
+                  let v = e.target.value.replace(/\D/g, "").slice(0, 12);
+                  v = v.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+                  u({ aadhaar: v });
+                  clearError("aadhaar");
+                }}
+                onBlur={() => validateField("aadhaar", data.aadhaar, data)}
+                error={errors.aadhaar}
+              />
+              <OcrStatus docKey="aadhaarFront" showExtracted />
+            </div>
+            <div style={kycUploads}>
+              <DocUploadBox
+                label={t("s4_doc_aadh_front")}
+                uploaded={!!data.docs.aadhaarFront}
+                loading={uploadingKey === "aadhaarFront"}
+                onUpload={(f) => handleDocUpload("aadhaarFront", f)}
+                onRemove={() => handleRemoveDoc("aadhaarFront")}
+                error={errors["docs.aadhaarFront"]}
+              />
+              <DocUploadBox
+                label={t("s4_doc_aadh_back")}
+                uploaded={!!data.docs.aadhaarBack}
+                loading={uploadingKey === "aadhaarBack"}
+                onUpload={(f) => handleDocUpload("aadhaarBack", f)}
+                onRemove={() => handleRemoveDoc("aadhaarBack")}
+                error={errors["docs.aadhaarBack"]}
+              />
+            </div>
           </div>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <ValidatedInput
-              label={t("s4_udyam")}
-              placeholder={t("s4_udyam_ph")}
-              maxLength={22}
-              value={data.udyam}
-              onChange={(e) => {
-                u({ udyam: formatUdyam(e.target.value) });
-                clearError("udyam");
-              }}
-              onBlur={() => validateField("udyam", data.udyam, data)}
-              error={errors.udyam}
-            />
-            <OcrStatus docKey="udyam" showExtracted />
-            <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
-              {t("s4_udyam_sub")}
-            </p>
+        </div>
+
+        {/* PAN card */}
+        <div style={kycCard}>
+          <div style={kycHead}>
+            <span>🪪</span> {t("s4_doc_pan")}
+          </div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={kycField}>
+              <ValidatedInput
+                label={t("s4_pan")}
+                placeholder={t("s4_pan_ph")}
+                maxLength={10}
+                value={data.pan}
+                onChange={(e) => {
+                  u({ pan: e.target.value.toUpperCase() });
+                  clearError("pan");
+                }}
+                onBlur={() => validateField("pan", data.pan, data)}
+                error={errors.pan}
+              />
+              <OcrStatus docKey="pan" showExtracted />
+              <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
+                {t("s4_pan_sub")}
+              </p>
+            </div>
+            <div style={kycUploads}>
+              <DocUploadBox
+                label={t("s4_doc_pan")}
+                uploaded={!!data.docs.pan}
+                loading={uploadingKey === "pan"}
+                onUpload={(f) => handleDocUpload("pan", f)}
+                onRemove={() => handleRemoveDoc("pan")}
+                error={errors["docs.pan"]}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Udyam card */}
+        <div style={kycCard}>
+          <div style={kycHead}>
+            <span>🏭</span> {t("s4_doc_udyam")}
+          </div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            <div style={kycField}>
+              <ValidatedInput
+                label={t("s4_udyam")}
+                placeholder={t("s4_udyam_ph")}
+                maxLength={22}
+                value={data.udyam}
+                onChange={(e) => {
+                  u({ udyam: formatUdyam(e.target.value) });
+                  clearError("udyam");
+                }}
+                onBlur={() => validateField("udyam", data.udyam, data)}
+                error={errors.udyam}
+              />
+              <OcrStatus docKey="udyam" showExtracted />
+              <p style={{ fontSize: 11, color: "#888", margin: "4px 0 0" }}>
+                {t("s4_udyam_sub")}
+              </p>
+            </div>
+            <div style={kycUploads}>
+              <DocUploadBox
+                label={t("s4_doc_udyam")}
+                sublabel={t("s4_doc_udyam_sub")}
+                uploaded={!!data.docs.udyam}
+                loading={uploadingKey === "udyam"}
+                onUpload={(f) => handleDocUpload("udyam", f)}
+                onRemove={() => handleRemoveDoc("udyam")}
+              />
+            </div>
           </div>
         </div>
 
@@ -360,45 +449,13 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
           </div>
         </div>
 
-        {/* Document Uploads */}
+        {/* Other documents (optional) */}
         <div>
-          <label style={labelStyle}>{t("s4_upload")}</label>
+          <label style={labelStyle}>{t("s4_other_docs")}</label>
           <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>
             {t("s4_upload_hint")}
           </div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <DocUploadBox
-              label={t("s4_doc_aadh_front")}
-              uploaded={!!data.docs.aadhaarFront}
-              loading={uploadingKey === "aadhaarFront"}
-              onUpload={(f) => handleDocUpload("aadhaarFront", f)}
-              onRemove={() => handleRemoveDoc("aadhaarFront")}
-              error={errors["docs.aadhaarFront"]}
-            />
-            <DocUploadBox
-              label={t("s4_doc_aadh_back")}
-              uploaded={!!data.docs.aadhaarBack}
-              loading={uploadingKey === "aadhaarBack"}
-              onUpload={(f) => handleDocUpload("aadhaarBack", f)}
-              onRemove={() => handleRemoveDoc("aadhaarBack")}
-              error={errors["docs.aadhaarBack"]}
-            />
-            <DocUploadBox
-              label={t("s4_doc_pan")}
-              uploaded={!!data.docs.pan}
-              loading={uploadingKey === "pan"}
-              onUpload={(f) => handleDocUpload("pan", f)}
-              onRemove={() => handleRemoveDoc("pan")}
-              error={errors["docs.pan"]}
-            />
-            <DocUploadBox
-              label={t("s4_doc_udyam")}
-              sublabel={t("s4_doc_udyam_sub")}
-              uploaded={!!data.docs.udyam}
-              loading={uploadingKey === "udyam"}
-              onUpload={(f) => handleDocUpload("udyam", f)}
-              onRemove={() => handleRemoveDoc("udyam")}
-            />
             <DocUploadBox
               label={t("s4_doc_pass")}
               uploaded={!!data.docs.passport}
