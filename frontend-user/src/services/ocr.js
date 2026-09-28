@@ -42,6 +42,29 @@ export const panMatches = (typed, ocr) => {
     return diff === 1;
 };
 
+// General Levenshtein distance (early-exit at cap) — insert/delete dono count hote hain
+export const levDist = (a, b, cap = 3) => {
+    const s = String(a || "");
+    const t = String(b || "");
+    if (s === t) return 0;
+    if (Math.abs(s.length - t.length) > cap) return cap + 1;
+    const m = s.length;
+    const n = t.length;
+    let prev = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+        const curr = [i];
+        let rowMin = i;
+        for (let j = 1; j <= n; j++) {
+            const cost = s[i - 1] === t[j - 1] ? 0 : 1;
+            curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
+            if (curr[j] < rowMin) rowMin = curr[j];
+        }
+        if (rowMin > cap) return cap + 1;
+        prev = curr;
+    }
+    return prev[n];
+};
+
 // ── Udyam: UDYAM-MH-08-0001234 (hyphens/spaces ignore; canonical misread tolerance) ──
 const normalizeUdyam = (s) => canonical(String(s || "").toUpperCase()).replace(/[^A-Z0-9]/g, "");
 
@@ -123,6 +146,63 @@ const preprocessFile = async (file) => {
     const out = await preprocessToDataUrl(url);
     URL.revokeObjectURL(url);
     return out;
+};
+
+// File → plain dataURL (binarize input ke liye)
+const fileToDataUrl = async (file) => {
+    const url = URL.createObjectURL(file);
+    try {
+        const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = url;
+        });
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        return canvas.toDataURL("image/jpeg", 0.95);
+    } finally {
+        URL.revokeObjectURL(url);
+    }
+};
+
+// Grayscale + hard threshold (mean) — C↔O jaise letter-confusion often fix hoti hai
+const binarizeToDataUrl = async (src) => {
+    try {
+        const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = src;
+        });
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imageData.data;
+        let sum = 0;
+        const grays = new Uint8Array(d.length / 4);
+        for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+            const g = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) | 0;
+            grays[p] = g;
+            sum += g;
+        }
+        const threshold = sum / grays.length;
+        for (let p = 0; p < grays.length; p++) {
+            const v = grays[p] > threshold ? 255 : 0;
+            const i = p * 4;
+            d[i] = d[i + 1] = d[i + 2] = v;
+        }
+        ctx.putImageData(imageData, 0, 0);
+        return canvas.toDataURL("image/jpeg", 0.95);
+    } catch (err) {
+        console.error("Binarize error:", err);
+        return null;
+    }
 };
 
 // ── Number extraction ─────────────────────────────────────────────────────────
@@ -292,11 +372,8 @@ export const extractDocNumber = async (file, opts = {}) => {
         const pdf = isPdf(file);
         const original = pdf ? await renderPdfToImage(file) : file;
 
-        const inputs = [original];
-        const processed = pdf ? await preprocessToDataUrl(original) : await preprocessFile(file);
-        if (processed) inputs.push(processed);
-
-        for (const input of inputs) {
+        // Ek input pe auto + sparse PSM; early-return conditions yahin
+        const tryInput = async (input) => {
             for (const sparse of [false, true]) {
                 const text = await recognize(worker, input, sparse);
                 attempts.push(text);
@@ -335,6 +412,27 @@ export const extractDocNumber = async (file, opts = {}) => {
                     return { ok: true, aadhaar, pan: panList[0] || null, udyam, rawText: text, attempts };
                 }
             }
+            return null;
+        };
+
+        // Stage 1: original + contrast-processed
+        const inputs = [original];
+        const processed = pdf ? await preprocessToDataUrl(original) : await preprocessFile(file);
+        if (processed) inputs.push(processed);
+        for (const input of inputs) {
+            const hit = await tryInput(input);
+            if (hit) return hit;
+        }
+
+        // Stage 2 (sirf panHint ke liye, ≤1 match nahi mila): binarized attempt —
+        // hard threshold se C↔O jaise letter confusion often fix ho jati hai
+        if (panHint) {
+            const src = pdf ? original : await fileToDataUrl(file);
+            const binary = src ? await binarizeToDataUrl(src) : null;
+            if (binary) {
+                const hit = await tryInput(binary);
+                if (hit) return hit;
+            }
         }
 
         // Hint tha lekin kisi attempt me exact/≤1 match nahi mila —
@@ -342,7 +440,7 @@ export const extractDocNumber = async (file, opts = {}) => {
         let pan = null;
         if (panCandidates.length) {
             pan =
-                panCandidates.find((p) => panMatches(p, panHint)) ||
+                panCandidates.find((p) => levDist(p, panHint) <= 2) ||
                 panCandidates[0];
         }
         if (firstHit) {

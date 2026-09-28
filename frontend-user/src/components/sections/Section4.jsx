@@ -7,7 +7,7 @@ import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
 import { uploadDoc, removeDoc } from "../../services/api";
-import { extractDocNumber, aadhaarDiff, panMatches, udyamDiff } from "../../services/ocr";
+import { extractDocNumber, aadhaarDiff, levDist, udyamDiff } from "../../services/ocr";
 
 // Jin doc types ke liye document-number match check hoga
 const OCR_KEYS = { aadhaarFront: "aadhaar", pan: "pan", udyam: "udyam" };
@@ -56,6 +56,7 @@ const formatUdyam = (v) => {
 const OCR_STATUS_STYLE = {
   checking: { color: "#d97706", icon: "⏳" },
   match: { color: "#16a34a", icon: "✅" },
+  close: { color: "#d97706", icon: "⚠️" },
   mismatch: { color: "#dc2626", icon: "❌" },
   unreadable: { color: "#dc2626", icon: "⚠️" },
   reupload: { color: "#d97706", icon: "🔒" },
@@ -139,8 +140,12 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     const typed = (data.pan || "").trim();
     if (!typed) return "type";
     if (typed === ocr) return "match";
-    // 1-char door hai → green ✅ mat dikhao, suggestion dikhao (user verify kare)
-    return panMatches(typed, ocr) ? "suggest" : "mismatch";
+    // User ne apna number barobar confirm kiya → maan lo
+    if (data.ocr?.panConfirmed) return "match";
+    // ≤2 char ka farq (OCR misread ya 1-2 char typo) → user se choice le
+    const d = levDist(typed, ocr);
+    if (d <= 2) return "close";
+    return "mismatch";
   };
 
   // Udyam — optional, lekin doc upload hua toh number + match zaroori
@@ -164,6 +169,51 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     if (!status) return null;
     const s = OCR_STATUS_STYLE[status];
     const extracted = data.ocr?.[docKey];
+
+    if (status === "close") {
+      const btnBase = {
+        marginLeft: 4,
+        fontSize: 11,
+        fontWeight: 600,
+        borderRadius: 6,
+        padding: "1px 8px",
+        cursor: "pointer",
+      };
+      return (
+        <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
+          {s.icon} {t("ocr_close")}{" "}
+          <b style={{ letterSpacing: 1 }}>{extracted}</b>
+          <button
+            type="button"
+            onClick={() => {
+              u({ pan: extracted });
+              uo({ panConfirmed: false });
+              clearError("pan");
+            }}
+            style={{
+              ...btnBase,
+              background: "#fef3c7",
+              border: "1px solid #f59e0b",
+              color: "#b45309",
+            }}
+          >
+            {t("ocr_use")}
+          </button>
+          <button
+            type="button"
+            onClick={() => uo({ panConfirmed: true })}
+            style={{
+              ...btnBase,
+              background: data.ocr?.panConfirmed ? "#16a34a" : "#f0fdf4",
+              border: "1px solid #16a34a",
+              color: data.ocr?.panConfirmed ? "#fff" : "#16a34a",
+            }}
+          >
+            {t("ocr_keep_mine")}
+          </button>
+        </p>
+      );
+    }
 
     if (status === "suggest") {
       return (
@@ -222,7 +272,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     setUploadingKey(key);
     let ocrNumber = null;
     if (OCR_KEYS[key]) {
-      uo({ [`${key}Pending`]: true, [key]: null });
+      uo({ [`${key}Pending`]: true, [key]: null, ...(key === "pan" ? { panConfirmed: false } : {}) });
       try {
         // Aadhaar: user ne type kiya number hint do — OCR ambiguous ho toh usse prefer karo
         const aadhaarHint =
@@ -268,7 +318,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
   const handleRemoveDoc = (key) => {
     if (!window.confirm(t("s4_remove_confirm") || "Uploaded file remove karein?")) return;
     ud(key, null);
-    uo({ [key]: null, [`${key}Pending`]: false });
+    uo({ [key]: null, [`${key}Pending`]: false, ...(key === "pan" ? { panConfirmed: false } : {}) });
     clearError(`docs.${key}`);
     removeDoc(key).catch(() => {});
   };
@@ -298,6 +348,10 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     }
     if (aStatus === "mismatch" || aStatus === "suggest") {
       alert(t("err_ocr_mismatch_aadhaar"));
+      return;
+    }
+    if (pStatus === "close") {
+      alert(t("err_ocr_close"));
       return;
     }
     if (pStatus === "mismatch" || pStatus === "suggest") {
@@ -396,6 +450,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
                 value={data.pan}
                 onChange={(e) => {
                   u({ pan: e.target.value.toUpperCase() });
+                  if (data.ocr?.panConfirmed) uo({ panConfirmed: false });
                   clearError("pan");
                 }}
                 onBlur={() => validateField("pan", data.pan, data)}
