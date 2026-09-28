@@ -168,6 +168,33 @@ const fileToDataUrl = async (file) => {
     }
 };
 
+// Scale / bottom-crop transform — chhote font ka effective DPI badhane ke liye
+const transformToDataUrl = async (src, { scale = 1, cropBottom = 1 } = {}) => {
+    try {
+        const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = src;
+        });
+        const sw = img.naturalWidth;
+        const sh = img.naturalHeight;
+        const sy = Math.floor(sh * (1 - cropBottom));
+        const ch = Math.floor(sh * cropBottom);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(sw * scale);
+        canvas.height = Math.round(ch * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, sy, sw, ch, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL("image/jpeg", 0.95);
+    } catch (err) {
+        console.error("Transform error:", err);
+        return null;
+    }
+};
+
 // Grayscale + hard threshold (mean) — C↔O jaise letter-confusion often fix hoti hai
 const binarizeToDataUrl = async (src) => {
     try {
@@ -349,16 +376,26 @@ const extractUdyam = (text) => {
     return m ? m[0] : null;
 };
 
-const recognize = async (worker, input, sparse) => {
+const recognizeMode = async (worker, input, psm, tag) => {
     await worker.setParameters({
-        tessedit_pageseg_mode: sparse ? PSM.SPARSE_TEXT : PSM.AUTO,
-        tessedit_char_whitelist: sparse ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 " : "",
+        tessedit_pageseg_mode: psm,
+        // AUTO = pura page (koi whitelist nahi); baaki modes = uppercase + digits
+        tessedit_char_whitelist:
+            psm === PSM.AUTO ? "" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ",
     });
     const { data } = await worker.recognize(input);
     const text = (data.text || "").toUpperCase();
-    console.debug(`[OCR psm=${sparse ? "sparse" : "auto"}]`, JSON.stringify(text.slice(0, 600)));
+    console.debug(`[OCR ${tag}]`, JSON.stringify(text.slice(0, 600)));
     return text;
 };
+
+const recognize = (worker, input, sparse) =>
+    recognizeMode(
+        worker,
+        input,
+        sparse ? PSM.SPARSE_TEXT : PSM.AUTO,
+        sparse ? "sparse" : "auto",
+    );
 
 // ── Main entry ────────────────────────────────────────────────────────────────
 export const extractDocNumber = async (file, opts = {}) => {
@@ -372,45 +409,51 @@ export const extractDocNumber = async (file, opts = {}) => {
         const pdf = isPdf(file);
         const original = pdf ? await renderPdfToImage(file) : file;
 
-        // Ek input pe auto + sparse PSM; early-return conditions yahin
+        // Ek OCR text pe extraction + early-return conditions
+        const handleText = (text) => {
+            attempts.push(text);
+            const aadhaar = extractAadhaar(text, opts.aadhaarHint);
+            const panList = extractPanCandidates(text);
+            const udyam = extractUdyam(text);
+
+            for (const p of panList) {
+                if (!seenPan.has(p)) {
+                    seenPan.add(p);
+                    panCandidates.push(p);
+                }
+            }
+            if (!firstHit && (aadhaar || panList.length || udyam)) {
+                firstHit = { aadhaar, udyam, rawText: text };
+            }
+
+            // PAN hint (user ka typed number): exact ya ≤1 OCR-misread match
+            // milte hi return — taki galat-but-valid candidate choose na ho
+            if (panHint) {
+                const hit = panList.find((p) => p === panHint || panMatches(p, panHint));
+                if (hit) {
+                    console.debug("[OCR] PAN hint match:", hit);
+                    return {
+                        ok: true,
+                        aadhaar: firstHit?.aadhaar ?? aadhaar,
+                        pan: hit,
+                        udyam: firstHit?.udyam ?? udyam,
+                        rawText: firstHit?.rawText ?? text,
+                        attempts,
+                    };
+                }
+            } else if (aadhaar || panList.length || udyam) {
+                // purana behavior: hint nahi toh first hit pe return
+                console.debug("[OCR] FOUND aadhaar:", aadhaar, "pan:", panList[0], "udyam:", udyam);
+                return { ok: true, aadhaar, pan: panList[0] || null, udyam, rawText: text, attempts };
+            }
+            return null;
+        };
+
+        // Default modes: auto + sparse PSM
         const tryInput = async (input) => {
             for (const sparse of [false, true]) {
-                const text = await recognize(worker, input, sparse);
-                attempts.push(text);
-                const aadhaar = extractAadhaar(text, opts.aadhaarHint);
-                const panList = extractPanCandidates(text);
-                const udyam = extractUdyam(text);
-
-                for (const p of panList) {
-                    if (!seenPan.has(p)) {
-                        seenPan.add(p);
-                        panCandidates.push(p);
-                    }
-                }
-                if (!firstHit && (aadhaar || panList.length || udyam)) {
-                    firstHit = { aadhaar, udyam, rawText: text };
-                }
-
-                // PAN hint (user ka typed number): exact ya ≤1 OCR-misread match
-                // milte hi return — taki galat-but-valid candidate choose na ho
-                if (panHint) {
-                    const hit = panList.find((p) => p === panHint || panMatches(p, panHint));
-                    if (hit) {
-                        console.debug("[OCR] PAN hint match:", hit);
-                        return {
-                            ok: true,
-                            aadhaar: firstHit?.aadhaar ?? aadhaar,
-                            pan: hit,
-                            udyam: firstHit?.udyam ?? udyam,
-                            rawText: firstHit?.rawText ?? text,
-                            attempts,
-                        };
-                    }
-                } else if (aadhaar || panList.length || udyam) {
-                    // purana behavior: hint nahi toh first hit pe return
-                    console.debug("[OCR] FOUND aadhaar:", aadhaar, "pan:", panList[0], "udyam:", udyam);
-                    return { ok: true, aadhaar, pan: panList[0] || null, udyam, rawText: text, attempts };
-                }
+                const hit = handleText(await recognize(worker, input, sparse));
+                if (hit) return hit;
             }
             return null;
         };
@@ -424,14 +467,36 @@ export const extractDocNumber = async (file, opts = {}) => {
             if (hit) return hit;
         }
 
-        // Stage 2 (sirf panHint ke liye, ≤1 match nahi mila): binarized attempt —
-        // hard threshold se C↔O jaise letter confusion often fix ho jati hai
+        // Stage 2-4 (sirf panHint ke liye; ≤1 match milte hi pehle hi return ho chuka hoga)
         if (panHint) {
             const src = pdf ? original : await fileToDataUrl(file);
-            const binary = src ? await binarizeToDataUrl(src) : null;
-            if (binary) {
-                const hit = await tryInput(binary);
-                if (hit) return hit;
+            if (src) {
+                // Stage 2: binarized — hard threshold se C↔O confusion often fix
+                const binary = await binarizeToDataUrl(src);
+                if (binary) {
+                    const hit = await tryInput(binary);
+                    if (hit) return hit;
+                }
+
+                // Stage 3: upscale ×2 — chhote font ka effective DPI badhta hai
+                const up = await transformToDataUrl(src, { scale: 2 });
+                if (up) {
+                    const hit = await tryInput(up);
+                    if (hit) return hit;
+                }
+
+                // Stage 4: bottom-strip (PAN number card ke bottom me) + single-line/block PSM
+                const strip = await transformToDataUrl(src, { scale: 2, cropBottom: 0.4 });
+                if (strip) {
+                    for (const [psm, tag] of [
+                        [PSM.SINGLE_LINE, "line"],
+                        [PSM.SINGLE_BLOCK, "block"],
+                    ]) {
+                        const text = await recognizeMode(worker, strip, psm, tag);
+                        const hit = handleText(text);
+                        if (hit) return hit;
+                    }
+                }
             }
         }
 

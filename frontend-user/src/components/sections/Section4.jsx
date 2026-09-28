@@ -56,7 +56,7 @@ const formatUdyam = (v) => {
 const OCR_STATUS_STYLE = {
   checking: { color: "#d97706", icon: "⏳" },
   match: { color: "#16a34a", icon: "✅" },
-  close: { color: "#d97706", icon: "⚠️" },
+  auto: { color: "#d97706", icon: "⚠️" },
   mismatch: { color: "#dc2626", icon: "❌" },
   unreadable: { color: "#dc2626", icon: "⚠️" },
   reupload: { color: "#d97706", icon: "🔒" },
@@ -140,11 +140,10 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     const typed = (data.pan || "").trim();
     if (!typed) return "type";
     if (typed === ocr) return "match";
-    // User ne apna number barobar confirm kiya → maan lo
-    if (data.ocr?.panConfirmed) return "match";
-    // ≤2 char ka farq (OCR misread ya 1-2 char typo) → user se choice le
+    // ≤2 char ka farq (systematic OCR misread jaise C→O / leading drop) →
+    // user ka typed number auto-accept, sirf info line dikhao
     const d = levDist(typed, ocr);
-    if (d <= 2) return "close";
+    if (d <= 2) return "auto";
     return "mismatch";
   };
 
@@ -170,47 +169,10 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     const s = OCR_STATUS_STYLE[status];
     const extracted = data.ocr?.[docKey];
 
-    if (status === "close") {
-      const btnBase = {
-        marginLeft: 4,
-        fontSize: 11,
-        fontWeight: 600,
-        borderRadius: 6,
-        padding: "1px 8px",
-        cursor: "pointer",
-      };
+    if (status === "auto") {
       return (
         <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
-          {s.icon} {t("ocr_close")}{" "}
-          <b style={{ letterSpacing: 1 }}>{extracted}</b>
-          <button
-            type="button"
-            onClick={() => {
-              u({ pan: extracted });
-              uo({ panConfirmed: false });
-              clearError("pan");
-            }}
-            style={{
-              ...btnBase,
-              background: "#fef3c7",
-              border: "1px solid #f59e0b",
-              color: "#b45309",
-            }}
-          >
-            {t("ocr_use")}
-          </button>
-          <button
-            type="button"
-            onClick={() => uo({ panConfirmed: true })}
-            style={{
-              ...btnBase,
-              background: data.ocr?.panConfirmed ? "#16a34a" : "#f0fdf4",
-              border: "1px solid #16a34a",
-              color: data.ocr?.panConfirmed ? "#fff" : "#16a34a",
-            }}
-          >
-            {t("ocr_keep_mine")}
-          </button>
+          {s.icon} {t("ocr_auto")} <b style={{ letterSpacing: 1 }}>{extracted}</b>
         </p>
       );
     }
@@ -272,7 +234,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     setUploadingKey(key);
     let ocrNumber = null;
     if (OCR_KEYS[key]) {
-      uo({ [`${key}Pending`]: true, [key]: null, ...(key === "pan" ? { panConfirmed: false } : {}) });
+      uo({ [`${key}Pending`]: true, [key]: null });
       try {
         // Aadhaar: user ne type kiya number hint do — OCR ambiguous ho toh usse prefer karo
         const aadhaarHint =
@@ -318,7 +280,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
   const handleRemoveDoc = (key) => {
     if (!window.confirm(t("s4_remove_confirm") || "Uploaded file remove karein?")) return;
     ud(key, null);
-    uo({ [key]: null, [`${key}Pending`]: false, ...(key === "pan" ? { panConfirmed: false } : {}) });
+    uo({ [key]: null, [`${key}Pending`]: false });
     clearError(`docs.${key}`);
     removeDoc(key).catch(() => {});
   };
@@ -348,10 +310,6 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     }
     if (aStatus === "mismatch" || aStatus === "suggest") {
       alert(t("err_ocr_mismatch_aadhaar"));
-      return;
-    }
-    if (pStatus === "close") {
-      alert(t("err_ocr_close"));
       return;
     }
     if (pStatus === "mismatch" || pStatus === "suggest") {
@@ -450,7 +408,6 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
                 value={data.pan}
                 onChange={(e) => {
                   u({ pan: e.target.value.toUpperCase() });
-                  if (data.ocr?.panConfirmed) uo({ panConfirmed: false });
                   clearError("pan");
                 }}
                 onBlur={() => validateField("pan", data.pan, data)}
