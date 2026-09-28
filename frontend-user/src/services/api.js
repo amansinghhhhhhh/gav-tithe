@@ -13,6 +13,10 @@ const authHeaders = () => ({
     Authorization: `Bearer ${getToken()}`,
 });
 
+// <img> me Authorization header nahi lagta — admin pattern: query token
+export const docFileUrl = (fileId) =>
+    `${BASE}/form/docs/${fileId}?token=${encodeURIComponent(getToken() || "")}`;
+
 // ── Generic fetch wrapper ─────────────────────────────────────────────────────
 const apiFetch = async (url, options = {}, retries = 1) => {
     for (let attempt = 0; attempt <= retries; attempt++) {

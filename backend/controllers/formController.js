@@ -2,6 +2,8 @@ const FormData = require("../models/FormData");
 const EditRequest = require("../models/EditRequest");
 const { saveToGridFS, deleteFromGridFS } = require("../middleware/upload");
 const { generateUniqueId } = require("../utils/generateUniqueId");
+const mongoose = require("mongoose");
+const { GridFSBucket } = require("mongodb");
 
 const ALLOWED_DOC_TYPES = ["aadhaarFront", "aadhaarBack", "pan", "udyam", "passport"];
 
@@ -384,4 +386,50 @@ const getFormByUniqueId = async (req, res) => {
     }
 };
 
-module.exports = { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest, getFormByUniqueId };
+// ── Get my uploaded document (GridFS, sirf apna file) ─────────────────────────
+const getMyDocument = async (req, res) => {
+    try {
+        const { fileId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(fileId)) {
+            return res.status(400).json({ message: "Invalid file ID" });
+        }
+
+        // Ownership check — ye fileId user ke apne form ke docs me hi hona chahiye
+        const docFields = ALLOWED_DOC_TYPES.map((k) => `section4.docs.${k}`);
+        const form = await FormData.findOne({
+            userId: req.user.id,
+            $or: docFields.map((f) => ({ [f]: fileId })),
+        });
+        if (!form) {
+            return res.status(404).json({ message: "File not found" });
+        }
+
+        const db = mongoose.connection.db;
+        const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+        const objectId = new mongoose.Types.ObjectId(fileId);
+
+        const files = await bucket.find({ _id: objectId }).toArray();
+        if (!files.length) {
+            return res.status(404).json({ message: "File not found" });
+        }
+
+        const file = files[0];
+        const safeFilename = (file.filename || "document").replace(/[^\w.\-]/g, "_");
+        res.set("Content-Type", file.contentType || "application/octet-stream");
+        res.set("Content-Disposition", `inline; filename="${safeFilename}"`);
+        res.set("Cache-Control", "private, max-age=3600");
+
+        const downloadStream = bucket.openDownloadStream(objectId);
+        downloadStream.pipe(res);
+
+        downloadStream.on("error", () => {
+            res.status(500).json({ message: "Error streaming file" });
+        });
+    } catch (err) {
+        console.error("Get document error:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { saveSection, submitForm, getMyForm, uploadDoc, removeDoc, createEditRequest, getMyEditRequest, getFormByUniqueId, getMyDocument };

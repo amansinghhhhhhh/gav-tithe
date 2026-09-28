@@ -3,6 +3,7 @@ import C from "./constants/colors";
 import { useLang } from "./context/LangContext";
 import { getEditRequest, getMyForm, createEditRequest } from "./services/api";
 import { Spinner } from "./components/shared/Spinner";
+import FormPreview from "./components/FormPreview";
 
 export function SuccessPage({ onApproved }) {
   const { t } = useLang();
@@ -15,6 +16,8 @@ export function SuccessPage({ onApproved }) {
   const [msg, setMsg] = useState("");
   const [uniqueId, setUniqueId] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [form, setForm] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const loadRequest = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -29,8 +32,9 @@ export function SuccessPage({ onApproved }) {
           await onApproved();
         }
       }
-      if (formRes.success && formRes.form?.uniqueId) {
-        setUniqueId(formRes.form.uniqueId);
+      if (formRes.success && formRes.form) {
+        if (formRes.form.uniqueId) setUniqueId(formRes.form.uniqueId);
+        setForm(formRes.form);
       }
     } finally {
       setLoading(false);
@@ -156,6 +160,25 @@ export function SuccessPage({ onApproved }) {
             {copied ? "Copied!" : "Copy ID"}
           </button>
         </div>
+      )}
+
+      {form && (
+        <button
+          onClick={() => setShowPreview(true)}
+          style={{
+            marginTop: 16,
+            padding: "10px 24px",
+            background: C.maroon,
+            color: "#fff",
+            border: "none",
+            borderRadius: 10,
+            fontWeight: 700,
+            fontSize: 13,
+            cursor: "pointer",
+          }}
+        >
+          🔍 {t("preview_btn")}
+        </button>
       )}
 
       {msg && (
@@ -296,6 +319,8 @@ export function SuccessPage({ onApproved }) {
           </button>
         )}
       </div>
+
+      {showPreview && form && <FormPreview form={form} onClose={() => setShowPreview(false)} />}
     </div>
   );
 }

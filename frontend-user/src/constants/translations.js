@@ -29,6 +29,12 @@ const translations = {
         // Success
         success_msg: "तुमचा फॉर्म सबमिट झाला आहे. आम्ही लवकरच तुमच्याशी संपर्क करू.",
 
+        // Preview
+        preview_btn: "पूर्वावलोकन पहा",
+        preview_title: "तुमचे भरलेले फॉर्म",
+        preview_close: "बंद करा",
+        preview_docs: "अपलोड केलेले कागदपत्रे",
+
         // Edit Request
         edit_req_button: "माहिती बदलण्यासाठी विनंती करा",
         edit_req_title: "तुमची विनंती लिहा",
@@ -543,6 +549,12 @@ const translations = {
 
         // Success
         success_msg: "Your form has been submitted. We will contact you soon.",
+
+        // Preview
+        preview_btn: "Preview",
+        preview_title: "Your Submitted Form",
+        preview_close: "Close",
+        preview_docs: "Uploaded Documents",
 
         // Edit Request
         edit_req_button: "Request to Edit Information",
