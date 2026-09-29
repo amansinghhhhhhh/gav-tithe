@@ -927,7 +927,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
         }}
       />
 
-      <div style={{ padding: "16px 18px" }}>
+        <div style={{ padding: "16px 18px", textAlign: "left" }}>
         {/* Sector & ODOP Row */}
         <div
           style={{
