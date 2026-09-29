@@ -133,14 +133,15 @@ export default function DRPLibrary() {
   };
 
   return (
-    <div style={{ display: "flex", gap: 20, alignItems: "stretch" }}>
+    <div className="drp-split" style={{ display: "flex", gap: 20, alignItems: "stretch" }}>
       {/* ── Filter Sidebar ── */}
       <div
         style={{
           width: showFilters ? 270 : 0,
           minWidth: showFilters ? 270 : 0,
           flexShrink: 0,
-          overflow: "clip",
+          overflowX: "hidden",
+          overflowY: "auto",
           transition: "all 0.3s ease",
         }}
       >
@@ -150,10 +151,6 @@ export default function DRPLibrary() {
             borderRadius: 14,
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
             padding: "20px",
-            position: "sticky",
-            top: 20,
-            maxHeight: "calc(100vh - 40px)",
-            overflowY: "auto",
           }}
         >
           {/* Filter Header */}
@@ -516,7 +513,7 @@ export default function DRPLibrary() {
       </div>
 
       {/* ── Main Content ── */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 0, overflowY: "auto" }}>
         {/* Hero Header */}
         <div
           style={{
@@ -870,6 +867,10 @@ export default function DRPLibrary() {
       </div>
 
       <style>{`
+        .drp-split { height: calc(100vh - 56px); }
+        @media (max-width: 1199px) {
+          .drp-split { height: calc(100vh - 108px); }
+        }
         @media (max-width: 900px) {
           .filter-toggle-btn { display: block !important; }
         }
