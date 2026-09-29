@@ -1,12 +1,10 @@
 import C from "../../constants/colors";
 
-export default function QuestionStep({ question, step, selectedOptions, onSelect, lang }) {
+export default function QuestionStep({ question, step, selectedOptions, onSelect, lang, disabled }) {
   const handleToggle = (key) => {
-    const isSelected = selectedOptions.includes(key);
-    const newOptions = isSelected
-      ? selectedOptions.filter((k) => k !== key)
-      : [...selectedOptions, key];
-    onSelect(newOptions);
+    if (disabled) return;
+    if (selectedOptions[0] === key) return;
+    onSelect([key]);
   };
 
   return (
@@ -81,8 +79,8 @@ export default function QuestionStep({ question, step, selectedOptions, onSelect
           }}
         >
           {lang === "mr"
-            ? "एक किंवा अधिक उत्तरे निवडा:"
-            : "Select one or more answers:"}
+            ? "सर्वात योग्य उत्तर निवडा:"
+            : "Select the best answer:"}
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {question.options.map((opt) => {
@@ -91,6 +89,7 @@ export default function QuestionStep({ question, step, selectedOptions, onSelect
               <button
                 key={opt.key}
                 onClick={() => handleToggle(opt.key)}
+                disabled={disabled}
                 style={{
                   display: "flex",
                   alignItems: "flex-start",
@@ -101,21 +100,22 @@ export default function QuestionStep({ question, step, selectedOptions, onSelect
                     ? `2px solid ${C.navy}`
                     : "2px solid #e5e7eb",
                   borderRadius: 12,
-                  cursor: "pointer",
+                  cursor: disabled ? "not-allowed" : "pointer",
                   textAlign: "left",
                   transition: "all 0.2s",
+                  opacity: disabled ? 0.7 : 1,
                 }}
               >
-                {/* Checkbox */}
+                {/* Radio */}
                 <div
                   style={{
                     width: 22,
                     height: 22,
-                    borderRadius: 6,
+                    borderRadius: "50%",
                     border: isSelected
                       ? `2px solid ${C.navy}`
                       : "2px solid #d1d5db",
-                    background: isSelected ? C.navy : "#fff",
+                    background: "#fff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -125,9 +125,14 @@ export default function QuestionStep({ question, step, selectedOptions, onSelect
                   }}
                 >
                   {isSelected && (
-                    <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>
-                      ✓
-                    </span>
+                    <div
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        background: C.navy,
+                      }}
+                    />
                   )}
                 </div>
 

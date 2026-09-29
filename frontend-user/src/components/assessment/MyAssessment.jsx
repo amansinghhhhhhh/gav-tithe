@@ -269,8 +269,8 @@ export default function MyAssessment() {
                 </li>
                 <li>
                   {lang === "mr"
-                    ? "प्रत्येक प्रश्नासाठी एक किंवा अधिक उत्तरे निवडू शकता"
-                    : "You can select one or more answers per question"}
+                    ? "प्रत्येक प्रश्नासाठी फक्त एक सर्वात योग्य उत्तर निवडा"
+                    : "Select only one best answer per question"}
                 </li>
                 <li>
                   {lang === "mr"
@@ -469,6 +469,7 @@ export default function MyAssessment() {
           selectedOptions={currentAnswer}
           onSelect={(opts) => handleAnswer(currentStep, opts)}
           lang={lang}
+          disabled={saving}
         />
       )}
 
