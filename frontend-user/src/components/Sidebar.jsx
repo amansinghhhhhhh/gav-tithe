@@ -253,6 +253,8 @@ function Sidebar({ activeKey, onNav, onLogout }) {
           height: "100vh",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           background: C.navy,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {!isMobile && (
@@ -285,7 +287,8 @@ function Sidebar({ activeKey, onNav, onLogout }) {
         <div
           style={{
             width: "100%",
-            height: "100%",
+            flex: "1 1 auto",
+            minHeight: 0,
             overflowY: "auto",
             overflowX: "hidden",
             padding: expanded ? "30px 15px" : isMobile ? "0" : "30px 8px",
@@ -377,9 +380,18 @@ function Sidebar({ activeKey, onNav, onLogout }) {
               expanded={expanded}
             />
           ))}
+        </div>
 
-          <div style={{ flex: 1, minHeight: "40px" }} />
-
+        {/* Pinned footer — language toggle + sign out, hamesha visible */}
+        <div
+          style={{
+            flexShrink: 0,
+            padding: expanded ? "12px 15px 18px" : isMobile ? "12px 0 18px" : "12px 8px 18px",
+            borderTop: `1px solid ${C.border}`,
+            background: C.navy,
+            overflow: "hidden",
+          }}
+        >
           <div
             style={{
               display: "flex",
