@@ -62,8 +62,8 @@ const NAV = {
   MARKET_HUB: [
     {
       key: "dpr_library",
-      label: "DPR Library",
-      labelMr: "DPR लायब्ररी",
+      label: "Mega DPR Library",
+      labelMr: "मेगा DPR लायब्ररी",
       icon: <img src={Library} />,
     },
     {

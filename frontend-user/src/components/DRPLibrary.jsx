@@ -31,6 +31,13 @@ const INVESTMENT_RANGES = [
   "₹25 Lakh+",
 ];
 
+const RANGES = {
+  "₹0 - ₹1 Lakh": { min: 0, max: 1 },
+  "₹1L - ₹5 Lakh": { min: 1, max: 5 },
+  "₹5L - ₹25 Lakh": { min: 5, max: 25 },
+  "₹25 Lakh+": { min: 25, max: 9999 },
+};
+
 const SECTOR_COLORS = {
   "Manufacturing": "#2563eb",
   "Food Processing": "#ea580c",
@@ -57,35 +64,44 @@ export default function DRPLibrary() {
   const distLabel = (d) => override("district", lang, d) || (lang === "mr" ? districtMr[d] || d : d);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [selectedSectors, setSelectedSectors] = useState([]);
   const [investmentRange, setInvestmentRange] = useState("All");
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [showFilters, setShowFilters] = useState(true);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await getDRPEntries({
-        sector: selectedSectors.length === 1 ? selectedSectors[0] : undefined,
-        investmentRange,
-        district: selectedDistrict,
-      });
-      if (res.success) setEntries(res.entries);
-    } catch (err) {
-      console.error("DRP load error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
-  }, [selectedSectors, investmentRange, selectedDistrict]);
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getDRPEntries();
+        if (alive && res.success) setEntries(res.entries);
+      } catch (err) {
+        console.error("DRP load error:", err);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const filteredEntries = useMemo(() => {
-    if (selectedSectors.length <= 1) return entries;
-    return entries.filter((e) => selectedSectors.includes(e.sector));
-  }, [entries, selectedSectors]);
+    const q = search.trim().toLowerCase();
+    const range = investmentRange !== "All" ? RANGES[investmentRange] : null;
+    return entries.filter((e) => {
+      if (selectedSectors.length > 0 && !selectedSectors.includes(e.sector)) return false;
+      if (selectedDistrict !== "All Districts" && e.location !== selectedDistrict) return false;
+      if (range && !(e.investmentMin <= range.max && e.investmentMax >= range.min)) return false;
+      if (q) {
+        const hay = `${e.variantName} ${e.sector} ${e.odop} ${e.category || ""} ${e.location} ${(e.tags || []).join(" ")}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [entries, search, selectedSectors, investmentRange, selectedDistrict]);
 
   const toggleSector = (sector) => {
     setSelectedSectors((prev) =>
@@ -96,12 +112,14 @@ export default function DRPLibrary() {
   };
 
   const clearFilters = () => {
+    setSearch("");
     setSelectedSectors([]);
     setInvestmentRange("All");
     setSelectedDistrict("All Districts");
   };
 
   const hasActiveFilters =
+    search.trim() !== "" ||
     selectedSectors.length > 0 ||
     investmentRange !== "All" ||
     selectedDistrict !== "All Districts";
@@ -145,16 +163,26 @@ export default function DRPLibrary() {
               marginBottom: 20,
             }}
           >
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 16,
-                fontWeight: 800,
-                color: C.navy,
-              }}
-            >
-              {lang === "mr" ? "फिल्टर्स" : "Filters"}
-            </h3>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                style={{
+                  width: 4,
+                  height: 16,
+                  borderRadius: 2,
+                  background: C.orange,
+                }}
+              />
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 800,
+                  color: C.navy,
+                }}
+              >
+                {lang === "mr" ? "फिल्टर्स" : "Filters"}
+              </h3>
+            </div>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
@@ -382,46 +410,171 @@ export default function DRPLibrary() {
 
       {/* ── Main Content ── */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Header */}
+        {/* Hero Header */}
+        <div
+          style={{
+            position: "relative",
+            background: "linear-gradient(125deg, #142952 0%, #1d3f7a 55%, #16305f 100%)",
+            borderRadius: 16,
+            padding: "26px 28px",
+            marginBottom: 18,
+            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(20, 41, 82, 0.25)",
+          }}
+        >
+          {/* Orange glow accent */}
+          <div
+            style={{
+              position: "absolute",
+              top: -60,
+              right: -40,
+              width: 230,
+              height: 230,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(249, 115, 22, 0.35), transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+          <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 14 }}>
+            <div
+              style={{
+                width: 46,
+                height: 46,
+                borderRadius: 12,
+                background: "rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 24,
+                flexShrink: 0,
+              }}
+            >
+              📚
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 26,
+                  fontWeight: 800,
+                  color: "#fff",
+                  lineHeight: 1.2,
+                }}
+              >
+                {lang === "mr" ? "मेगा DPR लायब्ररी" : "Mega DPR Library"}
+              </h2>
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "rgba(255,255,255,0.75)",
+                }}
+              >
+                {lang === "mr"
+                  ? "1050+ सविस्तर परियोजना अहवाल · DIC/KVIC अनुरूप"
+                  : "1050+ Detailed Project Reports · DIC/KVIC Compliant"}
+              </p>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div style={{ position: "relative", marginTop: 18, maxWidth: 560 }}>
+            <span
+              style={{
+                position: "absolute",
+                left: 16,
+                top: "50%",
+                transform: "translateY(-50%)",
+                fontSize: 15,
+                pointerEvents: "none",
+              }}
+            >
+              🔍
+            </span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search Project... (e.g. masala, papad, dairy etc..)"
+              style={{
+                width: "100%",
+                padding: "13px 44px 13px 46px",
+                borderRadius: 999,
+                border: "none",
+                outline: "none",
+                fontSize: 14,
+                fontWeight: 500,
+                color: "#111827",
+                background: "#fff",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+              }}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 26,
+                  height: 26,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "#e5e7eb",
+                  color: "#4b5563",
+                  fontSize: 15,
+                  lineHeight: 1,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Toolbar: filter toggle + count */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 20,
+            marginBottom: 14,
             flexWrap: "wrap",
-            gap: 12,
+            gap: 10,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <button
-              onClick={() => setShowFilters((p) => !p)}
-              style={{
-                display: "none",
-                background: C.navy,
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                padding: "8px 12px",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-              className="filter-toggle-btn"
-            >
-              {showFilters ? "Hide" : "Show"} Filters
-            </button>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 22,
-                fontWeight: 800,
-                color: C.navy,
-              }}
-            >
-              {lang === "mr" ? "DPR लायब्ररी" : "DRP Library"}
-            </h2>
-          </div>
+          <button
+            onClick={() => setShowFilters((p) => !p)}
+            className="filter-toggle-btn"
+            style={{
+              display: "none",
+              background: C.navy,
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              padding: "8px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {showFilters
+              ? lang === "mr"
+                ? "फिल्टर लपवा"
+                : "Hide Filters"
+              : lang === "mr"
+              ? "फिल्टर दाखवा"
+              : "Show Filters"}
+          </button>
           <div
             style={{
               fontSize: 14,
@@ -430,6 +583,7 @@ export default function DRPLibrary() {
               background: "#f1f5f9",
               padding: "6px 14px",
               borderRadius: 20,
+              marginLeft: "auto",
             }}
           >
             {lang === "mr"
@@ -448,6 +602,26 @@ export default function DRPLibrary() {
               marginBottom: 16,
             }}
           >
+            {search.trim() !== "" && (
+              <span
+                onClick={() => setSearch("")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "5px 12px",
+                  borderRadius: 20,
+                  background: `${C.orange}15`,
+                  color: C.orange,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                🔍 {search.trim()}
+                <span style={{ fontSize: 14, lineHeight: 1 }}>×</span>
+              </span>
+            )}
             {selectedSectors.map((s) => (
               <span
                 key={s}
@@ -539,12 +713,18 @@ export default function DRPLibrary() {
           >
             <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
             <h3 style={{ margin: 0, fontSize: 18, color: C.navy }}>
-              {lang === "mr" ? "निकाल सापडले नाही" : "No entries found"}
+              {search.trim()
+                ? lang === "mr"
+                  ? `‘${search.trim()}’ साठी निकाल सापडला नाही`
+                  : `No results for “${search.trim()}”`
+                : lang === "mr"
+                ? "निकाल सापडले नाही"
+                : "No entries found"}
             </h3>
             <p style={{ fontSize: 14, marginTop: 8 }}>
               {lang === "mr"
-                ? "फिल्टर बदलून पहा"
-                : "Try adjusting your filters"}
+                ? "शोध किंवा फिल्टर बदलून पहा"
+                : "Try adjusting your search or filters"}
             </p>
           </div>
         ) : (
