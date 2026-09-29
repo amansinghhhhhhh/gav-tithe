@@ -540,7 +540,36 @@ export default function DRPLibrary() {
               pointerEvents: "none",
             }}
           />
-          <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 14 }}>
+          {/* Results count pill (top-right) */}
+          <div
+            style={{
+              position: "absolute",
+              top: 16,
+              right: 18,
+              zIndex: 1,
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#fff",
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.25)",
+              padding: "6px 14px",
+              borderRadius: 999,
+            }}
+          >
+            {lang === "mr"
+              ? `${filteredEntries.length} निवडलेले`
+              : `${filteredEntries.length} Results`}
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              paddingRight: 110,
+            }}
+          >
             <div
               style={{
                 width: 46,
@@ -680,21 +709,6 @@ export default function DRPLibrary() {
               ? "फिल्टर दाखवा"
               : "Show Filters"}
           </button>
-          <div
-            style={{
-              fontSize: 14,
-              color: C.textopa,
-              fontWeight: 600,
-              background: "#f1f5f9",
-              padding: "6px 14px",
-              borderRadius: 20,
-              marginLeft: "auto",
-            }}
-          >
-            {lang === "mr"
-              ? `${filteredEntries.length} निवडलेले`
-              : `${filteredEntries.length} Results`}
-          </div>
         </div>
 
         {/* Active Filters Tags */}
