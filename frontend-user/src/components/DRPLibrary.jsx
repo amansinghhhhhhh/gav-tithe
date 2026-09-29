@@ -867,11 +867,14 @@ export default function DRPLibrary() {
       </div>
 
       <style>{`
-        .drp-split { height: calc(100vh - 56px); scrollbar-width: thin; scrollbar-color: rgba(249, 115, 22, 0.55) rgba(20, 41, 82, 0.07); }
+        .drp-split { height: calc(100vh - 56px); }
         .drp-split ::-webkit-scrollbar { width: 3px; height: 3px; }
         .drp-split ::-webkit-scrollbar-track { background: transparent; }
         .drp-split ::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.6); border-radius: 999px; }
         .drp-split ::-webkit-scrollbar-thumb:hover { background: #F97316; }
+        @-moz-document url-prefix() {
+          .drp-split { scrollbar-width: thin; scrollbar-color: rgba(249, 115, 22, 0.6) transparent; }
+        }
         @media (max-width: 1199px) {
           .drp-split { height: calc(100vh - 108px); }
         }
