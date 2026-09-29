@@ -163,7 +163,14 @@ export default function DRPLibrary() {
               marginBottom: 20,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                textAlign: "left",
+              }}
+            >
               <div
                 style={{
                   width: 4,
@@ -202,19 +209,52 @@ export default function DRPLibrary() {
           </div>
 
           {/* Sector Filter */}
-          <div style={{ marginBottom: 24 }}>
-            <h4
+          <div
+            style={{
+              marginBottom: 12,
+              background: "rgba(20, 41, 82, 0.05)",
+              border: "1.5px solid rgba(20, 41, 82, 0.10)",
+              borderRadius: 12,
+              padding: "14px 14px 12px",
+            }}
+          >
+            <div
               style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#374151",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
                 marginBottom: 12,
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
+                textAlign: "left",
               }}
             >
-              {lang === "mr" ? "क्षेत्र" : "Sector"}
-            </h4>
+              <span
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 8,
+                  background: C.navy,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 14,
+                  flexShrink: 0,
+                }}
+              >
+                🏭
+              </span>
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: C.navy,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                }}
+              >
+                {lang === "mr" ? "क्षेत्र" : "Sector"}
+              </h4>
+            </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {SECTORS.map((sector) => {
                 const isActive = selectedSectors.includes(sector);
@@ -285,19 +325,52 @@ export default function DRPLibrary() {
           </div>
 
           {/* Investment Range */}
-          <div style={{ marginBottom: 24 }}>
-            <h4
+          <div
+            style={{
+              marginBottom: 12,
+              background: "rgba(249, 115, 22, 0.07)",
+              border: "1.5px solid rgba(249, 115, 22, 0.15)",
+              borderRadius: 12,
+              padding: "14px 14px 12px",
+            }}
+          >
+            <div
               style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#374151",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
                 marginBottom: 12,
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
+                textAlign: "left",
               }}
             >
-              {lang === "mr" ? "गुंतवणूक श्रेणी" : "Investment Range"}
-            </h4>
+              <span
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 8,
+                  background: C.orange,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 14,
+                  flexShrink: 0,
+                }}
+              >
+                💰
+              </span>
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: C.orange,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                }}
+              >
+                {lang === "mr" ? "गुंतवणूक श्रेणी" : "Investment Range"}
+              </h4>
+            </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {INVESTMENT_RANGES.map((range) => {
                 const isActive = investmentRange === range;
@@ -362,19 +435,51 @@ export default function DRPLibrary() {
           </div>
 
           {/* District Filter */}
-          <div>
-            <h4
+          <div
+            style={{
+              background: "rgba(22, 163, 74, 0.07)",
+              border: "1.5px solid rgba(22, 163, 74, 0.15)",
+              borderRadius: 12,
+              padding: "14px 14px 12px",
+            }}
+          >
+            <div
               style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#374151",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
                 marginBottom: 12,
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
+                textAlign: "left",
               }}
             >
-              {lang === "mr" ? "जिल्हा / ODOP" : "District / ODOP"}
-            </h4>
+              <span
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 8,
+                  background: "#16a34a",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 14,
+                  flexShrink: 0,
+                }}
+              >
+                📍
+              </span>
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: "#15803d",
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                }}
+              >
+                {lang === "mr" ? "जिल्हा / ODOP" : "District / ODOP"}
+              </h4>
+            </div>
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
@@ -452,7 +557,7 @@ export default function DRPLibrary() {
             >
               📚
             </div>
-            <div style={{ minWidth: 0 }}>
+            <div style={{ minWidth: 0, textAlign: "left" }}>
               <h2
                 style={{
                   margin: 0,
