@@ -89,7 +89,7 @@ export default function MyAssessment() {
         const res = await completeAssessment();
         if (res.success) {
           setCurrentStep(16); // Show completed
-          setAssessment((prev) => ({ ...prev, completed: true }));
+          setAssessment((prev) => ({ ...prev, completed: true, score: res.score }));
         }
       } catch (err) {
         console.error("Complete error:", err);
