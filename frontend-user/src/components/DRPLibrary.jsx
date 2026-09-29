@@ -133,14 +133,14 @@ export default function DRPLibrary() {
   };
 
   return (
-    <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+    <div style={{ display: "flex", gap: 20, alignItems: "stretch" }}>
       {/* ── Filter Sidebar ── */}
       <div
         style={{
           width: showFilters ? 270 : 0,
           minWidth: showFilters ? 270 : 0,
           flexShrink: 0,
-          overflow: "hidden",
+          overflow: "clip",
           transition: "all 0.3s ease",
         }}
       >
@@ -152,6 +152,8 @@ export default function DRPLibrary() {
             padding: "20px",
             position: "sticky",
             top: 20,
+            maxHeight: "calc(100vh - 40px)",
+            overflowY: "auto",
           }}
         >
           {/* Filter Header */}
