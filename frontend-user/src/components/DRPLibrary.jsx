@@ -5,6 +5,7 @@ import { Spinner } from "./shared/Spinner";
 import { getDRPEntries } from "../services/api";
 import { districts } from "../constants/maharashtraData";
 import { districtMr } from "../constants/maharashtraDataMr";
+import { override } from "../constants/placeRename";
 
 const SECTORS = [
   "Agro-Processing",
@@ -53,6 +54,7 @@ const TAG_COLORS = [
 
 export default function DRPLibrary() {
   const { lang } = useLang();
+  const distLabel = (d) => override("district", lang, d) || (lang === "mr" ? districtMr[d] || d : d);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSectors, setSelectedSectors] = useState([]);
@@ -370,7 +372,7 @@ export default function DRPLibrary() {
               </option>
               {districts.map((d) => (
                 <option key={d} value={d}>
-                  {lang === "mr" ? districtMr[d] || d : d}
+                  {distLabel(d)}
                 </option>
               ))}
             </select>
@@ -503,7 +505,7 @@ export default function DRPLibrary() {
                   cursor: "pointer",
                 }}
               >
-                📍 {lang === "mr" ? districtMr[selectedDistrict] || selectedDistrict : selectedDistrict}
+                📍 {distLabel(selectedDistrict)}
                 <span style={{ fontSize: 14, lineHeight: 1 }}>×</span>
               </span>
             )}

@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getUserDetail, updateUserStatus, updateEditAllowed, getDocUrl, getFormPdfUrl, getFormDocxUrl } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import { override } from "../constants/placeRename";
+
+const renameDist = (s) => override("district", "en", s) || s;
+const renameTaluka = (s) => override("taluka", "en", s) || s;
 
 export default function UserDetail() {
   const { userId } = useParams();
@@ -202,8 +206,8 @@ export default function UserDetail() {
             <Row label="Address" value={addressDisplay} />
           ) : (
             <>
-              <Row label="Dist." value={addr.dist} />
-              <Row label="Taluka" value={addr.taluka} />
+              <Row label="Dist." value={renameDist(addr.dist)} />
+              <Row label="Taluka" value={renameTaluka(addr.taluka)} />
               <Row label="Village" value={addr.village === "__other__" ? (addr.villageCustom || "Other") : addr.village} />
               <Row label="Pincode" value={addr.pincode} />
             </>

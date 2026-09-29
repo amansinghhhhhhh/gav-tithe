@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 import { districtMr, talukaMr } from "../constants/maharashtraDataMr";
+import { override } from "../constants/placeRename";
 import { docFileUrl } from "../services/api";
 import guicon from "../assets/guicon.svg";
 
@@ -151,7 +152,8 @@ export default function FormPreview({ form, onClose }) {
     if (!v) return "—";
     return (map[v] && t(map[v])) || v;
   };
-  const place = (map, s) => (lang === "mr" && map && map[s] ? map[s] : s);
+  const place = (kind, map, s) =>
+    override(kind, lang, s) || (lang === "mr" && map && map[s] ? map[s] : s);
 
   const fmtDob = (d) => {
     if (!d) return "—";
@@ -161,9 +163,9 @@ export default function FormPreview({ form, onClose }) {
 
   const village = addr.village === "__other__" ? addr.villageCustom : addr.village;
   const addressLine = [
-    place(districtMr, addr.dist),
-    place(talukaMr, addr.taluka),
-    place(villageMr, village),
+    place("district", districtMr, addr.dist),
+    place("taluka", talukaMr, addr.taluka),
+    place("village", villageMr, village),
     addr.pincode,
   ]
     .filter((x) => x && String(x).trim())

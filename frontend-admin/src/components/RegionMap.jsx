@@ -104,7 +104,7 @@ export default function RegionMap({ byDistrict, onDistrictClick, selectedDistric
                         >
                             <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
                                 <div style={{ fontFamily: "Segoe UI, sans-serif", minWidth: 140 }}>
-                                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{d.district}</div>
+                                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{override("district", "en", d.district) || d.district}</div>
                                     <div style={{ fontSize: 12, marginBottom: 4 }}>Total: <b>{d.total}</b> registrations</div>
                                     <div style={{ display: "flex", gap: 8, fontSize: 11 }}>
                                         <span style={{ color: "#16a34a" }}>High: {d.high}</span>

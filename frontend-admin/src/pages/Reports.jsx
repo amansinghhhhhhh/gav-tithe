@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { getReports, getVillageDetail } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import { override } from "../constants/placeRename";
+
+const renameDist = (s) => override("district", "en", s) || s;
+const renameTaluka = (s) => override("taluka", "en", s) || s;
 
 export default function Reports() {
   const [data, setData] = useState(null);
@@ -126,7 +130,7 @@ export default function Reports() {
               ← Back
             </button>
             <h3 style={{ color: C.navy, fontWeight: 700, margin: 0 }}>
-              {villageDetail.village.village} — {villageDetail.village.taluka}, {villageDetail.village.dist}
+              {villageDetail.village.village} — {renameTaluka(villageDetail.village.taluka)}, {renameDist(villageDetail.village.dist)}
             </h3>
             <span style={{ color: C.textopa, fontSize: 13, marginLeft: "auto" }}>
               {villageDetail.total} registrations
@@ -230,7 +234,7 @@ export default function Reports() {
                   onClick={() => setSelectedDist(d.dist)}
                 >
                   <td style={{ padding: "10px 12px", fontSize: 13, fontWeight: 600, color: C.navy }}>
-                    {d.dist}
+                    {renameDist(d.dist)}
                   </td>
                   <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>
                     {d.count}
@@ -252,7 +256,7 @@ export default function Reports() {
 
         {/* Taluka-wise Table */}
         <Card
-          title={selectedDist ? `Taluka-wise — ${selectedDist}` : "Taluka-wise Registration"}
+          title={selectedDist ? `Taluka-wise — ${renameDist(selectedDist)}` : "Taluka-wise Registration"}
           icon="🏘️"
           onBack={selectedDist ? handleBack : null}
         >
@@ -293,10 +297,10 @@ export default function Reports() {
                     }}
                   >
                     <td style={{ padding: "10px 12px", fontSize: 12, color: C.textopa }}>
-                      {t.dist}
+                      {renameDist(t.dist)}
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 13, fontWeight: 600, color: C.navy }}>
-                      {t.taluka}
+                      {renameTaluka(t.taluka)}
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>
                       {t.count}
@@ -320,9 +324,9 @@ export default function Reports() {
         <Card
           title={
             selectedTaluka
-              ? `Village-wise — ${selectedTaluka}, ${selectedDist}`
+              ? `Village-wise — ${renameTaluka(selectedTaluka)}, ${renameDist(selectedDist)}`
               : selectedDist
-              ? `Village-wise — ${selectedDist}`
+              ? `Village-wise — ${renameDist(selectedDist)}`
               : "Village-wise Registration"
           }
           icon="🏠"
@@ -364,10 +368,10 @@ export default function Reports() {
                     onClick={() => handleVillageClick(v.dist, v.taluka, v.village)}
                   >
                     <td style={{ padding: "10px 12px", fontSize: 12, color: C.textopa }}>
-                      {v.dist}
+                      {renameDist(v.dist)}
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 12, color: C.textopa }}>
-                      {v.taluka}
+                      {renameTaluka(v.taluka)}
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 13, fontWeight: 600, color: C.navy }}>
                       {v.village}

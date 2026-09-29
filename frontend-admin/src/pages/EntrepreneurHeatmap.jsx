@@ -2,6 +2,10 @@ import { useEffect, useState, useMemo } from "react";
 import { getEntrepreneurHeatmap } from "../services/api";
 import RegionMap from "../components/RegionMap";
 import C from "../constants/colors";
+import { override } from "../constants/placeRename";
+
+const renameDist = (s) => override("district", "en", s) || s;
+const renameTaluka = (s) => override("taluka", "en", s) || s;
 
 const TIER_COLORS = {
     "High Potential": { bg: "#dcfce7", color: "#16a34a" },
@@ -83,10 +87,10 @@ export default function EntrepreneurHeatmap() {
             // Show taluka-wise
             return data.byTaluka
                 .filter((t) => t.district === selDist)
-                .map((t) => ({ label: t.taluka, total: t.total, high: t.high, medium: t.medium, low: t.low }));
+                .map((t) => ({ label: renameTaluka(t.taluka), total: t.total, high: t.high, medium: t.medium, low: t.low }));
         }
         // Show district-wise
-        return data.byDistrict.map((d) => ({ label: d.district, total: d.total, high: d.high, medium: d.medium, low: d.low }));
+        return data.byDistrict.map((d) => ({ label: renameDist(d.district), total: d.total, high: d.high, medium: d.medium, low: d.low }));
     }, [data, selDist, selTaluka]);
 
     const maxBar = Math.max(...barData.map((b) => b.total), 1);
@@ -196,7 +200,7 @@ export default function EntrepreneurHeatmap() {
                 >
                     <option value="">All Districts</option>
                     {data.byDistrict.map((d) => (
-                        <option key={d.district} value={d.district}>{d.district} ({d.total})</option>
+                        <option key={d.district} value={d.district}>{renameDist(d.district)} ({d.total})</option>
                     ))}
                 </select>
                 <select
@@ -207,7 +211,7 @@ export default function EntrepreneurHeatmap() {
                 >
                     <option value="">All Talukas</option>
                     {talukaOptions.map((t) => (
-                        <option key={t} value={t}>{t}</option>
+                        <option key={t} value={t}>{renameTaluka(t)}</option>
                     ))}
                 </select>
                 <select
@@ -251,7 +255,7 @@ export default function EntrepreneurHeatmap() {
                 }}
             >
                 <h3 style={{ color: C.navy, margin: "0 0 16px", fontWeight: 700, fontSize: 14 }}>
-                    📊 {selTaluka ? `${selTaluka} — Village-wise` : selDist ? `${selDist} — Taluka-wise` : "District-wise Breakdown"}
+                    📊 {selTaluka ? `${renameTaluka(selTaluka)} — Village-wise` : selDist ? `${renameDist(selDist)} — Taluka-wise` : "District-wise Breakdown"}
                 </h3>
                 {barData.length === 0 ? (
                     <div style={{ color: C.textopa, fontSize: 13, padding: 12 }}>No data available.</div>
@@ -327,8 +331,8 @@ export default function EntrepreneurHeatmap() {
                                         <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 600, color: C.navy }}>
                                             {u.name || "—"}
                                         </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.district || "—"}</td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.taluka || "—"}</td>
+                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.district ? renameDist(u.district) : "—"}</td>
+                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.taluka ? renameTaluka(u.taluka) : "—"}</td>
                                         <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.village || "—"}</td>
                                         <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>{u.score}/15</td>
                                         <td style={{ padding: "10px 12px" }}>
