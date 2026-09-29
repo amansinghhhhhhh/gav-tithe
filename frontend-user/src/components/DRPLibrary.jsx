@@ -966,14 +966,14 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
         <h3
           style={{
             margin: "0 0 4px",
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 800,
             color: "#111827",
             lineHeight: 1.3,
           }}
         >
           {entry.variantName}
-          <span style={{ fontWeight: 400, color: "#9ca3af", fontSize: 13 }}>
+          <span style={{ fontWeight: 400, color: "#9ca3af", fontSize: 11 }}>
             {" "}
             (Variant {entry.variantId})
           </span>
@@ -982,7 +982,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
         {/* Location */}
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             color: "#6b7280",
             marginBottom: 14,
             display: "flex",
@@ -996,14 +996,14 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
         {/* Investment Range */}
         <div
           style={{
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: 800,
             color: C.navy,
             marginBottom: 12,
             padding: "8px 12px",
             background: `${C.navy}08`,
             borderRadius: 8,
-            textAlign: "center",
+            textAlign: "left",
           }}
         >
           {entry.investmentRange}
@@ -1020,15 +1020,15 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
           <div
             style={{
               flex: 1,
-              textAlign: "center",
-              padding: "10px 0",
+              textAlign: "left",
+              padding: "8px 10px",
               background: "#ecfdf5",
               borderRadius: 8,
             }}
           >
             <div
               style={{
-                fontSize: 22,
+                fontSize: 17,
                 fontWeight: 800,
                 color: "#16a34a",
                 lineHeight: 1,
@@ -1050,15 +1050,15 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
           <div
             style={{
               flex: 1,
-              textAlign: "center",
-              padding: "10px 0",
+              textAlign: "left",
+              padding: "8px 10px",
               background: "#eff6ff",
               borderRadius: 8,
             }}
           >
             <div
               style={{
-                fontSize: 22,
+                fontSize: 17,
                 fontWeight: 800,
                 color: "#2563eb",
                 lineHeight: 1,
@@ -1094,7 +1094,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
           <span style={{ fontSize: 14 }}>🏷️</span>
           <span
             style={{
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 700,
               color: "#92400e",
             }}
@@ -1140,7 +1140,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
                   key={i}
                   style={{
                     margin: "0 0 10px",
-                    fontSize: 13,
+                    fontSize: 12,
                     color: "#4b5563",
                     lineHeight: 1.7,
                     textAlign: "left",
@@ -1153,7 +1153,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
               <p
                 style={{
                   margin: "0 0 10px",
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "#9ca3af",
                   fontStyle: "italic",
                   lineHeight: 1.7,
@@ -1194,7 +1194,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
             marginTop: 12,
             paddingTop: 10,
             borderTop: "1px solid #f1f5f9",
-            textAlign: "center",
+            textAlign: "left",
             fontSize: 11,
             fontWeight: 700,
             color: "#9ca3af",
