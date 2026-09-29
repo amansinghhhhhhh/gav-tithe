@@ -1,8 +1,56 @@
+import { useEffect, useState } from "react";
+import confetti from "canvas-confetti";
 import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
 
-export default function AssessmentComplete({ completedAt, onRetake, saving, onBackToJourney, score }) {
+export default function AssessmentComplete({ completedAt, onRetake, saving, onBackToJourney, score, celebrate }) {
   const { lang, t } = useLang();
+
+  const [displayScore, setDisplayScore] = useState(celebrate ? 0 : score);
+
+  // Score count-up — sirf turant complete hone par
+  useEffect(() => {
+    if (!celebrate || typeof score !== "number" || score <= 0) {
+      setDisplayScore(score);
+      return;
+    }
+    setDisplayScore(0);
+    let cur = 0;
+    const iv = setInterval(() => {
+      cur += 1;
+      setDisplayScore(cur >= score ? score : cur);
+      if (cur >= score) clearInterval(iv);
+    }, 120);
+    return () => clearInterval(iv);
+  }, [celebrate, score]);
+
+  // Confetti — sirf turant complete hone par (refresh/revisit par nahi)
+  useEffect(() => {
+    if (!celebrate) return;
+    const colors = ["#F97316", "#142952", "#1A7A3C", "#560A0A", "#fbbf24", "#ffffff"];
+    const origins = [0.2, 0.5, 0.8];
+    const timers = origins.map((x, i) =>
+      setTimeout(() => {
+        confetti({
+          particleCount: 90,
+          angle: 90,
+          spread: 80,
+          startVelocity: 50,
+          gravity: 1,
+          ticks: 300,
+          origin: { x, y: -0.04 },
+          colors,
+          shapes: ["square", "circle"],
+          scalar: 1.05,
+          zIndex: 10001,
+        });
+      }, i * 500)
+    );
+    return () => {
+      timers.forEach(clearTimeout);
+      confetti.reset();
+    };
+  }, [celebrate]);
 
   const formattedDate = completedAt
     ? new Date(completedAt).toLocaleDateString("en-IN", {
@@ -140,7 +188,7 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
                 {t("mindset_score_label")}
               </p>
               <p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 800, color: C.orange }}>
-                {score} / 15
+                {displayScore} / 15
               </p>
             </div>
           )}

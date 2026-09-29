@@ -22,6 +22,7 @@ export default function MyAssessment() {
   const [answers, setAnswers] = useState({});
   const [saving, setSaving] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [justCompleted, setJustCompleted] = useState(false);
 
   const loadAssessment = async () => {
     setLoading(true);
@@ -43,6 +44,7 @@ export default function MyAssessment() {
         if (a.completed) {
           setShowIntro(false);
           setCurrentStep(16); // Show completed
+          setJustCompleted(false); // refresh/revisit — celebration nahi
         } else if (a.answers && a.answers.length > 0) {
           // Resume from first unanswered
           setCurrentStep(a.currentStep || 1);
@@ -90,6 +92,7 @@ export default function MyAssessment() {
         if (res.success) {
           setCurrentStep(16); // Show completed
           setAssessment((prev) => ({ ...prev, completed: true, score: res.score }));
+          setJustCompleted(true);
         }
       } catch (err) {
         console.error("Complete error:", err);
@@ -113,6 +116,7 @@ export default function MyAssessment() {
         setAnswers({});
         setCurrentStep(1);
         setShowIntro(true);
+        setJustCompleted(false);
         setAssessment((prev) => ({
           ...prev,
           completed: false,
@@ -162,6 +166,7 @@ export default function MyAssessment() {
         saving={saving}
         onBackToJourney={handleBackToJourney}
         score={assessment.score}
+        celebrate={justCompleted}
       />
     );
   }
