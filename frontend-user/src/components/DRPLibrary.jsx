@@ -849,9 +849,9 @@ export default function DRPLibrary() {
         ) : (
           /* Card Grid */
           <div
+            className="drp-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
               gap: 16,
             }}
           >
@@ -873,6 +873,9 @@ export default function DRPLibrary() {
 
       <style>{`
         .drp-split { height: calc(100vh - 56px); }
+        .drp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        @media (max-width: 1024px) { .drp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 640px) { .drp-grid { grid-template-columns: 1fr; } }
         .drp-split ::-webkit-scrollbar { width: 3px; height: 3px; }
         .drp-split ::-webkit-scrollbar-track { background: transparent; }
         .drp-split ::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.6); border-radius: 999px; }
