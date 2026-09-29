@@ -69,6 +69,7 @@ export default function DRPLibrary() {
   const [investmentRange, setInvestmentRange] = useState("All");
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [showFilters, setShowFilters] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -860,6 +861,10 @@ export default function DRPLibrary() {
                 entry={entry}
                 getTagColor={getTagColor}
                 lang={lang}
+                expanded={expandedId === entry.variantId}
+                onToggle={() =>
+                  setExpandedId((prev) => (prev === entry.variantId ? null : entry.variantId))
+                }
               />
             ))}
           </div>
@@ -886,11 +891,12 @@ export default function DRPLibrary() {
   );
 }
 
-function DRPCard({ entry, getTagColor, lang }) {
+function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
   const sectorColor = SECTOR_COLORS[entry.sector] || "#6b7280";
 
   return (
     <div
+      onClick={onToggle}
       style={{
         background: "#fff",
         borderRadius: 14,
@@ -898,6 +904,8 @@ function DRPCard({ entry, getTagColor, lang }) {
         overflow: "hidden",
         transition: "transform 0.2s, box-shadow 0.2s",
         cursor: "pointer",
+        outline: expanded ? `2px solid ${C.orange}` : "none",
+        outlineOffset: -2,
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-2px)";
@@ -1115,6 +1123,88 @@ function DRPCard({ entry, getTagColor, lang }) {
               {tag}
             </span>
           ))}
+        </div>
+
+        {/* Expanded Details */}
+        {expanded && (
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px dashed #e5e7eb" }}>
+            {(entry.description || "")
+              .split(/\n+/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map((p, i) => (
+                <p
+                  key={i}
+                  style={{
+                    margin: "0 0 10px",
+                    fontSize: 13,
+                    color: "#4b5563",
+                    lineHeight: 1.7,
+                    textAlign: "left",
+                  }}
+                >
+                  {p}
+                </p>
+              ))}
+            {!entry.description && (
+              <p
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 13,
+                  color: "#9ca3af",
+                  fontStyle: "italic",
+                  lineHeight: 1.7,
+                  textAlign: "left",
+                }}
+              >
+                {lang === "mr"
+                  ? "या प्रोजेक्टचा सविस्तर तपशील लवकरच उपलब्ध होईल."
+                  : "Detailed project information will be available soon."}
+              </p>
+            )}
+            <button
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "100%",
+                padding: "10px 16px",
+                background: C.orange,
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              }}
+            >
+              🔧 Open DPR Builder
+            </button>
+          </div>
+        )}
+
+        {/* Expand hint */}
+        <div
+          style={{
+            marginTop: 12,
+            paddingTop: 10,
+            borderTop: "1px solid #f1f5f9",
+            textAlign: "center",
+            fontSize: 11,
+            fontWeight: 700,
+            color: "#9ca3af",
+            letterSpacing: 0.3,
+          }}
+        >
+          {expanded
+            ? lang === "mr"
+              ? "▲ बंद करा"
+              : "▲ Close"
+            : lang === "mr"
+            ? "▼ सविस्तर पहा"
+            : "▼ View details"}
         </div>
       </div>
     </div>

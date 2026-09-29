@@ -137,7 +137,7 @@ exports.adminGetOne = async (req, res) => {
 // ── Admin: Create entry ─────────────────────────────────────────────────────
 exports.adminCreate = async (req, res) => {
   try {
-    const { sector, odop, variantName, variantId, location, investmentRange, investmentMin, investmentMax, roi, jobs, subsidyPercent, tags, category } = req.body;
+    const { sector, odop, variantName, variantId, location, investmentRange, investmentMin, investmentMax, roi, jobs, subsidyPercent, tags, category, description } = req.body;
 
     if (!sector || !variantName || !variantId || !location) {
       return res.status(400).json({ success: false, message: "Sector, Variant Name, Variant ID, and Location are required" });
@@ -151,7 +151,7 @@ exports.adminCreate = async (req, res) => {
     const entry = await DRPEntry.create({
       sector, odop, variantName, variantId, location,
       investmentRange, investmentMin, investmentMax,
-      roi, jobs, subsidyPercent, tags, category,
+      roi, jobs, subsidyPercent, tags, category, description,
     });
 
     res.status(201).json({ success: true, entry });
@@ -167,7 +167,7 @@ exports.adminUpdate = async (req, res) => {
     const entry = await DRPEntry.findById(req.params.id);
     if (!entry) return res.status(404).json({ success: false, message: "Entry not found" });
 
-    const { sector, odop, variantName, variantId, location, investmentRange, investmentMin, investmentMax, roi, jobs, subsidyPercent, tags, category, isActive } = req.body;
+    const { sector, odop, variantName, variantId, location, investmentRange, investmentMin, investmentMax, roi, jobs, subsidyPercent, tags, category, description, isActive } = req.body;
 
     if (variantId && variantId !== entry.variantId) {
       const dup = await DRPEntry.findOne({ variantId });
@@ -187,6 +187,7 @@ exports.adminUpdate = async (req, res) => {
     if (subsidyPercent !== undefined) entry.subsidyPercent = subsidyPercent;
     if (tags !== undefined) entry.tags = tags;
     if (category !== undefined) entry.category = category;
+    if (description !== undefined) entry.description = description;
     if (isActive !== undefined) entry.isActive = isActive;
 
     await entry.save();

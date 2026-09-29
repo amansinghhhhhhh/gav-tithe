@@ -59,6 +59,10 @@ const DRPEntrySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    description: {
+      type: String,
+      default: "",
+    },
     isActive: {
       type: Boolean,
       default: true,

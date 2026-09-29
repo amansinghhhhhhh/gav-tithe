@@ -33,6 +33,7 @@ const emptyForm = {
   subsidyPercent: "",
   tags: "",
   category: "",
+  description: "",
 };
 
 export default function DRPLibraries() {
@@ -106,6 +107,7 @@ export default function DRPLibraries() {
       subsidyPercent: entry.subsidyPercent,
       tags: (entry.tags || []).join(", "),
       category: entry.category || "",
+      description: entry.description || "",
     });
     setShowForm(true);
   };
@@ -484,6 +486,21 @@ export default function DRPLibraries() {
                 <div>
                   <label style={labelStyle}>Tags (comma separated)</label>
                   <input value={form.tags} onChange={(e) => updateField("tags", e.target.value)} style={inputStyle} placeholder="e.g. PMEGP, DIC, MSME" />
+                </div>
+
+                {/* Description */}
+                <div style={{ gridColumn: "span 2" }}>
+                  <label style={labelStyle}>Description (paragraphs)</label>
+                  <textarea
+                    rows={5}
+                    value={form.description}
+                    onChange={(e) => updateField("description", e.target.value)}
+                    style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6, minHeight: 100 }}
+                    placeholder={"Project overview yahan likho...\n\nHar naye paragraph ke liye Enter dabao.\n\nMarket potential, machinery, process wagaira."}
+                  />
+                  <small style={{ display: "block", fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
+                    User ko card expand karne par dikhega. Paragraph split karne ke liye Enter (khaali line) use karo.
+                  </small>
                 </div>
               </div>
             </div>
