@@ -132,3 +132,64 @@ option {
   color: #111827;
   background-color: #fff;
 }
+
+.stat-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 32, 64, 0.1) !important;
+}
+
+.chart-card {
+  transition: box-shadow 0.18s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 10px 26px rgba(15, 32, 64, 0.09) !important;
+}
+
+.pill-btn {
+  transition: background 0.15s ease;
+}
+
+.pill-btn:hover {
+  background: #e6ecf3 !important;
+}
+
+.chip-glass {
+  transition: background 0.15s ease;
+}
+
+.chip-glass:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.data-row:hover {
+  background: #f8fafc;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalRise {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+.modal-fade {
+  animation: modalFade 0.18s ease;
+}
+
+.modal-rise {
+  animation: modalRise 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1100px) {
+  .reports-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
