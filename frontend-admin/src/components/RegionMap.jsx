@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { override } from "../constants/placeRename";
 
 const DISTRICT_COORDS = {
     "Ahmednagar": { lat: 19.09, lng: 74.74 },
