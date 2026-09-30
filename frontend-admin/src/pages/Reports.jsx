@@ -16,6 +16,7 @@ import { getReports, getVillageDetail } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 import { override } from "../constants/placeRename";
+import logoPng from "../assets/gulogotransparent.png";
 
 const renameDist = (s) => override("district", "en", s) || s;
 const renameTaluka = (s) => override("taluka", "en", s) || s;
@@ -29,6 +30,47 @@ const hexToRgba = (hex, a) => {
 
 const tickStyle = { fontSize: 11, fill: "#94a3b8" };
 
+const STATUS_LABELS = {
+  draft: "Draft",
+  submitted: "Submitted",
+  under_review: "Under Review",
+  approved: "Approved",
+  rejected: "Rejected",
+};
+
+const statusLabel = (s) => STATUS_LABELS[s] || "Not Started";
+
+const slug = (s) =>
+  String(s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "report";
+
+const loadImage = (src) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+
+// Rotated bitmap banata hai (FormPreview watermark style, -30° about center)
+const rotateImage = (img, deg) => {
+  const rad = (deg * Math.PI) / 180;
+  const w = img.width;
+  const h = img.height;
+  const bw = Math.ceil(Math.abs(w * Math.cos(rad)) + Math.abs(h * Math.sin(rad)));
+  const bh = Math.ceil(Math.abs(w * Math.sin(rad)) + Math.abs(h * Math.cos(rad)));
+  const c = document.createElement("canvas");
+  c.width = bw;
+  c.height = bh;
+  const ctx = c.getContext("2d");
+  ctx.translate(bw / 2, bh / 2);
+  ctx.rotate(rad);
+  ctx.drawImage(img, -w / 2, -h / 2, w, h);
+  return c;
+};
+
 export default function Reports() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,6 +81,7 @@ export default function Reports() {
   const [showAllDistrict, setShowAllDistrict] = useState(false);
   const [showAllTaluka, setShowAllTaluka] = useState(false);
   const [showAllVillage, setShowAllVillage] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   useEffect(() => {
     getReports().then((res) => {
@@ -76,6 +119,107 @@ export default function Reports() {
     setSelectedTaluka(null);
     setVillageDetail(null);
     setVillageLoading(false);
+  };
+
+  const downloadReportPdf = async () => {
+    if (!villageDetail || villageDetail.users.length === 0 || pdfBusy) return;
+    setPdfBusy(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const { autoTable } = await import("jspdf-autotable");
+      const logo = await loadImage(logoPng);
+
+      const doc = new jsPDF({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+        compress: true,
+      });
+      const M = 14;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(17);
+      doc.setTextColor(20, 41, 82);
+      doc.text("Gaon Tithe Udyojak", M, 20);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(100, 116, 139);
+      doc.text(
+        `${villageDetail.village.village} — ${renameTaluka(villageDetail.village.taluka)}, ${renameDist(villageDetail.village.dist)}`,
+        M,
+        27
+      );
+      doc.setFontSize(10);
+      doc.text(
+        `${villageDetail.total} registrations  ·  Generated ${new Date().toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}`,
+        M,
+        33
+      );
+
+      autoTable(doc, {
+        startY: 39,
+        head: [["#", "ID", "Name", "Mobile", "Status", "Submitted"]],
+        body: villageDetail.users.map((u, i) => [
+          i + 1,
+          u.uniqueId || "—",
+          u.fullName || u.name || "—",
+          u.mobile || "—",
+          statusLabel(u.status),
+          u.submittedAt
+            ? new Date(u.submittedAt).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "—",
+        ]),
+        margin: { top: 34, bottom: 22, left: M, right: M },
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+          lineColor: [230, 235, 242],
+          lineWidth: 0.2,
+          textColor: [51, 65, 85],
+        },
+        headStyles: {
+          fillColor: [20, 41, 82],
+          textColor: [255, 255, 255],
+          halign: "left",
+          fontStyle: "bold",
+        },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 34 }, 4: { cellWidth: 26 } },
+      });
+
+      // Har page par watermark + footer
+      const rotated = rotateImage(logo, -30);
+      const total = doc.internal.getNumberOfPages();
+      for (let p = 1; p <= total; p++) {
+        doc.setPage(p);
+        doc.setGState(new doc.GState({ opacity: 0.1 }));
+        const wmW = 110;
+        const wmH = wmW * (rotated.height / rotated.width);
+        doc.addImage(rotated, "PNG", (210 - wmW) / 2, (297 - wmH) / 2, wmW, wmH);
+        doc.setGState(new doc.GState({ opacity: 1 }));
+        doc.setFontSize(9);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Page ${p} / ${total}`, 105, 291, { align: "center" });
+      }
+
+      doc.save(
+        `report_${slug(villageDetail.village.village)}_${slug(villageDetail.village.taluka)}.pdf`
+      );
+    } catch (err) {
+      console.error("PDF download failed:", err);
+      alert("PDF download failed. Please try again.");
+    } finally {
+      setPdfBusy(false);
+    }
   };
 
   if (loading)
@@ -727,17 +871,17 @@ export default function Reports() {
               borderRadius: 18,
               width: "min(780px, 100%)",
               maxHeight: "86vh",
-              overflowY: "auto",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
               boxShadow: "0 30px 60px rgba(15,32,64,.35)",
             }}
           >
             {/* Modal header */}
             <div
               style={{
-                position: "sticky",
-                top: 0,
-                zIndex: 2,
                 background: C.white,
+                flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
@@ -773,6 +917,27 @@ export default function Reports() {
                   {villageDetail.total} registrations
                 </span>
               )}
+              {villageDetail && villageDetail.users.length > 0 && (
+                <button
+                  onClick={downloadReportPdf}
+                  disabled={pdfBusy}
+                  className="pill-btn"
+                  style={{
+                    background: pdfBusy ? "#94a3b8" : C.navy,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 999,
+                    padding: "7px 14px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: pdfBusy ? "default" : "pointer",
+                    flexShrink: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {pdfBusy ? "Preparing..." : "⬇ PDF"}
+                </button>
+              )}
               <button
                 onClick={handleBack}
                 aria-label="Close"
@@ -795,6 +960,7 @@ export default function Reports() {
             </div>
 
             {/* Modal body */}
+            <div style={{ overflowY: "auto", flex: 1, minHeight: 0 }}>
             {villageLoading ? (
               <div
                 style={{
@@ -835,7 +1001,7 @@ export default function Reports() {
                           key={h}
                           style={{
                             position: "sticky",
-                            top: 73,
+                            top: 0,
                             zIndex: 1,
                             background: C.navy,
                             color: "#fff",
@@ -896,6 +1062,7 @@ export default function Reports() {
                 </table>
               </div>
             )}
+            </div>
           </div>
         </div>
       )}
