@@ -462,7 +462,11 @@ const getVillageDetail = async (req, res) => {
             .map(user => {
                 const form = formMap[user._id.toString()];
                 const addr = form?.section1?.address || {};
-                if (addr.dist === dist && addr.taluka === taluka && addr.village === village) {
+                // getReports jaisa normalization — warna "__other__" (custom) village mismatch hota hai
+                const distN = addr.dist || "Unknown";
+                const talukaN = addr.taluka || "Unknown";
+                const villageN = (addr.village === "__other__" ? (addr.villageCustom || "Other") : addr.village) || "Unknown";
+                if (distN === dist && talukaN === taluka && villageN === village) {
                     return {
                         _id: user._id,
                         name: user.name,
