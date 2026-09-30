@@ -5,10 +5,12 @@ import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 
 export default function UsersList() {
+  const PAGE_SIZE = 50;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
 
@@ -45,6 +47,11 @@ export default function UsersList() {
     return matchSearch && matchFilter;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const startIndex = (safePage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(startIndex, startIndex + PAGE_SIZE);
+
   return (
     <div style={{ padding: "28px 24px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
@@ -73,7 +80,10 @@ export default function UsersList() {
         <input
           placeholder="Search name, mobile, email..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           style={{
             padding: "9px 14px",
             border: "1.5px solid #ddd",
@@ -85,7 +95,10 @@ export default function UsersList() {
         />
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPage(1);
+          }}
           style={{
             padding: "9px 14px",
             border: "1.5px solid #ddd",
@@ -162,7 +175,7 @@ export default function UsersList() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((u, i) => (
+                pageItems.map((u, i) => (
                   <tr key={u._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
                     <td
                       style={{
@@ -171,7 +184,7 @@ export default function UsersList() {
                         color: C.textopa,
                       }}
                     >
-                      {i + 1}
+                      {startIndex + i + 1}
                     </td>
                     <td
                       style={{
@@ -275,6 +288,63 @@ export default function UsersList() {
               )}
             </tbody>
           </table>
+        )}
+        {!loading && filtered.length > 0 && totalPages > 1 && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12,
+              padding: "12px 16px",
+              borderTop: "1px solid #f0f0f0",
+            }}
+          >
+            <div style={{ fontSize: 13, color: C.textopa }}>
+              Showing {startIndex + 1}–{startIndex + pageItems.length} of{" "}
+              {filtered.length}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <button
+                onClick={() => setPage(safePage - 1)}
+                disabled={safePage <= 1}
+                style={{
+                  padding: "6px 14px",
+                  background: C.light,
+                  color: C.navy,
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: safePage <= 1 ? "default" : "pointer",
+                  opacity: safePage <= 1 ? 0.45 : 1,
+                }}
+              >
+                ‹ Prev
+              </button>
+              <span style={{ fontSize: 13, fontWeight: 600, color: C.navy }}>
+                Page {safePage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(safePage + 1)}
+                disabled={safePage >= totalPages}
+                style={{
+                  padding: "6px 14px",
+                  background: C.light,
+                  color: C.navy,
+                  border: "none",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: safePage >= totalPages ? "default" : "pointer",
+                  opacity: safePage >= totalPages ? 0.45 : 1,
+                }}
+              >
+                Next ›
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
