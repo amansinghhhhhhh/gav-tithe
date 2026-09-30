@@ -36,6 +36,7 @@ export default function Reports() {
   const [selectedTaluka, setSelectedTaluka] = useState(null);
   const [villageDetail, setVillageDetail] = useState(null);
   const [villageLoading, setVillageLoading] = useState(false);
+  const [showAllDistrict, setShowAllDistrict] = useState(false);
   const [showAllTaluka, setShowAllTaluka] = useState(false);
   const [showAllVillage, setShowAllVillage] = useState(false);
 
@@ -122,20 +123,32 @@ export default function Reports() {
       ? byVillage.filter((v) => v.dist === selectedDist)
       : byVillage;
 
-  const statusData = [
+  const formStatusSum =
+    summary.totalSubmitted +
+    summary.totalApproved +
+    summary.totalRejected +
+    summary.totalUnderReview +
+    summary.totalDraft;
+  const notStarted = Math.max(0, summary.totalUsers - formStatusSum);
+  const statusAll = [
     { name: "Submitted", value: summary.totalSubmitted, color: "#F97316" },
     { name: "Approved", value: summary.totalApproved, color: C.green },
     { name: "Rejected", value: summary.totalRejected, color: "#dc2626" },
     { name: "Under Review", value: summary.totalUnderReview, color: "#7c3aed" },
     { name: "Draft", value: summary.totalDraft, color: "#6b7280" },
-  ].filter((s) => s.value > 0);
-  const totalForms = statusData.reduce((a, b) => a + b.value, 0);
+    { name: "Not Started", value: notStarted, color: "#94a3b8" },
+  ];
+  const pieData = statusAll.filter((s) => s.value > 0);
+  const statusTotal = statusAll.reduce((a, b) => a + b.value, 0);
 
-  const districtChart = byDistrict.map((d) => ({ ...d, label: renameDist(d.dist) }));
+  const districtSource = showAllDistrict ? byDistrict : byDistrict.slice(0, 8);
+  const districtChart = districtSource.map((d) => ({ ...d, label: renameDist(d.dist) }));
   const talukaSource = showAllTaluka ? filteredTalukas : filteredTalukas.slice(0, 15);
   const talukaChart = talukaSource.map((t) => ({
     ...t,
-    label: `${renameTaluka(t.taluka)} (${renameDist(t.dist)})`,
+    label: selectedDist
+      ? renameTaluka(t.taluka)
+      : `${renameTaluka(t.taluka)} (${renameDist(t.dist)})`,
   }));
   const villageSource = showAllVillage ? filteredVillages : filteredVillages.slice(0, 15);
   const villageChart = villageSource.map((v) => ({ ...v, label: v.village }));
@@ -166,8 +179,8 @@ export default function Reports() {
       onClick: () => setSelectedTaluka(null),
     });
 
-  const showAllToggle = (listLen, showAll, setShowAll) =>
-    listLen > 15 ? (
+  const showAllToggle = (listLen, showAll, setShowAll, topN = 15) =>
+    listLen > topN ? (
       <button
         className="pill-btn"
         onClick={() => setShowAll((v) => !v)}
@@ -183,7 +196,7 @@ export default function Reports() {
           flexShrink: 0,
         }}
       >
-        {showAll ? "Top 15" : `Show all (${listLen})`}
+        {showAll ? `Top ${topN}` : `Show all (${listLen})`}
       </button>
     ) : null;
 
@@ -356,7 +369,7 @@ export default function Reports() {
           hint="Live form status distribution"
           tint="#7c3aed"
         >
-          {totalForms === 0 ? (
+          {pieData.length === 0 ? (
             <EmptyState />
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
@@ -364,7 +377,7 @@ export default function Reports() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={statusData}
+                      data={pieData}
                       dataKey="value"
                       nameKey="name"
                       innerRadius={58}
@@ -374,7 +387,7 @@ export default function Reports() {
                       strokeWidth={2}
                       animationDuration={600}
                     >
-                      {statusData.map((s) => (
+                      {pieData.map((s) => (
                         <Cell key={s.name} fill={s.color} />
                       ))}
                     </Pie>
@@ -395,8 +408,8 @@ export default function Reports() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div style={{ fontSize: 26, fontWeight: 800, color: C.navy }}>{totalForms}</div>
-                  <div style={{ fontSize: 11, color: C.textopa }}>Total Forms</div>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: C.navy }}>{statusTotal}</div>
+                  <div style={{ fontSize: 11, color: C.textopa }}>Total Users</div>
                 </div>
               </div>
               <div
@@ -408,7 +421,7 @@ export default function Reports() {
                   minWidth: 250,
                 }}
               >
-                {statusData.map((s) => (
+                {statusAll.map((s) => (
                   <div
                     key={s.name}
                     style={{
@@ -445,7 +458,7 @@ export default function Reports() {
                       </span>
                     </div>
                     <span style={{ fontSize: 12.5, fontWeight: 700, color: s.color, flexShrink: 0 }}>
-                      {s.value} · {Math.round((s.value / totalForms) * 100)}%
+                      {s.value} · {statusTotal > 0 ? Math.round((s.value / statusTotal) * 100) : 0}%
                     </span>
                   </div>
                 ))}
@@ -460,10 +473,18 @@ export default function Reports() {
           title="District-wise Registration"
           hint="Click a bar to drill into talukas"
           tint={C.navy}
+          action={showAllToggle(byDistrict.length, showAllDistrict, setShowAllDistrict, 8)}
         >
           {districtChart.length === 0 ? (
             <EmptyState />
           ) : (
+            <div
+              style={
+                showAllDistrict
+                  ? { maxHeight: 560, overflowY: "auto" }
+                  : undefined
+              }
+            >
             <ResponsiveContainer
               width="100%"
               height={Math.max(300, districtChart.length * 26 + 30)}
@@ -486,9 +507,9 @@ export default function Reports() {
                 <YAxis
                   type="category"
                   dataKey="label"
-                  width={115}
+                  width={165}
                   interval={0}
-                  tick={{ fontSize: 12, fill: C.navy }}
+                  tick={{ fontSize: 11, fill: C.navy }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -511,6 +532,7 @@ export default function Reports() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           )}
         </Card>
       </div>
@@ -565,7 +587,7 @@ export default function Reports() {
                   <YAxis
                     type="category"
                     dataKey="label"
-                    width={150}
+                    width={165}
                     interval={0}
                     tick={{ fontSize: 11, fill: C.navy }}
                     axisLine={false}
