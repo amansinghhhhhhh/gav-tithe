@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -29,16 +29,6 @@ const hexToRgba = (hex, a) => {
 };
 
 const tickStyle = { fontSize: 11, fill: "#94a3b8" };
-
-const STATUS_LABELS = {
-  draft: "Draft",
-  submitted: "Submitted",
-  under_review: "Under Review",
-  approved: "Approved",
-  rejected: "Rejected",
-};
-
-const statusLabel = (s) => STATUS_LABELS[s] || "Not Started";
 
 const slug = (s) =>
   String(s || "")
@@ -82,6 +72,7 @@ export default function Reports() {
   const [showAllTaluka, setShowAllTaluka] = useState(false);
   const [showAllVillage, setShowAllVillage] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const reportRef = useRef(null);
 
   useEffect(() => {
     getReports().then((res) => {
@@ -122,12 +113,21 @@ export default function Reports() {
   };
 
   const downloadReportPdf = async () => {
-    if (!villageDetail || villageDetail.users.length === 0 || pdfBusy) return;
+    if (!villageDetail || villageDetail.users.length === 0 || pdfBusy || !reportRef.current)
+      return;
     setPdfBusy(true);
     try {
+      const { default: html2canvas } = await import("html2canvas");
       const { jsPDF } = await import("jspdf");
-      const { autoTable } = await import("jspdf-autotable");
+
+      // Browser-rendered capture — Devanagari/Marathi sahi (font + shaping browser karega)
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        backgroundColor: "#fff",
+        logging: false,
+      });
       const logo = await loadImage(logoPng);
+      const rotated = rotateImage(logo, -30);
 
       const doc = new jsPDF({
         unit: "mm",
@@ -135,80 +135,43 @@ export default function Reports() {
         orientation: "portrait",
         compress: true,
       });
-      const M = 14;
+      const MARGIN = 6;
+      const PAGE_W = 210 - MARGIN * 2;
+      const PAGE_H = 297 - MARGIN * 2;
+      const mmPerPx = PAGE_W / canvas.width;
+      const totalPages = Math.max(1, Math.ceil((canvas.height * mmPerPx) / PAGE_H));
 
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(17);
-      doc.setTextColor(20, 41, 82);
-      doc.text("Gaon Tithe Udyojak", M, 20);
+      for (let p = 0; p < totalPages; p++) {
+        const srcY = Math.round((p * PAGE_H) / mmPerPx);
+        const srcH = Math.min(canvas.height - srcY, Math.round(PAGE_H / mmPerPx));
+        if (srcH <= 0) break;
 
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      doc.setTextColor(100, 116, 139);
-      doc.text(
-        `${villageDetail.village.village} — ${renameTaluka(villageDetail.village.taluka)}, ${renameDist(villageDetail.village.dist)}`,
-        M,
-        27
-      );
-      doc.setFontSize(10);
-      doc.text(
-        `${villageDetail.total} registrations  ·  Generated ${new Date().toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })}`,
-        M,
-        33
-      );
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = srcH;
+        const ctx = pageCanvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, pageCanvas.width, srcH);
+        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
 
-      autoTable(doc, {
-        startY: 39,
-        head: [["#", "ID", "Name", "Mobile", "Status", "Submitted"]],
-        body: villageDetail.users.map((u, i) => [
-          i + 1,
-          u.uniqueId || "—",
-          u.fullName || u.name || "—",
-          u.mobile || "—",
-          statusLabel(u.status),
-          u.submittedAt
-            ? new Date(u.submittedAt).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })
-            : "—",
-        ]),
-        margin: { top: 34, bottom: 22, left: M, right: M },
-        styles: {
-          fontSize: 9,
-          cellPadding: 3,
-          lineColor: [230, 235, 242],
-          lineWidth: 0.2,
-          textColor: [51, 65, 85],
-        },
-        headStyles: {
-          fillColor: [20, 41, 82],
-          textColor: [255, 255, 255],
-          halign: "left",
-          fontStyle: "bold",
-        },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        columnStyles: { 0: { cellWidth: 10 }, 1: { cellWidth: 34 }, 4: { cellWidth: 26 } },
-      });
+        // Watermark — centered brand logo (10% opacity, -30°) har page par
+        const wmPx = 110 / mmPerPx;
+        const wmH = wmPx * (rotated.height / rotated.width);
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.translate(pageCanvas.width / 2, srcH / 2);
+        ctx.rotate((-30 * Math.PI) / 180);
+        ctx.drawImage(rotated, -wmPx / 2, -wmH / 2, wmPx, wmH);
+        ctx.restore();
 
-      // Har page par watermark + footer
-      const rotated = rotateImage(logo, -30);
-      const total = doc.internal.getNumberOfPages();
-      for (let p = 1; p <= total; p++) {
-        doc.setPage(p);
-        doc.setGState(new doc.GState({ opacity: 0.1 }));
-        const wmW = 110;
-        const wmH = wmW * (rotated.height / rotated.width);
-        doc.addImage(rotated, "PNG", (210 - wmW) / 2, (297 - wmH) / 2, wmW, wmH);
-        doc.setGState(new doc.GState({ opacity: 1 }));
+        const data = pageCanvas.toDataURL("image/jpeg", 0.92);
+        if (p > 0) doc.addPage();
+        doc.addImage(data, "JPEG", MARGIN, MARGIN, PAGE_W, srcH * mmPerPx);
+
+        // Footer (ASCII — jsPDF text safe)
         doc.setFontSize(9);
         doc.setTextColor(148, 163, 184);
-        doc.text(`Page ${p} / ${total}`, 105, 291, { align: "center" });
+        doc.text(`Page ${p + 1} / ${totalPages}`, 105, 293.5, { align: "center" });
       }
 
       doc.save(
@@ -841,6 +804,109 @@ export default function Reports() {
           )}
         </Card>
       </div>
+
+      {/* ── Hidden print layout (PDF capture ke liye — Devanagari yahi render karta hai) ── */}
+      {villageDetail && !villageLoading && (
+        <div
+          ref={reportRef}
+          style={{
+            position: "absolute",
+            left: -99999,
+            top: 0,
+            width: 760,
+            boxSizing: "border-box",
+            padding: 30,
+            background: "#fff",
+            color: "#334155",
+            fontFamily:
+              'system-ui, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif',
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 18 }}>
+            <img src={logoPng} alt="" style={{ height: 44 }} />
+            <div>
+              <div style={{ fontSize: 21, fontWeight: 800, color: C.navy, lineHeight: 1.2 }}>
+                Gaon Tithe Udyojak
+              </div>
+              <div style={{ fontSize: 14, color: "#64748b", marginTop: 3 }}>
+                {villageDetail.village.village} — {renameTaluka(villageDetail.village.taluka)},{" "}
+                {renameDist(villageDetail.village.dist)}
+              </div>
+              <div style={{ fontSize: 11.5, color: "#94a3b8", marginTop: 2 }}>
+                {villageDetail.total} registrations · Generated{" "}
+                {new Date().toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </div>
+            </div>
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr>
+                {["#", "ID", "Name", "Mobile", "Status", "Submitted"].map((h) => (
+                  <th
+                    key={h}
+                    style={{
+                      background: C.navy,
+                      color: "#fff",
+                      padding: "9px 12px",
+                      textAlign: "left",
+                      fontSize: 11.5,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {villageDetail.users.map((u, i) => (
+                <tr
+                  key={u._id}
+                  style={{
+                    borderBottom: "1px solid #e2e8f0",
+                    background: i % 2 ? "#f8fafc" : "#fff",
+                  }}
+                >
+                  <td style={{ padding: "8px 12px", color: "#64748b" }}>{i + 1}</td>
+                  <td
+                    style={{
+                      padding: "8px 12px",
+                      fontFamily: "monospace",
+                      fontWeight: 700,
+                      color: C.navy,
+                      fontSize: 12,
+                    }}
+                  >
+                    {u.uniqueId || "—"}
+                  </td>
+                  <td style={{ padding: "8px 12px", fontWeight: 600 }}>
+                    {u.fullName || u.name || "—"}
+                  </td>
+                  <td style={{ padding: "8px 12px" }}>{u.mobile || "—"}</td>
+                  <td style={{ padding: "8px 12px" }}>
+                    <StatusBadge status={u.status} />
+                  </td>
+                  <td style={{ padding: "8px 12px", color: "#64748b" }}>
+                    {u.submittedAt
+                      ? new Date(u.submittedAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* ── Village users modal ── */}
       {modalOpen && (
