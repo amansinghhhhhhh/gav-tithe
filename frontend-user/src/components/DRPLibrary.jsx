@@ -542,14 +542,16 @@ export default function DRPLibrary({ onGoForm }) {
             <button
               onClick={clearFilters}
               style={{
+                width: "100%",
                 background: "#fff",
                 border: "1.5px solid rgba(20,41,82,0.25)",
                 color: C.navy,
-                borderRadius: 10,
-                padding: "12px 14px",
-                fontSize: 13,
+                borderRadius: 12,
+                height: 44,
+                fontSize: 14,
                 fontWeight: 700,
                 cursor: "pointer",
+                whiteSpace: "nowrap",
               }}
             >
               {lang === "mr" ? "सर्व काढा" : "Clear All"}
@@ -557,15 +559,17 @@ export default function DRPLibrary({ onGoForm }) {
             <button
               onClick={() => setFiltersOpen(false)}
               style={{
-                flex: 1,
+                width: "100%",
                 background: C.navy,
                 border: "none",
                 color: "#fff",
-                borderRadius: 10,
-                padding: "12px 14px",
-                fontSize: 14,
-                fontWeight: 700,
+                borderRadius: 12,
+                height: 48,
+                fontSize: 15,
+                fontWeight: 800,
                 cursor: "pointer",
+                whiteSpace: "nowrap",
+                boxShadow: "0 4px 14px rgba(20,41,82,0.35)",
               }}
             >
               {lang === "mr"
@@ -1004,9 +1008,12 @@ export default function DRPLibrary({ onGoForm }) {
           position: sticky;
           bottom: 0;
           display: flex;
-          gap: 10px;
-          padding: 12px 0 14px;
-          background: linear-gradient(rgba(255,255,255,0), #fff 35%);
+          flex-direction: column;
+          gap: 8px;
+          padding: 12px 0 calc(14px + env(safe-area-inset-bottom));
+          background: #fff;
+          border-top: 1px solid rgba(20, 41, 82, 0.08);
+          box-shadow: 0 -6px 18px rgba(15, 32, 64, 0.12);
         }
         @media (max-width: 900px) {
           .filter-toggle-btn { display: inline-flex !important; }
