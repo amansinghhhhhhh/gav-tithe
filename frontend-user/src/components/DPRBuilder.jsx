@@ -255,7 +255,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 16,
+        padding: 0,
         overflow: "hidden",
       }}
     >
@@ -277,13 +277,12 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           background: "#fff",
-          borderRadius: 18,
-          width: "min(780px, 100%)",
-          maxHeight: "92vh",
+          borderRadius: 0,
+          width: "100%",
+          height: "100%",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          boxShadow: "0 30px 70px rgba(15,32,64,.45)",
         }}
       >
         {/* ── Header ── */}
