@@ -193,7 +193,7 @@ function Dashboard() {
 
   const isMobile = window.innerWidth < 1200;
   const mainStyle = {
-    maxWidth: 1160,
+    maxWidth: "100%",
     margin: "0 auto",
     padding: isMobile ? "80px 24px 28px" : "28px 24px",
   };
