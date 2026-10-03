@@ -349,10 +349,10 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
         </div>
 
         {/* ── Body ── */}
-        <div className="dpr-scroll" style={{ overflowY: "auto", flex: 1, minHeight: 0, padding: "22px 24px", background: "#f8fafc" }}>
+        <div className="dpr-scroll" style={{ overflowY: "auto", flex: 1, minHeight: 0, padding: "20px 32px", background: "#fff" }}>
           {/* Step 1 — Project Sizing */}
           {step === 0 && (
-            <div className="dpr-step" style={{ background: "#fff", borderRadius: 14, padding: 22, boxShadow: "0 2px 10px rgba(15,32,64,.06)" }}>
+            <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
               <div style={{ marginBottom: 18 }}>
                 <label style={labelStyle}>{t("dpr_cost_label")}</label>
                 <input
@@ -391,7 +391,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
 
           {/* Step 2 — Operations */}
           {step === 1 && (
-            <div className="dpr-step" style={{ background: "#fff", borderRadius: 14, padding: 22, boxShadow: "0 2px 10px rgba(15,32,64,.06)" }}>
+            <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
               <div style={{ marginBottom: 18 }}>
                 <label style={labelStyle}>{t("dpr_raw_label")}</label>
                 <input
@@ -420,7 +420,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
 
           {/* Step 3 — Subsidy & Loan */}
           {step === 2 && (
-            <div className="dpr-step" style={{ background: "#fff", borderRadius: 14, padding: 22, boxShadow: "0 2px 10px rgba(15,32,64,.06)" }}>
+            <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
               <label style={labelStyle}>{t("dpr_scheme_label")}</label>
               <select
                 className="dpr-input"
@@ -461,7 +461,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
 
           {/* Step 4 — KYC Documents */}
           {step === 3 && (
-            <div className="dpr-step" style={{ background: "#fff", borderRadius: 14, padding: 22, boxShadow: "0 2px 10px rgba(15,32,64,.06)" }}>
+            <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                 <div style={{ fontSize: 15.5, fontWeight: 800, color: C.navy, textAlign: "left" }}>
                   📄 {t("dpr_kyc_title")}
@@ -560,7 +560,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
 
           {/* Step 5 — Financial Preview */}
           {step === 4 && (
-            <div className="dpr-step" style={{ background: "#fff", borderRadius: 14, padding: 22, boxShadow: "0 2px 10px rgba(15,32,64,.06)" }}>
+            <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
               <div style={{ fontSize: 15.5, fontWeight: 800, color: C.navy, textAlign: "left", marginBottom: 14 }}>
                 📊 {t("dpr_fin_title")}
               </div>
