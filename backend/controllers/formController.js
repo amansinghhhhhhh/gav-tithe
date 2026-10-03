@@ -5,7 +5,7 @@ const { generateUniqueId } = require("../utils/generateUniqueId");
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
 
-const ALLOWED_DOC_TYPES = ["aadhaarFront", "aadhaarBack", "pan", "udyam", "passport"];
+const ALLOWED_DOC_TYPES = ["aadhaarFront", "aadhaarBack", "pan", "udyam", "passport", "bankPassbook", "educationCert", "casteCert", "landDoc", "electricityBill"];
 
 // ── OCR match tolerance (frontend ke same rules) ──────────────────────────────
 const CANON = { O: "0", Q: "0", I: "1", L: "1", Z: "2", S: "5", B: "8", G: "6" };

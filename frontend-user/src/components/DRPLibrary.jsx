@@ -3,6 +3,7 @@ import C from "../constants/colors";
 import { useLang } from "../context/LangContext";
 import { Spinner } from "./shared/Spinner";
 import { getDRPEntries } from "../services/api";
+import DPRBuilder from "./DPRBuilder";
 import { districts } from "../constants/maharashtraData";
 import { districtMr } from "../constants/maharashtraDataMr";
 import { override } from "../constants/placeRename";
@@ -59,7 +60,7 @@ const TAG_COLORS = [
   "#b45309", "#166534", "#9333ea", "#c2410c",
 ];
 
-export default function DRPLibrary() {
+export default function DRPLibrary({ onGoForm }) {
   const { lang } = useLang();
   const distLabel = (d) => override("district", lang, d) || (lang === "mr" ? districtMr[d] || d : d);
   const [entries, setEntries] = useState([]);
@@ -70,6 +71,7 @@ export default function DRPLibrary() {
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [showFilters, setShowFilters] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [builderEntry, setBuilderEntry] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -865,11 +867,24 @@ export default function DRPLibrary() {
                 onToggle={() =>
                   setExpandedId((prev) => (prev === entry.variantId ? null : entry.variantId))
                 }
+                onOpenBuilder={() => setBuilderEntry(entry)}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* Interactive DPR Builder modal */}
+      {builderEntry && (
+        <DPRBuilder
+          entry={builderEntry}
+          onClose={() => setBuilderEntry(null)}
+          onGoForm={() => {
+            setBuilderEntry(null);
+            if (onGoForm) onGoForm();
+          }}
+        />
+      )}
 
       <style>{`
         .drp-split { height: calc(100vh - 56px); }
@@ -894,7 +909,7 @@ export default function DRPLibrary() {
   );
 }
 
-function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
+function DRPCard({ entry, getTagColor, lang, expanded, onToggle, onOpenBuilder }) {
   const sectorColor = SECTOR_COLORS[entry.sector] || "#6b7280";
 
   return (
@@ -1166,7 +1181,10 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle }) {
               </p>
             )}
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onOpenBuilder) onOpenBuilder();
+              }}
               style={{
                 width: "100%",
                 padding: "10px 16px",

@@ -54,6 +54,11 @@ const FormDataSchema = new mongoose.Schema({
             pan: { type: mongoose.Schema.Types.Mixed, default: null },
             udyam: { type: mongoose.Schema.Types.Mixed, default: null },
             passport: { type: mongoose.Schema.Types.Mixed, default: null },
+            bankPassbook: { type: mongoose.Schema.Types.Mixed, default: null },
+            educationCert: { type: mongoose.Schema.Types.Mixed, default: null },
+            casteCert: { type: mongoose.Schema.Types.Mixed, default: null },
+            landDoc: { type: mongoose.Schema.Types.Mixed, default: null },
+            electricityBill: { type: mongoose.Schema.Types.Mixed, default: null },
         },
         // ✅ OCR se document se extract kiya number (client se bypass nahi ho sakta — submit pe client value ignore hoti hai)
         ocr: {

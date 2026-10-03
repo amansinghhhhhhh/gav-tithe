@@ -254,7 +254,7 @@ function Dashboard() {
           ) : activeNav === "my_assessment" ? (
             <MyAssessment />
           ) : activeNav === "dpr_library" ? (
-            <DRPLibrary />
+            <DRPLibrary onGoForm={() => setActiveNav("my_journey")} />
           ) : submitted && !state.editAllowed ? (
             <SuccessPage
               onApproved={async () => {
