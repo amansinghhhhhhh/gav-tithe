@@ -995,6 +995,8 @@ export default function DRPLibrary({ onGoForm }) {
           transform: translateX(0);
           visibility: visible;
           transition: transform 0.28s ease, visibility 0s;
+          margin-top: 15%;
+          margin-bottom: 2%;
         }
         .drp-backdrop {
           position: fixed;
