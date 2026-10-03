@@ -60,6 +60,16 @@ const TAG_COLORS = [
   "#b45309", "#166534", "#9333ea", "#c2410c",
 ];
 
+const useIsMobile = (bp) => {
+  const [m, setM] = useState(() => typeof window !== "undefined" && window.innerWidth <= bp);
+  useEffect(() => {
+    const f = () => setM(window.innerWidth <= bp);
+    window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, [bp]);
+  return m;
+};
+
 export default function DRPLibrary({ onGoForm }) {
   const { lang } = useLang();
   const distLabel = (d) => override("district", lang, d) || (lang === "mr" ? districtMr[d] || d : d);
@@ -69,9 +79,21 @@ export default function DRPLibrary({ onGoForm }) {
   const [selectedSectors, setSelectedSectors] = useState([]);
   const [investmentRange, setInvestmentRange] = useState("All");
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
-  const [showFilters, setShowFilters] = useState(true);
+  const isTablet = useIsMobile(900);
+  const isSmall = useIsMobile(640);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [builderEntry, setBuilderEntry] = useState(null);
+
+  useEffect(() => {
+    document.body.style.overflow = !isTablet && filtersOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [filtersOpen, isTablet]);
+  useEffect(() => {
+    if (!isTablet) setFiltersOpen(false);
+  }, [isTablet]);
 
   useEffect(() => {
     let alive = true;
@@ -137,16 +159,17 @@ export default function DRPLibrary({ onGoForm }) {
 
   return (
     <div className="drp-split" style={{ display: "flex", gap: 20, alignItems: "stretch" }}>
-      {/* ── Filter Sidebar ── */}
+      {/* ── Filter Sidebar / Mobile Drawer ── */}
+      {isTablet && filtersOpen && (
+        <div className="drp-backdrop" onClick={() => setFiltersOpen(false)} />
+      )}
       <div
-        style={{
-          width: showFilters ? 270 : 0,
-          minWidth: showFilters ? 270 : 0,
-          flexShrink: 0,
-          overflowX: "hidden",
-          overflowY: "auto",
-          transition: "all 0.3s ease",
-        }}
+        className={isTablet ? `drp-drawer${filtersOpen ? " open" : ""}` : ""}
+        style={
+          isTablet
+            ? undefined
+            : { width: 270, minWidth: 270, flexShrink: 0, overflowY: "auto" }
+        }
       >
         <div
           style={{
@@ -513,6 +536,44 @@ export default function DRPLibrary({ onGoForm }) {
             </select>
           </div>
         </div>
+
+        {isTablet && (
+          <div className="drp-drawer-footer">
+            <button
+              onClick={clearFilters}
+              style={{
+                background: "#fff",
+                border: "1.5px solid rgba(20,41,82,0.25)",
+                color: C.navy,
+                borderRadius: 10,
+                padding: "12px 14px",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {lang === "mr" ? "सर्व काढा" : "Clear All"}
+            </button>
+            <button
+              onClick={() => setFiltersOpen(false)}
+              style={{
+                flex: 1,
+                background: C.navy,
+                border: "none",
+                color: "#fff",
+                borderRadius: 10,
+                padding: "12px 14px",
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {lang === "mr"
+                ? `${filteredEntries.length} निवडलेले दाखवा →`
+                : `Show ${filteredEntries.length} results →`}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Main Content ── */}
@@ -523,7 +584,7 @@ export default function DRPLibrary({ onGoForm }) {
             position: "relative",
             background: "linear-gradient(125deg, #142952 0%, #1d3f7a 55%, #16305f 100%)",
             borderRadius: 16,
-            padding: "26px 28px",
+            padding: isSmall ? "18px 16px" : "26px 28px",
             marginBottom: 18,
             overflow: "hidden",
             boxShadow: "0 8px 24px rgba(20, 41, 82, 0.25)",
@@ -535,8 +596,8 @@ export default function DRPLibrary({ onGoForm }) {
               position: "absolute",
               top: -60,
               right: -40,
-              width: 230,
-              height: 230,
+              width: isSmall ? 160 : 230,
+              height: isSmall ? 160 : 230,
               borderRadius: "50%",
               background: "radial-gradient(circle, rgba(249, 115, 22, 0.35), transparent 70%)",
               pointerEvents: "none",
@@ -546,15 +607,15 @@ export default function DRPLibrary({ onGoForm }) {
           <div
             style={{
               position: "absolute",
-              top: 16,
-              right: 18,
+              top: isSmall ? 10 : 16,
+              right: isSmall ? 10 : 18,
               zIndex: 1,
-              fontSize: 13,
+              fontSize: isSmall ? 11 : 13,
               fontWeight: 700,
               color: "#fff",
               background: "rgba(255,255,255,0.15)",
               border: "1px solid rgba(255,255,255,0.25)",
-              padding: "6px 14px",
+              padding: isSmall ? "4px 10px" : "6px 14px",
               borderRadius: 999,
             }}
           >
@@ -569,20 +630,20 @@ export default function DRPLibrary({ onGoForm }) {
               display: "flex",
               alignItems: "center",
               gap: 14,
-              paddingRight: 110,
+              paddingRight: isSmall ? 86 : 110,
             }}
           >
             <div
               style={{
-                width: 46,
-                height: 46,
+                width: isSmall ? 36 : 46,
+                height: isSmall ? 36 : 46,
                 borderRadius: 12,
                 background: "rgba(255,255,255,0.12)",
                 border: "1px solid rgba(255,255,255,0.2)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 24,
+                fontSize: isSmall ? 18 : 24,
                 flexShrink: 0,
               }}
             >
@@ -592,7 +653,7 @@ export default function DRPLibrary({ onGoForm }) {
               <h2
                 style={{
                   margin: 0,
-                  fontSize: 26,
+                  fontSize: isSmall ? 20 : 26,
                   fontWeight: 800,
                   color: "#fff",
                   lineHeight: 1.2,
@@ -603,7 +664,7 @@ export default function DRPLibrary({ onGoForm }) {
               <p
                 style={{
                   margin: "4px 0 0",
-                  fontSize: 14,
+                  fontSize: isSmall ? 12.5 : 14,
                   fontWeight: 500,
                   color: "rgba(255,255,255,0.75)",
                 }}
@@ -616,7 +677,7 @@ export default function DRPLibrary({ onGoForm }) {
           </div>
 
           {/* Search Bar */}
-          <div style={{ position: "relative", marginTop: 18, maxWidth: 560 }}>
+          <div style={{ position: "relative", marginTop: 18, maxWidth: isSmall ? "100%" : 560 }}>
             <span
               style={{
                 position: "absolute",
@@ -640,7 +701,7 @@ export default function DRPLibrary({ onGoForm }) {
                 borderRadius: 999,
                 border: "none",
                 outline: "none",
-                fontSize: 14,
+                fontSize: isSmall ? 16 : 14,
                 fontWeight: 500,
                 color: "#111827",
                 background: "#fff",
@@ -689,10 +750,9 @@ export default function DRPLibrary({ onGoForm }) {
           }}
         >
           <button
-            onClick={() => setShowFilters((p) => !p)}
+            onClick={() => setFiltersOpen(true)}
             className="filter-toggle-btn"
             style={{
-              display: "none",
               background: C.navy,
               color: "#fff",
               border: "none",
@@ -701,15 +761,28 @@ export default function DRPLibrary({ onGoForm }) {
               fontSize: 13,
               fontWeight: 600,
               cursor: "pointer",
+              alignItems: "center",
+              gap: 7,
             }}
           >
-            {showFilters
-              ? lang === "mr"
-                ? "फिल्टर लपवा"
-                : "Hide Filters"
-              : lang === "mr"
-              ? "फिल्टर दाखवा"
-              : "Show Filters"}
+            <span style={{ fontSize: 15, lineHeight: 1 }}>☰</span>
+            {lang === "mr" ? "फिल्टर" : "Filters"}
+            {hasActiveFilters && (
+              <span
+                style={{
+                  background: C.orange,
+                  borderRadius: 999,
+                  padding: "1px 7px",
+                  fontSize: 11,
+                  fontWeight: 800,
+                }}
+              >
+                {selectedSectors.length +
+                  (investmentRange !== "All" ? 1 : 0) +
+                  (selectedDistrict !== "All Districts" ? 1 : 0) +
+                  (search.trim() ? 1 : 0)}
+              </span>
+            )}
           </button>
         </div>
 
@@ -901,8 +974,42 @@ export default function DRPLibrary({ onGoForm }) {
         @media (max-width: 1199px) {
           .drp-split { height: calc(100vh - 108px); }
         }
+        .filter-toggle-btn { display: none !important; }
+        .drp-drawer {
+          position: fixed;
+          left: 0; top: 0; bottom: 0;
+          width: min(320px, 86vw);
+          z-index: 10001;
+          transform: translateX(-102%);
+          overflow-y: auto;
+          padding: 12px 12px 0;
+          background: transparent;
+          visibility: hidden;
+          transition: transform 0.28s ease, visibility 0s linear 0.28s;
+        }
+        .drp-drawer.open {
+          transform: translateX(0);
+          visibility: visible;
+          transition: transform 0.28s ease, visibility 0s;
+        }
+        .drp-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 32, 64, 0.5);
+          z-index: 10000;
+          animation: drpFade 0.2s ease;
+        }
+        @keyframes drpFade { from { opacity: 0; } to { opacity: 1; } }
+        .drp-drawer-footer {
+          position: sticky;
+          bottom: 0;
+          display: flex;
+          gap: 10px;
+          padding: 12px 0 14px;
+          background: linear-gradient(rgba(255,255,255,0), #fff 35%);
+        }
         @media (max-width: 900px) {
-          .filter-toggle-btn { display: block !important; }
+          .filter-toggle-btn { display: inline-flex !important; }
         }
       `}</style>
     </div>
