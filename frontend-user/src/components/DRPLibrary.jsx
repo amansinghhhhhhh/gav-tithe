@@ -1010,9 +1010,10 @@ export default function DRPLibrary({ onGoForm }) {
           display: flex;
           flex-direction: column;
           gap: 8px;
-          padding: 12px 0 calc(14px + env(safe-area-inset-bottom));
+          padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
           background: #fff;
           border-top: 1px solid rgba(20, 41, 82, 0.08);
+          border-radius: 10px;
           box-shadow: 0 -6px 18px rgba(15, 32, 64, 0.12);
         }
         @media (max-width: 900px) {
