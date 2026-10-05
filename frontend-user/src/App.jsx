@@ -23,6 +23,7 @@ import StatusCheckPage from "./StatusCheckPage";
 import LegalPage from "./pages/LegalPage";
 import MyAssessment from "./components/assessment/MyAssessment";
 import DRPLibrary from "./components/DRPLibrary";
+import ProfilePage from "./ProfilePage";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
 import CustomerCareButton from "./components/CustomerCareButton";
@@ -255,6 +256,8 @@ function Dashboard() {
             <MyAssessment />
           ) : activeNav === "dpr_library" ? (
             <DRPLibrary onGoForm={() => setActiveNav("my_journey")} />
+          ) : activeNav === "profile" ? (
+            <ProfilePage onGoForm={() => setActiveNav("my_journey")} />
           ) : submitted && !state.editAllowed ? (
             <SuccessPage
               onApproved={async () => {

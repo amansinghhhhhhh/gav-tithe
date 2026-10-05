@@ -333,20 +333,26 @@ const loginEmail = async (req, res) => {
 
 // ── 4. Get current user ───────────────────────────────────────────────────────
 const getMe = async (req, res) => {
-    const user = await User.findById(req.user.id).select("-password");
-    await syncEmailVerified(user);
-    res.json({
-        success: true,
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            mobile: user.mobile,
-            firebaseUid: user.firebaseUid,
-            emailVerified: !!user.emailVerified,
-            role: user.role,
-        },
-    });
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        await syncEmailVerified(user);
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                firebaseUid: user.firebaseUid,
+                emailVerified: !!user.emailVerified,
+                role: user.role,
+                createdAt: user.createdAt,
+            },
+        });
+    } catch (err) {
+        console.error("Get me error:", err.message);
+        res.status(500).json({ message: "Fetch failed" });
+    }
 };
 
 // ── 5. Reset password via mobile OTP (Firebase ID token verification) ─────────
