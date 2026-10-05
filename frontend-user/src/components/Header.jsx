@@ -50,12 +50,12 @@ export function Header() {
           <a href="https://gaontitheudyojak.com/">
             <img
               src={maccialogo}
-              style={{ height: isMobile ? 32 : 44 }}
+              style={{ height: isMobile ? 55 : 44 }}
               alt="MACCIA"
             />
           </a>
           <a href="https://gaontitheudyojak.com/">
-            <img src={gulogo} style={{ height: isMobile ? 32 : 44 }} alt="GU" />
+            <img src={gulogo} style={{ height: isMobile ? 55 : 44 }} alt="GU" />
           </a>
         </div>
 

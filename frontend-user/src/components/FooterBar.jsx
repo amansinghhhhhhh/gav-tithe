@@ -12,20 +12,8 @@ export function FooterBar({
   const { t } = useLang();
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: "12px 12px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "nowrap",
-        gap: 8,
-        boxShadow: "0 -2px 10px rgba(0,0,0,0.07)",
-        marginTop: 8,
-      }}
-    >
+    <>
+    <div className="footer-bar">
       {step > 1 && (
         <button
           onClick={onBack}
@@ -102,5 +90,23 @@ export function FooterBar({
         </button>
       )}
     </div>
+    <style>{`
+      .footer-bar {
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 12px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.07);
+        margin-top: 8px;
+      }
+      @media (max-width: 640px) {
+        .footer-bar { padding: 12px 12px; justify-content: space-between; gap: 8px; }
+      }
+    `}</style>
+    </>
   );
 }
