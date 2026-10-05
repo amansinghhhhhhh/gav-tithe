@@ -135,7 +135,7 @@ export default function ProfilePage({ onGoForm }) {
   };
 
   return (
-    <div className="profile-page">
+    <div className="profile-page" style={{ textAlign: "left" }}>
       {/* ── A. Header card ── */}
       <div style={heroStyle}>
         <div
@@ -232,7 +232,7 @@ export default function ProfilePage({ onGoForm }) {
         </div>
 
         {!form ? (
-          <div style={{ textAlign: "center", padding: "18px 10px" }}>
+          <div style={{ textAlign: "left", padding: "18px 10px" }}>
             <div style={{ fontSize: 34, marginBottom: 8 }}>📋</div>
             <p style={{ margin: "0 0 16px", fontSize: 14.5, color: C.textopa, fontWeight: 600 }}>
               {t("profile_not_started")}
