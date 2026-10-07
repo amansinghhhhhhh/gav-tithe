@@ -154,7 +154,7 @@ export default function AboutUsPage({ onNav }) {
           <div style={cardStyle}>
             <SectionTitle>{t("about_maccia_title")}</SectionTitle>
             <div style={labelStyle}>{t("about_apex_label")}</div>
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: C.text }}>
+            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: "#334155" }}>
               {t("about_apex_text")}
             </p>
           </div>
@@ -174,7 +174,7 @@ export default function AboutUsPage({ onNav }) {
             <div style={{ ...valueStyle, fontSize: 16, fontWeight: 800, color: C.maroon, marginBottom: 8 }}>
               {t("about_idea_role")}
             </div>
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: C.text }}>
+            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: "#334155" }}>
               {t("about_idea_text")}
             </p>
           </div>
@@ -190,7 +190,7 @@ export default function AboutUsPage({ onNav }) {
               {t("about_abhiyan_sub")}
             </div>
             <div style={labelStyle}>{t("about_mission_label")}</div>
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: C.text }}>
+            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: "#334155" }}>
               {t("about_mission_text")}
             </p>
           </div>
@@ -215,7 +215,7 @@ export default function AboutUsPage({ onNav }) {
             <div style={{ fontSize: 13.5, fontWeight: 700, color: C.orange, marginBottom: 10 }}>
               {t("about_manch_sub")}
             </div>
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: C.text }}>
+            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: "#334155" }}>
               {t("about_manch_text")}
             </p>
           </div>
