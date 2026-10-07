@@ -3,6 +3,13 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-le
 import "leaflet/dist/leaflet.css";
 import { override } from "../constants/placeRename";
 
+// Maharashtra bounding box (padded) — viewport idhar se bahar nahi jayega
+const MH_BOUNDS = [
+    [15.4, 72.3],
+    [22.3, 81.2],
+];
+
+
 const DISTRICT_COORDS = {
     "Ahmednagar": { lat: 19.09, lng: 74.74 },
     "Akola": { lat: 20.71, lng: 76.99 },
@@ -65,11 +72,22 @@ function FitBounds({ byDistrict }) {
             const lats = byDistrict.map((d) => DISTRICT_COORDS[d.district]?.lat).filter(Boolean);
             const lngs = byDistrict.map((d) => DISTRICT_COORDS[d.district]?.lng).filter(Boolean);
             if (lats.length > 0) {
-                const bounds = [
+                let bounds = [
                     [Math.min(...lats) - 0.5, Math.min(...lngs) - 0.5],
                     [Math.max(...lats) + 0.5, Math.max(...lngs) + 0.5],
                 ];
-                map.fitBounds(bounds, { padding: [40, 40] });
+                // Clamp within Maharashtra — single-district filter pe bhi view MH me hi rahe
+                bounds = [
+                    [
+                        Math.max(bounds[0][0], MH_BOUNDS[0][0]),
+                        Math.max(bounds[0][1], MH_BOUNDS[0][1]),
+                    ],
+                    [
+                        Math.min(bounds[1][0], MH_BOUNDS[1][0]),
+                        Math.min(bounds[1][1], MH_BOUNDS[1][1]),
+                    ],
+                ];
+                map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
             }
         }
     }, [map, byDistrict]);
@@ -80,10 +98,20 @@ export default function RegionMap({ byDistrict, onDistrictClick, selectedDistric
     const data = byDistrict || [];
     return (
         <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #e5e7eb", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-            <MapContainer center={[20.0, 76.0]} zoom={6} style={{ height: 420, width: "100%" }} scrollWheelZoom={false}>
+            <MapContainer
+                center={[19.5, 75.5]}
+                zoom={7}
+                minZoom={6}
+                maxBounds={MH_BOUNDS}
+                maxBoundsViscosity={1.0}
+                style={{ height: 420, width: "100%" }}
+                scrollWheelZoom={false}
+            >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    noWrap
+                    bounds={MH_BOUNDS}
                 />
                 <FitBounds byDistrict={data} />
                 {data.map((d) => {
