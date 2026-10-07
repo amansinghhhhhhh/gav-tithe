@@ -90,7 +90,7 @@ function MapPlaceholder({ children, isError }) {
     return (
         <div
             style={{
-                height: "min(420px, 60vh)",
+                height: "min(680px, 78vh)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -199,7 +199,7 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                     minZoom={6}
                     maxBounds={MH_BOUNDS}
                     maxBoundsViscosity={1.0}
-                    style={{ height: "min(420px, 60vh)", width: "100%", background: "#fff" }}
+                    style={{ height: "min(680px, 78vh)", width: "100%", background: "#fff" }}
                     scrollWheelZoom={false}
                 >
                     <FitBounds />

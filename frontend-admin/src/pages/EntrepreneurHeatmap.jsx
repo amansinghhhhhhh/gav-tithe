@@ -7,12 +7,6 @@ import { override } from "../constants/placeRename";
 const renameDist = (s) => override("district", "en", s) || s;
 const renameTaluka = (s) => override("taluka", "en", s) || s;
 
-const TIER_COLORS = {
-    "High Potential": { bg: "#dcfce7", color: "#16a34a" },
-    "Medium Potential": { bg: "#fff7ed", color: "#F97316" },
-    "Needs Development": { bg: "#fee2e2", color: "#dc2626" },
-};
-
 const selectStyle = {
     padding: "10px 14px",
     borderRadius: 8,
@@ -31,8 +25,6 @@ export default function EntrepreneurHeatmap() {
     const [selDist, setSelDist] = useState("");
     const [selTaluka, setSelTaluka] = useState("");
     const [selVillage, setSelVillage] = useState("");
-    const [sortKey, setSortKey] = useState("score");
-    const [sortDir, setSortDir] = useState("desc");
 
     useEffect(() => {
         getEntrepreneurHeatmap()
@@ -63,52 +55,24 @@ export default function EntrepreneurHeatmap() {
         return [...set].sort();
     }, [selDist, selTaluka, data]);
 
-    // Filter users
-    const filteredUsers = useMemo(() => {
+    // District-wise counts honoring active filters (map ke markers live update)
+    const filteredByDistrict = useMemo(() => {
         if (!data?.users) return [];
-        return data.users.filter((u) => {
-            if (selDist && u.district !== selDist) return false;
-            if (selTaluka && u.taluka !== selTaluka) return false;
-            if (selVillage && u.village !== selVillage) return false;
-            return true;
-        });
+        const map = new Map();
+        for (const u of data.users) {
+            if (selDist && u.district !== selDist) continue;
+            if (selTaluka && u.taluka !== selTaluka) continue;
+            if (selVillage && u.village !== selVillage) continue;
+            if (!u.district) continue;
+            const prev = map.get(u.district) || { district: u.district, total: 0, high: 0, medium: 0, low: 0 };
+            prev.total++;
+            if (u.tier === "High Potential") prev.high++;
+            else if (u.tier === "Medium Potential") prev.medium++;
+            else prev.low++;
+            map.set(u.district, prev);
+        }
+        return [...map.values()].sort((a, b) => b.total - a.total);
     }, [data, selDist, selTaluka, selVillage]);
-
-    // District bar chart data (filtered by current selection)
-    const barData = useMemo(() => {
-        if (!data) return [];
-        if (selDist && selTaluka) {
-            // Show village-wise
-            return data.byVillage
-                .filter((v) => v.district === selDist && v.taluka === selTaluka)
-                .map((v) => ({ label: v.village, total: v.total, high: v.high, medium: v.medium, low: v.low }));
-        }
-        if (selDist) {
-            // Show taluka-wise
-            return data.byTaluka
-                .filter((t) => t.district === selDist)
-                .map((t) => ({ label: renameTaluka(t.taluka), total: t.total, high: t.high, medium: t.medium, low: t.low }));
-        }
-        // Show district-wise
-        return data.byDistrict.map((d) => ({ label: renameDist(d.district), total: d.total, high: d.high, medium: d.medium, low: d.low }));
-    }, [data, selDist, selTaluka]);
-
-    const maxBar = Math.max(...barData.map((b) => b.total), 1);
-
-    const handleSort = (key) => {
-        if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-        else { setSortKey(key); setSortDir("desc"); }
-    };
-
-    const sortIcon = (key) => (sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "");
-
-    const sortedUsers = [...filteredUsers].sort((a, b) => {
-        const va = a[sortKey] ?? "";
-        const vb = b[sortKey] ?? "";
-        if (sortKey === "score") return sortDir === "asc" ? va - vb : vb - va;
-        if (sortKey === "date") return sortDir === "asc" ? new Date(va) - new Date(vb) : new Date(vb) - new Date(va);
-        return sortDir === "asc" ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-    });
 
     const clearFilters = () => {
         setSelDist("");
@@ -135,7 +99,7 @@ export default function EntrepreneurHeatmap() {
     const { summary } = data;
 
     return (
-        <div style={{ padding: "28px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ padding: "28px 24px", maxWidth: 1400, margin: "0 auto" }}>
             <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24 }}>
                 🗺️ Entrepreneur Heatmap
             </h2>
@@ -165,20 +129,7 @@ export default function EntrepreneurHeatmap() {
                 ))}
             </div>
 
-            {/* ── Map ── */}
-            <div style={{ marginBottom: 24 }}>
-                <MaharashtraMap
-                    data={data.byDistrict}
-                    selectedDistrict={selDist}
-                    onApplyFilter={(dist) => {
-                        setSelDist(dist);
-                        setSelTaluka("");
-                        setSelVillage("");
-                    }}
-                />
-            </div>
-
-            {/* ── Filters ── */}
+            {/* ── Filters (map se upar) ── */}
             <div
                 style={{
                     background: C.white,
@@ -244,128 +195,16 @@ export default function EntrepreneurHeatmap() {
                 )}
             </div>
 
-            {/* ── Bar Chart ── */}
-            <div
-                style={{
-                    background: C.white,
-                    borderRadius: 12,
-                    padding: 20,
-                    marginBottom: 24,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+            {/* ── Map ── */}
+            <MaharashtraMap
+                data={filteredByDistrict}
+                selectedDistrict={selDist}
+                onApplyFilter={(dist) => {
+                    setSelDist(dist);
+                    setSelTaluka("");
+                    setSelVillage("");
                 }}
-            >
-                <h3 style={{ color: C.navy, margin: "0 0 16px", fontWeight: 700, fontSize: 14 }}>
-                    📊 {selTaluka ? `${renameTaluka(selTaluka)} — Village-wise` : selDist ? `${renameDist(selDist)} — Taluka-wise` : "District-wise Breakdown"}
-                </h3>
-                {barData.length === 0 ? (
-                    <div style={{ color: C.textopa, fontSize: 13, padding: 12 }}>No data available.</div>
-                ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        {barData.map((b) => (
-                            <div key={b.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <div style={{ width: 140, fontSize: 13, fontWeight: 600, color: C.navy, textAlign: "right", flexShrink: 0 }}>
-                                    {b.label}
-                                </div>
-                                <div style={{ flex: 1, display: "flex", height: 26, borderRadius: 6, overflow: "hidden", background: "#f3f4f6" }}>
-                                    <div style={{ width: `${(b.high / maxBar) * 100}%`, background: "#16a34a", transition: "width 0.3s" }} />
-                                    <div style={{ width: `${(b.medium / maxBar) * 100}%`, background: "#F97316", transition: "width 0.3s" }} />
-                                    <div style={{ width: `${(b.low / maxBar) * 100}%`, background: "#dc2626", transition: "width 0.3s" }} />
-                                </div>
-                                <div style={{ width: 40, fontSize: 13, fontWeight: 700, color: C.navy, textAlign: "right" }}>
-                                    {b.total}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* ── User Table ── */}
-            <div
-                style={{
-                    background: C.white,
-                    borderRadius: 12,
-                    padding: 20,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-                }}
-            >
-                <h3 style={{ color: C.navy, marginBottom: 16, fontWeight: 700, fontSize: 14 }}>
-                    📋 User Details ({sortedUsers.length})
-                </h3>
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <thead>
-                            <tr style={{ borderBottom: "1px solid #eee" }}>
-                                {[
-                                    { key: "name", label: "Name" },
-                                    { key: "district", label: "District" },
-                                    { key: "taluka", label: "Taluka" },
-                                    { key: "village", label: "Village" },
-                                    { key: "score", label: "Score" },
-                                    { key: "tier", label: "Tier" },
-                                    { key: "date", label: "Date" },
-                                ].map((col) => (
-                                    <th
-                                        key={col.key}
-                                        onClick={() => handleSort(col.key)}
-                                        style={{
-                                            padding: "10px 12px",
-                                            textAlign: "left",
-                                            fontSize: 11,
-                                            color: C.textopa,
-                                            fontWeight: 600,
-                                            cursor: "pointer",
-                                            userSelect: "none",
-                                        }}
-                                    >
-                                        {col.label}{sortIcon(col.key)}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sortedUsers.map((u) => {
-                                const ts = TIER_COLORS[u.tier] || TIER_COLORS["Needs Development"];
-                                return (
-                                    <tr key={u._id} style={{ borderBottom: "1px solid #f5f5f5" }}>
-                                        <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 600, color: C.navy }}>
-                                            {u.name || "—"}
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.district ? renameDist(u.district) : "—"}</td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.taluka ? renameTaluka(u.taluka) : "—"}</td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13 }}>{u.village || "—"}</td>
-                                        <td style={{ padding: "10px 12px", fontSize: 14, fontWeight: 700 }}>{u.score}/15</td>
-                                        <td style={{ padding: "10px 12px" }}>
-                                            <span style={{
-                                                background: ts.bg,
-                                                color: ts.color,
-                                                padding: "3px 10px",
-                                                borderRadius: 20,
-                                                fontSize: 11,
-                                                fontWeight: 600,
-                                            }}>
-                                                {u.tier}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: "10px 12px", fontSize: 13, color: C.textopa }}>
-                                            {u.date
-                                                ? new Date(u.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-                                                : "—"}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {sortedUsers.length === 0 && (
-                                <tr>
-                                    <td colSpan={7} style={{ padding: 24, textAlign: "center", color: C.textopa, fontSize: 14 }}>
-                                        No users found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            />
         </div>
     );
 }
