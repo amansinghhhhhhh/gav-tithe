@@ -35,24 +35,30 @@ export default function EntrepreneurHeatmap() {
             .finally(() => setLoading(false));
     }, []);
 
-    // Cascade: district → taluka options
+    // Cascade: district → taluka options (with registration count)
     const talukaOptions = useMemo(() => {
         if (!selDist || !data) return [];
-        const set = new Set();
+        const map = new Map();
         data.byTaluka.forEach((t) => {
-            if (t.district === selDist) set.add(t.taluka);
+            if (t.district !== selDist) return;
+            map.set(t.taluka, (map.get(t.taluka) || 0) + t.total);
         });
-        return [...set].sort();
+        return [...map.entries()]
+            .map(([name, total]) => ({ name, total }))
+            .sort((a, b) => a.name.localeCompare(b.name));
     }, [selDist, data]);
 
-    // Cascade: district + taluka → village options
+    // Cascade: district + taluka → village options (with registration count)
     const villageOptions = useMemo(() => {
         if (!selDist || !selTaluka || !data) return [];
-        const set = new Set();
+        const map = new Map();
         data.byVillage.forEach((v) => {
-            if (v.district === selDist && v.taluka === selTaluka) set.add(v.village);
+            if (v.district !== selDist || v.taluka !== selTaluka) return;
+            map.set(v.village, (map.get(v.village) || 0) + v.total);
         });
-        return [...set].sort();
+        return [...map.entries()]
+            .map(([name, total]) => ({ name, total }))
+            .sort((a, b) => a.name.localeCompare(b.name));
     }, [selDist, selTaluka, data]);
 
     // District-wise counts honoring active filters (map ke markers live update)
@@ -162,7 +168,7 @@ export default function EntrepreneurHeatmap() {
                 >
                     <option value="">All Talukas</option>
                     {talukaOptions.map((t) => (
-                        <option key={t} value={t}>{renameTaluka(t)}</option>
+                        <option key={t.name} value={t.name}>{renameTaluka(t.name)} ({t.total})</option>
                     ))}
                 </select>
                 <select
@@ -173,7 +179,7 @@ export default function EntrepreneurHeatmap() {
                 >
                     <option value="">All Villages</option>
                     {villageOptions.map((v) => (
-                        <option key={v} value={v}>{v}</option>
+                        <option key={v.name} value={v.name}>{v.name} ({v.total})</option>
                     ))}
                 </select>
                 {(selDist || selTaluka || selVillage) && (
