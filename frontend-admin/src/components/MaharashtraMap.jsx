@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, GeoJSON, CircleMarker, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, GeoJSON, CircleMarker, Tooltip, Pane, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import geoData from "../assets/maharashtraDistricts.js";
 import C from "../constants/colors";
@@ -209,33 +209,35 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                         style={districtStyle}
                         onEachFeature={onEachFeature}
                     />
-                    {[...statsByGeo.entries()].map(([g, s]) => {
-                        const tier = statusTier(s);
-                        const apiName = s.apiDistricts[0];
-                        const displayName = override("district", "en", apiName) || apiName;
-                        return (
-                            <CircleMarker
-                                key={g}
-                                center={CENTROIDS[g]}
-                                radius={markerRadius(s.total, maxTotal)}
-                                pathOptions={{
-                                    color: MAP_STYLE.markerStroke,
-                                    weight: 2,
-                                    fillColor: STATUS_COLORS[tier],
-                                    fillOpacity: 0.9,
-                                }}
-                                eventHandlers={{
-                                    mouseover: () => setHoverGeo(g),
-                                    mouseout: () => setHoverGeo(null),
-                                    click: () => setPanelGeo((prev) => (prev === g ? null : g)),
-                                }}
-                            >
-                                <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
-                                    <div dangerouslySetInnerHTML={{ __html: tooltipHtml(displayName, s) }} />
-                                </Tooltip>
-                            </CircleMarker>
-                        );
-                    })}
+                    <Pane name="countMarkers" style={{ zIndex: 620 }}>
+                        {[...statsByGeo.entries()].map(([g, s]) => {
+                            const tier = statusTier(s);
+                            const apiName = s.apiDistricts[0];
+                            const displayName = override("district", "en", apiName) || apiName;
+                            return (
+                                <CircleMarker
+                                    key={g}
+                                    center={CENTROIDS[g]}
+                                    radius={markerRadius(s.total, maxTotal)}
+                                    pathOptions={{
+                                        color: MAP_STYLE.markerStroke,
+                                        weight: 2,
+                                        fillColor: STATUS_COLORS[tier],
+                                        fillOpacity: 0.9,
+                                    }}
+                                    eventHandlers={{
+                                        mouseover: () => setHoverGeo(g),
+                                        mouseout: () => setHoverGeo(null),
+                                        click: () => setPanelGeo((prev) => (prev === g ? null : g)),
+                                    }}
+                                >
+                                    <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
+                                        <div dangerouslySetInnerHTML={{ __html: tooltipHtml(displayName, s) }} />
+                                    </Tooltip>
+                                </CircleMarker>
+                            );
+                        })}
+                    </Pane>
                 </MapContainer>
 
                 {/* ── Legend ── */}
