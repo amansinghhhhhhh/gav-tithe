@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { getEntrepreneurHeatmap } from "../services/api";
-import RegionMap from "../components/RegionMap";
+import MaharashtraMap from "../components/MaharashtraMap";
 import C from "../constants/colors";
 import { override } from "../constants/placeRename";
 
@@ -167,11 +167,11 @@ export default function EntrepreneurHeatmap() {
 
             {/* ── Map ── */}
             <div style={{ marginBottom: 24 }}>
-                <RegionMap
-                    byDistrict={data.byDistrict}
+                <MaharashtraMap
+                    data={data.byDistrict}
                     selectedDistrict={selDist}
-                    onDistrictClick={(dist) => {
-                        setSelDist(selDist === dist ? "" : dist);
+                    onApplyFilter={(dist) => {
+                        setSelDist(dist);
                         setSelTaluka("");
                         setSelVillage("");
                     }}
