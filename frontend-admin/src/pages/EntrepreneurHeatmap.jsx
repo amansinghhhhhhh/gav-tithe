@@ -105,11 +105,10 @@ export default function EntrepreneurHeatmap() {
     const { summary } = data;
 
     return (
-        <>
-            <div style={{ padding: "28px 24px", maxWidth: 1400, margin: "0 auto" }}>
-                <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24 }}>
-                    🗺️ Entrepreneur Heatmap
-                </h2>
+        <div style={{ padding: "28px 24px", maxWidth: 1400, margin: "0 auto" }}>
+            <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24 }}>
+                🗺️ Entrepreneur Heatmap
+            </h2>
 
             {/* ── Summary Cards ── */}
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
@@ -201,20 +200,17 @@ export default function EntrepreneurHeatmap() {
                     </button>
                 )}
             </div>
-        </div>
 
-            {/* ── Map (full width, maxWidth se bahar) ── */}
-            <div style={{ width: "100%", padding: "0 12px 40px" }}>
-                <MaharashtraMap
-                    data={filteredByDistrict}
-                    selectedDistrict={selDist}
-                    onApplyFilter={(dist) => {
-                        setSelDist(dist);
-                        setSelTaluka("");
-                        setSelVillage("");
-                    }}
-                />
-            </div>
-        </>
+            {/* ── Map ── */}
+            <MaharashtraMap
+                data={filteredByDistrict}
+                selectedDistrict={selDist}
+                onApplyFilter={(dist) => {
+                    setSelDist(dist);
+                    setSelTaluka("");
+                    setSelVillage("");
+                }}
+            />
+        </div>
     );
 }

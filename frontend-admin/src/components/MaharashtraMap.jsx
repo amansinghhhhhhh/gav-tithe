@@ -57,15 +57,11 @@ function centroidOf(feature) {
 }
 const CENTROIDS = Object.fromEntries(FEATURES.map((f) => [f.properties.district, centroidOf(f)]));
 
-function FitBounds({ dep }) {
+function FitBounds() {
     const map = useMap();
     useEffect(() => {
-        const t = setTimeout(() => {
-            map.invalidateSize();
-            map.fitBounds(MH_BOUNDS, { padding: [24, 24] });
-        }, 80);
-        return () => clearTimeout(t);
-    }, [dep, map]);
+        map.fitBounds(MH_BOUNDS, { padding: [24, 24] });
+    }, [map]);
     return null;
 }
 
@@ -94,7 +90,7 @@ function MapPlaceholder({ children, isError }) {
     return (
         <div
             style={{
-                height: "min(1200px, 92vh)",
+                height: "min(900px, 90vh)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -112,16 +108,6 @@ function MapPlaceholder({ children, isError }) {
 export default function MaharashtraMap({ data = [], loading = false, error = false, selectedDistrict = "", onApplyFilter }) {
     const [hoverGeo, setHoverGeo] = useState(null);
     const [panelGeo, setPanelGeo] = useState(null);
-    const [isFull, setIsFull] = useState(false);
-
-    useEffect(() => {
-        if (!isFull) return;
-        const onKey = (e) => {
-            if (e.key === "Escape") setIsFull(false);
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, [isFull]);
 
     const { statsByGeo, unmapped, sig, maxTotal } = useMemo(() => {
         const map = new Map();
@@ -196,31 +182,27 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
     const panelTier = panelStats ? statusTier(panelStats) : null;
     const panelPct = panelStats ? activityPct(panelStats) : 0;
 
-    const mapHeight = isFull ? "100vh" : "min(1200px, 92vh)";
-
-    const wrapperStyle = isFull
-        ? { position: "fixed", inset: 0, zIndex: 2000, background: "#fff", overflow: "hidden" }
-        : {
-              position: "relative",
-              borderRadius: 12,
-              overflow: "hidden",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          };
-
     return (
         <div>
-            <div style={wrapperStyle}>
+            <div
+                style={{
+                    position: "relative",
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    border: "1px solid #e5e7eb",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                }}
+            >
                 <MapContainer
                     center={[19.5, 75.5]}
                     zoom={7}
                     minZoom={6}
                     maxBounds={MH_BOUNDS}
                     maxBoundsViscosity={1.0}
-                    style={{ height: mapHeight, width: "100%", background: "#fff" }}
+                    style={{ height: "min(900px, 90vh)", width: "100%", background: "#fff" }}
                     scrollWheelZoom={false}
                 >
-                    <FitBounds dep={isFull} />
+                    <FitBounds />
                     <GeoJSON
                         key={sig}
                         data={features}
@@ -257,31 +239,6 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                         })}
                     </Pane>
                 </MapContainer>
-
-                {/* ── Fullscreen toggle ── */}
-                <button
-                    onClick={() => setIsFull((v) => !v)}
-                    title={isFull ? "Exit fullscreen (Esc)" : "Fullscreen"}
-                    style={{
-                        position: "absolute",
-                        top: 12,
-                        left: 12,
-                        zIndex: 1005,
-                        width: 36,
-                        height: 36,
-                        padding: 0,
-                        borderRadius: 8,
-                        border: "1px solid #e5e7eb",
-                        background: "#fff",
-                        cursor: "pointer",
-                        fontSize: 17,
-                        lineHeight: 1,
-                        color: C.navy,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                    }}
-                >
-                    {isFull ? "✕" : "⛶"}
-                </button>
 
                 {/* ── Legend ── */}
                 <div
