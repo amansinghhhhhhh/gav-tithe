@@ -25,21 +25,36 @@ const apiFetch = async (url, options = {}, retries = 1) => {
             const timeoutId = setTimeout(() => controller.abort(), 30000);
             const res = await fetch(url, { ...options, signal: controller.signal });
             clearTimeout(timeoutId);
-            const data = await res.json();
+
+            // Safe JSON parse — Railway/CDN 502 HTML page jaisi non-JSON responses par res.json() throw karta tha
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (_) {
+                data = null;
+            }
+
             if (!res.ok) {
-                if (res.status === 429 && data.retryAfterMinutes) {
+                if (data && res.status === 429 && data.retryAfterMinutes) {
                     return { success: false, status: 429, message: data.message || "Too many requests", retryAfterMinutes: data.retryAfterMinutes };
                 }
+                // Non-JSON error (HTML error page) → server 5xx ho toh api_server, warna network
+                const fallback = data ? null : res.status >= 500 ? "api_server" : "api_network";
                 return {
                     success: false,
                     status: res.status,
-                    message: data.message || "Something went wrong, please try again.",
-                    retryAfterMinutes: data.retryAfterMinutes,
+                    message: (data && data.message) || fallback || "Something went wrong, please try again.",
+                    retryAfterMinutes: data?.retryAfterMinutes,
                 };
+            }
+            if (!data) {
+                // 2xx par bhi HTML mila toh app treat nahi kar sakta
+                return { success: false, status: res.status, message: "api_server" };
             }
             return data;
         } catch (err) {
-            console.error(`API error (attempt ${attempt + 1}):`, err);
+            const label = `${options.method || "GET"} ${url}`;
+            console.error(`API error (attempt ${attempt + 1}) ${label}:`, err);
             if (attempt < retries) {
                 await new Promise((r) => setTimeout(r, 2000));
                 continue;
@@ -50,6 +65,14 @@ const apiFetch = async (url, options = {}, retries = 1) => {
             return { success: false, status: 0, message: "api_network" };
         }
     }
+};
+
+// ── API message helper ────────────────────────────────────────────────────────
+// api_*/err_* codes ko t() se human-readable banao, baaki server messages as-is
+export const apiMsg = (res, t) => {
+    const m = res?.message;
+    if (typeof m === "string" && /^(api_|err_|fb_)/.test(m)) return t(m);
+    return m || t("err_upload_failed");
 };
 
 // ── Auth ──────────────────────────────────────────────────────────────────────

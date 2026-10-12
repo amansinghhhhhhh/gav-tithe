@@ -3,7 +3,7 @@ import C from "../constants/colors";
 import { useLang } from "../context/LangContext";
 import DocUploadBox from "./shared/DocUploadBox";
 import { Spinner } from "./shared/Spinner";
-import { getMyForm, uploadDoc, removeDoc } from "../services/api";
+import { getMyForm, uploadDoc, removeDoc, apiMsg } from "../services/api";
 import guicon from "../assets/guicon.svg";
 
 const STEPS = ["dpr_step_sizing", "dpr_step_ops", "dpr_step_subsidy", "dpr_step_kyc", "dpr_step_fin"];
@@ -121,9 +121,9 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
     try {
       const res = await uploadDoc(docType, file);
       if (res.success) setServerDocs((prev) => ({ ...(prev || {}), [docType]: res.fileId }));
-      else setUpErr((p) => ({ ...p, [docType]: res.message || "Upload failed" }));
+      else setUpErr((p) => ({ ...p, [docType]: apiMsg(res, t) }));
     } catch (e) {
-      setUpErr((p) => ({ ...p, [docType]: e.message || "Upload failed" }));
+      setUpErr((p) => ({ ...p, [docType]: apiMsg({ message: "api_network" }, t) }));
     } finally {
       setBusyKey(null);
     }

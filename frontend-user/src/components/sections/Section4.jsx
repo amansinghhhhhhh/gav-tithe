@@ -6,7 +6,7 @@ import DocGuide from "../DocGuide";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
-import { uploadDoc, removeDoc } from "../../services/api";
+import { uploadDoc, removeDoc, apiMsg } from "../../services/api";
 import { extractDocNumber, aadhaarDiff, levDist, udyamDiff } from "../../services/ocr";
 
 // Jin doc types ke liye document-number match check hoga
@@ -268,10 +268,10 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         ud(key, res.fileId);
         clearError(`docs.${key}`);
       } else {
-        alert(res.message || "Upload failed");
+        alert(apiMsg(res, t));
       }
     } catch (err) {
-      alert("Upload failed: " + err.message);
+      alert(apiMsg({ message: "api_network" }, t));
     } finally {
       setUploadingKey(null);
     }
