@@ -123,7 +123,8 @@ export default function UsersList() {
           background: C.white,
           borderRadius: 12,
           boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-          overflow: "hidden",
+          overflowX: "auto",
+          overflowY: "hidden",
         }}
       >
         {loading ? (
@@ -149,7 +150,7 @@ export default function UsersList() {
                   <th
                     key={h}
                     style={{
-                      padding: "12px 14px",
+                      padding: "10px 10px",
                       textAlign: "left",
                       fontSize: 13,
                       color: C.textopa,
@@ -179,7 +180,7 @@ export default function UsersList() {
                   <tr key={u._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
                     <td
                       style={{
-                        padding: "12px 14px",
+                        padding: "10px 10px",
                         fontSize: 13,
                         color: C.textopa,
                       }}
@@ -188,43 +189,64 @@ export default function UsersList() {
                     </td>
                     <td
                       style={{
-                        padding: "12px 14px",
+                        padding: "10px 10px",
                         fontSize: 12,
                         fontWeight: 700,
                         color: C.navy,
                         fontFamily: "monospace",
                         letterSpacing: "0.5px",
+                        maxWidth: 140,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                       }}
+                      title={u.uniqueId || ""}
                     >
                       {u.uniqueId || "—"}
                     </td>
                     <td
                       style={{
-                        padding: "12px 14px",
+                        padding: "10px 10px",
                         fontSize: 14,
                         fontWeight: 600,
+                        maxWidth: 170,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                       }}
+                      title={u.fullName || u.name || ""}
                     >
                       {u.fullName || u.name || "—"}
                     </td>
-                    <td style={{ padding: "12px 14px", fontSize: 14 }}>
+                    <td
+                      style={{
+                        padding: "10px 10px",
+                        fontSize: 14,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {u.mobile || "—"}
                     </td>
                     <td
                       style={{
-                        padding: "12px 14px",
+                        padding: "10px 10px",
                         fontSize: 13,
                         color: C.textopa,
+                        maxWidth: 190,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                       }}
+                      title={u.email || ""}
                     >
                       {u.email || "—"}
                     </td>
-                    <td style={{ padding: "12px 14px" }}>
+                    <td style={{ padding: "10px 10px" }}>
                       <StatusBadge status={u.formStatus} />
                     </td>
                   <td
                     style={{
-                      padding: "12px 14px",
+                      padding: "10px 10px",
                       fontSize: 13,
                       color: C.textopa,
                     }}
@@ -235,20 +257,16 @@ export default function UsersList() {
                   </td>
                   <td
                     style={{
-                      padding: "12px 14px",
+                      padding: "10px 10px",
                       fontSize: 13,
                       color: C.textopa,
                     }}
                   >
                     {u.formSubmittedAt
-                      ? new Date(u.formSubmittedAt).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
+                      ? new Date(u.formSubmittedAt).toLocaleDateString("en-IN")
                       : "—"}
                   </td>
-                    <td style={{ padding: "12px 14px" }}>
+                    <td style={{ padding: "10px 10px" }}>
                       <div style={{ display: "flex", gap: 8 }}>
                         <button
                           onClick={() => navigate(`/users/${u._id}`)}
