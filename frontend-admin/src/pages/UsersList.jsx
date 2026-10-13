@@ -4,6 +4,36 @@ import { getAllUsers, getExcelUrl, deleteUser } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 
+const STATUS_CHIPS = [
+  { key: "all", label: "Total", color: C.navy },
+  { key: "draft", label: "Draft", color: "#6b7280" },
+  { key: "submitted", label: "Submitted", color: "#F97316" },
+  { key: "under_review", label: "Under Review", color: "#7c3aed" },
+  { key: "approved", label: "Approved", color: "#16a34a" },
+  { key: "rejected", label: "Rejected", color: "#dc2626" },
+];
+
+const AVATAR_GRADIENTS = [
+  "linear-gradient(135deg, #142952, #1e3a6e)",
+  "linear-gradient(135deg, #F97316, #ea580c)",
+  "linear-gradient(135deg, #1A7A3C, #16a34a)",
+  "linear-gradient(135deg, #7c3aed, #6d28d9)",
+  "linear-gradient(135deg, #0ea5e9, #0284c7)",
+];
+
+const initials = (name) => {
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+const avatarGrad = (name) => {
+  let h = 0;
+  for (const ch of String(name || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_GRADIENTS[h % AVATAR_GRADIENTS.length];
+};
+
 export default function UsersList() {
   const PAGE_SIZE = 50;
   const [users, setUsers] = useState([]);
@@ -52,6 +82,11 @@ export default function UsersList() {
   const startIndex = (safePage - 1) * PAGE_SIZE;
   const pageItems = filtered.slice(startIndex, startIndex + PAGE_SIZE);
 
+  const counts = STATUS_CHIPS.reduce((acc, c) => {
+    acc[c.key] = c.key === "all" ? users.length : users.filter((u) => u.formStatus === c.key).length;
+    return acc;
+  }, {});
+
   return (
     <div style={{ padding: "28px 24px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
@@ -73,27 +108,79 @@ export default function UsersList() {
         </a>
       </div>
 
+      {/* ── Status summary chips (click = filter) ── */}
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 18 }}>
+        {STATUS_CHIPS.map((c) => {
+          const active = filter === c.key;
+          return (
+            <button
+              key={c.key}
+              onClick={() => {
+                setFilter(c.key);
+                setPage(1);
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 16px",
+                background: active ? "#eef2ff" : C.white,
+                border: active ? `1.5px solid ${C.navy}` : "1.5px solid #e2e8f0",
+                borderRadius: 10,
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+                color: C.navy,
+                boxShadow: active ? "0 2px 8px rgba(20,41,82,0.12)" : "0 1px 3px rgba(0,0,0,0.05)",
+              }}
+            >
+              <span style={{ width: 10, height: 10, borderRadius: "50%", background: c.color, flexShrink: 0 }} />
+              <span style={{ color: C.textopa }}>{c.label}</span>
+              <span style={{ fontWeight: 800, fontSize: 14 }}>{counts[c.key]}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filters */}
       <div
         style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}
       >
-        <input
-          placeholder="Search name, mobile, email..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          style={{
-            padding: "9px 14px",
-            border: "1.5px solid #ddd",
-            borderRadius: 8,
-            fontSize: 14,
-            outline: "none",
-            minWidth: 240,
-          }}
-        />
+        <div style={{ position: "relative" }}>
+          <span
+            style={{
+              position: "absolute",
+              left: 12,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: C.textopa,
+              fontSize: 13,
+              pointerEvents: "none",
+            }}
+          >
+            🔍
+          </span>
+          <input
+            className="admin-search"
+            placeholder="Search name, mobile, email..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            style={{
+              padding: "9px 14px 9px 34px",
+              border: "1.5px solid #cbd5e1",
+              borderRadius: 10,
+              fontSize: 14,
+              outline: "none",
+              minWidth: 240,
+              background: C.white,
+            }}
+          />
+        </div>
         <select
+          className="admin-search"
           value={filter}
           onChange={(e) => {
             setFilter(e.target.value);
@@ -101,11 +188,12 @@ export default function UsersList() {
           }}
           style={{
             padding: "9px 14px",
-            border: "1.5px solid #ddd",
-            borderRadius: 8,
+            border: "1.5px solid #cbd5e1",
+            borderRadius: 10,
             fontSize: 14,
             outline: "none",
             background: C.white,
+            cursor: "pointer",
           }}
         >
           <option value="all">All Status</option>
@@ -133,15 +221,14 @@ export default function UsersList() {
             <div style={{ color: C.textopa, fontWeight: 600 }}>Loading...</div>
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table className="list-table" style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: C.light }}>
+              <tr style={{ background: C.navy }}>
                 {[
                   "#",
                   "ID",
                   "Name",
                   "Mobile",
-                  "Email",
                   "Status",
                   "Registered",
                   "Form Filled",
@@ -150,10 +237,14 @@ export default function UsersList() {
                   <th
                     key={h}
                     style={{
-                      padding: "10px 10px",
+                      padding: "12px 10px",
                       textAlign: "left",
-                      fontSize: 13,
-                      color: C.textopa,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#fff",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.6px",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {h}
@@ -165,11 +256,12 @@ export default function UsersList() {
               {filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={8}
                     style={{
-                      padding: 32,
+                      padding: 40,
                       textAlign: "center",
                       color: C.textopa,
+                      fontSize: 14,
                     }}
                   >
                     No users found
@@ -177,12 +269,13 @@ export default function UsersList() {
                 </tr>
               ) : (
                 pageItems.map((u, i) => (
-                  <tr key={u._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                  <tr key={u._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td
                       style={{
                         padding: "10px 10px",
                         fontSize: 13,
-                        color: C.textopa,
+                        color: "#94a3b8",
+                        fontWeight: 600,
                       }}
                     >
                       {startIndex + i + 1}
@@ -190,33 +283,82 @@ export default function UsersList() {
                     <td
                       style={{
                         padding: "10px 10px",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: C.navy,
-                        fontFamily: "monospace",
-                        letterSpacing: "0.5px",
-                        maxWidth: 140,
+                        maxWidth: 150,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                       }}
                       title={u.uniqueId || ""}
                     >
-                      {u.uniqueId || "—"}
+                      {u.uniqueId ? (
+                        <span
+                          style={{
+                            background: "#EEF2F7",
+                            color: C.navy,
+                            padding: "3px 9px",
+                            borderRadius: 6,
+                            fontSize: 11.5,
+                            fontWeight: 700,
+                            fontFamily: "monospace",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          {u.uniqueId}
+                        </span>
+                      ) : (
+                        <span style={{ color: "#94a3b8" }}>—</span>
+                      )}
                     </td>
                     <td
                       style={{
                         padding: "10px 10px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        maxWidth: 170,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
+                        maxWidth: 240,
                       }}
-                      title={u.fullName || u.name || ""}
                     >
-                      {u.fullName || u.name || "—"}
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                        <div
+                          style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: "50%",
+                            background: avatarGrad(u.fullName || u.name),
+                            color: "#fff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {initials(u.fullName || u.name)}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div
+                            style={{
+                              fontSize: 13.5,
+                              fontWeight: 600,
+                              color: "#0f172a",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {u.fullName || u.name || "—"}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11.5,
+                              color: C.textopa,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {u.email || "—"}
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td
                       style={{
@@ -227,77 +369,69 @@ export default function UsersList() {
                     >
                       {u.mobile || "—"}
                     </td>
+                    <td style={{ padding: "10px 10px" }}>
+                      <StatusBadge status={u.formStatus} />
+                    </td>
                     <td
                       style={{
                         padding: "10px 10px",
                         fontSize: 13,
                         color: C.textopa,
-                        maxWidth: 190,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                       }}
-                      title={u.email || ""}
                     >
-                      {u.email || "—"}
+                      {u.createdAt
+                        ? new Date(u.createdAt).toLocaleDateString("en-IN")
+                        : "—"}
                     </td>
-                    <td style={{ padding: "10px 10px" }}>
-                      <StatusBadge status={u.formStatus} />
+                    <td
+                      style={{
+                        padding: "10px 10px",
+                        fontSize: 13,
+                        color: C.textopa,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {u.formSubmittedAt
+                        ? new Date(u.formSubmittedAt).toLocaleDateString("en-IN")
+                        : "—"}
                     </td>
-                  <td
-                    style={{
-                      padding: "10px 10px",
-                      fontSize: 13,
-                      color: C.textopa,
-                    }}
-                  >
-                    {u.createdAt
-                      ? new Date(u.createdAt).toLocaleDateString("en-IN")
-                      : "—"}
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 10px",
-                      fontSize: 13,
-                      color: C.textopa,
-                    }}
-                  >
-                    {u.formSubmittedAt
-                      ? new Date(u.formSubmittedAt).toLocaleDateString("en-IN")
-                      : "—"}
-                  </td>
                     <td style={{ padding: "10px 10px" }}>
                       <div style={{ display: "flex", gap: 8 }}>
                         <button
+                          className="btn-navy"
                           onClick={() => navigate(`/users/${u._id}`)}
                           style={{
-                            padding: "6px 14px",
+                            padding: "6px 13px",
                             background: C.navy,
                             color: "#fff",
                             border: "none",
-                            borderRadius: 6,
+                            borderRadius: 8,
                             fontSize: 12,
                             cursor: "pointer",
                             fontWeight: 600,
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          View
+                          👁 View
                         </button>
                         <button
+                          className="btn-ghost-red"
                           onClick={() => handleDelete(u)}
                           disabled={deletingId === u._id}
                           style={{
-                            padding: "6px 14px",
-                            background: deletingId === u._id ? "#fca5a5" : "#fee2e2",
+                            padding: "6px 13px",
+                            background: deletingId === u._id ? "#fee2e2" : "#fff",
                             color: "#dc2626",
                             border: "1px solid #fca5a5",
-                            borderRadius: 6,
+                            borderRadius: 8,
                             fontSize: 12,
                             cursor: deletingId === u._id ? "default" : "pointer",
                             fontWeight: 600,
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {deletingId === u._id ? "Deleting..." : "Delete"}
+                          {deletingId === u._id ? "Deleting..." : "🗑 Delete"}
                         </button>
                       </div>
                     </td>
@@ -382,14 +516,19 @@ function StatusBadge({ status }) {
   return (
     <span
       style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
         background: s.bg,
         color: s.color,
         padding: "3px 10px",
         borderRadius: 20,
         fontSize: 12,
         fontWeight: 600,
+        whiteSpace: "nowrap",
       }}
     >
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color }} />
       {s.label}
     </span>
   );

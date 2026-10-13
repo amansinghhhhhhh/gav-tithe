@@ -197,3 +197,23 @@ option {
     grid-template-columns: 1fr !important;
   }
 }
+.list-table tbody tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+.list-table tbody tr:hover {
+  background: #eef4ff;
+}
+
+.admin-search:focus {
+  border-color: #1e3a6e !important;
+  box-shadow: 0 0 0 3px rgba(30, 58, 110, 0.12);
+}
+
+.btn-navy:hover {
+  background: #1e3a6e !important;
+}
+
+.btn-ghost-red:hover:not(:disabled) {
+  background: #fee2e2 !important;
+}
