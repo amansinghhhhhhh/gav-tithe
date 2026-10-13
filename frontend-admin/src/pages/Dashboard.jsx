@@ -158,9 +158,35 @@ export default function Dashboard() {
               boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
             }}
           >
-            <h3 style={{ color: C.navy, marginBottom: 16, fontWeight: 700 }}>
-              Recent Registrations
-            </h3>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                marginBottom: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <h3 style={{ color: C.navy, margin: 0, fontWeight: 700 }}>
+                Recent Registrations
+              </h3>
+              <button
+                onClick={() => navigate("/users")}
+                style={{
+                  padding: "7px 18px",
+                  background: C.navy,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                View More →
+              </button>
+            </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: C.light }}>
