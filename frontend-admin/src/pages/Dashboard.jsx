@@ -10,6 +10,7 @@ import rejected from "../assets/rejected.svg";
 
 // colors
 import C from "../constants/colors";
+import { Avatar } from "../utils/avatar.jsx";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -187,17 +188,21 @@ export default function Dashboard() {
                 View More →
               </button>
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="list-table" style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: C.light }}>
+                <tr style={{ background: C.navy }}>
                   {["Name", "Mobile", "Status", "Action"].map((h) => (
                     <th
                       key={h}
                       style={{
-                        padding: "10px 14px",
+                        padding: "12px 10px",
                         textAlign: "left",
-                        fontSize: 13,
-                        color: C.textopa,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "#fff",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.6px",
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {h}
@@ -207,31 +212,51 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {users.slice(0, 5).map((u) => (
-                  <tr key={u._id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                    <td style={{ padding: "12px 14px", fontSize: 14 }}>
-                      {u.fullName || u.name || "—"}
+                  <tr key={u._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <td
+                      style={{
+                        padding: "10px 10px",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        maxWidth: 240,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                        <Avatar name={u.fullName || u.name} size={34} />
+                        <span
+                          style={{
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {u.fullName || u.name || "—"}
+                        </span>
+                      </div>
                     </td>
-                    <td style={{ padding: "12px 14px", fontSize: 14 }}>
+                    <td style={{ padding: "10px 10px", fontSize: 14, whiteSpace: "nowrap" }}>
                       {u.mobile || "—"}
                     </td>
-                    <td style={{ padding: "12px 14px" }}>
+                    <td style={{ padding: "10px 10px" }}>
                       <StatusBadge status={u.formStatus} />
                     </td>
-                    <td style={{ padding: "12px 14px" }}>
+                    <td style={{ padding: "10px 10px" }}>
                       <button
+                        className="btn-navy"
                         onClick={() => navigate(`/users/${u._id}`)}
                         style={{
-                          padding: "6px 14px",
+                          padding: "6px 13px",
                           background: C.navy,
                           color: "#fff",
                           border: "none",
-                          borderRadius: 6,
+                          borderRadius: 8,
                           fontSize: 12,
                           cursor: "pointer",
                           fontWeight: 600,
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        View
+                        👁 View
                       </button>
                     </td>
                   </tr>
@@ -258,14 +283,19 @@ function StatusBadge({ status }) {
   return (
     <span
       style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
         background: s.bg,
         color: s.color,
         padding: "3px 10px",
         borderRadius: 20,
         fontSize: 12,
         fontWeight: 600,
+        whiteSpace: "nowrap",
       }}
     >
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color }} />
       {s.label}
     </span>
   );

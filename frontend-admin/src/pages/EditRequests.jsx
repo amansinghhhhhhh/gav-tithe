@@ -129,15 +129,26 @@ export default function EditRequests() {
             overflowX: "auto",
           }}
         >
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <table className="list-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: C.textopa, borderBottom: "1px solid #eee" }}>
-                <th style={{ padding: "14px 16px" }}>User</th>
-                <th style={{ padding: "14px 16px" }}>Mobile</th>
-                <th style={{ padding: "14px 16px" }}>Message</th>
-                <th style={{ padding: "14px 16px" }}>Requested On</th>
-                <th style={{ padding: "14px 16px" }}>Status</th>
-                <th style={{ padding: "14px 16px" }}>Action</th>
+              <tr style={{ background: C.navy }}>
+                {["User", "Mobile", "Message", "Requested On", "Status", "Action"].map((h) => (
+                  <th
+                    key={h}
+                    style={{
+                      padding: "12px 14px",
+                      textAlign: "left",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#fff",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.6px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -171,16 +182,15 @@ export default function EditRequests() {
                         </div>
                       )}
                     </td>
-                    <td style={{ padding: "14px 16px", whiteSpace: "nowrap" }}>
-                      {new Date(r.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                    <td style={{ padding: "14px 16px", whiteSpace: "nowrap", color: C.textopa }}>
+                      {new Date(r.createdAt).toLocaleDateString("en-IN")}
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       <span
                         style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
                           background: sc.bg,
                           color: sc.fg,
                           border: `1px solid ${sc.border}`,
@@ -189,8 +199,10 @@ export default function EditRequests() {
                           fontSize: 12,
                           fontWeight: 700,
                           textTransform: "capitalize",
+                          whiteSpace: "nowrap",
                         }}
                       >
+                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: sc.fg }} />
                         {r.status}
                       </span>
                     </td>

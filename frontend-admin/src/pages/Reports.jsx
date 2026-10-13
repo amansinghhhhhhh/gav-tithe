@@ -842,7 +842,7 @@ export default function Reports() {
               </div>
             </div>
           </div>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <table className="list-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr>
                 {["#", "ID", "Name", "Mobile", "Status", "Submitted"].map((h) => (
@@ -868,10 +868,7 @@ export default function Reports() {
               {villageDetail.users.map((u, i) => (
                 <tr
                   key={u._id}
-                  style={{
-                    borderBottom: "1px solid #e2e8f0",
-                    background: i % 2 ? "#f8fafc" : "#fff",
-                  }}
+                  style={{ borderBottom: "1px solid #e2e8f0" }}
                 >
                   <td style={{ padding: "8px 12px", color: "#64748b" }}>{i + 1}</td>
                   <td
@@ -1059,7 +1056,7 @@ export default function Reports() {
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table className="list-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
                       {["#", "ID", "Name", "Mobile", "Status", "Submitted"].map((h) => (

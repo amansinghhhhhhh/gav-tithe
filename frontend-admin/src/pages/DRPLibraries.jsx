@@ -263,11 +263,11 @@ export default function DRPLibraries() {
       ) : (
         <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
+            <table className="list-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
               <thead>
-                <tr style={{ background: C.light }}>
+                <tr style={{ background: C.navy }}>
                   {["ID", "Sector", "Variant Name", "ODOP", "Location", "Investment", "ROI", "Jobs", "Subsidy", "Tags", "Status", "Actions"].map((h) => (
-                    <th key={h} style={{ padding: "12px 14px", textAlign: "left", fontSize: 12, fontWeight: 700, color: C.textopa, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    <th key={h} style={{ padding: "12px 14px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#fff", textTransform: "uppercase", letterSpacing: "0.6px", whiteSpace: "nowrap" }}>
                       {h}
                     </th>
                   ))}
@@ -331,24 +331,26 @@ export default function DRPLibraries() {
                     <td style={{ padding: "12px 14px" }}>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button
+                          className="btn-navy"
                           onClick={() => openEdit(entry)}
                           style={{
                             padding: "6px 12px", background: C.navy, color: "#fff",
-                            border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600,
-                            cursor: "pointer",
+                            border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                            cursor: "pointer", whiteSpace: "nowrap",
                           }}
                         >
-                          Edit
+                          ✏️ Edit
                         </button>
                         <button
+                          className="btn-ghost-red"
                           onClick={() => handleDelete(entry)}
                           style={{
-                            padding: "6px 12px", background: "#dc2626", color: "#fff",
-                            border: "none", borderRadius: 6, fontSize: 12, fontWeight: 600,
-                            cursor: "pointer",
+                            padding: "6px 12px", background: "#fff", color: "#dc2626",
+                            border: "1px solid #fca5a5", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                            cursor: "pointer", whiteSpace: "nowrap",
                           }}
                         >
-                          Del
+                          🗑 Del
                         </button>
                       </div>
                     </td>
