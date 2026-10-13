@@ -93,7 +93,7 @@ function Dashboard() {
           dispatch({ type: "SUBMIT" });
         else if (section4?.aadhaar)
           dispatch({ type: "SET_STEP", step: 4 });
-        else if (section3?.cibilScore)
+        else if (section3?.hadLoan)
           dispatch({ type: "SET_STEP", step: 4 });
         else if (section2?.businessType)
           dispatch({ type: "SET_STEP", step: 3 });

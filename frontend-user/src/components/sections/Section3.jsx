@@ -16,7 +16,7 @@ const makeRules = (t) => ({
   hadLoan: (v) => (!v ? t("err_required") : null),
   cibilScore: (v) =>
     !v?.trim()
-      ? t("err_required")
+      ? null
       : isNaN(Number(v))
         ? t("err_number")
         : Number(v) < 300 || Number(v) > 900
