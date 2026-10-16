@@ -217,3 +217,98 @@ option {
 .btn-ghost-red:hover:not(:disabled) {
   background: #fee2e2 !important;
 }
+
+/* -- UserDetail -- */
+.hero-btn {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s, background 0.15s;
+}
+
+.hero-btn:hover {
+  filter: brightness(1.12);
+}
+
+.ud-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 2px solid #e2e8f0;
+  margin: 18px 0 20px;
+  flex-wrap: wrap;
+}
+
+.ud-tab {
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #64748b;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ud-tab:hover {
+  color: #142952;
+  background: #f1f5f9;
+}
+
+.ud-tab.active {
+  color: #142952;
+  border-bottom-color: #f97316;
+}
+
+.ud-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .ud-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.doc-wrap .doc-view {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.doc-wrap:hover .doc-view {
+  opacity: 1;
+}
+
+.ud-seg {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ud-seg button {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ud-seg button.active {
+  background: #ffffff;
+  color: #142952;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+}
