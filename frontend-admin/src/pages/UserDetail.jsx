@@ -112,7 +112,7 @@ export default function UserDetail() {
   ].filter(Boolean);
 
   return (
-    <div style={{ padding: "28px 24px", maxWidth: 1000, margin: "0 auto" }}>
+    <div style={{ padding: "28px 24px", maxWidth: "none" }}>
       {/* ── Hero banner ── */}
       <div
         style={{
