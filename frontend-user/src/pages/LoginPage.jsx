@@ -100,7 +100,7 @@ export default function LoginPage() {
         const data = await loginEmail(cleanMobile, password);
         if (data?.success) {
           login(data.user);
-          navigate("/dashboard");
+          navigate("/home");
         } else if (data?.retryAfterMinutes) {
           setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
         } else {
@@ -137,7 +137,7 @@ export default function LoginPage() {
         const data = await loginEmail(email.trim(), password, firebaseIdToken);
         if (data?.success) {
           login(data.user);
-          navigate("/dashboard");
+          navigate("/home");
         } else if (data?.retryAfterMinutes) {
           setErr(t("err_rate_limit", { min: data.retryAfterMinutes }));
         } else {

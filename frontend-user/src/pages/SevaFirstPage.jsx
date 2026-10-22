@@ -95,7 +95,7 @@ const STATUS_BADGE = {
 };
 
 export default function SevaFirstPage() {
-  const { t, lang } = useLang();
+  const { t, lang, setLang } = useLang();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(emptyForm());
@@ -254,7 +254,7 @@ export default function SevaFirstPage() {
                 {t("seva_btn_apply_now")}
               </button>
               <button
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/home")}
                 style={{ background: BRAND.orange, color: "#fff", border: "none", borderRadius: 12, padding: "12px 26px", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
               >
                 {t("seva_ack_back")}
@@ -269,35 +269,114 @@ export default function SevaFirstPage() {
   // ── Main page ──────────────────────────────────────────────────────────────
   return (
     <div style={{ background: "#f9fafb", minHeight: "100vh", fontFamily: "'Segoe UI', 'Noto Sans Devanagari', sans-serif", color: "#1f2937" }}>
-      {/* Announcement bar */}
-      <div style={{ background: BRAND.orange, color: "#fff", padding: "9px 16px", fontSize: 12.5, fontWeight: 600, textAlign: "center" }}>
-        {t("seva_announce")}
+      {/* Top Announcement Bar (HTML jaisa — right me translator toggle) */}
+      <div
+        style={{
+          background: BRAND.orange,
+          color: "#fff",
+          fontSize: 12.5,
+          fontWeight: 600,
+          padding: "8px 16px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          overflow: "hidden",
+        }}
+      >
+        <span style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", flex: 1, textAlign: "center" }}>
+          {t("seva_announce")}
+        </span>
+        <div
+          onClick={() => setLang(lang === "mr" ? "en" : "mr")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            flexShrink: 0,
+            background: "rgba(0,0,0,0.2)",
+            padding: "5px 12px",
+            borderRadius: 20,
+            cursor: "pointer",
+            transition: "background .15s",
+            marginLeft: 12,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.3)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.2)")}
+        >
+          <span style={{ fontWeight: 800, fontSize: 12 }}>🌐</span>
+          <span style={{ fontSize: 11.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            {lang === "mr" ? "English" : "मराठी"}
+          </span>
+        </div>
       </div>
 
-      {/* Mini nav */}
-      <div style={{ background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.07)", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.saffron})`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800 }}>💡</span>
-            <div>
-              <span style={{ fontSize: 10.5, fontWeight: 800, background: "#dcfce7", color: "#166534", padding: "2px 9px", borderRadius: 12, textTransform: "uppercase" }}>{t("seva_badge_gtu")}</span>
-              <h1 style={{ fontSize: 16.5, fontWeight: 900, color: "#111827", margin: "2px 0 0", lineHeight: 1.2 }}>{t("seva_hero_title")}</h1>
+      {/* Main Navigation Bar (sticky) */}
+      <div style={{ background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
+          {/* Branding */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+            <span
+              style={{
+                width: 46,
+                height: 46,
+                borderRadius: 12,
+                background: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.saffron})`,
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 21,
+                fontWeight: 800,
+                boxShadow: "0 3px 10px rgba(230,81,0,0.3)",
+                flexShrink: 0,
+              }}
+            >
+              💡
+            </span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 10, fontWeight: 800, background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: 12, textTransform: "uppercase", border: "1px solid #86efac", whiteSpace: "nowrap" }}>
+                  {t("seva_badge_gtu")}
+                </span>
+                <span style={{ fontSize: 10.5, fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.4px" }} className="hide-sm">
+                  {t("seva_badge_initiative")}
+                </span>
+              </div>
+              <h1 style={{ fontSize: 17, fontWeight: 900, color: "#111827", margin: "2px 0 0", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {t("seva_hero_title")}
+              </h1>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <a href="#seva-about" style={{ fontSize: 13, fontWeight: 600, color: "#374151", textDecoration: "none" }}>{t("seva_nav_about")}</a>
-            <a href="#seva-docs" style={{ fontSize: 13, fontWeight: 600, color: "#374151", textDecoration: "none" }}>{t("seva_nav_docs")}</a>
+
+          {/* Nav Menu */}
+          <div style={{ display: "flex", alignItems: "center", gap: 22, fontWeight: 600, fontSize: 13.5, color: "#374151" }} className="hide-md">
+            <a href="#seva-about" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => (e.currentTarget.style.color = BRAND.orange)} onMouseLeave={(e) => (e.currentTarget.style.color = "#374151")}>
+              {t("seva_nav_about")}
+            </a>
+            <a href="#seva-docs" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => (e.currentTarget.style.color = BRAND.orange)} onMouseLeave={(e) => (e.currentTarget.style.color = "#374151")}>
+              {t("seva_nav_docs")}
+            </a>
+            <a href="#seva-apply" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => (e.currentTarget.style.color = BRAND.orange)} onMouseLeave={(e) => (e.currentTarget.style.color = "#374151")}>
+              {t("seva_nav_apply")}
+            </a>
+            <a href="#seva-myapps" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => (e.currentTarget.style.color = BRAND.orange)} onMouseLeave={(e) => (e.currentTarget.style.color = "#374151")}>
+              {t("seva_my_apps")}
+            </a>
+          </div>
+
+          {/* CTA */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
             <button
-              onClick={() => navigate("/dashboard")}
-              style={{ background: "#fff", color: BRAND.orange, border: `1.5px solid ${BRAND.orange}`, borderRadius: 10, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              onClick={() => navigate("/home")}
+              style={{ background: "#fff", color: BRAND.orange, border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
             >
               {t("seva_btn_back")}
             </button>
             <a
               href="#seva-apply"
-              style={{ background: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.saffron})`, color: "#fff", borderRadius: 10, padding: "9px 18px", fontSize: 13, fontWeight: 700, textDecoration: "none" }}
+              style={{ background: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.saffron})`, color: "#fff", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 7, boxShadow: "0 3px 10px rgba(230,81,0,0.3)", whiteSpace: "nowrap" }}
             >
-              {t("seva_btn_apply_now")}
+              ✈ {t("seva_btn_apply_now")}
             </a>
           </div>
         </div>
@@ -313,7 +392,7 @@ export default function SevaFirstPage() {
       {/* Hero */}
       <div
         style={{
-          background: `linear-gradient(rgba(13,27,56,0.85), rgba(230,81,0,0.75)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80') center/cover no-repeat`,
+          background: `linear-gradient(rgba(13, 27, 56, 0.85), rgba(230, 81, 0, 0.85)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80') center/cover no-repeat`,
           color: "#fff",
           padding: "64px 20px",
           textAlign: "center",
@@ -371,25 +450,48 @@ export default function SevaFirstPage() {
         </div>
       </div>
 
-      {/* Documents checklist */}
+      {/* Documents & Preparation Checklist (HTML jaisa — white card wrapper) */}
       <div id="seva-docs" style={{ background: "#f3f4f6", padding: "50px 20px" }}>
-        <div style={{ maxWidth: 1050, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 14, flexWrap: "wrap", marginBottom: 24 }}>
-            <div>
-              <span style={{ background: BRAND.lightGreen, color: BRAND.green, fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 8, textTransform: "uppercase" }}>{t("seva_nav_docs")}</span>
-              <h2 style={{ fontSize: 23, fontWeight: 900, color: "#111827", margin: "10px 0 4px" }}>{t("seva_doc_title")}</h2>
-            </div>
-            <a href={PPT_TEMPLATE_URL} target="_blank" rel="noreferrer" style={{ background: BRAND.green, color: "#fff", padding: "11px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
-              ⬇ {t("seva_hero_template")}
-            </a>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 16, transition: "border .15s" }}>
-                <div style={{ color: BRAND.orange, fontWeight: 900, fontSize: 14, marginBottom: 5 }}>{i}. {t(`seva_req${i}_title`)}</div>
-                <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.55 }}>{t(`seva_req${i}_desc`)}</div>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ background: "#fff", borderRadius: 18, boxShadow: "0 6px 24px rgba(0,0,0,0.07)", border: "1px solid #e5e7eb", padding: "34px 30px" }}>
+            <div style={{ borderBottom: "1.5px solid #e5e7eb", paddingBottom: 22, marginBottom: 26, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+              <div>
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: BRAND.green, textTransform: "uppercase", letterSpacing: "0.5px", background: BRAND.lightGreen, padding: "4px 11px", borderRadius: 7, border: "1px solid #bbf7d0" }}>
+                  {t("seva_nav_docs")}
+                </span>
+                <h2 style={{ fontSize: 24, fontWeight: 900, color: "#111827", margin: "10px 0 4px" }}>{t("seva_doc_title")}</h2>
               </div>
-            ))}
+              <a
+                href={PPT_TEMPLATE_URL}
+                target="_blank"
+                rel="noreferrer"
+                style={{ background: BRAND.green, color: "#fff", padding: "11px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 3px 10px rgba(46,125,50,0.3)" }}
+              >
+                ⬇ {t("seva_hero_template")}
+              </a>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
+              {["१", "२", "३", "४", "५", "६", "७", "८"].map((num, idx) => {
+                const i = idx + 1;
+                return (
+                  <div
+                    key={i}
+                    style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb", borderRadius: 12, padding: 16, transition: "all .15s" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = BRAND.lightOrange;
+                      e.currentTarget.style.borderColor = "#fdba74";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "#f9fafb";
+                      e.currentTarget.style.borderColor = "#e5e7eb";
+                    }}
+                  >
+                    <div style={{ color: BRAND.orange, fontWeight: 900, fontSize: 15, marginBottom: 4 }}>{num}. {t(`seva_req${i}_title`)}</div>
+                    <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.55 }}>{t(`seva_req${i}_desc`)}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -607,7 +709,7 @@ export default function SevaFirstPage() {
           </div>
 
           {/* My submitted apps */}
-          <div style={{ marginTop: 44 }}>
+          <div id="seva-myapps" style={{ marginTop: 44, scrollMarginTop: 90 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
               <h3 style={{ fontSize: 18, fontWeight: 900, color: "#111827", margin: 0 }}>{t("seva_my_apps")}</h3>
               <span style={{ background: "#e5e7eb", color: "#374151", fontSize: 12, fontWeight: 800, padding: "5px 14px", borderRadius: 16 }}>
@@ -647,19 +749,36 @@ export default function SevaFirstPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div style={{ background: BRAND.dark, color: "#d1d5db", padding: "38px 20px 20px" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 26 }}>
+      {/* Footer (HTML jaisa — 3 columns) */}
+      <div style={{ background: BRAND.dark, color: "#d1d5db", padding: "42px 20px 0", marginTop: 0 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 30 }}>
           <div>
-            <h3 style={{ color: "#fbbf24", fontSize: 16, fontWeight: 800, margin: "0 0 8px" }}>गाव तिथे उद्योजक</h3>
-            <p style={{ fontSize: 12.5, lineHeight: 1.65, margin: 0 }}>{t("seva_footer_desc")}</p>
+            <h3 style={{ color: "#fbbf24", fontSize: 17, fontWeight: 800, margin: "0 0 10px" }}>गाव तिथे उद्योजक</h3>
+            <p style={{ fontSize: 12.5, lineHeight: 1.7, margin: 0 }}>{t("seva_footer_desc")}</p>
           </div>
           <div>
+            <h4 style={{ color: "#fbbf24", fontSize: 13.5, fontWeight: 800, margin: "0 0 10px" }}>{t("seva_nav_docs")}</h4>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 12.5 }}>
+              {[
+                { href: "#seva-about", label: t("seva_nav_about") },
+                { href: "#seva-docs", label: t("seva_nav_docs") },
+                { href: "#seva-apply", label: t("seva_nav_apply") },
+              ].map((l) => (
+                <li key={l.href} style={{ marginBottom: 7 }}>
+                  <a href={l.href} style={{ color: "#d1d5db", textDecoration: "none" }} onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")} onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 style={{ color: "#fbbf24", fontSize: 13.5, fontWeight: 800, margin: "0 0 10px" }}>{t("seva_footer_contact")}</h4>
             <p style={{ fontSize: 12.5, margin: "0 0 6px" }}>{t("seva_footer_email")}</p>
             <p style={{ fontSize: 12.5, margin: 0 }}>{t("seva_footer_helpline")}</p>
           </div>
         </div>
-        <div style={{ maxWidth: 1000, margin: "26px auto 0", borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 14, textAlign: "center", fontSize: 11.5, color: "#9ca3af" }}>
+        <div style={{ maxWidth: 1200, margin: "30px auto 0", borderTop: "1px solid rgba(255,255,255,0.12)", padding: "14px 0 18px", textAlign: "center", fontSize: 11.5, color: "#9ca3af" }}>
           {t("seva_copyright")}
         </div>
       </div>

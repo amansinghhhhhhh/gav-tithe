@@ -56,7 +56,7 @@ function ProtectedRoute({ children }) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [activeNav, setActiveNav] = useState("my_applications");
+  const [activeNav, setActiveNav] = useState("my_journey");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [loadingForm, setLoadingForm] = useState(true);
@@ -212,7 +212,10 @@ function Dashboard() {
     >
       <Sidebar
         activeKey={activeNav}
-        onNav={setActiveNav}
+        onNav={(k) => {
+          if (k === "my_applications") navigate("/home");
+          else setActiveNav(k);
+        }}
         onLogout={handleLogout}
       />
       <div style={{ flex: 1, background: C.light, overflowY: "auto" }}>
@@ -255,10 +258,6 @@ function Dashboard() {
                 Loading your form...
               </div>
             </div>
-          ) : activeNav === "my_applications" ? (
-            <ApplicationChoice
-              onOpenGtu={() => setActiveNav("my_journey")}
-            />
           ) : activeNav === "my_assessment" ? (
             <MyAssessment />
           ) : activeNav === "dpr_library" ? (
@@ -389,6 +388,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <ApplicationChoice />
           </ProtectedRoute>
         }
       />

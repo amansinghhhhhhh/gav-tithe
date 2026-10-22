@@ -132,3 +132,15 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+/* -- Seva First page responsive -- */
+@media (max-width: 900px) {
+  .hide-md {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hide-sm {
+    display: none !important;
+  }
+}
