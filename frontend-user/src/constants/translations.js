@@ -260,7 +260,6 @@ const translations = {
         // Login Page
         login_title: "नोंदणी",
         login_title_login: "लॉगिन",
-        login_subtitle: "तुमचा व्यवसायाचा प्रवास सुरू करा",
         login_authority_head: "अधिकार आणि जबाबदाऱ्या",
         login_point1: "मोफत नोंदणी आणि मानसिकता मूल्यांकन",
         login_point2: "व्यवसाय प्रशिक्षण आणि कौशल्य विकास",
@@ -1032,7 +1031,6 @@ const translations = {
         // Login Page
         login_title: "Register",
         login_title_login: "Login",
-        login_subtitle: "Start Your Business Journey",
         login_authority_head: "Authority & Responsibilities",
         login_point1: "Free registration & mindset assessment",
         login_point2: "Business training & skill development",

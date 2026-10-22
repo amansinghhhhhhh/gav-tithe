@@ -460,15 +460,6 @@ export default function RegisterPage() {
             >
               {t("login_title")}
             </h2>
-            <p
-              style={{
-                margin: "6px 0 0",
-                color: "rgba(255,255,255,0.85)",
-                fontSize: 13,
-              }}
-            >
-              {t("login_subtitle")}
-            </p>
           </div>
           <div style={{ padding: "24px 24px 28px" }}>
             {err && (
