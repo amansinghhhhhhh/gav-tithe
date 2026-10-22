@@ -210,7 +210,7 @@ export default function LoginPage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "20px 16px",
-          fontFamily: "'Segoe UI', sans-serif",
+          fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif",
         }}
       >
         <div

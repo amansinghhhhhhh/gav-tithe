@@ -204,7 +204,7 @@ export default function SevaFirstPage() {
   // ── Acknowledgement screen ─────────────────────────────────────────────────
   if (ack) {
     return (
-      <div style={{ minHeight: "100vh", background: "#f9fafb", fontFamily: "'Segoe UI', 'Noto Sans Devanagari', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "#f9fafb", fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif" }}>
         <div style={{ background: BRAND.orange, color: "#fff", textAlign: "center", padding: "10px 16px", fontSize: 13, fontWeight: 600 }}>
           {t("seva_announce")}
         </div>
@@ -268,7 +268,7 @@ export default function SevaFirstPage() {
 
   // ── Main page ──────────────────────────────────────────────────────────────
   return (
-    <div style={{ background: "#f9fafb", minHeight: "100vh", fontFamily: "'Segoe UI', 'Noto Sans Devanagari', sans-serif", color: "#1f2937" }}>
+    <div style={{ background: "#f9fafb", minHeight: "100vh", fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif", color: "#1f2937" }}>
       {/* Top Announcement Bar (HTML jaisa — right me translator toggle) */}
       <div
         style={{

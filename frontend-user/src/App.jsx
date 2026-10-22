@@ -207,7 +207,7 @@ function Dashboard() {
       style={{
         display: "flex",
         minHeight: "100vh",
-        fontFamily: "'Segoe UI', sans-serif",
+        fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif",
       }}
     >
       <Sidebar

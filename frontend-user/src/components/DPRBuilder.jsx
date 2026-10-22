@@ -758,7 +758,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
           padding: 30,
           background: "#fff",
           color: "#334155",
-          fontFamily: 'system-ui, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif',
+          fontFamily: '"Inter", "Noto Sans Devanagari", system-ui, "Segoe UI", Roboto, sans-serif',
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 18, borderBottom: "2px solid #142952", paddingBottom: 14 }}>

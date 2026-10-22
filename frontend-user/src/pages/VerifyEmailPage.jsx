@@ -138,7 +138,7 @@ export default function VerifyEmailPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'Segoe UI', sans-serif",
+        fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif",
         padding: 16,
       }}
     >

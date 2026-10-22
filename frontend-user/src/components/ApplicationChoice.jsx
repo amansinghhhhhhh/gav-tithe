@@ -81,7 +81,7 @@ export default function ApplicationChoice() {
   const sevaStatus = sevaApps.length === 0 ? "not_started" : sevaApps[0].status;
 
   return (
-    <div style={{ minHeight: "100vh", background: C.light, fontFamily: "'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: C.light, fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif" }}>
       {/* Top bar */}
       <div
         style={{

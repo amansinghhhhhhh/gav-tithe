@@ -77,7 +77,7 @@ export default function RegistrationSuccessPage() {
                 fontWeight: 700,
                 fontSize: 22,
                 letterSpacing: 0,
-                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', system-ui, sans-serif",
                 textAlign: "left",
               }}
             >

@@ -52,7 +52,7 @@ export default function StatusCheckPage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "100px 16px 40px",
-          fontFamily: "'Segoe UI', sans-serif",
+          fontFamily: "'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif",
         }}
       >
         <div
