@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="mr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सेवा फर्स्ट नवकल्पना आव्हान | Seva First Innovation Challenge - गाव तिथे उद्योजक</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#e65100',
+                            saffron: '#f57c00',
+                            lightOrange: '#fff3e0',
+                            green: '#2e7d32',
+                            lightGreen: '#e8f5e9',
+                            dark: '#1b2a4a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Devanagari', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Marathi & English -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; }
+        .gradient-header {
+            background: linear-gradient(135deg, #1b2a4a 0%, #0d1b38 100%);
+        }
+        .hero-banner {
+            background: linear-gradient(rgba(13, 27, 56, 0.85), rgba(230, 81, 0, 0.85)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80') center/cover no-repeat;
+        }
+        .step-active {
+            background-color: #e65100;
+            color: white;
+            border-color: #e65100;
+        }
+        .step-completed {
+            background-color: #2e7d32;
+            color: white;
+            border-color: #2e7d32;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-brand-orange text-white text-xs sm:text-sm py-2 px-4 text-center font-medium flex justify-between items-center max-w-full overflow-hidden">
+        <span id="top-announcement" class="truncate mx-auto">
+            🚀 'गाव तिथे उद्योजक' अंतर्गत सेवा फर्स्ट नवकल्पना आव्हान २०२६ - अर्ज सादर करण्याची शेवटची तारीख: ३० नोव्हेंबर २०२६
+        </span>
+        <div class="flex items-center space-x-2 shrink-0 bg-black/20 px-3 py-1 rounded-full cursor-pointer hover:bg-black/30 transition" onclick="toggleLanguage()">
+            <i class="fa-solid font-bold text-xs fa-globe"></i>
+            <span id="lang-toggle-text" class="text-xs font-bold uppercase tracking-wider">English</span>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Branding -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-orange to-brand-saffron flex items-center justify-center text-white shadow-lg text-2xl font-bold">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs uppercase font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded-full border border-green-300" id="badge-gtu">गाव तिथे उद्योजक</span>
+                            <span class="text-xs uppercase font-semibold text-gray-500 hidden sm:inline" id="badge-initiative">उपक्रम</span>
+                        </div>
+                        <h1 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none mt-1" id="nav-title">
+                            सेवा फर्स्ट नवकल्पना आव्हान
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Nav Menu Items -->
+                <div class="hidden md:flex items-center space-x-6 font-medium text-sm text-gray-700">
+                    <a href="#about" class="hover:text-brand-orange transition" id="nav-about">उपक्रमाबद्दल</a>
+                    <a href="#documents" class="hover:text-brand-orange transition" id="nav-docs">आवश्यक कागदपत्रे</a>
+                    <a href="#apply" class="hover:text-brand-orange transition" id="nav-apply-link">नवकल्पना नोंदणी</a>
+                    <a href="#dashboard" class="hover:text-brand-orange transition" id="nav-dash">माझे अर्ज</a>
+                </div>
+
+                <!-- Call to Action -->
+                <div>
+                    <a href="#apply" class="bg-gradient-to-r from-brand-orange to-brand-saffron text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg transition font-semibold text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span id="btn-apply-now">अर्ज करा</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner Section -->
+    <section class="hero-banner text-white py-16 md:py-24 px-4 text-center relative">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-white/30">
+                <i class="fa-solid fa-seedling text-green-400"></i>
+                <span id="hero-tagline">ग्रामीण महाराष्ट्रातील रोजगारासाठी नवकल्पनांचे व्यासपीठ</span>
+            </div>
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight" id="hero-heading">
+                सेवा फर्स्ट नवकल्पना आव्हान <br>
+                <span class="text-amber-300">Seva First Innovation Challenge</span>
+            </h1>
+            <p class="text-base sm:text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed" id="hero-desc">
+                'गाव तिथे उद्योजक' या संकल्पनेतून ग्रामीण भागातील समस्यांवर शाश्वत आणि तंत्रज्ञानप्रणीत उपाय शोधणाऱ्या तरुण उद्योजक व संशोधकांसाठी सुवर्णसंधी.
+            </p>
+            <div class="pt-4 flex flex-wrap justify-center gap-4">
+                <a href="#apply" class="bg-brand-orange hover:bg-orange-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-xl hover:scale-105 transition duration-200 flex items-center space-x-2 text-base">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span id="hero-cta-apply">तुमची कल्पना सादर करा</span>
+                </a>
+                <a href="https://www.sevainnovationchallenge.in/assets/Seva-First-Innovation-Challenge-PPT-Template.pptx" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold px-6 py-3.5 rounded-xl border border-white/30 transition flex items-center space-x-2 text-base">
+                    <i class="fa-solid fa-file-arrow-down"></i>
+                    <span id="hero-cta-template">आयडिया टेम्पलेट डाउनलोड करा</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Statement / Need of Initiative (Matched from user reference image) -->
+    <section id="about" class="py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <span class="bg-brand-lightOrange text-brand-orange px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" id="section-need-badge">
+                    उपक्रमाची गरज
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2" id="section-need-title">
+                    ग्रामीण महाराष्ट्रातील आव्हाने
+                </h2>
+                <p class="text-gray-600 mt-1 max-w-2xl mx-auto text-sm sm:text-base" id="section-need-sub">
+                    या सर्व समस्यांवर शाश्वत आणि दीर्घकालीन उपाय म्हणून 'गाव तिथे उद्योजक' हा उपक्रम राबविण्यात येत आहे.
+                </p>
+            </div>
+
+            <!-- Challenge Cards Grid -->
+            <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                <!-- Card 1 -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition border-l-4 border-l-brand-orange flex items-start space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-orange-100 text-brand-orange flex items-center justify-center shrink-0 text-xl font-bold">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900" id="card1-title">रोजगाराच्या मर्यादित संधी</h3>
+                        <p class="text-gray-600 text-sm mt-2 leading-relaxed" id="card1-desc">
+                            ग्रामीण भागात उद्योगांची कमतरता असल्यामुळे युवकांना स्थिर आणि वर्षभर रोजगार मिळत नाही. शेती हंगामी असल्याने अनेकांना उत्पन्नाचे पर्यायी स्रोत उपलब्ध होत नाहीत.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition border-l-4 border-l-brand-orange flex items-start space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-orange-100 text-brand-orange flex items-center justify-center shrink-0 text-xl font-bold">
+                        <i class="fa-solid fa-city"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900" id="card2-title">शहरांकडे वाढते स्थलांतर</h3>
+                        <p class="text-gray-600 text-sm mt-2 leading-relaxed" id="card2-desc">
+                            रोजगाराच्या शोधात युवक मोठ्या प्रमाणावर शहरांकडे स्थलांतर करतात. यामुळे गावांमधील कामगार शक्ती कमी होते आणि शहरी भागावर ताण वाढतो.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documents & Preparation Checklist (Matched exactly with prompt image requirements) -->
+    <section id="documents" class="py-12 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl p-6 sm:p-10 shadow-lg border border-gray-200">
+                <div class="border-b border-gray-200 pb-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-brand-green uppercase tracking-wider bg-green-50 px-2.5 py-1 rounded-md border border-green-200">कागदपत्रे सूची</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2" id="doc-checklist-title">
+                            अर्जदारांनी पूर्वतयारी करावयाची कागदपत्रे व माहिती
+                        </h2>
+                        <p class="text-gray-500 text-sm mt-1" id="doc-checklist-sub">
+                            Applicants should keep the following ready, as applicable and as requested by the official portal.
+                        </p>
+                    </div>
+                 <a href="https://www.sevainnovationchallenge.in/assets/Seva-First-Innovation-Challenge-PPT-Template.pptx"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="inline-flex items-center space-x-2 bg-brand-green hover:bg-green-800 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition shrink-0 shadow-md">
+
+    <i class="fa-solid fa-file-powerpoint"></i>
+    <span id="btn-dl-ppt">Download PPT Template</span>
+
+</a>
+                </div>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Req 1 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">१. वैयक्तिक माहिती</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req1-title">Full Name, Mobile & Email</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req1-desc">अर्जदाराचे संपूर्ण नाव, मोबाईल क्रमांक आणि ई-मेल आयडी</p>
+                    </div>
+                    <!-- Req 2 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">२. ओळखपत्र</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req2-title">Aadhar Card & PAN Card</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req2-desc">आधार कार्ड आणि पॅन कार्ड अपलोड किंवा क्रमांक माहिती</p>
+                    </div>
+                    <!-- Req 3 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">३. समस्या व उपाय</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req3-title">Problem Statement & Solution</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req3-desc">स्पष्ट समस्या विवरण आणि त्यावर प्रस्तावित नाविन्यपूर्ण उपाय</p>
+                    </div>
+                    <!-- Req 4 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">४. SEVA FIRST PPT</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req4-title">Official PowerPoint Idea</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req4-desc">अधिकृत स्वरूपातील PPT संकल्पना सादरीकरण (.pptx / .pdf)</p>
+                    </div>
+                    <!-- Req 5 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">५. प्रोटोटाइप पुरावा</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req5-title">Prototype Photos / Video</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req5-desc">प्रोटोटाइप छायाचित्रे, आकृत्या, प्रात्यक्षिक व्हिडिओ किंवा लिंक</p>
+                    </div>
+                    <!-- Req 6 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">६. प्रकल्प अहवाल (DPR)</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req6-title">Estimated Cost & CDPR</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req6-desc">अंदाजित प्रकल्प खर्च आणि सविस्तर अंमलबजावणी योजना</p>
+                    </div>
+                    <!-- Req 7 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">७. संघ तपशील</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req7-title">Team Member Details & Roles</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req7-desc">संघ म्हणून अर्ज करत असल्यास सदस्यांची नावे व भूमिका</p>
+                    </div>
+                    <!-- Req 8 -->
+                    <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:bg-orange-50/50 hover:border-orange-200 transition">
+                        <div class="text-brand-orange font-bold text-lg mb-1">८. संशोधन कागदपत्र</div>
+                        <div class="font-semibold text-gray-800 text-sm" id="req8-title">Research Paper (Optional)</div>
+                        <p class="text-xs text-gray-500 mt-1" id="req8-desc">संशोधन निबंध किंवा पूरक तांत्रिक कागदपत्रे (असल्यास)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Step Application Section -->
+    <section id="apply" class="py-16 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-900" id="form-main-heading">
+                    सेवा फर्स्ट नवकल्पना आव्हान - अर्ज सादर करा
+                </h2>
+                <p class="text-gray-600 text-sm sm:text-base mt-2" id="form-main-sub">
+                    खालील ४ पायऱ्यांमध्ये सर्व आवश्यक माहिती भरून आपला फॉर्म सादर करा.
+                </p>
+            </div>
+
+            <!-- Wizard Progress Header -->
+            <div class="mb-10">
+                <div class="flex items-center justify-between max-w-3xl mx-auto relative px-2">
+                    <!-- Progress Bar Line -->
+                    <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -z-0 -translate-y-1/2"></div>
+                    <div id="progress-line" class="absolute top-1/2 left-0 h-1 bg-brand-orange -z-0 -translate-y-1/2 transition-all duration-300" style="width: 0%;"></div>
+
+                    <!-- Step 1 Indicator -->
+                    <div class="flex flex-col items-center z-10">
+                        <div id="step-badge-1" class="w-10 h-10 rounded-full border-2 border-brand-orange step-active flex items-center justify-center font-bold text-sm transition">1</div>
+                        <span class="text-xs font-medium mt-2 hidden sm:inline" id="step-lbl-1">अर्जदार व संघ</span>
+                    </div>
+
+                    <!-- Step 2 Indicator -->
+                    <div class="flex flex-col items-center z-10">
+                        <div id="step-badge-2" class="w-10 h-10 rounded-full border-2 border-gray-300 bg-white text-gray-500 flex items-center justify-center font-bold text-sm transition">2</div>
+                        <span class="text-xs font-medium mt-2 text-gray-500 hidden sm:inline" id="step-lbl-2">समस्या व उपाय</span>
+                    </div>
+
+                    <!-- Step 3 Indicator -->
+                    <div class="flex flex-col items-center z-10">
+                        <div id="step-badge-3" class="w-10 h-10 rounded-full border-2 border-gray-300 bg-white text-gray-500 flex items-center justify-center font-bold text-sm transition">3</div>
+                        <span class="text-xs font-medium mt-2 text-gray-500 hidden sm:inline" id="step-lbl-3">अंदाज व योजना</span>
+                    </div>
+
+                    <!-- Step 4 Indicator -->
+                    <div class="flex flex-col items-center z-10">
+                        <div id="step-badge-4" class="w-10 h-10 rounded-full border-2 border-gray-300 bg-white text-gray-500 flex items-center justify-center font-bold text-sm transition">4</div>
+                        <span class="text-xs font-medium mt-2 text-gray-500 hidden sm:inline" id="step-lbl-4">कागदपत्रे अपलोड</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Card Container -->
+            <div class="bg-gray-50 rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
+                <form id="application-form" onsubmit="handleFormSubmit(event)" enctype="multipart/form-data">
+
+                    <!-- STEP 1: Applicant & Team Info -->
+                    <div id="step-content-1" class="space-y-6">
+                        <div class="border-b border-gray-200 pb-3">
+                            <h3 class="text-xl font-bold text-gray-900" id="step1-title">पायरी १: प्रमुख अर्जदार आणि संघ तपशील</h3>
+                            <p class="text-xs text-gray-500" id="step1-sub">कृपया तुमची वैयक्तिक ओळख व संघाची माहिती प्रविष्ट करा.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-fullname">अर्जदाराचे पूर्ण नाव *</label>
+                                <input type="text" id="applicantName" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="उदा. राहुल शांताराम पाटील">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-mobile">मोबाईल नंबर *</label>
+                                <input type="tel" id="applicantMobile" required pattern="[0-9]{10}" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="10 अंकी मोबाईल क्रमांक">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-email">ईमेल पत्ता *</label>
+                                <input type="email" id="applicantEmail" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="name@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-district">जिल्हा व तालुका *</label>
+                                <input type="text" id="applicantLocation" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="उदा. सांगली, तासगाव">
+                            </div>
+                        </div>
+
+                        <!-- ID Proof numbers -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-aadhar">आधार कार्ड क्रमांक *</label>
+                                <input type="text" id="applicantAadhar" required pattern="[0-9]{12}" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="12 अंकी आधार नंबर">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-pan">पॅन कार्ड क्रमांक (ऐच्छिक)</label>
+                                <input type="text" id="applicantPan" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm uppercase" placeholder="ABCDE1234F">
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Team Member Widget -->
+                        <div class="border-t border-gray-200 pt-6 mt-6">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-sm sm:text-base" id="lbl-team-heading">संघ सदस्य तपशील (Team Members)</h4>
+                                    <p class="text-xs text-gray-500" id="lbl-team-sub">तुम्ही संघ म्हणून अर्ज करत असल्यास सदस्य जोडा.</p>
+                                </div>
+                                <button type="button" onclick="addTeamMember()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-semibold px-3 py-1.5 rounded-md transition flex items-center space-x-1">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span id="btn-add-member">सदस्य जोडा</span>
+                                </button>
+                            </div>
+
+                            <div id="team-members-list" class="space-y-3">
+                                <!-- Dynamic dynamic member rows insert here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Innovation & Problem Statement -->
+                    <div id="step-content-2" class="space-y-6 hidden">
+                        <div class="border-b border-gray-200 pb-3">
+                            <h3 class="text-xl font-bold text-gray-900" id="step2-title">पायरी २: समस्या विवरण आणि उपाय (Problem Statement & Solution)</h3>
+                            <p class="text-xs text-gray-500" id="step2-sub">तुमच्या संकल्पनेचे ग्रामीण महाराष्ट्राशी असणारे नाते स्पष्ट करा.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-category">नवकल्पना क्षेत्र (Category) *</label>
+                            <select id="ideaCategory" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm bg-white">
+                                <option value="" id="opt-select">-- क्षेत्र निवडा --</option>
+                                <option value="Agriculture & Agrotech">कृषी आणि ॲग्रोटेक (Agriculture & Agrotech)</option>
+                                <option value="Rural Handicraft & Manufacturing">ग्रामीण हस्तकला आणि उत्पादन (Rural Manufacturing)</option>
+                                <option value="Renewable Energy & Environment">पर्यावरण आणि हरित ऊर्जा (Green Energy)</option>
+                                <option value="Education & Employability">शिक्षण व रोजगार क्षमता (Education & Employability)</option>
+                                <option value="Healthcare & Sanitation">आरोग्य आणि स्वच्छता (Healthcare)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-problem">१. समस्या विवरण (Clear Problem Statement) *</label>
+                            <textarea id="problemStatement" required rows="4" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="ग्रामीण महाराष्ट्रातील नेमकी कोणती समस्या तुम्ही हाताळत आहात?"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-solution">२. प्रस्तावित नाविन्यपूर्ण उपाय (Proposed Solution) *</label>
+                            <textarea id="proposedSolution" required rows="4" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="तुमचा उपाय कसा नाविन्यपूर्ण, शाश्वत आणि परवडणारा आहे?"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Cost, Implementation & Links -->
+                    <div id="step-content-3" class="space-y-6 hidden">
+                        <div class="border-b border-gray-200 pb-3">
+                            <h3 class="text-xl font-bold text-gray-900" id="step3-title">पायरी ३: अंदाजित खर्च आणि अंमलबजावणी (Cost & DPR)</h3>
+                            <p class="text-xs text-gray-500" id="step3-sub">प्रकल्पाचे आर्थिक बजेट व अंमलबजावणीचा आराखडा दर्ज करा.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-cost">अंदाजित प्रकल्प खर्च (₹ मध्ये) *</label>
+                                <input type="number" id="projectCost" required min="1000" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="उदा. 250000">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-timeline">अंमलबजावणी कालावधी (महिने) *</label>
+                                <input type="number" id="projectTimeline" required min="1" max="60" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="उदा. 6 महिने">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-plan">अंमलबजावणी योजना (Implementation Plan Summary) *</label>
+                            <textarea id="implementationPlan" required rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="प्रकल्प प्रत्यक्षात आणण्यासाठी टप्पे आणि पद्धती सादर करा..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1" id="lbl-videolink">डेमो व्हिडिओ लिंक / सपोर्टिंग ड्राईव्ह लिंक (Video/Drive Link)</label>
+                            <input type="url" id="videoLink" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:outline-none text-sm" placeholder="https://youtube.com/watch?v=... किंवा Google Drive Link">
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Document File Uploads (Matched with checklist) -->
+                    <div id="step-content-4" class="space-y-6 hidden">
+                        <div class="border-b border-gray-200 pb-3">
+                            <h3 class="text-xl font-bold text-gray-900" id="step4-title">पायरी ४: कागदपत्रे व फाईल्स अपलोड करा</h3>
+                            <p class="text-xs text-gray-500" id="step4-sub">आवश्यक कागदपत्रे (PDF/PPT/JPG) संलग्न करा.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- PPT Upload -->
+                            <div class="border border-dashed border-gray-300 bg-white p-4 rounded-xl">
+                                <label class="block text-xs font-bold text-gray-800 uppercase mb-1" id="lbl-file-ppt">
+                                    <i class="fa-solid fa-file-powerpoint text-red-500 mr-1"></i> SEVA FIRST PPT Idea Submission *
+                                </label>
+                                <input type="file" id="pptFile" required accept=".ppt,.pptx,.pdf" class="text-xs w-full text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-orange file:text-white hover:file:bg-orange-600">
+                                <p class="text-[10px] text-gray-400 mt-1">Formats: .PPTX, .PPT, .PDF (Max 15MB)</p>
+                            </div>
+
+                            <!-- Aadhar/Pan Upload -->
+                            <div class="border border-dashed border-gray-300 bg-white p-4 rounded-xl">
+                                <label class="block text-xs font-bold text-gray-800 uppercase mb-1" id="lbl-file-id">
+                                    <i class="fa-solid fa-id-card text-blue-500 mr-1"></i> आधार / पॅन प्रत (Aadhar/PAN Doc) *
+                                </label>
+                                <input type="file" id="idProofFile" required accept=".pdf,.png,.jpg,.jpeg" class="text-xs w-full text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brand-orange file:text-white hover:file:bg-orange-600">
+                                <p class="text-[10px] text-gray-400 mt-1">Formats: PDF, PNG, JPG (Max 5MB)</p>
+                            </div>
+
+                            <!-- Prototype Photos -->
+                            <div class="border border-dashed border-gray-300 bg-white p-4 rounded-xl">
+                                <label class="block text-xs font-bold text-gray-800 uppercase mb-1" id="lbl-file-proto">
+                                    <i class="fa-solid fa-image text-green-500 mr-1"></i> प्रोटोटाइप फोटो / आकृत्या (Prototype Photos)
+                                </label>
+                                <input type="file" id="prototypeFile" accept=".png,.jpg,.jpeg,.pdf,.zip" class="text-xs w-full text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-200 file:text-gray-800 hover:file:bg-gray-300">
+                                <p class="text-[10px] text-gray-400 mt-1">Formats: Images, PDF, Zip (Max 10MB)</p>
+                            </div>
+
+                            <!-- Research Paper -->
+                            <div class="border border-dashed border-gray-300 bg-white p-4 rounded-xl">
+                                <label class="block text-xs font-bold text-gray-800 uppercase mb-1" id="lbl-file-research">
+                                    <i class="fa-solid fa-scroll text-purple-500 mr-1"></i> संशोधन पेपर / अहवाल (Research Paper)
+                                </label>
+                                <input type="file" id="researchFile" accept=".pdf" class="text-xs w-full text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-200 file:text-gray-800 hover:file:bg-gray-300">
+                                <p class="text-[10px] text-gray-400 mt-1">Format: PDF (Optional)</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start space-x-3">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg shrink-0 mt-0.5"></i>
+                            <div class="text-xs text-amber-800">
+                                <span class="font-bold">हमीपत्र (Declaration):</span> मी याद्वारे घोषित करतो/करते की वरील दिलेली सर्व माहिती आणि कागदपत्रे माझ्या माहितीनुसार खरी आहेत.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between items-center pt-6 border-t border-gray-200 mt-8">
+                        <button type="button" id="btn-prev" onclick="changeStep(-1)" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-100 transition invisible">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> <span id="txt-prev">मागे</span>
+                        </button>
+
+                        <button type="button" id="btn-next" onclick="changeStep(1)" class="px-6 py-2.5 rounded-lg bg-brand-orange hover:bg-orange-600 text-white font-bold text-sm shadow-md transition">
+                            <span id="txt-next">पुढे जा</span> <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+
+                        <button type="submit" id="btn-submit" class="px-8 py-2.5 rounded-lg bg-brand-green hover:bg-green-800 text-white font-extrabold text-sm shadow-lg transition hidden">
+                            <i class="fa-solid fa-check-circle mr-2"></i> <span id="txt-submit">फॉर्म सबमिट करा</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Submissions Dashboard / Preview Tab -->
+    <section id="dashboard" class="py-12 bg-gray-100 border-t border-gray-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900" id="dash-title">माझे सादर केलेले अर्ज (Submitted Applications)</h2>
+                    <p class="text-xs text-gray-500" id="dash-sub">तुमच्या नाविन्यपूर्ण कल्पनांचे लाईव्ह स्टेटस.</p>
+                </div>
+                <span class="bg-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full font-bold" id="app-count-badge">एकूण अर्ज: 0</span>
+            </div>
+
+            <div id="applications-container" class="space-y-4">
+                <!-- Dynamic Empty State -->
+                <div id="empty-dash-state" class="bg-white rounded-xl p-10 text-center border border-gray-200">
+                    <i class="fa-solid fa-folder-open text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm font-medium" id="empty-dash-text">अजून कोणताच अर्ज सादर केलेला नाही. नवीन अर्ज करण्यासाठी वरील फॉर्म भरा.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark text-white py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="font-bold text-lg text-amber-400 mb-2">गाव तिथे उद्योजक</h3>
+                <p class="text-xs text-gray-300 leading-relaxed" id="footer-desc">
+                    सेवा फर्स्ट नवकल्पना आव्हान हा ग्रामीण भागातील नवसंशोधक व उद्योजकांना चालना देण्यासाठी आयोजित उपक्रम आहे.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm text-amber-400 mb-2" id="footer-quick">महत्वाच्या लिंक्स</h4>
+                <ul class="text-xs space-y-2 text-gray-300">
+                    <li><a href="#about" class="hover:underline">उपक्रमाची उद्दिष्टे</a></li>
+                    <li><a href="#documents" class="hover:underline">कागदपत्रे सूची</a></li>
+                    <li><a href="#apply" class="hover:underline">नवीन नाविन्यपूर्ण अर्ज</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm text-amber-400 mb-2" id="footer-contact">संपर्क व मदत</h4>
+                <p class="text-xs text-gray-300">ईमेल: gtuincubation@gmail.com</p>
+                <p class="text-xs text-gray-300 mt-1">हेल्पलाईन: +91 72198 25410</p>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 mt-8 pt-4 border-t border-gray-800">
+            © 2026 Seva First Innovation Challenge | Gaon Tithe Udyojak Initiative. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript Logic -->
+    <script>
+        // State Management
+        let currentLanguage = 'mr'; // 'mr' or 'en'
+        let currentStep = 1;
+        let teamMembersCount = 0;
+        let submittedApps = [];
+
+        // Dictionary Translations
+        const translations = {
+            mr: {
+                topAnnouncement: "🚀 'गाव तिथे उद्योजक' अंतर्गत सेवा फर्स्ट नवकल्पना आव्हान २०२६ - अर्ज सादर करण्याची शेवटची तारीख: ३० नोव्हेंबर २०२६",
+                navTitle: "सेवा फर्स्ट नवकल्पना आव्हान",
+                navAbout: "उपक्रमाबद्दल",
+                navDocs: "आवश्यक कागदपत्रे",
+                navApply: "नवकल्पना नोंदणी",
+                navDash: "माझे अर्ज",
+                btnApplyNow: "अर्ज करा",
+                heroTagline: "ग्रामीण महाराष्ट्रातील रोजगारासाठी नवकल्पनांचे व्यासपीठ",
+                heroHeading: "सेवा फर्स्ट नवकल्पना आव्हान <br><span class='text-amber-300'>Seva First Innovation Challenge</span>",
+                heroDesc: "'गाव तिथे उद्योजक' या संकल्पनेतून ग्रामीण भागातील समस्यांवर शाश्वत आणि तंत्रज्ञानप्रणीत उपाय शोधणाऱ्या तरुण उद्योजक व संशोधकांसाठी सुवर्णसंधी.",
+                heroCtaApply: "तुमची कल्पना सादर करा",
+                heroCtaTemplate: "आयडिया टेम्पलेट डाउनलोड करा",
+                needBadge: "उपक्रमाची गरज",
+                needTitle: "ग्रामीण महाराष्ट्रातील आव्हाने",
+                needSub: "या सर्व समस्यांवर शाश्वत आणि दीर्घकालीन उपाय म्हणून 'गाव तिथे उद्योजक' हा उपक्रम राबविण्यात येत आहे.",
+                card1Title: "रोजगाराच्या मर्यादित संधी",
+                card1Desc: "ग्रामीण भागात उद्योगांची कमतरता असल्यामुळे युवकांना स्थिर आणि वर्षभर रोजगार मिळत नाही. शेती हंगामी असल्याने अनेकांना उत्पन्नाचे पर्यायी स्रोत उपलब्ध होत नाहीत.",
+                card2Title: "शहरांकडे वाढते स्थलांतर",
+                card2Desc: "रोजगाराच्या शोधात युवक मोठ्या प्रमाणावर शहरांकडे स्थलांतर करतात. यामुळे गावांमधील कामगार शक्ती कमी होते आणि शहरी भागावर ताण वाढतो.",
+                docChecklistTitle: "अर्जदारांनी पूर्वतयारी करावयाची कागदपत्रे व माहिती",
+                docChecklistSub: "Applicants should keep the following ready, as applicable and as requested by the official portal.",
+                btnDlPpt: "PPT Idea Template (.pptx)",
+                formHeading: "सेवा फर्स्ट नवकल्पना आव्हान - अर्ज सादर करा",
+                formSub: "खालील ४ पायऱ्यांमध्ये सर्व आवश्यक माहिती भरून आपला फॉर्म सादर करा.",
+                stepLbl1: "अर्जदार व संघ",
+                stepLbl2: "समस्या व उपाय",
+                stepLbl3: "अंदाज व योजना",
+                stepLbl4: "कागदपत्रे अपलोड",
+                step1Title: "पायरी १: प्रमुख अर्जदार आणि संघ तपशील",
+                step1Sub: "कृपया तुमची वैयक्तिक ओळख व संघाची माहिती प्रविष्ट करा.",
+                lblFullname: "अर्जदाराचे पूर्ण नाव *",
+                lblMobile: "मोबाईल नंबर *",
+                lblEmail: "ईमेल पत्ता *",
+                lblDistrict: "जिल्हा व तालुका *",
+                lblAadhar: "आधार कार्ड क्रमांक *",
+                lblPan: "पॅन कार्ड क्रमांक (ऐच्छिक)",
+                lblTeamHeading: "संघ सदस्य तपशील (Team Members)",
+                lblTeamSub: "तुम्ही संघ म्हणून अर्ज करत असल्यास सदस्य जोडा.",
+                btnAddMember: "सदस्य जोडा",
+                step2Title: "पायरी २: समस्या विवरण आणि उपाय (Problem Statement & Solution)",
+                step2Sub: "तुमच्या संकल्पनेचे ग्रामीण महाराष्ट्राशी असणारे नाते स्पष्ट करा.",
+                lblCategory: "नवकल्पना क्षेत्र (Category) *",
+                lblProblem: "१. समस्या विवरण (Clear Problem Statement) *",
+                lblSolution: "२. प्रस्तावित नाविन्यपूर्ण उपाय (Proposed Solution) *",
+                step3Title: "पायरी ३: अंदाजित खर्च आणि अंमलबजावणी (Cost & DPR)",
+                step3Sub: "प्रकल्पाचे आर्थिक बजेट व अंमलबजावणीचा आराखडा दर्ज करा.",
+                lblCost: "अंदाजित प्रकल्प खर्च (₹ मध्ये) *",
+                lblTimeline: "अंमलबजावणी कालावधी (महिने) *",
+                lblPlan: "अंमलबजावणी योजना (Implementation Plan Summary) *",
+                lblVideoLink: "डेमो व्हिडिओ लिंक / सपोर्टिंग ड्राईव्ह लिंक (Video/Drive Link)",
+                step4Title: "पायरी ४: कागदपत्रे व फाईल्स अपलोड करा",
+                step4Sub: "आवश्यक कागदपत्रे (PDF/PPT/JPG) संलग्न करा.",
+                txtPrev: "मागे",
+                txtNext: "पुढे जा",
+                txtSubmit: "फॉर्म सबमिट करा",
+                dashTitle: "माझे सादर केलेले अर्ज (Submitted Applications)",
+                dashSub: "तुमच्या नाविन्यपूर्ण कल्पनांचे लाईव्ह स्टेटस.",
+                emptyDashText: "अजून कोणताच अर्ज सादर केलेला नाही. नवीन अर्ज करण्यासाठी वरील फॉर्म भरा."
+            },
+            en: {
+                topAnnouncement: "🚀 'Gaon Tithe Udyojak' presents Seva First Innovation Challenge 2026 - Last Date: 30 Nov 2026",
+                navTitle: "Seva First Innovation Challenge",
+                navAbout: "About Program",
+                navDocs: "Required Documents",
+                navApply: "Register Idea",
+                navDash: "My Applications",
+                btnApplyNow: "Apply Now",
+                heroTagline: "Platform for Rural Maharashtra Employment Innovations",
+                heroHeading: "Seva First Innovation Challenge <br><span class='text-amber-300'>सेवा फर्स्ट नवकल्पना आव्हान</span>",
+                heroDesc: "A golden opportunity under 'Gaon Tithe Udyojak' for young entrepreneurs and researchers solving rural problems through technology.",
+                heroCtaApply: "Submit Your Idea",
+                heroCtaTemplate: "Download Idea Template",
+                needBadge: "Need of Initiative",
+                needTitle: "Challenges in Rural Maharashtra",
+                needSub: "'Gaon Tithe Udyojak' initiative is launched as a sustainable solution to these challenges.",
+                card1Title: "Limited Employment Opportunities",
+                card1Desc: "Due to lack of industries in rural areas, youth lack year-round stable employment.",
+                card2Title: "Migration Towards Cities",
+                card2Desc: "Youth migrate to urban areas searching for jobs, reducing rural workforce.",
+                docChecklistTitle: "Documents & Information Applicants Should Keep Ready",
+                docChecklistSub: "Applicants should keep the following ready, as applicable.",
+                btnDlPpt: "PPT Idea Template (.pptx)",
+                formHeading: "Seva First Innovation Challenge - Submit Application",
+                formSub: "Fill in all required information across the 4 steps below.",
+                stepLbl1: "Applicant & Team",
+                stepLbl2: "Problem & Solution",
+                stepLbl3: "Cost & DPR Plan",
+                stepLbl4: "Upload Documents",
+                step1Title: "Step 1: Lead Applicant & Team Details",
+                step1Sub: "Please enter your personal identity and team details.",
+                lblFullname: "Applicant Full Name *",
+                lblMobile: "Mobile Number *",
+                lblEmail: "Email Address *",
+                lblDistrict: "District & Taluka *",
+                lblAadhar: "Aadhar Card Number *",
+                lblPan: "PAN Card Number (Optional)",
+                lblTeamHeading: "Team Member Details",
+                lblTeamSub: "Add members if applying as a team.",
+                btnAddMember: "Add Member",
+                step2Title: "Step 2: Problem Statement & Proposed Solution",
+                step2Sub: "Define your innovation's impact on rural challenges.",
+                lblCategory: "Innovation Category *",
+                lblProblem: "1. Clear Problem Statement *",
+                lblSolution: "2. Proposed Innovative Solution *",
+                step3Title: "Step 3: Estimated Cost & Implementation (DPR)",
+                step3Sub: "Enter financial budget and implementation plan.",
+                lblCost: "Estimated Project Cost (in ₹) *",
+                lblTimeline: "Timeline (in Months) *",
+                lblPlan: "Implementation Plan Summary *",
+                lblVideoLink: "Demonstration Video / Google Drive Link",
+                step4Title: "Step 4: Upload Required Documents",
+                step4Sub: "Attach files (.PPTX, .PDF, .JPG).",
+                txtPrev: "Previous",
+                txtNext: "Next Step",
+                txtSubmit: "Submit Application",
+                dashTitle: "My Submitted Applications",
+                dashSub: "Live status of your submitted innovations.",
+                emptyDashText: "No applications submitted yet. Fill the form above to submit."
+            }
+        };
+
+        // Language Toggle Function
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'mr' ? 'en' : 'mr';
+            document.getElementById('lang-toggle-text').innerText = currentLanguage === 'mr' ? 'English' : 'मराठी';
+            
+            const t = translations[currentLanguage];
+            document.getElementById('top-announcement').innerText = t.topAnnouncement;
+            document.getElementById('nav-title').innerText = t.navTitle;
+            document.getElementById('nav-about').innerText = t.navAbout;
+            document.getElementById('nav-docs').innerText = t.navDocs;
+            document.getElementById('nav-apply-link').innerText = t.navApply;
+            document.getElementById('nav-dash').innerText = t.navDash;
+            document.getElementById('btn-apply-now').innerText = t.btnApplyNow;
+
+            document.getElementById('hero-tagline').innerText = t.heroTagline;
+            document.getElementById('hero-heading').innerHTML = t.heroHeading;
+            document.getElementById('hero-desc').innerText = t.heroDesc;
+            document.getElementById('hero-cta-apply').innerText = t.heroCtaApply;
+            document.getElementById('hero-cta-template').innerText = t.heroCtaTemplate;
+
+            document.getElementById('section-need-badge').innerText = t.needBadge;
+            document.getElementById('section-need-title').innerText = t.needTitle;
+            document.getElementById('section-need-sub').innerText = t.needSub;
+            document.getElementById('card1-title').innerText = t.card1Title;
+            document.getElementById('card1-desc').innerText = t.card1Desc;
+            document.getElementById('card2-title').innerText = t.card2Title;
+            document.getElementById('card2-desc').innerText = t.card2Desc;
+
+            document.getElementById('doc-checklist-title').innerText = t.docChecklistTitle;
+            document.getElementById('doc-checklist-sub').innerText = t.docChecklistSub;
+            document.getElementById('btn-dl-ppt').innerText = t.btnDlPpt;
+
+            document.getElementById('form-main-heading').innerText = t.formHeading;
+            document.getElementById('form-main-sub').innerText = t.formSub;
+
+            document.getElementById('step-lbl-1').innerText = t.stepLbl1;
+            document.getElementById('step-lbl-2').innerText = t.stepLbl2;
+            document.getElementById('step-lbl-3').innerText = t.stepLbl3;
+            document.getElementById('step-lbl-4').innerText = t.stepLbl4;
+
+            document.getElementById('step1-title').innerText = t.step1Title;
+            document.getElementById('step1-sub').innerText = t.step1Sub;
+            document.getElementById('lbl-fullname').innerText = t.lblFullname;
+            document.getElementById('lbl-mobile').innerText = t.lblMobile;
+            document.getElementById('lbl-email').innerText = t.lblEmail;
+            document.getElementById('lbl-district').innerText = t.lblDistrict;
+            document.getElementById('lbl-aadhar').innerText = t.lblAadhar;
+            document.getElementById('lbl-pan').innerText = t.lblPan;
+            document.getElementById('lbl-team-heading').innerText = t.lblTeamHeading;
+            document.getElementById('lbl-team-sub').innerText = t.lblTeamSub;
+            document.getElementById('btn-add-member').innerText = t.btnAddMember;
+
+            document.getElementById('step2-title').innerText = t.step2Title;
+            document.getElementById('step2-sub').innerText = t.step2Sub;
+            document.getElementById('lbl-category').innerText = t.lblCategory;
+            document.getElementById('lbl-problem').innerText = t.lblProblem;
+            document.getElementById('lbl-solution').innerText = t.lblSolution;
+
+            document.getElementById('step3-title').innerText = t.step3Title;
+            document.getElementById('step3-sub').innerText = t.step3Sub;
+            document.getElementById('lbl-cost').innerText = t.lblCost;
+            document.getElementById('lbl-timeline').innerText = t.lblTimeline;
+            document.getElementById('lbl-plan').innerText = t.lblPlan;
+            document.getElementById('lbl-videolink').innerText = t.lblVideoLink;
+
+            document.getElementById('step4-title').innerText = t.step4Title;
+            document.getElementById('step4-sub').innerText = t.step4Sub;
+
+            document.getElementById('txt-prev').innerText = t.txtPrev;
+            document.getElementById('txt-next').innerText = t.txtNext;
+            document.getElementById('txt-submit').innerText = t.txtSubmit;
+
+            document.getElementById('dash-title').innerText = t.dashTitle;
+            document.getElementById('dash-sub').innerText = t.dashSub;
+            document.getElementById('empty-dash-text').innerText = t.emptyDashText;
+        }
+
+        // Multi-Step Navigation
+        function changeStep(direction) {
+            if (direction === 1 && !validateCurrentStep()) {
+                return;
+            }
+
+            // Hide active step content
+            document.getElementById(`step-content-${currentStep}`).classList.add('hidden');
+
+            currentStep += direction;
+
+            // Update Progress Line Width
+            const progressWidths = ['0%', '33%', '66%', '100%'];
+            document.getElementById('progress-line').style.width = progressWidths[currentStep - 1];
+
+            // Update Badges styling
+            for (let i = 1; i <= 4; i++) {
+                const badge = document.getElementById(`step-badge-${i}`);
+                if (i < currentStep) {
+                    badge.className = "w-10 h-10 rounded-full border-2 step-completed flex items-center justify-center font-bold text-sm transition";
+                    badge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (i === currentStep) {
+                    badge.className = "w-10 h-10 rounded-full border-2 border-brand-orange step-active flex items-center justify-center font-bold text-sm transition";
+                    badge.innerText = i;
+                } else {
+                    badge.className = "w-10 h-10 rounded-full border-2 border-gray-300 bg-white text-gray-500 flex items-center justify-center font-bold text-sm transition";
+                    badge.innerText = i;
+                }
+            }
+
+            // Show new step content
+            document.getElementById(`step-content-${currentStep}`).classList.remove('hidden');
+
+            // Button Visibilities
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+            const submitBtn = document.getElementById('btn-submit');
+
+            if (currentStep === 1) {
+                prevBtn.classList.add('invisible');
+            } else {
+                prevBtn.classList.remove('invisible');
+            }
+
+            if (currentStep === 4) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+        }
+
+        // Validate Input Fields per step
+        function validateCurrentStep() {
+            if (currentStep === 1) {
+                const name = document.getElementById('applicantName').value.trim();
+                const mobile = document.getElementById('applicantMobile').value.trim();
+                const email = document.getElementById('applicantEmail').value.trim();
+                const location = document.getElementById('applicantLocation').value.trim();
+                const aadhar = document.getElementById('applicantAadhar').value.trim();
+
+                if (!name || !mobile || !email || !location || !aadhar) {
+                    alert('कृपया पायरी १ मधील सर्व आवश्यक (*) माहिती भरा.');
+                    return false;
+                }
+                if (mobile.length !== 10) {
+                    alert('कृपया वैध १० अंकी मोबाईल नंबर टाका.');
+                    return false;
+                }
+                if (aadhar.length !== 12) {
+                    alert('कृपया वैध १२ अंकी आधार कार्ड नंबर टाका.');
+                    return false;
+                }
+            } else if (currentStep === 2) {
+                const category = document.getElementById('ideaCategory').value;
+                const problem = document.getElementById('problemStatement').value.trim();
+                const solution = document.getElementById('proposedSolution').value.trim();
+
+                if (!category || !problem || !solution) {
+                    alert('कृपया नवकल्पना क्षेत्र, समस्या आणि उपाय सविस्तर लिहा.');
+                    return false;
+                }
+            } else if (currentStep === 3) {
+                const cost = document.getElementById('projectCost').value;
+                const timeline = document.getElementById('projectTimeline').value;
+                const plan = document.getElementById('implementationPlan').value.trim();
+
+                if (!cost || !timeline || !plan) {
+                    alert('कृपया अंदाजित खर्च आणि अंमलबजावणी योजना प्रविष्ट करा.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Add Dynamic Team Member Row
+        function addTeamMember() {
+            teamMembersCount++;
+            const container = document.getElementById('team-members-list');
+            const memberRow = document.createElement('div');
+            memberRow.id = `member-row-${teamMembersCount}`;
+            memberRow.className = "p-3 bg-white border border-gray-200 rounded-lg grid grid-cols-1 sm:grid-cols-3 gap-2 items-center relative";
+
+            memberRow.innerHTML = `
+                <div>
+                    <input type="text" placeholder="सदस्याचे पूर्ण नाव" class="team-member-name w-full px-3 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-brand-orange focus:outline-none">
+                </div>
+                <div>
+                    <input type="text" placeholder="भूमिका (उदा. Tech Lead / Marketing)" class="team-member-role w-full px-3 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-brand-orange focus:outline-none">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" placeholder="मोबाईल/ईमेल" class="team-member-contact w-full px-3 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-brand-orange focus:outline-none">
+                    <button type="button" onclick="removeTeamMember(${teamMembersCount})" class="text-red-500 hover:text-red-700 text-sm px-2 py-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(memberRow);
+        }
+
+        function removeTeamMember(id) {
+            const row = document.getElementById(`member-row-${id}`);
+            if (row) row.remove();
+        }
+
+        // Download Template PPT Simulation
+        function downloadTemplate() {
+            const pptText = "SEVA FIRST INNOVATION CHALLENGE - IDEA PRESENTATION TEMPLATE\n\n1. Title of Innovation\n2. Rural Problem Statement\n3. Proposed Technology Solution\n4. Business Model & Costing\n5. Impact on Gaon Tithe Udyojak";
+            const blob = new Blob([pptText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "SevaFirst_Idea_Template.txt";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Form Submission Handling
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const pptInput = document.getElementById('pptFile');
+            const idInput = document.getElementById('idProofFile');
+
+            if (!pptInput.files.length || !idInput.files.length) {
+                alert('कृपया सर्व आवश्यक फाईल्स (PPT आणि ओळखपत्र) अपलोड करा.');
+                return;
+            }
+
+            const appData = {
+                id: 'SF-' + Math.floor(100000 + Math.random() * 900000),
+                applicantName: document.getElementById('applicantName').value,
+                mobile: document.getElementById('applicantMobile').value,
+                category: document.getElementById('ideaCategory').value,
+                problem: document.getElementById('problemStatement').value,
+                cost: document.getElementById('projectCost').value,
+                date: new Date().toLocaleDateString('en-GB')
+            };
+
+            submittedApps.push(appData);
+            renderDashboard();
+
+            // Reset form
+            document.getElementById('application-form').reset();
+            currentStep = 1;
+            changeStep(0);
+
+            alert('🎉 अभिनंदन! तुमचा अर्ज यशस्वीरीत्या सादर झाला आहे. तुमची ॲप्लिकेशन आयडी: ' + appData.id);
+            document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Render Submissions in Dashboard Card
+        function renderDashboard() {
+            const container = document.getElementById('applications-container');
+            const badge = document.getElementById('app-count-badge');
+            badge.innerText = `एकूण अर्ज: ${submittedApps.length}`;
+
+            if (submittedApps.length === 0) {
+                return;
+            }
+
+            document.getElementById('empty-dash-state')?.classList.add('hidden');
+
+            const app = submittedApps[submittedApps.length - 1];
+            const card = document.createElement('div');
+            card.className = "bg-white p-6 rounded-2xl border border-gray-200 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-l-brand-green";
+
+            card.innerHTML = `
+                <div>
+                    <div class="flex items-center space-x-3 mb-1">
+                        <span class="text-xs font-extrabold bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full">${app.id}</span>
+                        <span class="text-xs font-semibold text-gray-400"><i class="fa-solid fa-calendar mr-1"></i>${app.date}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">${app.applicantName}</h3>
+                    <p class="text-xs text-gray-600 mt-0.5"><strong>क्षेत्र:</strong> ${app.category} | <strong>अंदाजित खर्च:</strong> ₹${app.cost}</p>
+                    <p class="text-xs text-gray-500 mt-2 line-clamp-1"><strong>समस्या:</strong> ${app.problem}</p>
+                </div>
+                <div class="flex items-center space-x-2 shrink-0">
+                    <span class="inline-flex items-center space-x-1 text-xs font-bold bg-amber-100 text-amber-800 px-3 py-1.5 rounded-lg">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        <span>तपासणी प्रलंबित (Under Review)</span>
+                    </span>
+                </div>
+            `;
+
+            container.prepend(card);
+        }
+    </script>
+</body>
+</html>

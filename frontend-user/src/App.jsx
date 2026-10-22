@@ -28,6 +28,8 @@ import AboutUsPage from "./AboutUsPage";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
 import CustomerCareButton from "./components/CustomerCareButton";
+import ApplicationChoice from "./components/ApplicationChoice";
+import SevaFirstPage from "./pages/SevaFirstPage";
 
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
@@ -54,7 +56,7 @@ function ProtectedRoute({ children }) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [activeNav, setActiveNav] = useState("my_journey");
+  const [activeNav, setActiveNav] = useState("my_applications");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [loadingForm, setLoadingForm] = useState(true);
@@ -253,6 +255,10 @@ function Dashboard() {
                 Loading your form...
               </div>
             </div>
+          ) : activeNav === "my_applications" ? (
+            <ApplicationChoice
+              onOpenGtu={() => setActiveNav("my_journey")}
+            />
           ) : activeNav === "my_assessment" ? (
             <MyAssessment />
           ) : activeNav === "dpr_library" ? (
@@ -350,7 +356,7 @@ function Dashboard() {
           )}
         </main>
       </div>
-      {!submitted && !state.editAllowed && (
+      {activeNav === "my_journey" && !submitted && !state.editAllowed && (
         <RegistrationPopup
           title={t("popup_dash_title")}
           message={t("popup_dash_message")}
@@ -383,6 +389,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/seva-first"
+        element={
+          <ProtectedRoute>
+            <SevaFirstPage />
           </ProtectedRoute>
         }
       />

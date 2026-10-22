@@ -9,6 +9,8 @@ import EditRequests from "./pages/EditRequests";
 import Reports from "./pages/Reports";
 import EntrepreneurHeatmap from "./pages/EntrepreneurHeatmap";
 import DRPLibraries from "./pages/DRPLibraries";
+import SevaFirstList from "./pages/SevaFirstList";
+import SevaFirstDetail from "./pages/SevaFirstDetail";
 import C from "./constants/colors";
 import { Spinner } from "./components/shared/Spinner";
 
@@ -104,6 +106,22 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <DRPLibraries />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/seva-first"
+        element={
+          <ProtectedLayout>
+            <SevaFirstList />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/seva-first/:id"
+        element={
+          <ProtectedLayout>
+            <SevaFirstDetail />
           </ProtectedLayout>
         }
       />

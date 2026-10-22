@@ -21,6 +21,12 @@ import C from "../constants/colors";
 const NAV = {
   MY_JOURNEY: [
     {
+      key: "my_applications",
+      label: "My Applications",
+      labelMr: "माझे अर्ज",
+      icon: <img src={Applications} />,
+    },
+    {
       key: "my_journey",
       label: "My Introduction",
       labelMr: "माझा परिचय",
@@ -51,12 +57,6 @@ const NAV = {
       label: "Profile",
       labelMr: "प्रोफाइल",
       icon: <img src={Profile} />,
-    },
-    {
-      key: "my_applications",
-      label: "My Applications",
-      labelMr: "माझे अर्ज",
-      icon: <img src={Applications} />,
     },
   ],
   MARKET_HUB: [

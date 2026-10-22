@@ -249,10 +249,30 @@ export const retakeAssessment = async () => {
 
 // ── DRP Library ────────────────────────────────────────────────────────────
 export const getDRPEntries = async (params = {}) => {
-    const query = new URLSearchParams();
-    if (params.sector && params.sector !== "All") query.set("sector", params.sector);
-    if (params.investmentRange && params.investmentRange !== "All") query.set("investmentRange", params.investmentRange);
-    if (params.district && params.district !== "All Districts") query.set("district", params.district);
-    const qs = query.toString();
-    return apiFetch(`${BASE}/drp${qs ? "?" + qs : ""}`, { headers: authHeaders() });
+  const query = new URLSearchParams();
+  if (params.sector && params.sector !== "All") query.set("sector", params.sector);
+  if (params.investmentRange && params.investmentRange !== "All") query.set("investmentRange", params.investmentRange);
+  if (params.district && params.district !== "All Districts") query.set("district", params.district);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/drp${qs ? "?" + qs : ""}`, { headers: authHeaders() });
 };
+
+// ── Seva First Innovation Challenge ────────────────────────────────────────
+export const getMySevaApps = async () => {
+  return apiFetch(`${BASE}/seva/mine`, { headers: authHeaders() });
+};
+
+export const submitSevaApplication = async (formData) => {
+  // formData = FormData (multipart) — text fields + files (ppt/idProof/prototype/research)
+  return apiFetch(`${BASE}/seva/submit`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: formData,
+  });
+};
+
+export const sevaFileUrl = (fileId) =>
+  `${BASE}/seva/docs/${fileId}?token=${encodeURIComponent(getToken() || "")}`;
+
+export const sevaAdminFileUrl = (fileId, adminToken) =>
+  `${BASE}/seva/admin/file/${fileId}?token=${encodeURIComponent(adminToken || "")}`;

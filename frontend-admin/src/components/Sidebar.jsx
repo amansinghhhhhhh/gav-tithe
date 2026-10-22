@@ -20,6 +20,11 @@ const NAV = [
     icon: <img src={userList} />,
   },
   {
+    key: "/seva-first",
+    label: "Seva First",
+    icon: "💡",
+  },
+  {
     key: "/edit-requests",
     label: "Edit Requests",
     icon: <img src={editRequest} />,
@@ -208,7 +213,11 @@ export default function Sidebar() {
               key={item.key}
               item={item}
               expanded={expanded}
-              active={location.pathname === item.key}
+              active={
+                location.pathname === item.key ||
+                (item.key === "/users" && location.pathname.startsWith("/users/")) ||
+                (item.key === "/seva-first" && location.pathname.startsWith("/seva-first/"))
+              }
               onClick={(path) => navigate(path)}
             />
           ))}

@@ -135,3 +135,26 @@ export const deleteDRPLibrary = async (id) =>
         method: "DELETE",
         headers: authHeaders(),
     });
+
+// ── Seva First Innovation Challenge ────────────────────────────────────────
+export const getSevaList = async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.q) query.set("q", params.q);
+    if (params.status) query.set("status", params.status);
+    if (params.page) query.set("page", params.page);
+    const qs = query.toString();
+    return apiFetch(`${BASE}/seva/admin/list${qs ? "?" + qs : ""}`, { headers: authHeaders() });
+};
+
+export const getSevaDetail = async (id) =>
+    apiFetch(`${BASE}/seva/admin/${id}`, { headers: authHeaders() });
+
+export const updateSevaStatus = async (id, status, adminRemark = "") =>
+    apiFetch(`${BASE}/seva/admin/${id}/status`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ status, adminRemark }),
+    });
+
+export const getSevaFileUrl = (fileId) =>
+    `${BASE}/seva/admin/file/${fileId}?token=${getToken()}`;
