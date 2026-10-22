@@ -258,8 +258,8 @@ const translations = {
         s1_dob_year_ph: "वर्ष",
 
         // Login Page
-        login_title: "उद्योजक नोंदणी",
-        login_title_login: "उद्योजक लॉगिन",
+        login_title: "नोंदणी",
+        login_title_login: "लॉगिन",
         login_subtitle: "तुमचा व्यवसायाचा प्रवास सुरू करा",
         login_authority_head: "अधिकार आणि जबाबदाऱ्या",
         login_point1: "मोफत नोंदणी आणि मानसिकता मूल्यांकन",
@@ -1030,8 +1030,8 @@ const translations = {
         s1_dob_year_ph: "Year",
 
         // Login Page
-        login_title: "Entrepreneur Registration",
-        login_title_login: "Entrepreneur Login",
+        login_title: "Register",
+        login_title_login: "Login",
         login_subtitle: "Start Your Business Journey",
         login_authority_head: "Authority & Responsibilities",
         login_point1: "Free registration & mindset assessment",

@@ -49,7 +49,6 @@ const LABEL = {
   color: "#374151",
   textTransform: "uppercase",
   marginBottom: 6,
-  letterSpacing: "0.3px",
 };
 
 function Field({ label, children }) {
@@ -225,7 +224,7 @@ export default function SevaFirstPage() {
                 margin: "10px 0 24px",
               }}
             >
-              <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: BRAND.green, letterSpacing: "1px" }}>
+              <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: BRAND.green }}>
                 {ack.uniqueId}
               </span>
               <button
@@ -304,7 +303,7 @@ export default function SevaFirstPage() {
           onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.2)")}
         >
           <span style={{ fontWeight: 800, fontSize: 12 }}>🌐</span>
-          <span style={{ fontSize: 11.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          <span style={{ fontSize: 11.5, fontWeight: 800, textTransform: "uppercase" }}>
             {lang === "mr" ? "English" : "मराठी"}
           </span>
         </div>
@@ -338,7 +337,7 @@ export default function SevaFirstPage() {
                 <span style={{ fontSize: 10, fontWeight: 800, background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: 12, textTransform: "uppercase", border: "1px solid #86efac", whiteSpace: "nowrap" }}>
                   {t("seva_badge_gtu")}
                 </span>
-                <span style={{ fontSize: 10.5, fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.4px" }} className="hide-sm">
+                <span style={{ fontSize: 10.5, fontWeight: 600, color: "#6b7280", textTransform: "uppercase" }} className="hide-sm">
                   {t("seva_badge_initiative")}
                 </span>
               </div>
@@ -404,7 +403,7 @@ export default function SevaFirstPage() {
           </div>
           <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontWeight: 900, lineHeight: 1.3, margin: 0 }}>
             {t("seva_hero_title")}
-            <span style={{ display: "block", color: "#fcd34d", fontSize: "0.62em", marginTop: 6, letterSpacing: "0.5px", fontWeight: 800 }}>
+            <span style={{ display: "block", color: "#fcd34d", fontSize: "0.62em", marginTop: 6, fontWeight: 800 }}>
               {t("seva_hero_subtitle")}
             </span>
           </h1>
@@ -431,7 +430,7 @@ export default function SevaFirstPage() {
       {/* About */}
       <div id="seva-about" style={{ background: "#fff", padding: "50px 20px" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
-          <span style={{ background: BRAND.lightOrange, color: BRAND.orange, fontSize: 11, fontWeight: 800, padding: "5px 14px", borderRadius: 16, textTransform: "uppercase", letterSpacing: "0.6px" }}>{t("seva_need_badge")}</span>
+          <span style={{ background: BRAND.lightOrange, color: BRAND.orange, fontSize: 11, fontWeight: 800, padding: "5px 14px", borderRadius: 16, textTransform: "uppercase" }}>{t("seva_need_badge")}</span>
           <h2 style={{ fontSize: 26, fontWeight: 900, color: "#111827", margin: "12px 0 6px" }}>{t("seva_need_title")}</h2>
           <p style={{ color: "#6b7280", fontSize: 14, maxWidth: 620, margin: "0 auto 30px" }}>{t("seva_need_sub")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, textAlign: "left" }}>
@@ -457,7 +456,7 @@ export default function SevaFirstPage() {
           <div style={{ background: "#fff", borderRadius: 18, boxShadow: "0 6px 24px rgba(0,0,0,0.07)", border: "1px solid #e5e7eb", padding: "34px 30px" }}>
             <div style={{ borderBottom: "1.5px solid #e5e7eb", paddingBottom: 22, marginBottom: 26, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
               <div>
-                <span style={{ fontSize: 10.5, fontWeight: 800, color: BRAND.green, textTransform: "uppercase", letterSpacing: "0.5px", background: BRAND.lightGreen, padding: "4px 11px", borderRadius: 7, border: "1px solid #bbf7d0" }}>
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: BRAND.green, textTransform: "uppercase", background: BRAND.lightGreen, padding: "4px 11px", borderRadius: 7, border: "1px solid #bbf7d0" }}>
                   {t("seva_nav_docs")}
                 </span>
                 <h2 style={{ fontSize: 24, fontWeight: 900, color: "#111827", margin: "10px 0 4px" }}>{t("seva_doc_title")}</h2>
