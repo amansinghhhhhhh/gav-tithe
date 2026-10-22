@@ -342,7 +342,7 @@ export default function SevaFirstPage() {
                   {t("seva_badge_initiative")}
                 </span>
               </div>
-              <h1 style={{ fontSize: 17, fontWeight: 900, color: "#111827", margin: "2px 0 0", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <h1 style={{ fontSize: 17, fontWeight: 700, color: "#111827", margin: "2px 0 0", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {t("seva_hero_title")}
               </h1>
             </div>
@@ -402,10 +402,11 @@ export default function SevaFirstPage() {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.18)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, padding: "7px 18px", fontSize: 13, fontWeight: 600, marginBottom: 22 }}>
             <span style={{ color: "#4ade80" }}>🌱</span> {t("seva_hero_tagline")}
           </div>
-          <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontWeight: 900, lineHeight: 1.15, margin: 0 }}>
+          <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontWeight: 900, lineHeight: 1.3, margin: 0 }}>
             {t("seva_hero_title")}
-            <br />
-            <span style={{ color: "#fcd34d", fontSize: "0.62em" }}>{t("seva_hero_subtitle")}</span>
+            <span style={{ display: "block", color: "#fcd34d", fontSize: "0.62em", marginTop: 6, letterSpacing: "0.5px", fontWeight: 800 }}>
+              {t("seva_hero_subtitle")}
+            </span>
           </h1>
           <p style={{ fontSize: "clamp(14px, 2vw, 17px)", color: "#e5e7eb", maxWidth: 700, margin: "20px auto 0", lineHeight: 1.7 }}>{t("seva_hero_desc")}</p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 28, flexWrap: "wrap" }}>
@@ -471,7 +472,7 @@ export default function SevaFirstPage() {
               </a>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
-              {["१", "२", "३", "४", "५", "६", "७", "८"].map((num, idx) => {
+              {(lang === "mr" ? ["१", "२", "३", "४", "५", "६", "७", "८"] : ["1", "2", "3", "4", "5", "6", "7", "8"]).map((num, idx) => {
                 const i = idx + 1;
                 return (
                   <div
