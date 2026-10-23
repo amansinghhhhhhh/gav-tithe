@@ -1,5 +1,6 @@
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
+import { Check, X } from "lucide-react";
 
 function AadhaarCardSvg({ side = "front", width = 160 }) {
   const h = Math.round(width * 0.63);
@@ -189,6 +190,9 @@ function Panel({ ok, icon, caption, children }) {
             lineHeight: "22px",
             border: "2px solid #fff",
             boxShadow: "0 1px 3px rgba(0,0,0,.25)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {icon}
@@ -213,13 +217,13 @@ function DocGuide({ doc = "aadhaar" }) {
     );
 
   const blurPanel = (card, caption) => (
-    <Panel ok={false} icon="✗" caption={caption}>
+    <Panel ok={false} icon={<X size={12} strokeWidth={3} />} caption={caption}>
       <div style={{ filter: "blur(2.2px)" }}>{card}</div>
     </Panel>
   );
 
   const glarePanel = (card, caption) => (
-    <Panel ok={false} icon="✗" caption={caption}>
+    <Panel ok={false} icon={<X size={12} strokeWidth={3} />} caption={caption}>
       <div style={{ position: "relative" }}>
         {card}
         <div
@@ -268,12 +272,12 @@ function DocGuide({ doc = "aadhaar" }) {
   const panels =
     doc === "udyam"
       ? [
-          <Panel key="new" ok icon="✓" caption={t("guide_instr_udyam_1")}>
+          <Panel key="new" ok icon={<Check size={12} strokeWidth={3} />} caption={t("guide_instr_udyam_1")}>
             <div style={{ transform: "rotate(-3deg)" }}>
               <UdyamCardSvg />
             </div>
           </Panel>,
-          <Panel key="old" ok={false} icon="✗" caption={t("guide_instr_udyam_3")}>
+          <Panel key="old" ok={false} icon={<X size={12} strokeWidth={3} />} caption={t("guide_instr_udyam_3")}>
             <div style={{ transform: "rotate(3deg)", opacity: 0.9 }}>
               <OldUdyamSvg />
             </div>
@@ -282,7 +286,7 @@ function DocGuide({ doc = "aadhaar" }) {
           glarePanel(<UdyamCardSvg />, t("guide_instr_udyam_4")),
         ]
       : [
-          <Panel key="good" ok icon="✓" caption={t("guide_instr_aadhaar_3")}>
+          <Panel key="good" ok icon={<Check size={12} strokeWidth={3} />} caption={t("guide_instr_aadhaar_3")}>
             <div style={{ transform: "rotate(-3deg)" }}>
               <MainCard />
             </div>

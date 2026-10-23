@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getEditRequests, updateEditRequest } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import { Pencil, Inbox, CheckCircle2, XCircle } from "lucide-react";
 
 const STATUS_COLORS = {
   pending: { bg: "#fff7ed", fg: "#c2410c", border: "#fdba74" },
@@ -14,6 +15,7 @@ export default function EditRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
+  const [msgOk, setMsgOk] = useState(true);
 
   const load = () => {
     setLoading(true);
@@ -34,10 +36,12 @@ export default function EditRequests() {
     if (remark === null) return;
     const res = await updateEditRequest(id, status, remark || "");
     if (res.success) {
-      setMsg(`✅ Request ${status}!`);
+      setMsg(`Request ${status}!`);
+      setMsgOk(true);
       load();
     } else {
-      setMsg("❌ " + (res.message || "Update failed"));
+      setMsg(res.message || "Update failed");
+      setMsgOk(false);
     }
     setTimeout(() => setMsg(""), 3000);
   };
@@ -53,8 +57,8 @@ export default function EditRequests() {
         }}
       >
         <div>
-          <h2 style={{ color: C.navy, fontWeight: 800, margin: 0 }}>
-            ✏️ Edit Requests
+          <h2 style={{ color: C.navy, fontWeight: 800, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+            <Pencil size={20} /> Edit Requests
           </h2>
           <p style={{ margin: "4px 0 0", color: C.textopa, fontSize: 13 }}>
             Users who want to edit their submitted form
@@ -79,16 +83,20 @@ export default function EditRequests() {
       {msg && (
         <div
           style={{
-            background: msg.includes("✅") ? "#dcfce7" : "#fee2e2",
-            border: `1px solid ${msg.includes("✅") ? "#86efac" : "#fca5a5"}`,
-            color: msg.includes("✅") ? "#166534" : "#991b1b",
+            background: msgOk ? "#dcfce7" : "#fee2e2",
+            border: `1px solid ${msgOk ? "#86efac" : "#fca5a5"}`,
+            color: msgOk ? "#166534" : "#991b1b",
             padding: "10px 16px",
             borderRadius: 8,
             marginBottom: 16,
             fontWeight: 600,
             fontSize: 13,
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
           }}
         >
+          {msgOk ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
           {msg}
         </div>
       )}
@@ -117,7 +125,7 @@ export default function EditRequests() {
             boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
           }}
         >
-          <div style={{ fontSize: 40, marginBottom: 10 }}>📭</div>
+          <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><Inbox size={40} /></div>
           <div style={{ fontWeight: 600 }}>No edit requests yet</div>
         </div>
       ) : (
@@ -227,8 +235,8 @@ export default function EditRequests() {
                           <option value="" disabled>
                             Select...
                           </option>
-                          <option value="approved">✅ Approve</option>
-                          <option value="rejected">❌ Reject</option>
+                          <option value="approved">Approve</option>
+                          <option value="rejected">Reject</option>
                         </select>
                       ) : (
                         <span style={{ fontSize: 12, color: C.textopa }}>

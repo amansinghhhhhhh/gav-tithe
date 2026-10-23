@@ -3,6 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getUserDetail, updateUserStatus, updateEditAllowed, getDocUrl, getFormPdfUrl, getFormDocxUrl } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import {
+  ArrowLeft, Download, Calendar, MapPin, User, Paperclip, Settings,
+  Building2, Coins, FileText, Ban, Search, Check, Target, Save, Pencil,
+  Lock, Circle, CheckCircle2, XCircle,
+} from "lucide-react";
 import { override } from "../constants/placeRename";
 import { Avatar } from "../utils/avatar.jsx";
 
@@ -47,6 +52,7 @@ export default function UserDetail() {
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [msgOk, setMsgOk] = useState(true);
   const [editAllowed, setEditAllowed] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
   const [tab, setTab] = useState("info");
@@ -67,8 +73,8 @@ export default function UserDetail() {
     setSaving(true);
     const res = await updateUserStatus(userId, status, remark);
     setSaving(false);
-    if (res.success) setMsg("✅ Status updated!");
-    else setMsg("❌ Update failed");
+    if (res.success) { setMsg("Status updated!"); setMsgOk(true); }
+    else { setMsg("Update failed"); setMsgOk(false); }
     setTimeout(() => setMsg(""), 3000);
   };
 
@@ -78,9 +84,11 @@ export default function UserDetail() {
     setEditSaving(false);
     if (res.success) {
       setEditAllowed(allow);
-      setMsg(allow ? "✅ Edit access granted" : "✅ Edit access revoked");
+      setMsg(allow ? "Edit access granted" : "Edit access revoked");
+      setMsgOk(true);
     } else {
-      setMsg("❌ " + (res.message || "Update failed"));
+      setMsg(res.message || "Update failed");
+      setMsgOk(false);
     }
     setTimeout(() => setMsg(""), 3000);
   };
@@ -129,14 +137,14 @@ export default function UserDetail() {
             onClick={() => navigate("/users")}
             style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", color: "#fff" }}
           >
-            ← Back
+            <ArrowLeft size={15} /> Back
           </button>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <a className="hero-btn" href={getFormPdfUrl(userId)} target="_blank" rel="noreferrer" style={{ background: "#fff", color: C.navy, border: "1px solid #fff", textDecoration: "none" }}>
-              ⬇ PDF
+              <Download size={14} /> PDF
             </a>
             <a className="hero-btn" href={getFormDocxUrl(userId)} target="_blank" rel="noreferrer" style={{ background: "transparent", color: "#fff", border: "1px solid rgba(255,255,255,0.5)", textDecoration: "none" }}>
-              ⬇ DOCX
+              <Download size={14} /> DOCX
             </a>
           </div>
         </div>
@@ -180,12 +188,12 @@ export default function UserDetail() {
               )}
             </div>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8, fontSize: 13, color: "rgba(255,255,255,0.82)" }}>
-              <span>📅 Registered: <b style={{ color: "#fff" }}>{fmtDate(user?.createdAt)}</b></span>
-              <span>
-                📅 Submitted:{" "}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> Registered: <b style={{ color: "#fff" }}>{fmtDate(user?.createdAt)}</b></span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Calendar size={14} /> Submitted:{" "}
                 <b style={{ color: "#fff" }}>{fmtDate(form?.submittedAt, "Not submitted yet")}</b>
               </span>
-              {locBits.length > 0 && <span>📍 {locBits.join(", ")}</span>}
+              {locBits.length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><MapPin size={14} /> {locBits.join(", ")}</span>}
             </div>
           </div>
         </div>
@@ -196,16 +204,20 @@ export default function UserDetail() {
         <div
           className="modal-fade"
           style={{
-            background: msg.includes("✅") ? "#dcfce7" : "#fee2e2",
-            border: `1px solid ${msg.includes("✅") ? "#86efac" : "#fca5a5"}`,
-            color: msg.includes("✅") ? "#166534" : "#991b1b",
+            background: msgOk ? "#dcfce7" : "#fee2e2",
+            border: `1px solid ${msgOk ? "#86efac" : "#fca5a5"}`,
+            color: msgOk ? "#166534" : "#991b1b",
             padding: "10px 16px",
             borderRadius: 10,
             margin: "16px 0 0",
             fontWeight: 600,
             fontSize: 13.5,
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
           }}
         >
+          {msgOk ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
           {msg}
         </div>
       )}
@@ -213,20 +225,20 @@ export default function UserDetail() {
       {/* ── Tabs ── */}
       <div className="ud-tabs">
         <button className={`ud-tab ${tab === "info" ? "active" : ""}`} onClick={() => setTab("info")}>
-          👤 Info
+          <User size={15} /> Info
         </button>
         <button className={`ud-tab ${tab === "docs" ? "active" : ""}`} onClick={() => setTab("docs")}>
-          📎 Documents ({docsUploaded}/{DOC_LIST.length})
+          <Paperclip size={15} /> Documents ({docsUploaded}/{DOC_LIST.length})
         </button>
         <button className={`ud-tab ${tab === "actions" ? "active" : ""}`} onClick={() => setTab("actions")}>
-          ⚙️ Actions
+          <Settings size={15} /> Actions
         </button>
       </div>
 
       {/* ── Tab: Info ── */}
       {tab === "info" && (
         <div className="ud-grid">
-          <Card title="Personal Info" icon="👤">
+          <Card title="Personal Info" icon={<User size={17} />}>
             <Row label="Full Name" value={s1.fullName} />
             <Row label="DOB" value={s1.dob} />
             <Row label="Gender" value={s1.gender} />
@@ -247,7 +259,7 @@ export default function UserDetail() {
             )}
           </Card>
 
-          <Card title="Business Info" icon="🏢">
+          <Card title="Business Info" icon={<Building2 size={17} />}>
             <Row label="Business Name" value={s2.businessName} />
             <Row label="Type" value={s2.businessType} />
             <Row label="Sector" value={s2.sector === "other" ? `Other — ${s2.sectorOther || ""}` : s2.sector} />
@@ -256,7 +268,7 @@ export default function UserDetail() {
             <Row label="Investment" value={s2.investment && `₹ ${s2.investment}`} />
           </Card>
 
-          <Card title="Financial Info" icon="💰">
+          <Card title="Financial Info" icon={<Coins size={17} />}>
             <Row label="Had Loan" value={s3.hadLoan} />
             <Row label="Loan Type" value={s3.loanType === "other" ? `Other — ${s3.loanTypeOther || ""}` : s3.loanType} />
             <Row label="Repayment" value={s3.repaymentStatus} />
@@ -264,7 +276,7 @@ export default function UserDetail() {
             <Row label="Difficulty" value={s3.pastDifficulty} />
           </Card>
 
-          <Card title="KYC Details" icon="📄">
+          <Card title="KYC Details" icon={<FileText size={17} />}>
             <Row label="Aadhaar" value={s4.aadhaar} />
             <Row label="PAN" value={s4.pan} />
             <Row label="Udyam" value={s4.udyam} />
@@ -301,7 +313,7 @@ export default function UserDetail() {
                     justifyContent: "center",
                   }}
                 >
-                  <div style={{ fontSize: 34, opacity: 0.85 }}>{fileId ? "📄" : "🚫"}</div>
+                  <div style={{ opacity: 0.85 }}>{fileId ? <FileText size={34} /> : <Ban size={34} />}</div>
                   {fileId && (
                     <img
                       src={getDocUrl(fileId)}
@@ -339,7 +351,7 @@ export default function UserDetail() {
                         textDecoration: "none",
                       }}
                     >
-                      🔍 View
+                      <Search size={14} /> View
                     </a>
                   )}
                 </div>
@@ -350,9 +362,12 @@ export default function UserDetail() {
                       fontSize: 11,
                       fontWeight: 700,
                       color: fileId ? "#16a34a" : "#94a3b8",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
                     }}
                   >
-                    {fileId ? "✓ Uploaded" : "Not uploaded"}
+                    {fileId ? <><Check size={12} strokeWidth={3} /> Uploaded</> : "Not uploaded"}
                   </span>
                 </div>
               </div>
@@ -365,7 +380,7 @@ export default function UserDetail() {
       {tab === "actions" && (
         <div className="ud-grid">
           {/* Status update */}
-          <Card title="Update Status" icon="🎯">
+          <Card title="Update Status" icon={<Target size={17} />}>
             <div style={{ fontSize: 12, color: C.textopa, marginBottom: 4 }}>Current status</div>
             <div className="ud-seg" style={{ marginBottom: 16 }}>
               {STATUS_OPTS.map((o) => (
@@ -414,12 +429,12 @@ export default function UserDetail() {
                 cursor: "pointer",
               }}
             >
-              {saving ? "Saving..." : "💾 Save Changes"}
+              {saving ? "Saving..." : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Save size={14} /> Save Changes</span>}
             </button>
           </Card>
 
           {/* Edit access */}
-          <Card title="Edit Access" icon="✏️">
+          <Card title="Edit Access" icon={<Pencil size={17} />}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "6px 0" }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
@@ -472,9 +487,12 @@ export default function UserDetail() {
                 fontSize: 12.5,
                 color: editAllowed ? "#166534" : "#991b1b",
                 fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
               }}
             >
-              {editAllowed ? "🟢 Edit allowed — user ke liye form open hai." : "🔒 Locked — user form edit nahi kar payega."}
+              {editAllowed ? <><Circle size={9} fill="#16a34a" color="#16a34a" /> Edit allowed — user ke liye form open hai.</> : <><Lock size={13} /> Locked — user form edit nahi kar payega.</>}
             </div>
           </Card>
         </div>
@@ -515,6 +533,7 @@ function Card({ title, icon, children }) {
             alignItems: "center",
             justifyContent: "center",
             fontSize: 15,
+            color: C.navy,
           }}
         >
           {icon}

@@ -17,6 +17,7 @@ import FaqModal from "../components/FaqModal";
 import InfoTip from "../components/InfoTip";
 import faqIcon from "../assets/faq.png";
 import videoSrc from "../assets/gtu-register.mp4";
+import { Lightbulb, Check, TriangleAlert, Eye, EyeOff, Play, X } from "lucide-react";
 
 const inp = {
   width: "100%",
@@ -285,9 +286,10 @@ export default function LoginPage() {
                 justifyContent: "center",
                 margin: "0 auto 14px",
                 fontSize: 22,
+                color: "#fff",
               }}
             >
-              💡
+              <Lightbulb size={26} />
             </div>
             <h2
               style={{
@@ -340,9 +342,11 @@ export default function LoginPage() {
                         fontSize: 15,
                         lineHeight: "20px",
                         flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
-                      ✓
+                      <Check size={15} strokeWidth={3} />
                     </span>
                     <span style={{ fontSize: 13, color: "#4b5563", lineHeight: "20px" }}>
                       {pt}
@@ -381,7 +385,7 @@ export default function LoginPage() {
                   marginBottom: 16,
                 }}
               >
-                ⚠ {err}
+                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {err}
                 {err === t("login_not_verified") && (
                   <span
                     onClick={handleResendVerification}
@@ -542,7 +546,7 @@ export default function LoginPage() {
                       fontSize: 18,
                     }}
                   >
-                    {showPass ? "🙈" : "👁"}
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </span>
                 </div>
               </div>
@@ -609,7 +613,7 @@ export default function LoginPage() {
                   gap: 8,
                 }}
               >
-                ▶️ {t("watch_video_more_info")}
+                <Play size={14} /> {t("watch_video_more_info")}
               </button>
             </div>
           </div>
@@ -677,7 +681,7 @@ export default function LoginPage() {
                   justifyContent: "center",
                 }}
               >
-                ✕
+                <X size={14} />
               </button>
             </div>
             <video

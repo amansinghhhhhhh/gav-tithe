@@ -12,6 +12,7 @@ import { Spinner, OtpVerifyLoader } from "../shared/Spinner";
 import { districts, getTalukas } from "../../constants/maharashtraData";
 import { districtMr, talukaMr } from "../../constants/maharashtraDataMr";
 import { override } from "../../constants/placeRename";
+import { TriangleAlert, Pencil } from "lucide-react";
 
 const MONTHS_EN = [
   "January", "February", "March", "April", "May", "June",
@@ -283,7 +284,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
             </div>
             {errors.dob && (
               <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
-                ⚠ {errors.dob}
+                <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.dob}
               </span>
             )}
           </div>
@@ -357,7 +358,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  ✏ {t("s1_edit_number") || "Edit"}
+                  <Pencil size={12} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {t("s1_edit_number") || "Edit"}
                 </button>
               )}
               {!otpSent && !data.otpVerified && (
@@ -387,12 +388,12 @@ function Section1({ data, dispatch, registerNext, onNext }) {
 
             {otpError && (
               <div style={{ fontSize: 12, color: "#e53e3e", marginTop: 4 }}>
-                ⚠ {otpError}
+                <TriangleAlert size={12} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {otpError}
               </div>
             )}
             {errors.mobile && (
               <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                ⚠ {errors.mobile}
+                <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.mobile}
               </span>
             )}
 
@@ -457,7 +458,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
 
             {errors.otpVerified && (
               <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                ⚠ {errors.otpVerified}
+                <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.otpVerified}
               </span>
             )}
             {data.otpVerified && (
@@ -579,7 +580,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
             </div>
             {errors.referrerMobile && (
               <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
-                ⚠ {errors.referrerMobile}
+                <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.referrerMobile}
               </span>
             )}
           </div>
@@ -694,7 +695,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                   />
                   {errors["address.village"] && !data.address?.villageCustom?.trim() && (
                     <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 4, display: "block" }}>
-                      ⚠ {t("err_required")}
+                      <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {t("err_required")}
                     </span>
                   )}
                 </>
@@ -719,7 +720,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
                 onBlur={(e) => validateField("address.pincode", e.target.value, data)}
               />
               {errors["address.pincode"] && (
-                <span style={{ fontSize: 11, color: "#e53e3e" }}>⚠ {errors["address.pincode"]}</span>
+                <span style={{ fontSize: 11, color: "#e53e3e" }}><TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors["address.pincode"]}</span>
               )}
             </div>
 

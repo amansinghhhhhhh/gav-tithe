@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Pause, Volume2 } from "lucide-react";
 import { useLang } from "../context/LangContext";
 
 import voiceStep1 from "../assets/audio/voice_step1.mp3";
@@ -125,7 +126,7 @@ export default function VoiceGuide({ textKey, autoPlay = false, style }) {
         ...style,
       }}
     >
-      {playing ? "⏸" : "🔊"}
+      {playing ? <Pause size={15} /> : <Volume2 size={15} />}
     </button>
   );
 }

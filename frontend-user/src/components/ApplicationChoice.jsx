@@ -6,6 +6,7 @@ import { getMyForm, getMySevaApps } from "../services/api";
 import { Spinner } from "../components/shared/Spinner";
 import C from "../constants/colors";
 import gulogo from "../assets/gulogotransparent.png";
+import { Factory, Lightbulb, LogOut, ArrowRight } from "lucide-react";
 
 const STATUS_STYLE = {
   draft: { bg: "#f3f4f6", color: "#6b7280", label: "choice_status_draft" },
@@ -127,9 +128,12 @@ export default function ApplicationChoice() {
               fontSize: 13,
               fontWeight: 700,
               cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
             }}
           >
-            ↪ {lang === "mr" ? "साइन आउट" : "Sign Out"}
+            <LogOut size={14} /> {lang === "mr" ? "साइन आउट" : "Sign Out"}
           </button>
         </div>
       </div>
@@ -181,7 +185,7 @@ export default function ApplicationChoice() {
                     flexShrink: 0,
                   }}
                 >
-                  🏭
+                  <Factory size={26} />
                 </span>
                 <div>
                   <h2 style={{ fontSize: 19, fontWeight: 800, margin: 0, lineHeight: 1.25 }}>{t("choice_gtu_title")}</h2>
@@ -207,11 +211,15 @@ export default function ApplicationChoice() {
                   cursor: "pointer",
                   boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
                   transition: "filter .15s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.07)")}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
               >
-                {gtuStatus === "submitted" ? t("choice_gtu_view") : gtuStatus === "draft" ? t("choice_gtu_continue") : t("choice_gtu_apply")} →
+                {gtuStatus === "submitted" ? t("choice_gtu_view") : gtuStatus === "draft" ? t("choice_gtu_continue") : t("choice_gtu_apply")} <ArrowRight size={17} />
               </button>
             </div>
           </div>
@@ -249,7 +257,7 @@ export default function ApplicationChoice() {
                     flexShrink: 0,
                   }}
                 >
-                  💡
+                  <Lightbulb size={26} />
                 </span>
                 <div>
                   <h2 style={{ fontSize: 19, fontWeight: 800, margin: 0, lineHeight: 1.25 }}>{t("choice_seva_title")}</h2>
@@ -298,11 +306,15 @@ export default function ApplicationChoice() {
                   cursor: "pointer",
                   boxShadow: "0 4px 14px rgba(230,81,0,0.35)",
                   transition: "filter .15s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.07)")}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
               >
-                {sevaApps.length === 0 ? t("choice_seva_apply") : t("choice_seva_view")} →
+                {sevaApps.length === 0 ? t("choice_seva_apply") : t("choice_seva_view")} <ArrowRight size={17} />
               </button>
             </div>
           </div>

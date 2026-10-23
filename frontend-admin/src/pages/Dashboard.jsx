@@ -11,6 +11,7 @@ import rejected from "../assets/rejected.svg";
 // colors
 import C from "../constants/colors";
 import { Avatar } from "../utils/avatar.jsx";
+import { RefreshCw, ArrowRight, Eye } from "lucide-react";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -139,9 +140,12 @@ export default function Dashboard() {
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: migrating ? "not-allowed" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
               }}
             >
-              {migrating ? "Migrating..." : "🔄 Migrate Assessments"}
+              {migrating ? "Migrating..." : <><RefreshCw size={13} /> Migrate Assessments</>}
             </button>
             {migrateMsg && (
               <span style={{ marginLeft: 12, fontSize: 13, color: C.green, fontWeight: 600 }}>
@@ -183,9 +187,12 @@ export default function Dashboard() {
                   fontSize: 13,
                   cursor: "pointer",
                   fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
                 }}
               >
-                View More →
+                View More <ArrowRight size={13} />
               </button>
             </div>
             <table className="list-table" style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -254,9 +261,12 @@ export default function Dashboard() {
                           cursor: "pointer",
                           fontWeight: 600,
                           whiteSpace: "nowrap",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
                         }}
                       >
-                        👁 View
+                        <Eye size={13} /> View
                       </button>
                     </td>
                   </tr>

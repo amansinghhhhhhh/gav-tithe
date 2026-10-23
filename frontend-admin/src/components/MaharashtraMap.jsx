@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import geoData from "../assets/maharashtraDistricts.js";
 import C from "../constants/colors";
 import { override } from "../constants/placeRename";
+import { X, ArrowRight, Circle } from "lucide-react";
 import {
     STATUS_COLORS,
     STATUS_LABELS,
@@ -269,7 +270,7 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                         <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: STATUS_COLORS.low, marginRight: 6 }} />
                         <span style={{ color: "#334155" }}>Low (&lt;{THRESHOLDS.medium}%)</span>
                     </div>
-                    <div style={{ color: C.textopa, marginTop: 2 }}>○ Circle size = applications</div>
+                    <div style={{ color: C.textopa, marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}><Circle size={9} strokeWidth={2} /> Circle size = applications</div>
                 </div>
 
                 {/* ── Empty state ── */}
@@ -318,10 +319,10 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                             <div style={{ fontWeight: 800, fontSize: 15, color: C.navy }}>{panelName}</div>
                             <button
                                 onClick={() => setPanelGeo(null)}
-                                style={{ border: "none", background: "none", cursor: "pointer", fontSize: 16, color: C.textopa, lineHeight: 1, padding: 0 }}
+                                style={{ border: "none", background: "none", cursor: "pointer", color: C.textopa, lineHeight: 1, padding: 0, display: "flex" }}
                                 aria-label="Close"
                             >
-                                ✕
+                                <X size={16} />
                             </button>
                         </div>
 
@@ -369,9 +370,12 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                                             fontSize: 12,
                                             fontWeight: 700,
                                             cursor: "pointer",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: 6,
                                         }}
                                     >
-                                        Apply Filter →
+                                        Apply Filter <ArrowRight size={13} />
                                     </button>
                                 )}
                             </>

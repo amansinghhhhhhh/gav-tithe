@@ -1,4 +1,5 @@
 import C from "../../constants/colors";
+import { CheckCircle2 } from "lucide-react";
 
 function SectionHeader({ title, subtitle, badge, subpara }) {
   return (
@@ -25,7 +26,7 @@ function SectionHeader({ title, subtitle, badge, subpara }) {
             gap: 5,
           }}
         >
-          <span>✅</span> {subtitle}
+          <CheckCircle2 size={14} /> {subtitle}
         </p>
       )}
 

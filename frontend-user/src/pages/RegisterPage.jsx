@@ -19,6 +19,7 @@ import FaqModal from "../components/FaqModal";
 import InfoTip from "../components/InfoTip";
 import faqIcon from "../assets/faq.png";
 import videoSrc from "../assets/gtu-register.mp4";
+import { Lightbulb, TriangleAlert, Smartphone, Pencil, CheckCircle2, Eye, EyeOff, Play, X } from "lucide-react";
 
 const inp = {
   width: "100%",
@@ -445,9 +446,10 @@ export default function RegisterPage() {
                 justifyContent: "center",
                 margin: "0 auto 14px",
                 fontSize: 22,
+                color: "#fff",
               }}
             >
-              💡
+              <Lightbulb size={26} />
             </div>
             <h2
               style={{
@@ -474,7 +476,7 @@ export default function RegisterPage() {
                   marginBottom: 16,
                 }}
               >
-                ⚠ {err}
+                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {err}
               </div>
             )}
 
@@ -575,9 +577,11 @@ export default function RegisterPage() {
                         transform: "translateY(-50%)",
                         color: "#9ca3af",
                         fontSize: 14,
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
-                      📱
+                      <Smartphone size={16} />
                     </span>
                     <input
                       style={{ ...inp, paddingLeft: 38, background: step >= 2 ? "#fff" : "#f9fafb" }}
@@ -629,9 +633,12 @@ export default function RegisterPage() {
                         fontSize: 13,
                         cursor: "pointer",
                         whiteSpace: "nowrap",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
                       }}
                     >
-                      ✏ {t("s1_edit_number") || "Edit"}
+                      <Pencil size={13} /> {t("s1_edit_number") || "Edit"}
                     </button>
                   )}
                 </div>
@@ -687,8 +694,8 @@ export default function RegisterPage() {
                 )}
 
                 {regOtpVerified && (
-                  <div style={{ color: "#22c55e", fontSize: 13, marginTop: 6, fontWeight: 600 }}>
-                    ✅ {t("s1_verified") || "Verified"}
+                  <div style={{ color: "#22c55e", fontSize: 13, marginTop: 6, fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
+                    <CheckCircle2 size={14} /> {t("s1_verified") || "Verified"}
                   </div>
                 )}
               </div>
@@ -740,7 +747,7 @@ export default function RegisterPage() {
                       fontSize: 18,
                     }}
                   >
-                    {showPass ? "🙈" : "👁"}
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </span>
                 </div>
               </div>
@@ -825,7 +832,7 @@ export default function RegisterPage() {
                   gap: 8,
                 }}
               >
-                ▶️ {t("watch_video_more_info")}
+                <Play size={14} /> {t("watch_video_more_info")}
               </button>
             </div>
           </div>
@@ -890,7 +897,7 @@ export default function RegisterPage() {
                   justifyContent: "center",
                 }}
               >
-                ✕
+                <X size={14} />
               </button>
             </div>
             <video

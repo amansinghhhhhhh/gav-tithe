@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { useLang } from "../context/LangContext";
 import { useAuth } from "../context/AuthContext";
 import C from "../constants/colors";
+import { Play, Check } from "lucide-react";
 
 const STEP_PROGRESS = { 1: 0, 2: 25, 3: 50, 4: 75 };
 
@@ -132,7 +133,7 @@ export function StepIndicator({ current, onStepClick }) {
                 gap: 6,
               }}
             >
-              ▶ {t("banner_cta")} {current}
+              <Play size={13} /> {t("banner_cta")} {current}
             </button>
           </div>
         </div>
@@ -245,7 +246,7 @@ export function StepIndicator({ current, onStepClick }) {
                     border: active ? `3px solid ${C.maroon}` : "none",
                   }}
                 >
-                  {done ? "✓" : n}
+                  {done ? <Check size={14} strokeWidth={3} /> : n}
                 </div>
                 <span
                   style={{

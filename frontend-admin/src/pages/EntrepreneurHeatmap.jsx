@@ -3,6 +3,7 @@ import { getEntrepreneurHeatmap } from "../services/api";
 import MaharashtraMap from "../components/MaharashtraMap";
 import C from "../constants/colors";
 import { override } from "../constants/placeRename";
+import { Map as MapIcon, X } from "lucide-react";
 
 const renameDist = (s) => override("district", "en", s) || s;
 const renameTaluka = (s) => override("taluka", "en", s) || s;
@@ -106,8 +107,8 @@ export default function EntrepreneurHeatmap() {
 
     return (
         <div style={{ padding: "28px 24px", maxWidth: 1400, margin: "0 auto" }}>
-            <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24 }}>
-                🗺️ Entrepreneur Heatmap
+            <h2 style={{ color: C.navy, fontWeight: 800, marginBottom: 24, display: "flex", alignItems: "center", gap: 9 }}>
+                <MapIcon size={22} /> Entrepreneur Heatmap
             </h2>
 
             {/* ── Summary Cards ── */}
@@ -194,9 +195,12 @@ export default function EntrepreneurHeatmap() {
                             fontWeight: 600,
                             cursor: "pointer",
                             color: C.textopa,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
                         }}
                     >
-                        ✕ Clear
+                        <X size={13} /> Clear
                     </button>
                 )}
             </div>

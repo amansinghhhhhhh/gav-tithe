@@ -1,16 +1,17 @@
 import { useState } from "react";
+import { Pencil, Send, Search, CheckCircle2, XCircle, Clock, TriangleAlert } from "lucide-react";
 import C from "./constants/colors";
 import { checkStatusById } from "./services/api";
 import { Header } from "./components/Header";
 import { Spinner } from "./components/shared/Spinner";
 
 const STATUS_MAP = {
-  draft: { bg: "#f3f4f6", color: "#6b7280", label: "Draft", icon: "📝" },
-  submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted", icon: "📤" },
-  under_review: { bg: "#ede9fe", color: "#7c3aed", label: "Under Review", icon: "🔍" },
-  approved: { bg: "#dcfce7", color: "#16a34a", label: "Approved", icon: "✅" },
-  rejected: { bg: "#fee2e2", color: "#dc2626", label: "Rejected", icon: "❌" },
-  not_started: { bg: "#f3f4f6", color: "#6b7280", label: "Not Started", icon: "⏳" },
+  draft: { bg: "#f3f4f6", color: "#6b7280", label: "Draft", icon: <Pencil size={36} /> },
+  submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted", icon: <Send size={36} /> },
+  under_review: { bg: "#ede9fe", color: "#7c3aed", label: "Under Review", icon: <Search size={36} /> },
+  approved: { bg: "#dcfce7", color: "#16a34a", label: "Approved", icon: <CheckCircle2 size={36} /> },
+  rejected: { bg: "#fee2e2", color: "#dc2626", label: "Rejected", icon: <XCircle size={36} /> },
+  not_started: { bg: "#f3f4f6", color: "#6b7280", label: "Not Started", icon: <Clock size={36} /> },
 };
 
 export default function StatusCheckPage() {
@@ -85,9 +86,10 @@ export default function StatusCheckPage() {
                 justifyContent: "center",
                 margin: "0 auto 14px",
                 fontSize: 22,
+                color: "#fff",
               }}
             >
-              🔎
+              <Search size={24} />
             </div>
             <h2
               style={{
@@ -171,7 +173,7 @@ export default function StatusCheckPage() {
                   marginBottom: 16,
                 }}
               >
-                ⚠ {error}
+                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {error}
               </div>
             )}
 

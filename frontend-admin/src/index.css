@@ -238,7 +238,10 @@ option {
 
 /* -- UserDetail -- */
 .hero-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 8px 18px;
   border-radius: 9px;
   font-size: 13px;
@@ -260,6 +263,9 @@ option {
 }
 
 .ud-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 10px 20px;
   font-size: 13.5px;
   font-weight: 700;

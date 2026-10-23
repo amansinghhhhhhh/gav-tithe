@@ -8,6 +8,7 @@ import guicon from "../assets/guicon.svg";
 import dashboard from "../assets/dashboard.svg";
 import userList from "../assets/userList.svg";
 import editRequest from "../assets/editRequest.svg";
+import { Lightbulb, BarChart3, Map, Library, ChevronLeft, LogOut } from "lucide-react";
 const NAV = [
   {
     key: "/dashboard",
@@ -22,7 +23,7 @@ const NAV = [
   {
     key: "/seva-first",
     label: "Seva First",
-    icon: "💡",
+    icon: <Lightbulb size={20} />,
   },
   {
     key: "/edit-requests",
@@ -32,17 +33,17 @@ const NAV = [
   {
     key: "/reports",
     label: "Reports",
-    icon: "📊",
+    icon: <BarChart3 size={20} />,
   },
   {
     key: "/entrepreneur-heatmap",
     label: "Entrepreneur Heatmap",
-    icon: "🗺️",
+    icon: <Map size={20} />,
   },
   {
     key: "/drp-libraries",
     label: "DRP Libraries",
-    icon: "📚",
+    icon: <Library size={20} />,
   },
 ];
 
@@ -149,7 +150,7 @@ export default function Sidebar() {
             marginLeft: 4,
           }}
         >
-          ❮
+          <ChevronLeft size={17} strokeWidth={2.5} />
         </button>
 
         {/* Logo */}
@@ -241,7 +242,7 @@ export default function Sidebar() {
             transition: "all 0.2s",
           }}
         >
-          <span style={{ fontSize: 18 }}>↪</span>
+          <LogOut size={18} />
 
           {expanded && (
             <span

@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import {
+  ArrowLeft, Download, Calendar, MapPin, Lightbulb, Paperclip, Settings,
+  User, Users, Coins, FileText, Ban, Search, Check, Target, Save, Info,
+  CheckCircle2, XCircle,
+} from "lucide-react";
 import { getSevaDetail, updateSevaStatus, getSevaFileUrl } from "../services/api";
 import { Avatar } from "../utils/avatar.jsx";
 
@@ -38,6 +43,7 @@ export default function SevaFirstDetail() {
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [msgOk, setMsgOk] = useState(true);
   const [tab, setTab] = useState("info");
 
   useEffect(() => {
@@ -57,9 +63,11 @@ export default function SevaFirstDetail() {
     setSaving(false);
     if (res.success) {
       setApp(res.application);
-      setMsg("✅ Status updated!");
+      setMsg("Status updated!");
+      setMsgOk(true);
     } else {
-      setMsg("❌ " + (res.message || "Update failed"));
+      setMsg(res.message || "Update failed");
+      setMsgOk(false);
     }
     setTimeout(() => setMsg(""), 3000);
   };
@@ -94,7 +102,7 @@ export default function SevaFirstDetail() {
             onClick={() => navigate("/seva-first")}
             style={{ background: "rgba(255,255,255,0.16)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}
           >
-            ← Back
+            <ArrowLeft size={15} /> Back
           </button>
           {files?.ppt && (
             <a
@@ -104,7 +112,7 @@ export default function SevaFirstDetail() {
               rel="noreferrer"
               style={{ background: "#fff", color: BRAND_ORANGE, border: "1px solid #fff", textDecoration: "none" }}
             >
-              ⬇ PPT
+              <Download size={14} /> PPT
             </a>
           )}
         </div>
@@ -146,9 +154,9 @@ export default function SevaFirstDetail() {
               </span>
             </div>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8, fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
-              <span>📅 Submitted: <b style={{ color: "#fff" }}>{fmtDate(app.createdAt)}</b></span>
-              {applicant?.location && <span>📍 {applicant.location}</span>}
-              <span>💡 {idea?.category?.split(" (")[0] || "—"}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> Submitted: <b style={{ color: "#fff" }}>{fmtDate(app.createdAt)}</b></span>
+              {applicant?.location && <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><MapPin size={14} /> {applicant.location}</span>}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Lightbulb size={14} /> {idea?.category?.split(" (")[0] || "—"}</span>
             </div>
           </div>
         </div>
@@ -159,16 +167,20 @@ export default function SevaFirstDetail() {
         <div
           className="modal-fade"
           style={{
-            background: msg.includes("✅") ? "#dcfce7" : "#fee2e2",
-            border: `1px solid ${msg.includes("✅") ? "#86efac" : "#fca5a5"}`,
-            color: msg.includes("✅") ? "#166534" : "#991b1b",
+            background: msgOk ? "#dcfce7" : "#fee2e2",
+            border: `1px solid ${msgOk ? "#86efac" : "#fca5a5"}`,
+            color: msgOk ? "#166534" : "#991b1b",
             padding: "10px 16px",
             borderRadius: 10,
             margin: "16px 0 0",
             fontWeight: 600,
             fontSize: 13.5,
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
           }}
         >
+          {msgOk ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
           {msg}
         </div>
       )}
@@ -176,20 +188,20 @@ export default function SevaFirstDetail() {
       {/* Tabs */}
       <div className="ud-tabs">
         <button className={`ud-tab ${tab === "info" ? "active" : ""}`} onClick={() => setTab("info")}>
-          💡 Idea & Applicant
+          <Lightbulb size={15} /> Idea & Applicant
         </button>
         <button className={`ud-tab ${tab === "docs" ? "active" : ""}`} onClick={() => setTab("docs")}>
-          📎 Documents
+          <Paperclip size={15} /> Documents
         </button>
         <button className={`ud-tab ${tab === "actions" ? "active" : ""}`} onClick={() => setTab("actions")}>
-          ⚙️ Actions
+          <Settings size={15} /> Actions
         </button>
       </div>
 
       {/* Tab: Info */}
       {tab === "info" && (
         <div className="ud-grid">
-          <Card title="Applicant Details" icon="👤">
+          <Card title="Applicant Details" icon={<User size={17} />}>
             <Row label="Full Name" value={applicant?.name} />
             <Row label="Mobile" value={applicant?.mobile} />
             <Row label="Email" value={applicant?.email} />
@@ -198,7 +210,7 @@ export default function SevaFirstDetail() {
             <Row label="PAN" value={applicant?.pan} />
           </Card>
 
-          <Card title="Team Members" icon="👥">
+          <Card title="Team Members" icon={<Users size={17} />}>
             {teamMembers?.length ? (
               teamMembers.map((m, i) => (
                 <div
@@ -225,7 +237,7 @@ export default function SevaFirstDetail() {
             )}
           </Card>
 
-          <Card title="Innovation Idea" icon="💡">
+          <Card title="Innovation Idea" icon={<Lightbulb size={17} />}>
             <Row label="Category" value={idea?.category} />
             <div style={{ padding: "10px 0", borderBottom: "1px dashed #eef2f7" }}>
               <div style={{ color: C.textopa, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: 6 }}>
@@ -241,7 +253,7 @@ export default function SevaFirstDetail() {
             </div>
           </Card>
 
-          <Card title="Budget & DPR" icon="💰">
+          <Card title="Budget & DPR" icon={<Coins size={17} />}>
             <Row label="Estimated Cost" value={budget?.cost ? `₹ ${Number(budget.cost).toLocaleString("en-IN")}` : ""} />
             <Row label="Timeline" value={budget?.timelineMonths ? `${budget.timelineMonths} months` : ""} />
             <Row label="Video / Drive Link" value={budget?.videoLink} />
@@ -273,7 +285,7 @@ export default function SevaFirstDetail() {
                 }}
               >
                 <div style={{ position: "relative", height: 130, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ fontSize: 34, opacity: 0.85 }}>{fileId ? "📄" : "🚫"}</div>
+                  <div style={{ opacity: 0.85 }}>{fileId ? <FileText size={34} /> : <Ban size={34} />}</div>
                   {fileId && (
                     <a
                       className="doc-view"
@@ -291,16 +303,17 @@ export default function SevaFirstDetail() {
                         fontSize: 13,
                         fontWeight: 700,
                         textDecoration: "none",
+                        gap: 6,
                       }}
                     >
-                      🔍 View / Download
+                      <Search size={14} /> View / Download
                     </a>
                   )}
                 </div>
                 <div style={{ padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{label}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: fileId ? "#16a34a" : required ? "#dc2626" : "#94a3b8" }}>
-                    {fileId ? "✓ Uploaded" : required ? "Required" : "Optional"}
+                  <span style={{ fontSize: 11, fontWeight: 700, color: fileId ? "#16a34a" : required ? "#dc2626" : "#94a3b8", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    {fileId ? <><Check size={12} strokeWidth={3} /> Uploaded</> : required ? "Required" : "Optional"}
                   </span>
                 </div>
               </div>
@@ -312,7 +325,7 @@ export default function SevaFirstDetail() {
       {/* Tab: Actions */}
       {tab === "actions" && (
         <div className="ud-grid">
-          <Card title="Update Status" icon="🎯">
+          <Card title="Update Status" icon={<Target size={17} />}>
             <div style={{ fontSize: 12, color: C.textopa, marginBottom: 4 }}>Current status</div>
             <div className="ud-seg" style={{ marginBottom: 16 }}>
               {STATUS_OPTS.map((o) => (
@@ -357,11 +370,11 @@ export default function SevaFirstDetail() {
                 cursor: "pointer",
               }}
             >
-              {saving ? "Saving..." : "💾 Save Changes"}
+              {saving ? "Saving..." : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Save size={14} /> Save Changes</span>}
             </button>
           </Card>
 
-          <Card title="Application Info" icon="ℹ️">
+          <Card title="Application Info" icon={<Info size={17} />}>
             <Row label="Application ID" value={app.uniqueId} />
             <Row label="Status" value={badge.label} />
             <Row label="Submitted" value={fmtDate(app.createdAt)} />
@@ -408,6 +421,7 @@ function Card({ title, icon, children }) {
             alignItems: "center",
             justifyContent: "center",
             fontSize: 15,
+            color: "#e65100",
           }}
         >
           {icon}

@@ -4,6 +4,7 @@ import { loginAdmin } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import { TriangleAlert } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -97,9 +98,13 @@ export default function LoginPage() {
               color: C.red,
               fontSize: 13,
               marginBottom: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
             }}
           >
-            ⚠ {err}
+            <TriangleAlert size={15} />
+            {err}
           </div>
         )}
 

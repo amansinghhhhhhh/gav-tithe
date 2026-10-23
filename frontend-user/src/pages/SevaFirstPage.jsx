@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Lightbulb, Languages, Send, Sprout, Rocket, Briefcase, Building2,
   Check, Trash2, FileText, IdCard, Image, ScrollText, TriangleAlert,
-  PartyPopper, FolderOpen, Calendar, X,
+  PartyPopper, FolderOpen, Calendar, X, Download, ArrowLeft, ArrowRight,
 } from "lucide-react";
 import { useLang } from "../context/LangContext";
 import { submitSevaApplication, getMySevaApps, apiMsg } from "../services/api";
@@ -261,9 +261,9 @@ export default function SevaFirstPage() {
               </button>
               <button
                 onClick={() => navigate("/home")}
-                style={{ background: BRAND.orange, color: "#fff", border: "none", borderRadius: 12, padding: "12px 26px", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
+                style={{ background: BRAND.orange, color: "#fff", border: "none", borderRadius: 12, padding: "12px 26px", fontSize: 14, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}
               >
-                {t("seva_ack_back")}
+                <ArrowLeft size={15} /> {t("seva_ack_back")}
               </button>
             </div>
           </div>
@@ -372,9 +372,9 @@ export default function SevaFirstPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
             <button
               onClick={() => navigate("/home")}
-              style={{ background: "#fff", color: BRAND.orange, border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ background: "#fff", color: BRAND.orange, border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              {t("seva_btn_back")}
+              <ArrowLeft size={14} /> {t("seva_btn_back")}
             </button>
             <a
               href="#seva-apply"
@@ -417,7 +417,7 @@ export default function SevaFirstPage() {
           <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 28, flexWrap: "wrap" }}>
             <a
               href="#seva-apply"
-              style={{ background: BRAND.orange, color: "#fff", fontWeight: 800, fontSize: 15, padding: "14px 30px", borderRadius: 14, textDecoration: "none", boxShadow: "0 6px 20px rgba(230,81,0,0.45)" }}
+              style={{ background: BRAND.orange, color: "#fff", fontWeight: 800, fontSize: 15, padding: "14px 30px", borderRadius: 14, textDecoration: "none", boxShadow: "0 6px 20px rgba(230,81,0,0.45)", display: "inline-flex", alignItems: "center", gap: 9 }}
             >
               <Rocket size={16} strokeWidth={2.4} /> {t("seva_hero_cta")}
             </a>
@@ -427,7 +427,7 @@ export default function SevaFirstPage() {
               rel="noreferrer"
               style={{ background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.35)", color: "#fff", fontWeight: 700, fontSize: 15, padding: "14px 26px", borderRadius: 14, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}
             >
-              ⬇ {t("seva_hero_template")}
+              <Download size={15} strokeWidth={2.4} /> {t("seva_hero_template")}
             </a>
           </div>
         </div>
@@ -471,9 +471,9 @@ export default function SevaFirstPage() {
                 href={PPT_TEMPLATE_URL}
                 target="_blank"
                 rel="noreferrer"
-                style={{ background: BRAND.green, color: "#fff", padding: "11px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 3px 10px rgba(46,125,50,0.3)" }}
+                style={{ background: BRAND.green, color: "#fff", padding: "11px 18px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap", boxShadow: "0 3px 10px rgba(46,125,50,0.3)", display: "inline-flex", alignItems: "center", gap: 7 }}
               >
-                ⬇ {t("seva_hero_template")}
+                <Download size={14} strokeWidth={2.4} /> {t("seva_hero_template")}
               </a>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
@@ -696,13 +696,16 @@ export default function SevaFirstPage() {
                   fontSize: 14,
                   cursor: "pointer",
                   visibility: step === 1 ? "hidden" : "visible",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                {t("seva_btn_prev")}
+                <ArrowLeft size={15} /> {t("seva_btn_prev")}
               </button>
               {step < 4 ? (
-                <button type="button" onClick={next} style={{ padding: "12px 26px", borderRadius: 12, border: "none", background: BRAND.orange, color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 14px rgba(230,81,0,0.3)" }}>
-                  {t("seva_btn_next")}
+                <button type="button" onClick={next} style={{ padding: "12px 26px", borderRadius: 12, border: "none", background: BRAND.orange, color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 4px 14px rgba(230,81,0,0.3)", display: "inline-flex", alignItems: "center", gap: 7 }}>
+                  {t("seva_btn_next")} <ArrowRight size={16} />
                 </button>
               ) : (
                 <button
@@ -711,7 +714,7 @@ export default function SevaFirstPage() {
                   disabled={submitting}
                   style={{ padding: "13px 30px", borderRadius: 12, border: "none", background: BRAND.green, color: "#fff", fontWeight: 800, fontSize: 14.5, cursor: submitting ? "default" : "pointer", boxShadow: "0 5px 18px rgba(46,125,50,0.35)", opacity: submitting ? 0.7 : 1, display: "inline-flex", alignItems: "center", gap: 8 }}
                 >
-                  {submitting ? <><Spinner size={18} color="#fff" /> {t("loading")}</> : t("seva_btn_submit")}
+                  {submitting ? <><Spinner size={18} color="#fff" /> {t("loading")}</> : <><Send size={16} strokeWidth={2.4} /> {t("seva_btn_submit")}</>}
                 </button>
               )}
             </div>

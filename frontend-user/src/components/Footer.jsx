@@ -3,6 +3,7 @@ import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 import maccialogo from "../assets/MACCIAlogo.svg";
 import gulogo from "../assets/gulogo.svg";
+import { MapPin, Mail, Phone } from "lucide-react";
 
 function useIsMobile() {
   const [isMobile] = useState(window.innerWidth < 768);
@@ -90,15 +91,18 @@ export function Footer() {
                 color: "#aac",
                 lineHeight: 1.7,
                 margin: "0 0 6px",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 6,
               }}
             >
-              📍 {t("f_address")}
+              <MapPin size={13} style={{ flexShrink: 0, marginTop: 3 }} /> {t("f_address")}
             </p>
-            <p style={{ fontSize: 12, color: "#aac", margin: "4px 0" }}>
-              ✉️ {t("f_email")}
+            <p style={{ fontSize: 12, color: "#aac", margin: "4px 0", display: "flex", alignItems: "center", gap: 6 }}>
+              <Mail size={13} /> {t("f_email")}
             </p>
-            <p style={{ fontSize: 12, color: "#aac", margin: "4px 0" }}>
-              📞 {t("f_phone")}
+            <p style={{ fontSize: 12, color: "#aac", margin: "4px 0", display: "flex", alignItems: "center", gap: 6 }}>
+              <Phone size={13} /> {t("f_phone")}
             </p>
           </div>
         </div>

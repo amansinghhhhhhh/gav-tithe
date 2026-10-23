@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLang } from "../context/LangContext";
+import { X } from "lucide-react";
 
 export default function CustomerCareButton() {
   const { t } = useLang();
@@ -72,7 +73,7 @@ export default function CustomerCareButton() {
                 boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
               }}
             >
-              ✕
+              <X size={12} strokeWidth={2.5} />
             </button>
           </div>
         )}

@@ -6,6 +6,7 @@ import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import C from "../../constants/colors";
 import useValidation from "../../hooks/useValidation";
 import { ValidatedInput, ValidatedSelect } from "../shared/ValidatedInput";
+import { TriangleAlert } from "lucide-react";
 
 const makeRules = (t) => ({
   businessType: (v) => (!v ? t("err_required") : null),
@@ -87,7 +88,7 @@ function Section2({ data, dispatch, registerNext, onNext }) {
           </div>
           {errors.businessStatus && (
             <span style={{ fontSize: 11, color: "#e53e3e" }}>
-              ⚠ {errors.businessStatus}
+              <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.businessStatus}
             </span>
           )}
         </div>
@@ -160,7 +161,7 @@ function Section2({ data, dispatch, registerNext, onNext }) {
                 />
                 {errors.sectorOther && (
                   <span style={{ fontSize: 11, color: "#e53e3e" }}>
-                    ⚠ {errors.sectorOther}
+                    <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.sectorOther}
                   </span>
                 )}
               </div>

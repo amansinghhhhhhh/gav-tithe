@@ -4,6 +4,7 @@ import { getAllUsers, getExcelUrl, deleteUser } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 import { Avatar } from "../utils/avatar.jsx";
+import { Download, Search, Eye, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 const STATUS_CHIPS = [
   { key: "all", label: "Total", color: C.navy },
@@ -82,9 +83,12 @@ export default function UsersList() {
             fontSize: 13,
             fontWeight: 700,
             textDecoration: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          ⬇ Download Excel
+          <Download size={14} /> Download Excel
         </a>
       </div>
 
@@ -138,7 +142,7 @@ export default function UsersList() {
               pointerEvents: "none",
             }}
           >
-            🔍
+            <Search size={14} />
           </span>
           <input
             className="admin-search"
@@ -375,9 +379,12 @@ export default function UsersList() {
                             cursor: "pointer",
                             fontWeight: 600,
                             whiteSpace: "nowrap",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
                           }}
                         >
-                          👁 View
+                          <Eye size={13} /> View
                         </button>
                         <button
                           className="btn-ghost-red"
@@ -393,9 +400,12 @@ export default function UsersList() {
                             cursor: deletingId === u._id ? "default" : "pointer",
                             fontWeight: 600,
                             whiteSpace: "nowrap",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
                           }}
                         >
-                          {deletingId === u._id ? "Deleting..." : "🗑 Delete"}
+                          {deletingId === u._id ? "Deleting..." : <><Trash2 size={13} /> Delete</>}
                         </button>
                       </div>
                     </td>
@@ -435,9 +445,12 @@ export default function UsersList() {
                   fontWeight: 600,
                   cursor: safePage <= 1 ? "default" : "pointer",
                   opacity: safePage <= 1 ? 0.45 : 1,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
-                ‹ Prev
+                <ChevronLeft size={14} /> Prev
               </button>
               <span style={{ fontSize: 13, fontWeight: 600, color: C.navy }}>
                 Page {safePage} of {totalPages}
@@ -455,9 +468,12 @@ export default function UsersList() {
                   fontWeight: 600,
                   cursor: safePage >= totalPages ? "default" : "pointer",
                   opacity: safePage >= totalPages ? 0.45 : 1,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
-                Next ›
+                Next <ChevronRight size={14} />
               </button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { useLang } from "./context/LangContext";
 import { getEditRequest, getMyForm, createEditRequest } from "./services/api";
 import { Spinner } from "./components/shared/Spinner";
 import FormPreview from "./components/FormPreview";
+import { Check, Search } from "lucide-react";
 
 export function SuccessPage({ onApproved }) {
   const { t } = useLang();
@@ -112,7 +113,7 @@ export function SuccessPage({ onApproved }) {
           color: "#fff",
         }}
       >
-        ✓
+        <Check size={44} strokeWidth={3} />
       </div>
       <p style={{ fontSize: 18, fontWeight: 700, color: C.green, margin: 0 }}>
         {t("success_msg")}
@@ -175,9 +176,12 @@ export function SuccessPage({ onApproved }) {
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
           }}
         >
-          🔍 {t("preview_btn")}
+          <Search size={14} /> {t("preview_btn")}
         </button>
       )}
 

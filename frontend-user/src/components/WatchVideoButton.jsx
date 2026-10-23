@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLang } from "../context/LangContext";
 import videoSrc from "../assets/gtu-register.mp4";
+import { X } from "lucide-react";
 
 export default function WatchVideoButton() {
   const { t } = useLang();
@@ -71,7 +72,7 @@ export default function WatchVideoButton() {
                 boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
               }}
             >
-              ✕
+              <X size={12} strokeWidth={2.5} />
             </button>
           </div>
         )}
@@ -156,7 +157,7 @@ export default function WatchVideoButton() {
                   justifyContent: "center",
                 }}
               >
-                ✕
+                <X size={14} />
               </button>
             </div>
 

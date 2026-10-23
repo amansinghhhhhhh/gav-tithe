@@ -1,4 +1,5 @@
 import { inputStyle, labelStyle } from "./styles";
+import { TriangleAlert } from "lucide-react";
 
 // Reusable input with red border + error text
 export function ValidatedInput({
@@ -86,7 +87,7 @@ export function ValidatedInput({
 
       {hasError && (
         <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 2 }}>
-          ⚠ {error}
+          <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {error}
         </span>
       )}
     </div>
@@ -121,7 +122,7 @@ export function ValidatedTextarea({
       />
       {hasError && (
         <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 2 }}>
-          ⚠ {error}
+          <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {error}
         </span>
       )}
     </div>
@@ -172,7 +173,7 @@ export function ValidatedSelect({
       </select>
       {hasError && (
         <span style={{ fontSize: 11, color: "#e53e3e", marginTop: 2 }}>
-          ⚠ {error}
+          <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {error}
         </span>
       )}
     </div>

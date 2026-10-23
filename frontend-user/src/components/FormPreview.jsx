@@ -5,6 +5,7 @@ import { districtMr, talukaMr } from "../constants/maharashtraDataMr";
 import { override } from "../constants/placeRename";
 import { docFileUrl } from "../services/api";
 import guicon from "../assets/guicon.svg";
+import { FileText, Clock, Download, X, TriangleAlert } from "lucide-react";
 
 const GENDER = { purush: "s1_male", mahila: "s1_female", itar: "s1_other" };
 const EDU = {
@@ -331,8 +332,8 @@ export default function FormPreview({ form, onClose }) {
           }}
         >
           <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff" }}>
-              📄 {t("preview_title")}
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
+              <FileText size={18} /> {t("preview_title")}
             </h3>
             {form.uniqueId && (
               <p
@@ -365,9 +366,20 @@ export default function FormPreview({ form, onClose }) {
                 cursor: downloading ? "wait" : "pointer",
                 whiteSpace: "nowrap",
                 opacity: downloading ? 0.85 : 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
               }}
             >
-              {downloading ? `⏳ ${t("preview_downloading")}` : `⬇ ${t("preview_download")}`}
+              {downloading ? (
+                <>
+                  <Clock size={13} /> {t("preview_downloading")}
+                </>
+              ) : (
+                <>
+                  <Download size={13} /> {t("preview_download")}
+                </>
+              )}
             </button>
             <button
               onClick={onClose}
@@ -389,7 +401,7 @@ export default function FormPreview({ form, onClose }) {
                 justifyContent: "center",
               }}
             >
-              ✕
+              <X size={16} />
             </button>
           </div>
         </div>
@@ -414,7 +426,7 @@ export default function FormPreview({ form, onClose }) {
                 textAlign: "left",
               }}
             >
-              ⚠ {t("preview_download_err")}
+              <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {t("preview_download_err")}
             </div>
           )}
           <Section title={t("s1_title")}>

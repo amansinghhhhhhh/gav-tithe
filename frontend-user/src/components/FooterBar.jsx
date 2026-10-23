@@ -1,5 +1,6 @@
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
+import { ArrowRight, Send } from "lucide-react";
 
 export function FooterBar({
   step,
@@ -66,9 +67,12 @@ export function FooterBar({
             fontSize: 13,
             whiteSpace: "nowrap",
             flexShrink: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          {t("btn_submit")}
+          <Send size={14} /> {t("btn_submit")}
         </button>
       ) : (
         <button
@@ -84,9 +88,12 @@ export function FooterBar({
             fontSize: 13,
             whiteSpace: "nowrap",
             flexShrink: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          {t("btn_next")}
+          {t("btn_next")} <ArrowRight size={15} />
         </button>
       )}
     </div>

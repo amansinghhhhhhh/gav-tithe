@@ -1,6 +1,7 @@
 import { useState } from "react";
 import C from "../constants/colors";
 import { useLang } from "../context/LangContext";
+import { Megaphone, X, ArrowRight } from "lucide-react";
 
 const LS_KEY = "gtu_popup_dismissed";
 
@@ -67,9 +68,10 @@ export function RegistrationPopup({ onRegister, title, message, points, cta }) {
             cursor: "pointer",
             color: "#9ca3af",
             lineHeight: 1,
+            display: "flex",
           }}
         >
-          ✕
+          <X size={20} />
         </button>
 
         <div
@@ -83,9 +85,10 @@ export function RegistrationPopup({ onRegister, title, message, points, cta }) {
             justifyContent: "center",
             fontSize: 30,
             margin: "0 auto 14px",
+            color: "#fff",
           }}
         >
-          📣
+          <Megaphone size={30} />
         </div>
 
         <h2 style={{ margin: "0 0 8px", color: C.navy, fontSize: 19, fontWeight: 800 }}>
@@ -136,9 +139,13 @@ export function RegistrationPopup({ onRegister, title, message, points, cta }) {
             fontSize: 15,
             cursor: "pointer",
             boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
           }}
         >
-          {cta || t("popup_register_btn")}
+          {cta || t("popup_register_btn")} <ArrowRight size={16} />
         </button>
         <button
           onClick={dismiss}

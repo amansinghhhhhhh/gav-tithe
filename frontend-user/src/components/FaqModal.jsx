@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLang } from "../context/LangContext";
+import { X, ChevronRight } from "lucide-react";
 
 export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_title" }) {
   const { t } = useLang();
@@ -76,7 +77,7 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
               justifyContent: "center",
             }}
           >
-            ✕
+            <X size={16} />
           </button>
         </div>
 
@@ -118,7 +119,7 @@ export default function FaqModal({ open, onClose, faqs = [], titleKey = "faq_tit
                     flexShrink: 0,
                   }}
                 >
-                  ▸
+                  <ChevronRight size={14} />
                 </span>
               </button>
               {openIdx === i && (

@@ -8,6 +8,7 @@ import useValidation from "../../hooks/useValidation";
 import { ValidatedInput } from "../shared/ValidatedInput";
 import { uploadDoc, removeDoc, apiMsg } from "../../services/api";
 import { extractDocNumber, aadhaarDiff, levDist, udyamDiff } from "../../services/ocr";
+import { Clock, CheckCircle2, TriangleAlert, XCircle, Lock, Lightbulb, Info, X, ClipboardList, CreditCard, Factory } from "lucide-react";
 
 // Jin doc types ke liye document-number match check hoga
 const OCR_KEYS = { aadhaarFront: "aadhaar", pan: "pan", udyam: "udyam" };
@@ -54,14 +55,14 @@ const formatUdyam = (v) => {
 };
 
 const OCR_STATUS_STYLE = {
-  checking: { color: "#d97706", icon: "⏳" },
-  match: { color: "#16a34a", icon: "✅" },
-  auto: { color: "#d97706", icon: "⚠️" },
-  mismatch: { color: "#dc2626", icon: "❌" },
-  unreadable: { color: "#dc2626", icon: "⚠️" },
-  reupload: { color: "#d97706", icon: "🔒" },
-  suggest: { color: "#d97706", icon: "💡" },
-  type: { color: "#9ca3af", icon: "ℹ️" },
+  checking: { color: "#d97706", icon: Clock },
+  match: { color: "#16a34a", icon: CheckCircle2 },
+  auto: { color: "#d97706", icon: TriangleAlert },
+  mismatch: { color: "#dc2626", icon: XCircle },
+  unreadable: { color: "#dc2626", icon: TriangleAlert },
+  reupload: { color: "#d97706", icon: Lock },
+  suggest: { color: "#d97706", icon: Lightbulb },
+  type: { color: "#9ca3af", icon: Info },
 };
 
 const kycCard = {
@@ -107,9 +108,12 @@ function GuideChip({ t, open, onClick }) {
         fontWeight: 600,
         cursor: "pointer",
         whiteSpace: "nowrap",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
       }}
     >
-      {open ? `✕ ${t("s4_guide_btn")}` : `📋 ${t("s4_guide_btn")}`}
+      {open ? <><X size={12} /> {t("s4_guide_btn")}</> : <><ClipboardList size={12} /> {t("s4_guide_btn")}</>}
     </button>
   );
 }
@@ -171,16 +175,16 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
 
     if (status === "auto") {
       return (
-        <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
-          {s.icon} {t("ocr_auto")} <b style={{ letterSpacing: 1 }}>{extracted}</b>
+        <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+          <s.icon size={12} /> {t("ocr_auto")} <b style={{ letterSpacing: 1 }}>{extracted}</b>
         </p>
       );
     }
 
     if (status === "suggest") {
       return (
-        <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
-          {s.icon} {t("ocr_suggest")}{" "}
+        <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500, display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+          <s.icon size={12} /> {t("ocr_suggest")}{" "}
           <b style={{ letterSpacing: 1 }}>{extracted}</b>{" "}
           <button
             type="button"
@@ -214,8 +218,8 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
 
     const showExtractedValue = showExtracted && extracted;
     return (
-      <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500 }}>
-        {s.icon} {t(`ocr_${status}`)}
+      <p style={{ fontSize: 11, color: s.color, margin: "4px 0 0", fontWeight: 500, display: "flex", alignItems: "center", gap: 5 }}>
+        <s.icon size={12} /> {t(`ocr_${status}`)}
         {showExtractedValue ? ` (${extracted})` : ""}
       </p>
     );
@@ -346,7 +350,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         {/* Aadhaar card */}
         <div style={kycCard}>
           <div style={kycHead}>
-            <span>🪪</span> {t("s4_doc_aadh")}
+            <span style={{ display: "flex" }}><CreditCard size={16} /></span> {t("s4_doc_aadh")}
             <GuideChip t={t} open={!!guides.aadhaar} onClick={() => toggleGuide("aadhaar")} />
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -396,7 +400,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         {/* PAN card */}
         <div style={kycCard}>
           <div style={kycHead}>
-            <span>🪪</span> {t("s4_doc_pan")}
+            <span style={{ display: "flex" }}><CreditCard size={16} /></span> {t("s4_doc_pan")}
             <GuideChip t={t} open={!!guides.pan} onClick={() => toggleGuide("pan")} />
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -439,7 +443,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
         {/* Udyam card */}
         <div style={kycCard}>
           <div style={kycHead}>
-            <span>🏭</span> {t("s4_doc_udyam")}
+            <span style={{ display: "flex" }}><Factory size={16} /></span> {t("s4_doc_udyam")}
             <GuideChip t={t} open={!!guides.udyam} onClick={() => toggleGuide("udyam")} />
           </div>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>

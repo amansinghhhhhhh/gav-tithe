@@ -17,6 +17,7 @@ import gulogo from "../assets/gulogotransparent.png";
 import guicon from "../assets/guicon.svg";
 
 import C from "../constants/colors";
+import { Menu, ChevronLeft, LogOut } from "lucide-react";
 
 const NAV = {
   MY_JOURNEY: [
@@ -214,7 +215,7 @@ function Sidebar({ activeKey, onNav, onLogout }) {
               cursor: "pointer",
             }}
           >
-            ☰
+            <Menu size={20} />
           </button>
 
           {/* Large Image on the Right */}
@@ -280,7 +281,7 @@ function Sidebar({ activeKey, onNav, onLogout }) {
               transition: "transform 0.3s ease",
             }}
           >
-            ❮
+            <ChevronLeft size={20} />
           </button>
         )}
 
@@ -439,7 +440,7 @@ function Sidebar({ activeKey, onNav, onLogout }) {
               background: "rgba(255,255,255,0.05)",
             }}
           >
-            <span style={{ fontSize: 18 }}>↪</span>
+            <span style={{ display: "flex" }}><LogOut size={17} /></span>
             {expanded && <span>Sign Out</span>}
           </div>
         </div>

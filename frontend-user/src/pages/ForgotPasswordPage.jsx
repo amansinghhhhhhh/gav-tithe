@@ -7,6 +7,7 @@ import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
+import { KeyRound, TriangleAlert, Smartphone, CheckCircle2, ArrowLeft } from "lucide-react";
 
 const inp = {
   width: "100%",
@@ -294,9 +295,10 @@ export default function ForgotPasswordPage() {
                 justifyContent: "center",
                 margin: "0 auto 14px",
                 fontSize: 22,
+                color: "#fff",
               }}
             >
-              🔑
+              <KeyRound size={24} />
             </div>
             <h2
               style={{
@@ -357,7 +359,7 @@ export default function ForgotPasswordPage() {
                   marginBottom: 16,
                 }}
               >
-                ⚠ {err}
+                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {err}
               </div>
             )}
 
@@ -494,7 +496,7 @@ export default function ForgotPasswordPage() {
             {step === 2 && !successMsg && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div style={{ textAlign: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📱</div>
+                  <div style={{ fontSize: 32, marginBottom: 8, display: "flex", justifyContent: "center" }}><Smartphone size={32} /></div>
                   <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
                     {t("forgot_otp_sent_to")} {mobile}
                   </p>
@@ -548,9 +550,13 @@ export default function ForgotPasswordPage() {
                     fontWeight: 600,
                     fontSize: 14,
                     cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
                   }}
                 >
-                  {t("forgot_back")}
+                  <ArrowLeft size={15} /> {t("forgot_back")}
                 </button>
               </div>
             )}
@@ -559,7 +565,7 @@ export default function ForgotPasswordPage() {
             {step === 3 && !successMsg && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div style={{ textAlign: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
+                  <div style={{ fontSize: 32, marginBottom: 8, display: "flex", justifyContent: "center", color: "#16a34a" }}><CheckCircle2 size={32} /></div>
                   <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
                     {t("forgot_otp_verified_enter_password")}
                   </p>
@@ -656,9 +662,13 @@ export default function ForgotPasswordPage() {
                   fontSize: 14,
                   cursor: "pointer",
                   marginTop: 12,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
                 }}
               >
-                {t("forgot_back")}
+                <ArrowLeft size={15} /> {t("forgot_back")}
               </button>
             )}
           </div>

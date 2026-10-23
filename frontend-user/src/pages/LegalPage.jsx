@@ -5,6 +5,7 @@ import { Header } from "../components/Header";
 import { privacyMr, privacyEn } from "../constants/privacyContent";
 import { termsMr, termsEn } from "../constants/termsContent";
 import { disclaimerMr, disclaimerEn } from "../constants/disclaimerContent";
+import { ArrowLeft } from "lucide-react";
 
 const DOCS = {
     privacy: { mr: privacyMr, en: privacyEn },
@@ -60,11 +61,13 @@ export default function LegalPage({ doc = "privacy" }) {
                             color: "#F97316",
                             cursor: "pointer",
                             fontWeight: 600,
-                            display: "inline-block",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
                             marginBottom: 18,
                         }}
                     >
-                        ← {lang === "mr" ? "मागे" : "Back"}
+                        <ArrowLeft size={15} /> {lang === "mr" ? "मागे" : "Back"}
                     </span>
 
                     {blocks.map((b, i) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
+import { PartyPopper, Trophy, RotateCcw } from "lucide-react";
 
 export default function AssessmentComplete({ completedAt, onRetake, saving, onBackToJourney, score, celebrate }) {
   const { lang, t } = useLang();
@@ -100,7 +101,7 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
               color: "#fff",
             }}
           >
-            🎉
+            <PartyPopper size={50} />
           </div>
           <h2
             style={{
@@ -143,7 +144,7 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
               boxShadow: "0 8px 30px rgba(249,115,22,0.35)",
             }}
           >
-            <span style={{ fontSize: 40 }}>🏆</span>
+            <span style={{ display: "flex", color: "#fff" }}><Trophy size={40} /></span>
             <span
               style={{
                 color: "#fff",
@@ -248,13 +249,19 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
                 fontSize: 14,
                 cursor: saving ? "not-allowed" : "pointer",
                 transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
               }}
             >
-              {saving
-                ? "Saving..."
-                : lang === "mr"
-                ? "🔄 पुन्हा प्रयत्न करा"
-                : "🔄 Retake Assessment"}
+              {saving ? (
+                "Saving..."
+              ) : (
+                <>
+                  <RotateCcw size={15} />
+                  {lang === "mr" ? "पुन्हा प्रयत्न करा" : "Retake Assessment"}
+                </>
+              )}
             </button>
           </div>
         </div>

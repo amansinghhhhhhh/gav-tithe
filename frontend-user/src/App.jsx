@@ -154,7 +154,7 @@ function Dashboard() {
   const goNext = async () => {
     const saved = await saveCurrent(currentStep);
     if (saved) {
-      showMsg("✅ Saved!");
+      showMsg("Saved!");
       dispatch({ type: "SET_STEP", step: Math.min(4, currentStep + 1) });
     }
   };
@@ -164,7 +164,7 @@ function Dashboard() {
 
   const handleSaveDraft = async () => {
     const saved = await saveCurrent(currentStep);
-    if (saved) showMsg("✅ Draft saved!");
+    if (saved) showMsg("Draft saved!");
   };
 
   const handleSubmit = async () => {

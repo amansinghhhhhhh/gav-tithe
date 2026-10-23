@@ -15,6 +15,11 @@ import {
 import { getReports, getVillageDetail } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import {
+  Inbox, Users, Upload, Clock, CheckCircle2, XCircle, Pencil,
+  BarChart3, X, PieChart as PieChartIcon, MapPin, Building2, Home,
+  Download, ArrowLeft,
+} from "lucide-react";
 import { override } from "../constants/placeRename";
 import logoPng from "../assets/gulogotransparent.png";
 
@@ -213,7 +218,7 @@ export default function Reports() {
           border: "1px dashed #d8e0ea",
         }}
       >
-        📭 Failed to load reports
+        <Inbox size={30} style={{ marginRight: 8 }} /> Failed to load reports
       </div>
     );
 
@@ -261,12 +266,12 @@ export default function Reports() {
   const villageChart = villageSource.map((v) => ({ ...v, label: v.village }));
 
   const stats = [
-    { label: "Total Users", value: summary.totalUsers, color: C.navy, icon: "👥" },
-    { label: "Submitted", value: summary.totalSubmitted, color: "#F97316", icon: "📤" },
-    { label: "Under Review", value: summary.totalUnderReview, color: "#7c3aed", icon: "🕐" },
-    { label: "Approved", value: summary.totalApproved, color: C.green, icon: "✅" },
-    { label: "Rejected", value: summary.totalRejected, color: "#dc2626", icon: "❌" },
-    { label: "Draft", value: summary.totalDraft, color: "#6b7280", icon: "✏️" },
+    { label: "Total Users", value: summary.totalUsers, color: C.navy, icon: <Users size={18} /> },
+    { label: "Submitted", value: summary.totalSubmitted, color: "#F97316", icon: <Upload size={18} /> },
+    { label: "Under Review", value: summary.totalUnderReview, color: "#7c3aed", icon: <Clock size={18} /> },
+    { label: "Approved", value: summary.totalApproved, color: C.green, icon: <CheckCircle2 size={18} /> },
+    { label: "Rejected", value: summary.totalRejected, color: "#dc2626", icon: <XCircle size={18} /> },
+    { label: "Draft", value: summary.totalDraft, color: "#6b7280", icon: <Pencil size={18} /> },
   ];
 
   const heroChips = [];
@@ -354,7 +359,7 @@ export default function Reports() {
               flexShrink: 0,
             }}
           >
-            📊
+            <BarChart3 size={24} />
           </div>
           <div>
             <div style={{ color: "#fff", fontSize: 25, fontWeight: 800, letterSpacing: 0.2 }}>
@@ -406,7 +411,7 @@ export default function Reports() {
                 cursor: "pointer",
               }}
             >
-              {chip.label} <span style={{ opacity: 0.7, marginLeft: 4 }}>✕</span>
+              {chip.label} <span style={{ opacity: 0.7, marginLeft: 4, display: "inline-flex" }}><X size={13} /></span>
             </button>
           ))}
         </div>
@@ -443,6 +448,7 @@ export default function Reports() {
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 16,
+                color: s.color,
                 marginBottom: 10,
               }}
             >
@@ -471,7 +477,7 @@ export default function Reports() {
       <div className="reports-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
         {/* Status Donut */}
         <Card
-          icon="🥧"
+          icon={<PieChartIcon size={17} />}
           title="Status Overview"
           hint="Live form status distribution"
           tint="#7c3aed"
@@ -576,7 +582,7 @@ export default function Reports() {
 
         {/* District chart */}
         <Card
-          icon="📍"
+          icon={<MapPin size={17} />}
           title="District-wise Registration"
           hint="Click a bar to drill into talukas"
           tint={C.navy}
@@ -651,7 +657,7 @@ export default function Reports() {
       >
         {/* Taluka chart */}
         <Card
-          icon="🏘️"
+          icon={<Building2 size={17} />}
           title={
             selectedDist
               ? `Taluka-wise — ${renameDist(selectedDist)}`
@@ -729,7 +735,7 @@ export default function Reports() {
 
         {/* Village chart */}
         <Card
-          icon="🏠"
+          icon={<Home size={17} />}
           title={
             selectedTaluka
               ? `Village-wise — ${renameTaluka(selectedTaluka)}, ${renameDist(selectedDist)}`
@@ -996,9 +1002,12 @@ export default function Reports() {
                     cursor: pdfBusy ? "default" : "pointer",
                     flexShrink: 0,
                     whiteSpace: "nowrap",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
                   }}
                 >
-                  {pdfBusy ? "Preparing..." : "⬇ PDF"}
+                  {pdfBusy ? "Preparing..." : <><Download size={13} /> PDF</>}
                 </button>
               )}
               <button
@@ -1016,9 +1025,12 @@ export default function Reports() {
                   cursor: "pointer",
                   flexShrink: 0,
                   lineHeight: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
@@ -1050,9 +1062,13 @@ export default function Reports() {
                   borderRadius: 12,
                   border: "1px dashed #d8e0ea",
                   fontSize: 13.5,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 7,
                 }}
               >
-                📭 No users found
+                <Inbox size={17} /> No users found
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
@@ -1166,6 +1182,7 @@ function Card({ title, hint, icon, tint, onBack, action, children }) {
             alignItems: "center",
             justifyContent: "center",
             fontSize: 16,
+            color: tint,
             flexShrink: 0,
           }}
         >
@@ -1188,9 +1205,12 @@ function Card({ title, hint, icon, tint, onBack, action, children }) {
                   fontSize: 11.5,
                   color: C.navy,
                   flexShrink: 0,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
-                ← Back
+                <ArrowLeft size={13} /> Back
               </button>
             )}
             {action}
@@ -1214,9 +1234,13 @@ function EmptyState() {
         borderRadius: 12,
         border: "1px dashed #d8e0ea",
         fontSize: 13.5,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 7,
       }}
     >
-      📭 No data
+      <Inbox size={17} /> No data
     </div>
   );
 }

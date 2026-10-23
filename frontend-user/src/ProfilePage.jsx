@@ -4,6 +4,7 @@ import { useLang } from "./context/LangContext";
 import { getMyForm, getEditRequest } from "./services/api";
 import { Spinner } from "./components/shared/Spinner";
 import C from "./constants/colors";
+import { Smartphone, Mail, ClipboardList, Check, Circle, ArrowRight } from "lucide-react";
 
 const KYC_DOCS = [
   { id: "aadhaarFront", key: "s4_doc_aadh_front" },
@@ -174,8 +175,8 @@ export default function ProfilePage({ onGoForm }) {
               {name || "—"}
             </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>📱 {user?.mobile || "—"}</span>
-              <span style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>✉️ {user?.email || "—"}</span>
+              <span style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", display: "inline-flex", alignItems: "center", gap: 5 }}><Smartphone size={14} /> {user?.mobile || "—"}</span>
+              <span style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", display: "inline-flex", alignItems: "center", gap: 5 }}><Mail size={14} /> {user?.email || "—"}</span>
               <span
                 style={{
                   fontSize: 11.5,
@@ -185,9 +186,12 @@ export default function ProfilePage({ onGoForm }) {
                   background: user?.emailVerified ? "rgba(22,163,74,0.9)" : "rgba(255,255,255,0.18)",
                   border: user?.emailVerified ? "none" : "1px solid rgba(255,255,255,0.3)",
                   color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
-                {user?.emailVerified ? `✓ ${t("profile_verified")}` : t("profile_not_verified")}
+                {user?.emailVerified ? <><Check size={12} strokeWidth={3} /> {t("profile_verified")}</> : t("profile_not_verified")}
               </span>
             </div>
             <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)", marginTop: 8 }}>
@@ -233,7 +237,7 @@ export default function ProfilePage({ onGoForm }) {
 
         {!form ? (
           <div style={{ textAlign: "left", padding: "18px 10px" }}>
-            <div style={{ fontSize: 34, marginBottom: 8 }}>📋</div>
+            <div style={{ fontSize: 34, marginBottom: 8, display: "flex" }}><ClipboardList size={34} /></div>
             <p style={{ margin: "0 0 16px", fontSize: 14.5, color: C.textopa, fontWeight: 600 }}>
               {t("profile_not_started")}
             </p>
@@ -248,9 +252,12 @@ export default function ProfilePage({ onGoForm }) {
                 fontSize: 14.5,
                 fontWeight: 700,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
               }}
             >
-              {t("profile_start_cta")}
+              {t("profile_start_cta")} <ArrowRight size={16} />
             </button>
           </div>
         ) : (
@@ -290,9 +297,12 @@ export default function ProfilePage({ onGoForm }) {
                     fontWeight: 700,
                     cursor: "pointer",
                     flexShrink: 0,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
                   }}
                 >
-                  {copied ? `✓ ${t("profile_copied")}` : t("profile_copy")}
+                  {copied ? <><Check size={12} strokeWidth={3} /> {t("profile_copied")}</> : t("profile_copy")}
                 </button>
               )}
             </div>
@@ -429,9 +439,12 @@ export default function ProfilePage({ onGoForm }) {
                     background: up ? "#dcfce7" : "#f3f4f6",
                     color: up ? "#16a34a" : "#6b7280",
                     flexShrink: 0,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
                   }}
                 >
-                  {up ? `✓ ${t("profile_uploaded")}` : `○ ${t("profile_pending")}`}
+                  {up ? <><Check size={12} strokeWidth={3} /> {t("profile_uploaded")}</> : <><Circle size={10} strokeWidth={2.5} /> {t("profile_pending")}</>}
                 </span>
               </div>
             );

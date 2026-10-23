@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { CheckCircle2 } from "lucide-react";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
 
@@ -66,9 +67,10 @@ export default function RegistrationSuccessPage() {
                 justifyContent: "center",
                 margin: "0 0 14px",
                 fontSize: 30,
+                color: "#fff",
               }}
             >
-              ✅
+              <CheckCircle2 size={34} />
             </div>
             <h1
               style={{

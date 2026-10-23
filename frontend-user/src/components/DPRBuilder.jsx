@@ -5,6 +5,7 @@ import DocUploadBox from "./shared/DocUploadBox";
 import { Spinner } from "./shared/Spinner";
 import { getMyForm, uploadDoc, removeDoc, apiMsg } from "../services/api";
 import guicon from "../assets/guicon.svg";
+import { Building, FileText, BarChart3, Hammer, X, Check, TriangleAlert, ChevronUp, ChevronDown, ArrowLeft, ArrowRight } from "lucide-react";
 
 const STEPS = ["dpr_step_sizing", "dpr_step_ops", "dpr_step_subsidy", "dpr_step_kyc", "dpr_step_fin"];
 
@@ -290,8 +291,8 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
         <div style={{ padding: "18px 22px 14px", borderBottom: "1px solid #eef2f7", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <div style={{ flex: 1, textAlign: "left" }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.navy }}>
-                🏗️ {t("dpr_title")}
+              <div style={{ fontSize: 18, fontWeight: 800, color: C.navy, display: "flex", alignItems: "center", gap: 8 }}>
+                <Hammer size={19} /> {t("dpr_title")}
               </div>
               <div style={{ fontSize: 13, fontWeight: 600, color: C.textopa, marginTop: 4 }}>
                 {entry.variantName} (Variant {entry.variantId}) — {entry.category || entry.sector}
@@ -313,7 +314,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                 lineHeight: 1,
               }}
             >
-              ✕
+              <X size={16} />
             </button>
           </div>
 
@@ -342,7 +343,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                     cursor: i <= maxVisited ? "pointer" : "default",
                   }}
                 >
-                  {done && !active ? "✓ " : `${i + 1}. `}{t(k)}
+                  {done && !active ? <Check size={12} strokeWidth={3} style={{ verticalAlign: "-1px", marginRight: 2 }} /> : `${i + 1}. `}{t(k)}
                 </div>
               );
             })}
@@ -464,8 +465,8 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
           {step === 3 && (
             <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                <div style={{ fontSize: 15.5, fontWeight: 800, color: C.navy, textAlign: "left" }}>
-                  📄 {t("dpr_kyc_title")}
+                <div style={{ fontSize: 15.5, fontWeight: 800, color: C.navy, textAlign: "left", display: "flex", alignItems: "center", gap: 7 }}>
+                  <FileText size={17} /> {t("dpr_kyc_title")}
                 </div>
                 <div
                   style={{
@@ -504,7 +505,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                             textAlign: "center",
                           }}
                         >
-                          <span style={{ fontSize: 22, color: "#16a34a", fontWeight: 800 }}>✓</span>
+                          <span style={{ color: "#16a34a", display: "flex" }}><Check size={22} strokeWidth={3} /></span>
                           <span style={{ fontSize: 12, fontWeight: 700, color: "#166534" }}>{label}</span>
                           <span style={{ fontSize: 9.5, fontWeight: 700, color: "#16a34a" }}>{t("dpr_uploaded")}</span>
                         </div>
@@ -528,7 +529,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                           fontFamily: "inherit",
                         }}
                       >
-                        <span style={{ fontSize: 20, color: "#d97706" }}>⚠</span>
+                        <span style={{ color: "#d97706", display: "flex" }}><TriangleAlert size={20} /></span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: "#92400e" }}>{label}</span>
                         <span style={{ fontSize: 9.5, fontWeight: 700, color: "#d97706" }}>{t("dpr_not_in_form")}</span>
                       </button>
@@ -562,8 +563,8 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
           {/* Step 5 — Financial Preview */}
           {step === 4 && (
             <div className="dpr-step" style={{ background: "transparent", padding: 0 }}>
-              <div style={{ fontSize: 15.5, fontWeight: 800, color: C.navy, textAlign: "left", marginBottom: 14 }}>
-                📊 {t("dpr_fin_title")}
+              <div style={{ fontSize: 15.5, fontWeight: 800, color: C.navy, textAlign: "left", marginBottom: 14, display: "flex", alignItems: "center", gap: 7 }}>
+                <BarChart3 size={17} /> {t("dpr_fin_title")}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10 }}>
                 {finCards.map((c) => (
@@ -628,7 +629,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                   textAlign: "left",
                 }}
               >
-                {t("dpr_more")} {showMore ? "▲" : "▼"}
+                {t("dpr_more")} <span style={{ display: "inline-flex", verticalAlign: "-2px", marginLeft: 4 }}>{showMore ? <ChevronUp size={13} /> : <ChevronDown size={13} />}</span>
               </button>
               {showMore && (
                 <div style={{ marginTop: 10, borderTop: "1px dashed #e2e8f0", paddingTop: 12 }}>
@@ -697,7 +698,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                   cursor: "pointer",
                 }}
               >
-                ← {t("dpr_back")}
+                <span style={{ display: "inline-flex", verticalAlign: "-2px", marginRight: 5 }}><ArrowLeft size={14} /></span>{t("dpr_back")}
               </button>
             )}
           </div>
@@ -718,7 +719,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
                 boxShadow: stepValid ? "0 4px 12px rgba(249,115,22,.35)" : "none",
               }}
             >
-              {t("dpr_next")} →
+              {t("dpr_next")} <span style={{ display: "inline-flex", verticalAlign: "-2px", marginLeft: 5 }}><ArrowRight size={14} /></span>
             </button>
           ) : (
             <button
@@ -740,7 +741,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
               }}
             >
               {pdfBusy && <Spinner size={15} />}
-              {pdfBusy ? t("dpr_generating") : `📄 ${t("dpr_generate")}`}
+              {pdfBusy ? t("dpr_generating") : <><FileText size={15} /> {t("dpr_generate")}</>}
             </button>
           )}
         </div>
@@ -826,7 +827,7 @@ export default function DPRBuilder({ entry, onClose, onGoForm }) {
               return (
                 <div key={d.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, padding: "5px 8px", background: ok ? "#f0fdf4" : "#fef2f2", borderRadius: 6 }}>
                   <span style={{ color: "#475569", fontWeight: 600 }}>{t(d.key)}</span>
-                  <span style={{ fontWeight: 800, color: ok ? "#16a34a" : "#dc2626" }}>{ok ? "✓" : "✗"}</span>
+                  <span style={{ fontWeight: 800, color: ok ? "#16a34a" : "#dc2626", display: "inline-flex", verticalAlign: "-2px" }}>{ok ? <Check size={14} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}</span>
                 </div>
               );
             })}

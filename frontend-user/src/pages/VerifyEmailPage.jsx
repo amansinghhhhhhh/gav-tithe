@@ -13,6 +13,7 @@ import { checkSamePassword, resetPasswordEmail } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
+import { Hourglass, CheckCircle2, KeyRound, TriangleAlert, Eye, EyeOff, XCircle, ArrowLeft } from "lucide-react";
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -156,7 +157,7 @@ export default function VerifyEmailPage() {
         {/* Verifying */}
         {status === "verifying" && (
           <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+            <div style={{ fontSize: 48, marginBottom: 16, display: "flex", justifyContent: "center" }}><Hourglass size={44} color="#F97316" /></div>
             <h2 style={{ color: C.navy, fontWeight: 800, margin: "0 0 8px" }}>
               {t("verify_verifying")}
             </h2>
@@ -178,9 +179,10 @@ export default function VerifyEmailPage() {
                 justifyContent: "center",
                 margin: "0 auto 20px",
                 fontSize: 36,
+                color: "#16a34a",
               }}
             >
-              ✅
+              <CheckCircle2 size={44} />
             </div>
             <h2
               style={{ color: "#166534", fontWeight: 800, margin: "0 0 8px" }}
@@ -215,9 +217,13 @@ export default function VerifyEmailPage() {
                 fontWeight: 700,
                 fontSize: 15,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
               }}
             >
-              {t("verify_login_btn")}
+              <ArrowLeft size={16} /> {t("verify_login_btn")}
             </button>
           </>
         )}
@@ -236,9 +242,10 @@ export default function VerifyEmailPage() {
                 justifyContent: "center",
                 margin: "0 auto 20px",
                 fontSize: 36,
+                color: "#d97706",
               }}
             >
-              🔑
+              <KeyRound size={44} />
             </div>
             <h2 style={{ color: C.maroon, fontWeight: 800, margin: "0 0 4px" }}>
               Set New Password
@@ -262,7 +269,7 @@ export default function VerifyEmailPage() {
                   textAlign: "left",
                 }}
               >
-                ⚠ {msg}
+                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {msg}
               </div>
             )}
 
@@ -309,7 +316,7 @@ export default function VerifyEmailPage() {
                       fontSize: 18,
                     }}
                   >
-                    {showPass ? "🙈" : "👁"}
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </span>
                 </div>
               </div>
@@ -374,14 +381,15 @@ export default function VerifyEmailPage() {
                 justifyContent: "center",
                 margin: "0 auto 20px",
                 fontSize: 36,
+                color: "#16a34a",
               }}
             >
-              ✅
+              <CheckCircle2 size={44} />
             </div>
             <h2
               style={{ color: "#166534", fontWeight: 800, margin: "0 0 8px" }}
             >
-              "Password Changed! 🎉"
+              Password Changed!
             </h2>
             <p style={{ color: "#6b7280", fontSize: 14, margin: "0 0 20px" }}>
               "Your password has been successfully changed."
@@ -411,9 +419,13 @@ export default function VerifyEmailPage() {
                 fontWeight: 700,
                 fontSize: 15,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
               }}
             >
-              {t("verify_login_btn")}
+              <ArrowLeft size={16} /> {t("verify_login_btn")}
             </button>
           </>
         )}
@@ -421,7 +433,7 @@ export default function VerifyEmailPage() {
         {/* Error */}
         {status === "error" && (
           <>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>❌</div>
+            <div style={{ fontSize: 48, marginBottom: 16, display: "flex", justifyContent: "center" }}><XCircle size={44} color="#dc2626" /></div>
             <h2
               style={{ color: "#dc2626", fontWeight: 800, margin: "0 0 8px" }}
             >
@@ -442,9 +454,13 @@ export default function VerifyEmailPage() {
                 fontWeight: 700,
                 fontSize: 15,
                 cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
               }}
             >
-              {t("verify_go_login")}
+              <ArrowLeft size={16} /> {t("verify_go_login")}
             </button>
           </>
         )}

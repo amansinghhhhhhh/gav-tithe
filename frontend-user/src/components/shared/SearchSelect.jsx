@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { inputStyle } from "./styles";
+import { ChevronDown, TriangleAlert } from "lucide-react";
 
 const toObj = (o) => (typeof o === "string" ? { value: o, label: o } : o);
 
@@ -130,7 +131,7 @@ export default function SearchSelect({
             fontSize: 10,
           }}
         >
-          ▼
+          <ChevronDown size={14} />
         </span>
       </div>
 
@@ -197,7 +198,7 @@ export default function SearchSelect({
 
       {hasError && (
         <span style={{ fontSize: 11, color: "#e53e3e", display: "block", marginTop: 4 }}>
-          ⚠ {error}
+          <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {error}
         </span>
       )}
     </div>

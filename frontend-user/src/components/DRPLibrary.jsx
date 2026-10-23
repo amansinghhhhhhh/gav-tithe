@@ -7,6 +7,7 @@ import DPRBuilder from "./DPRBuilder";
 import { districts } from "../constants/maharashtraData";
 import { districtMr } from "../constants/maharashtraDataMr";
 import { override } from "../constants/placeRename";
+import { Factory, Coins, MapPin, Library, Search, ClipboardList, Tag, Wrench, X, ArrowRight, Menu, ChevronUp, ChevronDown } from "lucide-react";
 
 const SECTORS = [
   "Agro-Processing",
@@ -263,9 +264,10 @@ export default function DRPLibrary({ onGoForm }) {
                   justifyContent: "center",
                   fontSize: 14,
                   flexShrink: 0,
+                  color: "#fff",
                 }}
               >
-                🏭
+                <Factory size={16} />
               </span>
               <h4
                 style={{
@@ -381,7 +383,7 @@ export default function DRPLibrary({ onGoForm }) {
                   flexShrink: 0,
                 }}
               >
-                💰
+                <Coins size={15} />
               </span>
               <h4
                 style={{
@@ -490,7 +492,7 @@ export default function DRPLibrary({ onGoForm }) {
                   flexShrink: 0,
                 }}
               >
-                📍
+                <MapPin size={15} />
               </span>
               <h4
                 style={{
@@ -573,8 +575,8 @@ export default function DRPLibrary({ onGoForm }) {
               }}
             >
               {lang === "mr"
-                ? `${filteredEntries.length} निवडलेले दाखवा →`
-                : `Show ${filteredEntries.length} results →`}
+                ? `${filteredEntries.length} निवडलेले दाखवा`
+                : `Show ${filteredEntries.length} results`} <span style={{ display: "inline-flex", verticalAlign: "-2px", marginLeft: 5 }}><ArrowRight size={15} /></span>
             </button>
           </div>
         )}
@@ -651,7 +653,7 @@ export default function DRPLibrary({ onGoForm }) {
                 flexShrink: 0,
               }}
             >
-              📚
+              <Library size={isSmall ? 18 : 24} />
             </div>
             <div style={{ minWidth: 0, textAlign: "left" }}>
               <h2
@@ -692,7 +694,7 @@ export default function DRPLibrary({ onGoForm }) {
                 pointerEvents: "none",
               }}
             >
-              🔍
+              <Search size={15} />
             </span>
             <input
               type="text"
@@ -769,7 +771,7 @@ export default function DRPLibrary({ onGoForm }) {
               gap: 7,
             }}
           >
-            <span style={{ fontSize: 15, lineHeight: 1 }}>☰</span>
+            <span style={{ display: "flex", lineHeight: 1 }}><Menu size={16} /></span>
             {lang === "mr" ? "फिल्टर" : "Filters"}
             {hasActiveFilters && (
               <span
@@ -816,8 +818,8 @@ export default function DRPLibrary({ onGoForm }) {
                   cursor: "pointer",
                 }}
               >
-                🔍 {search.trim()}
-                <span style={{ fontSize: 14, lineHeight: 1 }}>×</span>
+                <Search size={12} /> {search.trim()}
+                <span style={{ fontSize: 14, lineHeight: 1, marginLeft: 4 }}>×</span>
               </span>
             )}
             {selectedSectors.map((s) => (
@@ -877,8 +879,8 @@ export default function DRPLibrary({ onGoForm }) {
                   cursor: "pointer",
                 }}
               >
-                📍 {distLabel(selectedDistrict)}
-                <span style={{ fontSize: 14, lineHeight: 1 }}>×</span>
+                <MapPin size={12} /> {distLabel(selectedDistrict)}
+                <span style={{ fontSize: 14, lineHeight: 1, marginLeft: 4 }}>×</span>
               </span>
             )}
           </div>
@@ -909,7 +911,7 @@ export default function DRPLibrary({ onGoForm }) {
               color: C.textopa,
             }}
           >
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+            <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><ClipboardList size={48} /></div>
             <h3 style={{ margin: 0, fontSize: 18, color: C.navy }}>
               {search.trim()
                 ? lang === "mr"
@@ -1122,7 +1124,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle, onOpenBuilder }
             gap: 4,
           }}
         >
-          📍 {entry.location}
+          <MapPin size={13} /> {entry.location}
         </div>
 
         {/* Investment Range */}
@@ -1223,7 +1225,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle, onOpenBuilder }
             marginBottom: 12,
           }}
         >
-          <span style={{ fontSize: 14 }}>🏷️</span>
+          <span style={{ display: "flex" }}><Tag size={15} /></span>
           <span
             style={{
               fontSize: 12,
@@ -1318,7 +1320,7 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle, onOpenBuilder }
                 gap: 6,
               }}
             >
-              🔧 Open DPR Builder
+              <Wrench size={14} /> Open DPR Builder
             </button>
           </div>
         )}
@@ -1336,13 +1338,14 @@ function DRPCard({ entry, getTagColor, lang, expanded, onToggle, onOpenBuilder }
             letterSpacing: 0.3,
           }}
         >
+          <span style={{ display: "inline-flex", verticalAlign: "-2px", marginRight: 5 }}>{expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}</span>
           {expanded
             ? lang === "mr"
-              ? "▲ बंद करा"
-              : "▲ Close"
+              ? "बंद करा"
+              : "Close"
             : lang === "mr"
-            ? "▼ सविस्तर पहा"
-            : "▼ View details"}
+            ? "सविस्तर पहा"
+            : "View details"}
         </div>
       </div>
     </div>

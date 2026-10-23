@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useLang } from "../../context/LangContext";
 import { Spinner } from "./Spinner";
 import C from "../../constants/colors";
+import { X, CheckCircle2, CloudUpload, TriangleAlert } from "lucide-react";
 
 const FILE_MAX = 5 * 1024 * 1024;   // 5 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
@@ -61,7 +62,7 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, on
             boxShadow: "0 1px 3px rgba(0,0,0,.25)",
           }}
         >
-          ✕
+          <X size={12} strokeWidth={2.5} />
         </button>
       )}
       <label
@@ -92,9 +93,9 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, on
           {showSpinner ? (
             <Spinner size={20} />
           ) : uploaded ? (
-            "✅"
+            <CheckCircle2 size={24} color="#22c55e" />
           ) : (
-            "☁️"
+            <CloudUpload size={24} color="#94a3b8" />
           )}
         </span>
 
@@ -117,7 +118,7 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, on
 
       {(err || error) && (
         <span style={{ fontSize: 10, color: "#e53e3e", display: "block", textAlign: "center", marginTop: 4 }}>
-          ⚠ {err || error}
+          <TriangleAlert size={10} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {err || error}
         </span>
       )}
     </div>

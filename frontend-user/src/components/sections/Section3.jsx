@@ -6,6 +6,7 @@ import { RadioGroup } from "../shared/RadioGroup";
 import Select from "../shared/Select";
 import { inputStyle, labelStyle, sectionCardStyle } from "../shared/styles";
 import useValidation from "../../hooks/useValidation";
+import { TriangleAlert } from "lucide-react";
 import {
   ValidatedInput,
   ValidatedSelect,
@@ -83,7 +84,7 @@ function Section3({ data, dispatch, registerNext, onNext }) {
           />
           {errors.hadLoan && (
             <span style={{ fontSize: 11, color: "#e53e3e" }}>
-              ⚠ {errors.hadLoan}
+              <TriangleAlert size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} /> {errors.hadLoan}
             </span>
           )}
         </div>

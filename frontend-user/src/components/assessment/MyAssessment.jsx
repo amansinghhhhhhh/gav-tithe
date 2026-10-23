@@ -10,6 +10,7 @@ import {
   retakeAssessment,
 } from "../../services/api";
 import { questions } from "../../constants/assessmentQuestions";
+import { ClipboardList, Rocket, ArrowLeft, ArrowRight, Check } from "lucide-react";
 import QuestionStep from "./QuestionStep";
 import AssessmentComplete from "./AssessmentComplete";
 
@@ -210,7 +211,7 @@ export default function MyAssessment() {
                 fontSize: 30,
               }}
             >
-              📋
+              <ClipboardList size={30} />
             </div>
             <h2
               style={{
@@ -327,15 +328,20 @@ export default function MyAssessment() {
                 fontSize: 16,
                 cursor: "pointer",
                 boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
               }}
             >
+              <Rocket size={17} />
               {assessment?.answers?.length > 0 && !assessment.completed
                 ? lang === "mr"
-                  ? "🚀 पुन्हा सुरू करा"
-                  : "🚀 Resume Assessment"
+                  ? "पुन्हा सुरू करा"
+                  : "Resume Assessment"
                 : lang === "mr"
-                ? "🚀 सुरू करा"
-                : "🚀 Start Assessment"}
+                ? "सुरू करा"
+                : "Start Assessment"}
             </button>
           </div>
         </div>
@@ -499,9 +505,13 @@ export default function MyAssessment() {
             fontWeight: 700,
             fontSize: 14,
             cursor: currentStep === 1 ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 7,
           }}
         >
-          ← {lang === "mr" ? "मागे" : "Back"}
+          <ArrowLeft size={15} /> {lang === "mr" ? "मागे" : "Back"}
         </button>
         <button
           onClick={handleNext}
@@ -529,15 +539,22 @@ export default function MyAssessment() {
               answers[currentStep] && answers[currentStep].length > 0
                 ? "0 4px 14px rgba(249,115,22,0.35)"
                 : "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 7,
           }}
         >
-          {currentStep === 15
-            ? lang === "mr"
-              ? "✅ पूर्ण करा"
-              : "✅ Complete"
-            : lang === "mr"
-            ? "पुढे →"
-            : "Next →"}
+          {currentStep === 15 ? (
+            <>
+              <Check size={16} strokeWidth={3} />
+              {lang === "mr" ? "पूर्ण करा" : "Complete"}
+            </>
+          ) : (
+            <>
+              {lang === "mr" ? "पुढे" : "Next"} <ArrowRight size={16} />
+            </>
+          )}
         </button>
       </div>
     </div>

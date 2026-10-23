@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 import { getSevaList } from "../services/api";
+import { Lightbulb, Search, FolderOpen, Eye, XCircle } from "lucide-react";
 
 const STATUS_BADGE = {
   submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted" },
@@ -58,7 +59,7 @@ export default function SevaFirstList() {
       setApps(res.applications || []);
       setTotal(res.total || 0);
     } else {
-      setMsg("❌ " + (res?.message || "Load failed"));
+      setMsg(res?.message || "Load failed");
       setTimeout(() => setMsg(""), 3000);
     }
     setLoading(false);
@@ -84,8 +85,8 @@ export default function SevaFirstList() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 18 }}>
         <div>
-          <h1 style={{ color: C.navy, fontSize: 24, fontWeight: 800, margin: 0 }}>
-            💡 Seva First Applications
+          <h1 style={{ color: C.navy, fontSize: 24, fontWeight: 800, margin: 0, display: "flex", alignItems: "center", gap: 9 }}>
+            <Lightbulb size={24} color="#e65100" /> Seva First Applications
           </h1>
           <p style={{ color: C.textopa, fontSize: 13.5, margin: "5px 0 0" }}>
             Seva First Innovation Challenge — total {total} application{total === 1 ? "" : "s"}
@@ -96,31 +97,34 @@ export default function SevaFirstList() {
       {msg && (
         <div
           className="modal-fade"
-          style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "10px 16px", borderRadius: 10, marginBottom: 14, fontWeight: 600, fontSize: 13.5 }}
+          style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "10px 16px", borderRadius: 10, marginBottom: 14, fontWeight: 600, fontSize: 13.5, display: "flex", alignItems: "center", gap: 7 }}
         >
+          <XCircle size={15} />
           {msg}
         </div>
       )}
 
       {/* Toolbar */}
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
-        <input
-          value={q}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder="🔍 Search SF ID, name, mobile..."
-          className="admin-search"
-          style={{
-            flex: "1 1 260px",
-            maxWidth: 380,
-            padding: "10px 16px",
-            border: "1.5px solid #cbd5e1",
-            borderRadius: 10,
-            fontSize: 13.5,
-            outline: "none",
-            background: C.white,
-            boxSizing: "border-box",
-          }}
-        />
+        <div style={{ position: "relative", flex: "1 1 260px", maxWidth: 380 }}>
+          <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#9ca3af", pointerEvents: "none" }} />
+          <input
+            value={q}
+            onChange={(e) => onSearch(e.target.value)}
+            placeholder="Search SF ID, name, mobile..."
+            className="admin-search"
+            style={{
+              width: "100%",
+              padding: "10px 16px 10px 34px",
+              border: "1.5px solid #cbd5e1",
+              borderRadius: 10,
+              fontSize: 13.5,
+              outline: "none",
+              background: C.white,
+              boxSizing: "border-box",
+            }}
+          />
+        </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {FILTERS.map((f) => (
             <button
@@ -158,8 +162,9 @@ export default function SevaFirstList() {
             <div style={{ color: C.maroon, fontWeight: 600 }}>Loading applications...</div>
           </div>
         ) : apps.length === 0 ? (
-          <div style={{ padding: "56px 0", textAlign: "center", color: C.textopa, fontSize: 14, fontWeight: 600 }}>
-            📂 No applications found.
+          <div style={{ padding: "56px 0", textAlign: "center", color: C.textopa, fontSize: 14, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+            <FolderOpen size={32} />
+            No applications found.
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
@@ -236,9 +241,9 @@ export default function SevaFirstList() {
                           navigate(`/seva-first/${app._id}`);
                         }}
                         className="btn-navy"
-                        style={{ padding: "6px 14px", background: C.navy, color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                        style={{ padding: "6px 14px", background: C.navy, color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}
                       >
-                        👁 View
+                        <Eye size={13} /> View
                       </button>
                     </td>
                   </tr>

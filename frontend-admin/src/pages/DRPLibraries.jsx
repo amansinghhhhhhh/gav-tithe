@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import { ClipboardList, MapPin, Pencil, Trash2, X } from "lucide-react";
 import {
   getDRPLibraries,
   createDRPLibrary,
@@ -257,7 +258,7 @@ export default function DRPLibraries() {
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: "center", padding: 60, color: C.textopa }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
+          <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><ClipboardList size={40} /></div>
           <p>No entries found</p>
         </div>
       ) : (
@@ -293,8 +294,8 @@ export default function DRPLibraries() {
                     <td style={{ padding: "12px 14px", fontSize: 13, color: "#6b7280" }}>
                       {entry.odop}
                     </td>
-                    <td style={{ padding: "12px 14px", fontSize: 13 }}>
-                      📍 {entry.location}
+                    <td style={{ padding: "12px 14px", fontSize: 13, display: "flex", alignItems: "center", gap: 5 }}>
+                      <MapPin size={13} /> {entry.location}
                     </td>
                     <td style={{ padding: "12px 14px", fontSize: 13, fontWeight: 600 }}>
                       {entry.investmentRange}
@@ -337,9 +338,10 @@ export default function DRPLibraries() {
                             padding: "6px 12px", background: C.navy, color: "#fff",
                             border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600,
                             cursor: "pointer", whiteSpace: "nowrap",
+                            display: "inline-flex", alignItems: "center", gap: 5,
                           }}
                         >
-                          ✏️ Edit
+                          <Pencil size={12} /> Edit
                         </button>
                         <button
                           className="btn-ghost-red"
@@ -348,9 +350,10 @@ export default function DRPLibraries() {
                             padding: "6px 12px", background: "#fff", color: "#dc2626",
                             border: "1px solid #fca5a5", borderRadius: 8, fontSize: 12, fontWeight: 600,
                             cursor: "pointer", whiteSpace: "nowrap",
+                            display: "inline-flex", alignItems: "center", gap: 5,
                           }}
                         >
-                          🗑 Del
+                          <Trash2 size={12} /> Del
                         </button>
                       </div>
                     </td>
@@ -389,9 +392,10 @@ export default function DRPLibraries() {
                 style={{
                   background: "none", border: "none", fontSize: 24,
                   cursor: "pointer", color: "#9ca3af",
+                  display: "flex", alignItems: "center",
                 }}
               >
-                ×
+                <X size={22} />
               </button>
             </div>
 
