@@ -268,7 +268,7 @@ export default function ApplicationChoice() {
               </div>
             </div>
             <div style={{ padding: "22px 24px", flex: 1, display: "flex", flexDirection: "column" }}>
-              <p style={{ color: C.textopa, fontSize: 14, lineHeight: 1.65, margin: "0 0 12px" }}>{t("choice_seva_desc")}</p>
+              <p style={{ color: "#334155", fontSize: 16, fontWeight: 500, lineHeight: 1.65, margin: "0 0 12px" }}>{t("choice_seva_desc")}</p>
               {sevaApps.length > 0 && (
                 <div
                   style={{
