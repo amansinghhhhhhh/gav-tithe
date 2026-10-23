@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Lightbulb, Languages, Send, Sprout, Rocket, Briefcase, Building2,
+  Check, Trash2, FileText, IdCard, Image, ScrollText, TriangleAlert,
+  PartyPopper, FolderOpen, Calendar, X,
+} from "lucide-react";
 import { useLang } from "../context/LangContext";
 import { submitSevaApplication, getMySevaApps, apiMsg } from "../services/api";
 import { Spinner } from "../components/shared/Spinner";
@@ -119,7 +124,7 @@ export default function SevaFirstPage() {
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const showErr = (m) => {
-    setMsg("❌ " + m);
+    setMsg(m);
     setTimeout(() => setMsg(""), 4000);
   };
 
@@ -209,7 +214,9 @@ export default function SevaFirstPage() {
         </div>
         <div style={{ maxWidth: 640, margin: "0 auto", padding: "60px 20px" }}>
           <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 10px 40px rgba(0,0,0,0.08)", padding: "44px 34px", textAlign: "center" }}>
-            <div style={{ fontSize: 56 }}>🎉</div>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: BRAND.lightGreen, display: "flex", alignItems: "center", justifyContent: "center", margin: "18px auto 0" }}>
+              <PartyPopper size={36} color={BRAND.green} />
+            </div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111827", margin: "14px 0 8px", lineHeight: 1.35 }}>{t("seva_ack_title")}</h1>
             <p style={{ fontSize: 14, color: "#6b7280", marginTop: 22 }}>{t("seva_ack_sub")}</p>
             <div
@@ -302,7 +309,7 @@ export default function SevaFirstPage() {
           onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.3)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.2)")}
         >
-          <span style={{ fontWeight: 800, fontSize: 12 }}>🌐</span>
+          <Languages size={14} strokeWidth={2.5} />
           <span style={{ fontSize: 11.5, fontWeight: 800, textTransform: "uppercase" }}>
             {lang === "mr" ? "English" : "मराठी"}
           </span>
@@ -324,13 +331,11 @@ export default function SevaFirstPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 21,
-                fontWeight: 800,
                 boxShadow: "0 3px 10px rgba(230,81,0,0.3)",
                 flexShrink: 0,
               }}
             >
-              💡
+              <Lightbulb size={21} color="#fff" strokeWidth={2.2} />
             </span>
             <div style={{ minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -375,7 +380,7 @@ export default function SevaFirstPage() {
               href="#seva-apply"
               style={{ background: `linear-gradient(135deg, ${BRAND.orange}, ${BRAND.saffron})`, color: "#fff", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 7, boxShadow: "0 3px 10px rgba(230,81,0,0.3)", whiteSpace: "nowrap" }}
             >
-              ✈ {t("seva_btn_apply_now")}
+              <Send size={13} strokeWidth={2.4} /> {t("seva_btn_apply_now")}
             </a>
           </div>
         </div>
@@ -383,7 +388,8 @@ export default function SevaFirstPage() {
 
       {/* Toast */}
       {msg && (
-        <div style={{ position: "fixed", top: 16, right: 16, zIndex: 9999, background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "11px 20px", borderRadius: 10, fontWeight: 600, fontSize: 13.5, boxShadow: "0 4px 14px rgba(0,0,0,0.12)", maxWidth: 380 }}>
+        <div style={{ position: "fixed", top: 16, right: 16, zIndex: 9999, background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "11px 20px", borderRadius: 10, fontWeight: 600, fontSize: 13.5, boxShadow: "0 4px 14px rgba(0,0,0,0.12)", maxWidth: 380, display: "flex", alignItems: "center", gap: 7 }}>
+          <X size={15} style={{ flexShrink: 0 }} />
           {msg}
         </div>
       )}
@@ -399,7 +405,7 @@ export default function SevaFirstPage() {
       >
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.18)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, padding: "7px 18px", fontSize: 13, fontWeight: 600, marginBottom: 22 }}>
-            <span style={{ color: "#4ade80" }}>🌱</span> {t("seva_hero_tagline")}
+            <Sprout size={16} color="#4ade80" strokeWidth={2.4} /> {t("seva_hero_tagline")}
           </div>
           <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontWeight: 800, lineHeight: 1.3, margin: 0 }}>
             {t("seva_hero_title")}
@@ -413,7 +419,7 @@ export default function SevaFirstPage() {
               href="#seva-apply"
               style={{ background: BRAND.orange, color: "#fff", fontWeight: 800, fontSize: 15, padding: "14px 30px", borderRadius: 14, textDecoration: "none", boxShadow: "0 6px 20px rgba(230,81,0,0.45)" }}
             >
-              🚀 {t("seva_hero_cta")}
+              <Rocket size={16} strokeWidth={2.4} /> {t("seva_hero_cta")}
             </a>
             <a
               href={PPT_TEMPLATE_URL}
@@ -435,11 +441,11 @@ export default function SevaFirstPage() {
           <p style={{ color: "#6b7280", fontSize: 14, maxWidth: 620, margin: "0 auto 30px" }}>{t("seva_need_sub")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, textAlign: "left" }}>
             {[
-              { icon: "💼", title: t("seva_card1_title"), desc: t("seva_card1_desc") },
-              { icon: "🏙️", title: t("seva_card2_title"), desc: t("seva_card2_desc") },
+              { icon: <Briefcase size={24} color={BRAND.orange} strokeWidth={2} />, title: t("seva_card1_title"), desc: t("seva_card1_desc") },
+              { icon: <Building2 size={24} color={BRAND.orange} strokeWidth={2} />, title: t("seva_card2_title"), desc: t("seva_card2_desc") },
             ].map((card) => (
               <div key={card.title} style={{ border: "1px solid #e5e7eb", borderLeft: `4px solid ${BRAND.orange}`, borderRadius: 16, padding: 24, display: "flex", gap: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-                <span style={{ width: 48, height: 48, borderRadius: 12, background: BRAND.lightOrange, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{card.icon}</span>
+                <span style={{ width: 48, height: 48, borderRadius: 12, background: BRAND.lightOrange, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{card.icon}</span>
                 <div>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: "#111827", margin: 0 }}>{card.title}</h3>
                   <p style={{ fontSize: 13, color: "#6b7280", marginTop: 8, lineHeight: 1.65, margin: "8px 0 0" }}>{card.desc}</p>
@@ -529,7 +535,7 @@ export default function SevaFirstPage() {
                       fontSize: 14,
                     }}
                   >
-                    {done ? "✓" : num}
+                    {done ? <Check size={14} strokeWidth={3} /> : num}
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 700, marginTop: 7, color: done ? BRAND.green : active ? BRAND.orange : "#9ca3af", textAlign: "center" }}>{t(s.lbl)}</span>
                 </div>
@@ -584,7 +590,7 @@ export default function SevaFirstPage() {
                       <input style={{ ...FIELD_BASE, padding: "8px 10px", fontSize: 12.5 }} placeholder={t("seva_member_name")} value={m.name} onChange={(e) => { const t2 = [...form.teamMembers]; t2[i] = { ...t2[i], name: e.target.value }; set("teamMembers", t2); }} />
                       <input style={{ ...FIELD_BASE, padding: "8px 10px", fontSize: 12.5 }} placeholder={t("seva_member_role")} value={m.role} onChange={(e) => { const t2 = [...form.teamMembers]; t2[i] = { ...t2[i], role: e.target.value }; set("teamMembers", t2); }} />
                       <input style={{ ...FIELD_BASE, padding: "8px 10px", fontSize: 12.5 }} placeholder={t("seva_member_contact")} value={m.contact} onChange={(e) => { const t2 = [...form.teamMembers]; t2[i] = { ...t2[i], contact: e.target.value }; set("teamMembers", t2); }} />
-                      <button type="button" onClick={() => set("teamMembers", form.teamMembers.filter((_, j) => j !== i))} style={{ background: "none", border: "none", color: "#dc2626", fontSize: 16, cursor: "pointer", padding: "4px 8px" }}>🗑</button>
+                      <button type="button" onClick={() => set("teamMembers", form.teamMembers.filter((_, j) => j !== i))} style={{ background: "none", border: "none", color: "#dc2626", cursor: "pointer", padding: "4px 8px", display: "flex" }}><Trash2 size={16} /></button>
                     </div>
                   ))}
                 </div>
@@ -643,13 +649,16 @@ export default function SevaFirstPage() {
                 <SectionHead title={t("seva_step4_title")} sub={t("seva_step4_sub")} />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 14 }}>
                   {[
-                    { key: "ppt", label: `📄 ${t("seva_file_ppt")}`, hint: t("seva_file_ppt_hint"), accept: ".ppt,.pptx,.pdf", max: 15, required: true },
-                    { key: "idProof", label: `🪪 ${t("seva_file_id")}`, hint: t("seva_file_id_hint"), accept: ".pdf,.png,.jpg,.jpeg,.webp", max: 5, required: true },
-                    { key: "prototype", label: `🖼️ ${t("seva_file_proto")}`, hint: t("seva_file_proto_hint"), accept: ".png,.jpg,.jpeg,.pdf,.zip,.webp", max: 10, required: false },
-                    { key: "research", label: `📜 ${t("seva_file_research")}`, hint: t("seva_file_research_hint"), accept: ".pdf", max: 5, required: false },
+                    { key: "ppt", icon: <FileText size={14} strokeWidth={2.2} />, label: t("seva_file_ppt"), hint: t("seva_file_ppt_hint"), accept: ".ppt,.pptx,.pdf", max: 15, required: true },
+                    { key: "idProof", icon: <IdCard size={14} strokeWidth={2.2} />, label: t("seva_file_id"), hint: t("seva_file_id_hint"), accept: ".pdf,.png,.jpg,.jpeg,.webp", max: 5, required: true },
+                    { key: "prototype", icon: <Image size={14} strokeWidth={2.2} />, label: t("seva_file_proto"), hint: t("seva_file_proto_hint"), accept: ".png,.jpg,.jpeg,.pdf,.zip,.webp", max: 10, required: false },
+                    { key: "research", icon: <ScrollText size={14} strokeWidth={2.2} />, label: t("seva_file_research"), hint: t("seva_file_research_hint"), accept: ".pdf", max: 5, required: false },
                   ].map((f) => (
                     <div key={f.key} style={{ border: `1.5px dashed ${files[f.key] ? BRAND.green : "#d1d5db"}`, background: files[f.key] ? BRAND.lightGreen : "#fff", borderRadius: 12, padding: 16 }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: "#1f2937", marginBottom: 8 }}>{f.label}</div>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "#1f2937", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ display: "flex", color: BRAND.orange }}>{f.icon}</span>
+                        {f.label}
+                      </div>
                       <input
                         type="file"
                         accept={f.accept}
@@ -658,13 +667,13 @@ export default function SevaFirstPage() {
                       />
                       <p style={{ fontSize: 10.5, color: "#9ca3af", margin: "6px 0 0" }}>{f.hint}</p>
                       {files[f.key] && (
-                        <p style={{ fontSize: 11, color: BRAND.green, fontWeight: 700, margin: "6px 0 0" }}>✓ {files[f.key].name}</p>
+                        <p style={{ fontSize: 11, color: BRAND.green, fontWeight: 700, margin: "6px 0 0", display: "flex", alignItems: "center", gap: 4 }}><Check size={13} strokeWidth={3} /> {files[f.key].name}</p>
                       )}
                     </div>
                   ))}
                 </div>
                 <div style={{ background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: 12, padding: 14, marginTop: 18, display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <span style={{ fontSize: 16 }}>⚠️</span>
+                  <TriangleAlert size={17} color="#b45309" strokeWidth={2.2} style={{ flexShrink: 0, marginTop: 1 }} />
                   <p style={{ fontSize: 12.5, color: "#92400e", margin: 0, lineHeight: 1.6 }}>
                     <b>{lang === "mr" ? "हमीपत्र:" : "Declaration:"}</b> {t("seva_declaration")}
                   </p>
@@ -719,8 +728,8 @@ export default function SevaFirstPage() {
             {loadingApps ? (
               <div style={{ textAlign: "center", padding: 26 }}><Spinner size={30} /></div>
             ) : myApps.length === 0 ? (
-              <div style={{ background: "#f9fafb", border: "1.5px dashed #d1d5db", borderRadius: 14, padding: 30, textAlign: "center", color: "#9ca3af", fontSize: 13.5, fontWeight: 600 }}>
-                📂 {t("seva_ack_note")}
+              <div style={{ background: "#f9fafb", border: "1.5px dashed #d1d5db", borderRadius: 14, padding: 30, textAlign: "center", color: "#9ca3af", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                <FolderOpen size={15} strokeWidth={2.2} /> {t("seva_ack_note")}
               </div>
             ) : (
               myApps.map((app) => {
@@ -730,7 +739,7 @@ export default function SevaFirstPage() {
                     <div style={{ minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                         <span style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 13, background: BRAND.lightGreen, color: BRAND.green, padding: "3px 10px", borderRadius: 8 }}>{app.uniqueId}</span>
-                        <span style={{ fontSize: 12, color: "#9ca3af" }}>📅 {new Date(app.createdAt).toLocaleDateString("en-IN")}</span>
+                        <span style={{ fontSize: 12, color: "#9ca3af", display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} strokeWidth={2.2} /> {new Date(app.createdAt).toLocaleDateString("en-IN")}</span>
                       </div>
                       <p style={{ fontSize: 12.5, color: "#6b7280", margin: "6px 0 0" }}>
                         <b>{app["idea.category"]?.split(" (")[0] || app.idea?.category || "—"}</b>
