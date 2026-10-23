@@ -5,9 +5,9 @@ import { Spinner } from "../components/shared/Spinner";
 import {
   ArrowLeft, Download, Calendar, MapPin, Lightbulb, Paperclip, Settings,
   User, Users, Coins, FileText, Ban, Search, Check, Target, Save, Info,
-  CheckCircle2, XCircle,
+  CheckCircle2, XCircle, Trash2,
 } from "lucide-react";
-import { getSevaDetail, updateSevaStatus, getSevaFileUrl } from "../services/api";
+import { getSevaDetail, updateSevaStatus, getSevaFileUrl, deleteSevaApplication } from "../services/api";
 import { Avatar } from "../utils/avatar.jsx";
 
 const STATUS_BADGE = {
@@ -42,6 +42,7 @@ export default function SevaFirstDetail() {
   const [status, setStatus] = useState("");
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(true);
   const [tab, setTab] = useState("info");
@@ -70,6 +71,22 @@ export default function SevaFirstDetail() {
       setMsgOk(false);
     }
     setTimeout(() => setMsg(""), 3000);
+  };
+
+  const handleDelete = async () => {
+    if (deleting) return;
+    if (!window.confirm(`Delete "${app.uniqueId}" (${app.applicant?.name || "applicant"})?`)) return;
+    if (!window.confirm("Are you sure? This cannot be undone.")) return;
+    setDeleting(true);
+    const res = await deleteSevaApplication(id).catch(() => null);
+    setDeleting(false);
+    if (res?.success) {
+      navigate("/seva-first");
+    } else {
+      setMsg(res?.message || "Delete failed");
+      setMsgOk(false);
+      setTimeout(() => setMsg(""), 3000);
+    }
   };
 
   if (loading)
@@ -380,6 +397,31 @@ export default function SevaFirstDetail() {
             <Row label="Submitted" value={fmtDate(app.createdAt)} />
             <Row label="Team Size" value={teamMembers?.length ? String(teamMembers.length) : "Solo"} />
             <Row label="Admin Remark" value={app.adminRemark} />
+          </Card>
+
+          <Card title="Danger Zone" icon={<Ban size={17} />}>
+            <div style={{ fontSize: 12.5, color: C.textopa, marginBottom: 12, lineHeight: 1.6 }}>
+              Permanently delete this application. Ye wapas nahi aayega — applicant ke paas se bhi gayab ho jayega.
+            </div>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{
+                padding: "10px 22px",
+                background: "#fff",
+                color: "#dc2626",
+                border: "1.5px solid #fca5a5",
+                borderRadius: 10,
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: deleting ? "not-allowed" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+              }}
+            >
+              {deleting ? "Deleting..." : <><Trash2 size={15} /> Delete Application</>}
+            </button>
           </Card>
         </div>
       )}

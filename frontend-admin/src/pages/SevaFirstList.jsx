@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
-import { getSevaList } from "../services/api";
-import { Lightbulb, Search, FolderOpen, Eye, XCircle } from "lucide-react";
+import { getSevaList, deleteSevaApplication } from "../services/api";
+import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2 } from "lucide-react";
 
 const STATUS_BADGE = {
   submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted" },
@@ -51,6 +51,14 @@ export default function SevaFirstList() {
   const [status, setStatus] = useState("");
   const [total, setTotal] = useState(0);
   const [msg, setMsg] = useState("");
+  const [msgOk, setMsgOk] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const showMsg = (text, ok = false) => {
+    setMsgOk(ok);
+    setMsg(text);
+    setTimeout(() => setMsg(""), 3000);
+  };
 
   const load = async (search = q, st = status) => {
     setLoading(true);
@@ -59,8 +67,7 @@ export default function SevaFirstList() {
       setApps(res.applications || []);
       setTotal(res.total || 0);
     } else {
-      setMsg(res?.message || "Load failed");
-      setTimeout(() => setMsg(""), 3000);
+      showMsg(res?.message || "Load failed", false);
     }
     setLoading(false);
   };
@@ -80,6 +87,22 @@ export default function SevaFirstList() {
     load(q, v);
   };
 
+  const handleDelete = async (app) => {
+    if (deletingId) return;
+    if (!window.confirm(`Delete "${app.uniqueId}" (${app.applicant?.name || "applicant"})?`)) return;
+    if (!window.confirm("Are you sure? This cannot be undone.")) return;
+    setDeletingId(app._id);
+    const res = await deleteSevaApplication(app._id).catch(() => null);
+    setDeletingId(null);
+    if (res?.success) {
+      setApps((prev) => prev.filter((a) => a._id !== app._id));
+      setTotal((t) => Math.max(0, t - 1));
+      showMsg("Application deleted!", true);
+    } else {
+      showMsg(res?.message || "Delete failed", false);
+    }
+  };
+
   return (
     <div style={{ padding: "28px 24px", maxWidth: 1400, margin: "0 auto" }}>
       {/* Header */}
@@ -97,9 +120,21 @@ export default function SevaFirstList() {
       {msg && (
         <div
           className="modal-fade"
-          style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "10px 16px", borderRadius: 10, marginBottom: 14, fontWeight: 600, fontSize: 13.5, display: "flex", alignItems: "center", gap: 7 }}
+          style={{
+            background: msgOk ? "#dcfce7" : "#fee2e2",
+            border: `1px solid ${msgOk ? "#86efac" : "#fca5a5"}`,
+            color: msgOk ? "#166534" : "#991b1b",
+            padding: "10px 16px",
+            borderRadius: 10,
+            marginBottom: 14,
+            fontWeight: 600,
+            fontSize: 13.5,
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
+          }}
         >
-          <XCircle size={15} />
+          {msgOk ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
           {msg}
         </div>
       )}
@@ -244,6 +279,31 @@ export default function SevaFirstList() {
                         style={{ padding: "6px 14px", background: C.navy, color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}
                       >
                         <Eye size={13} /> View
+                      </button>{" "}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(app);
+                        }}
+                        disabled={deletingId === app._id}
+                        className="btn-ghost-red"
+                        style={{
+                          padding: "6px 12px",
+                          background: "#fff",
+                          color: "#dc2626",
+                          border: "1px solid #fca5a5",
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: deletingId === app._id ? "not-allowed" : "pointer",
+                          whiteSpace: "nowrap",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
+                          opacity: deletingId && deletingId !== app._id ? 0.55 : 1,
+                        }}
+                      >
+                        {deletingId === app._id ? "Deleting..." : <><Trash2 size={12} /> Del</>}
                       </button>
                     </td>
                   </tr>

@@ -317,6 +317,33 @@ const adminGetSevaFile = async (req, res) => {
     }
 };
 
+// ── Admin: delete application (+ GridFS file cleanup) ─────────────────────────
+const adminDeleteSeva = async (req, res) => {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid ID" });
+        }
+        const app = await SevaFirstApplication.findByIdAndDelete(req.params.id).lean();
+        if (!app) return res.status(404).json({ success: false, message: "Application not found" });
+
+        try {
+            const db = mongoose.connection.db;
+            const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+            for (const key of ["ppt", "idProof", "prototype", "research"]) {
+                const fid = app.files && app.files[key];
+                if (fid) await bucket.delete(new mongoose.Types.ObjectId(fid)).catch(() => {});
+            }
+        } catch (e) {
+            console.error("Seva GridFS cleanup error:", e.message);
+        }
+
+        res.json({ success: true, message: "Deleted successfully" });
+    } catch (err) {
+        console.error("Admin seva delete error:", err.message);
+        res.status(500).json({ success: false, message: "Delete failed" });
+    }
+};
+
 module.exports = {
     sevaUpload,
     handleSevaMulterError,
@@ -327,4 +354,5 @@ module.exports = {
     adminGetSeva,
     adminUpdateSevaStatus,
     adminGetSevaFile,
+    adminDeleteSeva,
 };

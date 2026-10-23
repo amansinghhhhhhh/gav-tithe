@@ -156,5 +156,11 @@ export const updateSevaStatus = async (id, status, adminRemark = "") =>
         body: JSON.stringify({ status, adminRemark }),
     });
 
+export const deleteSevaApplication = async (id) =>
+    apiFetch(`${BASE}/seva/admin/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });
+
 export const getSevaFileUrl = (fileId) =>
     `${BASE}/seva/admin/file/${fileId}?token=${getToken()}`;
