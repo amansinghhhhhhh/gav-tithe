@@ -74,7 +74,7 @@ h2 {
 
 h1 {
   font-size: 56px;
-  letter-spacing: -1.68px;
+  /* letter-spacing: -1.68px; */
   margin: 32px 0;
 
   @media (max-width: 1024px) {
@@ -103,18 +103,37 @@ p {
 }
 
 @keyframes gu-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes gu-ring {
-  0%   { transform: scale(1);   opacity: 0.7; }
-  100% { transform: scale(2.2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 @keyframes gu-ring2 {
-  0%   { transform: scale(1);   opacity: 0.5; }
-  100% { transform: scale(2.8); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
 }
 
 code,
@@ -131,6 +150,7 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
 /* -- Seva First page responsive -- */
 @media (max-width: 900px) {
   .hide-md {
