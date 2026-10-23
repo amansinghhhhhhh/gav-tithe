@@ -663,7 +663,7 @@ const translations = {
         choice_seva_apps: "एकूण सेवा फर्स्ट अर्ज",
 
         // ── Seva First ──
-        seva_announce: "'गाव तिथे उद्योजक' अंतर्गत सेवा फर्स्ट नवकल्पना आव्हान २०२६ - अर्ज सादर करण्याची शेवटची तारीख: ३० नोव्हेंबर २०२६",
+        seva_announce: "'गाव तिथे उद्योजक' अंतर्गत सेवा फर्स्ट नवकल्पना आव्हान २०२६ - अर्ज सादर करण्याची शेवटची तारीख: ३० ऑक्टोबर २०२६",
         seva_badge_gtu: "गाव तिथे उद्योजक",
         seva_badge_initiative: "उपक्रम",
         seva_nav_about: "उपक्रमाबद्दल",
@@ -1438,7 +1438,7 @@ const translations = {
         choice_seva_apps: "Total Seva First applications",
 
         // ── Seva First ──
-        seva_announce: "Seva First Innovation Challenge 2026 under 'Gaon Tithe Udyojak' — Last date to apply: 30 November 2026",
+        seva_announce: "Seva First Innovation Challenge 2026 under 'Gaon Tithe Udyojak' — Last date to apply: 30 October 2026",
         seva_badge_gtu: "Gaon Tithe Udyojak",
         seva_badge_initiative: "Initiative",
         seva_nav_about: "About",
