@@ -401,7 +401,7 @@ export default function SevaFirstPage() {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.18)", backdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, padding: "7px 18px", fontSize: 13, fontWeight: 600, marginBottom: 22 }}>
             <span style={{ color: "#4ade80" }}>🌱</span> {t("seva_hero_tagline")}
           </div>
-          <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontWeight: 900, lineHeight: 1.3, margin: 0 }}>
+          <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontWeight: 800, lineHeight: 1.3, margin: 0 }}>
             {t("seva_hero_title")}
             <span style={{ display: "block", color: "#fcd34d", fontSize: "0.62em", marginTop: 6, fontWeight: 800 }}>
               {t("seva_hero_subtitle")}
