@@ -11,6 +11,7 @@ import rejected from "../assets/rejected.svg";
 // colors
 import C from "../constants/colors";
 import { Avatar } from "../utils/avatar.jsx";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { RefreshCw, ArrowRight, Eye } from "lucide-react";
 
 export default function Dashboard() {
@@ -18,6 +19,20 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [migrating, setMigrating] = useState(false);
   const [migrateMsg, setMigrateMsg] = useState("");
+  const [confirmMigrate, setConfirmMigrate] = useState(false);
+
+  const runMigrate = async () => {
+    setMigrating(true);
+    setMigrateMsg("");
+    try {
+      const res = await migrateAssessments();
+      setMigrateMsg(res.message || "Done!");
+    } catch (err) {
+      setMigrateMsg("Error: " + err.message);
+    } finally {
+      setMigrating(false);
+    }
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,19 +133,7 @@ export default function Dashboard() {
           <div style={{ marginBottom: 24 }}>
             <button
               disabled={migrating}
-              onClick={async () => {
-                if (!window.confirm("Migrate all existing users' assessments? This will mark them as completed.")) return;
-                setMigrating(true);
-                setMigrateMsg("");
-                try {
-                  const res = await migrateAssessments();
-                  setMigrateMsg(res.message || "Done!");
-                } catch (err) {
-                  setMigrateMsg("Error: " + err.message);
-                } finally {
-                  setMigrating(false);
-                }
-              }}
+              onClick={() => setConfirmMigrate(true)}
               style={{
                 padding: "10px 24px",
                 background: migrating ? "#9ca3af" : "#F97316",
@@ -276,6 +279,20 @@ export default function Dashboard() {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmMigrate}
+        title="Migrate Assessments?"
+        message="Migrate all existing users' assessments? This will mark them as completed."
+        confirmLabel="Migrate"
+        danger={false}
+        loading={migrating}
+        onCancel={() => setConfirmMigrate(false)}
+        onConfirm={async () => {
+          await runMigrate();
+          setConfirmMigrate(false);
+        }}
+      />
     </div>
   );
 }

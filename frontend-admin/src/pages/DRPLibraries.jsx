@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { ClipboardList, MapPin, Pencil, Trash2, X } from "lucide-react";
 import {
   getDRPLibraries,
@@ -47,6 +48,8 @@ export default function DRPLibraries() {
   const [form, setForm] = useState({ ...emptyForm });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -114,8 +117,8 @@ export default function DRPLibraries() {
   };
 
   const handleDelete = async (entry) => {
-    if (!window.confirm(`Delete "${entry.variantName}" (Variant ${entry.variantId})?`)) return;
-    if (!window.confirm("Are you sure? This cannot be undone.")) return;
+    if (deleting) return;
+    setDeleting(true);
     try {
       const res = await deleteDRPLibrary(entry._id);
       if (res.success) {
@@ -126,6 +129,8 @@ export default function DRPLibraries() {
       }
     } catch (err) {
       alert("Delete failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -345,7 +350,7 @@ export default function DRPLibraries() {
                         </button>
                         <button
                           className="btn-ghost-red"
-                          onClick={() => handleDelete(entry)}
+                          onClick={() => setPendingDelete(entry)}
                           style={{
                             padding: "6px 12px", background: "#fff", color: "#dc2626",
                             border: "1px solid #fca5a5", borderRadius: 8, fontSize: 12, fontWeight: 600,
@@ -541,6 +546,18 @@ export default function DRPLibraries() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title={`Delete "${pendingDelete?.variantName}" (Variant ${pendingDelete?.variantId})?`}
+        message="This cannot be undone."
+        loading={deleting}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await handleDelete(pendingDelete);
+          setPendingDelete(null);
+        }}
+      />
     </div>
   );
 }

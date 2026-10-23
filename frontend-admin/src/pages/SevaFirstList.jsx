@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 import { getSevaList, deleteSevaApplication } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2 } from "lucide-react";
 
 const STATUS_BADGE = {
@@ -53,6 +54,7 @@ export default function SevaFirstList() {
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmApp, setConfirmApp] = useState(null);
 
   const showMsg = (text, ok = false) => {
     setMsgOk(ok);
@@ -89,8 +91,6 @@ export default function SevaFirstList() {
 
   const handleDelete = async (app) => {
     if (deletingId) return;
-    if (!window.confirm(`Delete "${app.uniqueId}" (${app.applicant?.name || "applicant"})?`)) return;
-    if (!window.confirm("Are you sure? This cannot be undone.")) return;
     setDeletingId(app._id);
     const res = await deleteSevaApplication(app._id).catch(() => null);
     setDeletingId(null);
@@ -283,7 +283,7 @@ export default function SevaFirstList() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(app);
+                          setConfirmApp(app);
                         }}
                         disabled={deletingId === app._id}
                         className="btn-ghost-red"
@@ -313,6 +313,18 @@ export default function SevaFirstList() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!confirmApp}
+        title={`Delete "${confirmApp?.uniqueId}"?`}
+        message={`${confirmApp?.applicant?.name || "This application"} — ye application permanently delete ho jayegi.\nThis cannot be undone.`}
+        loading={!!deletingId}
+        onCancel={() => setConfirmApp(null)}
+        onConfirm={async () => {
+          await handleDelete(confirmApp);
+          setConfirmApp(null);
+        }}
+      />
     </div>
   );
 }

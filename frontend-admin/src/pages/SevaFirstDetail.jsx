@@ -8,6 +8,7 @@ import {
   CheckCircle2, XCircle, Trash2,
 } from "lucide-react";
 import { getSevaDetail, updateSevaStatus, getSevaFileUrl, deleteSevaApplication } from "../services/api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { Avatar } from "../utils/avatar.jsx";
 
 const STATUS_BADGE = {
@@ -43,6 +44,7 @@ export default function SevaFirstDetail() {
   const [remark, setRemark] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(true);
   const [tab, setTab] = useState("info");
@@ -75,8 +77,6 @@ export default function SevaFirstDetail() {
 
   const handleDelete = async () => {
     if (deleting) return;
-    if (!window.confirm(`Delete "${app.uniqueId}" (${app.applicant?.name || "applicant"})?`)) return;
-    if (!window.confirm("Are you sure? This cannot be undone.")) return;
     setDeleting(true);
     const res = await deleteSevaApplication(id).catch(() => null);
     setDeleting(false);
@@ -404,7 +404,7 @@ export default function SevaFirstDetail() {
               Permanently delete this application. Ye wapas nahi aayega — applicant ke paas se bhi gayab ho jayega.
             </div>
             <button
-              onClick={handleDelete}
+              onClick={() => setConfirmOpen(true)}
               disabled={deleting}
               style={{
                 padding: "10px 22px",
@@ -425,6 +425,18 @@ export default function SevaFirstDetail() {
           </Card>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={`Delete "${app?.uniqueId}"?`}
+        message={`${app?.applicant?.name || "This application"} — ye application permanently delete ho jayegi.\nThis cannot be undone.`}
+        loading={deleting}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={async () => {
+          await handleDelete();
+          setConfirmOpen(false);
+        }}
+      />
     </div>
   );
 }

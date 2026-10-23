@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllUsers, getExcelUrl, deleteUser } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { Avatar } from "../utils/avatar.jsx";
 import { Download, Search, Eye, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -23,6 +24,7 @@ export default function UsersList() {
   const [filter, setFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,16 +35,14 @@ export default function UsersList() {
   }, []);
 
   const handleDelete = async (u) => {
-    const name = u.fullName || u.name || "this user";
-    if (!window.confirm(`Delete "${name}"? All related data (form, documents, edit requests) will also be deleted.`)) return;
-    if (!window.confirm("Are you sure? This action cannot be undone.")) return;
+    if (deletingId) return;
     setDeletingId(u._id);
-    const res = await deleteUser(u._id);
+    const res = await deleteUser(u._id).catch(() => null);
     setDeletingId(null);
-    if (res.success) {
+    if (res?.success) {
       setUsers((prev) => prev.filter((x) => x._id !== u._id));
     } else {
-      alert(res.message || "Delete failed");
+      alert(res?.message || "Delete failed");
     }
   };
 
@@ -388,7 +388,7 @@ export default function UsersList() {
                         </button>
                         <button
                           className="btn-ghost-red"
-                          onClick={() => handleDelete(u)}
+                          onClick={() => setPendingDelete(u)}
                           disabled={deletingId === u._id}
                           style={{
                             padding: "6px 13px",
@@ -479,6 +479,18 @@ export default function UsersList() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title={`Delete "${pendingDelete?.fullName || pendingDelete?.name || "this user"}"?`}
+        message={`All related data (form, documents, edit requests) will also be deleted.\nThis action cannot be undone.`}
+        loading={!!deletingId}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await handleDelete(pendingDelete);
+          setPendingDelete(null);
+        }}
+      />
     </div>
   );
 }
