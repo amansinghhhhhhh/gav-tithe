@@ -257,7 +257,7 @@ export default function SevaFirstPage() {
                 onClick={() => setAck(null)}
                 style={{ background: "#fff", color: BRAND.orange, border: `2px solid ${BRAND.orange}`, borderRadius: 12, padding: "12px 22px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
               >
-                {t("seva_btn_apply_now")}
+                {t("seva_ack_apply")}
               </button>
               <button
                 onClick={() => navigate("/home")}
@@ -732,7 +732,7 @@ export default function SevaFirstPage() {
               <div style={{ textAlign: "center", padding: 26 }}><Spinner size={30} /></div>
             ) : myApps.length === 0 ? (
               <div style={{ background: "#f9fafb", border: "1.5px dashed #d1d5db", borderRadius: 14, padding: 30, textAlign: "center", color: "#9ca3af", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                <FolderOpen size={15} strokeWidth={2.2} /> {t("seva_ack_note")}
+                <FolderOpen size={15} strokeWidth={2.2} /> {t("seva_my_apps_empty")}
               </div>
             ) : (
               myApps.map((app) => {
