@@ -654,11 +654,11 @@ const translations = {
         choice_seva_apply: "Seva First साठी अर्ज करा",
         choice_seva_view: "अर्जाची स्थिती पहा",
         choice_status_draft: "अपूर्ण अर्ज",
-        choice_status_submitted: "अर्ज सादर झाला",
+        choice_status_submitted: "अर्ज सादर केला",
         choice_status_under_review: "तपासणी प्रलंबित",
         choice_status_approved: "मान्यता प्राप्त",
         choice_status_rejected: "नाकारलेला",
-        choice_not_started: "सुरू नाही",
+        choice_not_started: "अर्ज सुरू करा",
         choice_open: "पहा",
         choice_seva_apps: "सादर केलेले अर्ज",
 
@@ -1435,7 +1435,7 @@ const translations = {
         choice_status_under_review: "Under Review",
         choice_status_approved: "Approved",
         choice_status_rejected: "Rejected",
-        choice_not_started: "Not started",
+        choice_not_started: "Start Application",
         choice_open: "Open",
         choice_seva_apps: "Submitted Applications",
 
