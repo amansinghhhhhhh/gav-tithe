@@ -27,6 +27,13 @@ const CATS = [
   { v: "Renewable Energy & Environment", k: "seva_cat_energy" },
   { v: "Education & Employability", k: "seva_cat_education" },
   { v: "Healthcare & Sanitation", k: "seva_cat_health" },
+  { v: "Law and Order", k: "seva_cat_law" },
+  { v: "Women and Child", k: "seva_cat_women" },
+  { v: "Urban Development", k: "seva_cat_urban" },
+  { v: "Defence", k: "seva_cat_defence" },
+  { v: "Sustainability (Energy, Climate and Others)", k: "seva_cat_sustain" },
+  { v: "Infrastructure and Mobility", k: "seva_cat_infra" },
+  { v: "Emerging Technologies (AI, Blockchain and Others)", k: "seva_cat_emerging" },
 ];
 
 const STEPS = [
