@@ -385,7 +385,9 @@ export default function LoginPage() {
                   marginBottom: 16,
                 }}
               >
-                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {err}
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <TriangleAlert size={14} style={{ flexShrink: 0 }} /> {err}
+                </div>
                 {err === t("login_not_verified") && (
                   <span
                     onClick={handleResendVerification}

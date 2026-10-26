@@ -268,9 +268,12 @@ export default function VerifyEmailPage() {
                   fontSize: 13,
                   marginBottom: 16,
                   textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {msg}
+                <TriangleAlert size={14} style={{ flexShrink: 0 }} /> {msg}
               </div>
             )}
 

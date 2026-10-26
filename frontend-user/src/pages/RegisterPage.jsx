@@ -475,9 +475,12 @@ export default function RegisterPage() {
                   color: "#dc2626",
                   fontSize: 13,
                   marginBottom: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                <TriangleAlert size={14} style={{ marginRight: 5, verticalAlign: "-2px" }} /> {err}
+                <TriangleAlert size={14} style={{ flexShrink: 0 }} /> {err}
               </div>
             )}
 
