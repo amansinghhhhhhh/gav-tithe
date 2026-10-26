@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getEditRequests, updateEditRequest } from "../services/api";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
+import RemarkDialog from "../components/RemarkDialog";
 import { Pencil, Inbox, CheckCircle2, XCircle } from "lucide-react";
 
 const STATUS_COLORS = {
@@ -16,6 +17,8 @@ export default function EditRequests() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(true);
+  const [ask, setAsk] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -27,14 +30,11 @@ export default function EditRequests() {
 
   useEffect(load, []);
 
-  const handleAction = async (id, status) => {
-    const remark = window.prompt(
-      status === "approved"
-        ? "Remark (optional):"
-        : "Rejection reason (optional):"
-    );
-    if (remark === null) return;
+  const handleAction = async (id, status, remark) => {
+    setSaving(true);
     const res = await updateEditRequest(id, status, remark || "");
+    setSaving(false);
+    setAsk(null);
     if (res.success) {
       setMsg(`Request ${status}!`);
       setMsgOk(true);
@@ -219,7 +219,7 @@ export default function EditRequests() {
                         <select
                           defaultValue=""
                           onChange={(e) => {
-                            if (e.target.value) handleAction(r._id, e.target.value);
+                            if (e.target.value) setAsk({ id: r._id, status: e.target.value, name: r.user?.name || "" });
                             e.target.value = "";
                           }}
                           style={{
@@ -251,6 +251,15 @@ export default function EditRequests() {
           </table>
         </div>
       )}
+
+      <RemarkDialog
+        open={!!ask}
+        status={ask?.status || "rejected"}
+        userName={ask?.name || ""}
+        loading={saving}
+        onConfirm={(remark) => handleAction(ask.id, ask.status, remark)}
+        onCancel={() => !saving && setAsk(null)}
+      />
     </div>
   );
 }
