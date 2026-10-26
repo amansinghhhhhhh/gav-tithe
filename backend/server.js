@@ -47,7 +47,7 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(null, true);
+            callback(null, false);
         }
     },
     credentials: true,
@@ -69,21 +69,7 @@ const apiLimiter = rateLimit({
     },
 });
 
-// Auth routes ke liye strict limit
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 30,
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res) => {
-        const waitMs = req.rateLimit.resetTime - Date.now();
-        const waitMin = Math.ceil(waitMs / 60000);
-        res.status(429).json({
-            message: `Too many login attempts. Please try again in ${waitMin} minute(s).`,
-            retryAfterMinutes: waitMin,
-        });
-    },
-});
+// Auth routes ke liye strict limit → authRoutes.js ke strictLimiter (20/15 min) dekhta hai
 
 // ── 4. Body Parser ────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "1mb" }));

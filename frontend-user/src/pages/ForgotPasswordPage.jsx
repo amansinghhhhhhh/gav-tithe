@@ -8,6 +8,7 @@ import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import { KeyRound, TriangleAlert, Smartphone, CheckCircle2, ArrowLeft } from "lucide-react";
+import { PasswordChecklist, isStrongPassword } from "../components/PasswordChecklist";
 
 const inp = {
   width: "100%",
@@ -202,10 +203,10 @@ export default function ForgotPasswordPage() {
   const handleResetMobilePassword = async () => {
     setErr("");
     setSuccessMsg("");
-    if (!newPassword || newPassword.length < 6) {
-      setErr(t("forgot_error_password_short"));
-      return;
-    }
+      if (!isStrongPassword(newPassword)) {
+        setErr(t("forgot_error_password_short"));
+        return;
+      }
     if (newPassword !== confirmPassword) {
       setErr(t("forgot_error_password_match"));
       return;
@@ -584,6 +585,7 @@ export default function ForgotPasswordPage() {
                     onFocus={focusStyle}
                     onBlur={blurStyle}
                   />
+                  <PasswordChecklist password={newPassword} />
                 </div>
                 <div>
                   <label style={labelStyle}>

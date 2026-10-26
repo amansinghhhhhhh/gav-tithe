@@ -14,6 +14,7 @@ import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import C from "../constants/colors";
 import { Hourglass, CheckCircle2, KeyRound, TriangleAlert, Eye, EyeOff, XCircle, ArrowLeft } from "lucide-react";
+import { PasswordChecklist, isStrongPassword } from "../components/PasswordChecklist";
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -78,7 +79,7 @@ export default function VerifyEmailPage() {
 
   // Handle new password submit
   const handleResetPassword = async () => {
-    if (newPassword.length < 6) {
+    if (!isStrongPassword(newPassword)) {
       setMsg(t("reset_pass_min"));
       return;
     }
@@ -319,6 +320,7 @@ export default function VerifyEmailPage() {
                     {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </span>
                 </div>
+                <PasswordChecklist password={newPassword} />
               </div>
               <div>
                 <label

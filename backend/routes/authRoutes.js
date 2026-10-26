@@ -30,7 +30,7 @@ router.post("/login", strictLimiter, validateLogin, loginEmail);
 router.post("/reset-password-mobile", strictLimiter, resetPasswordMobile);
 router.post("/reset-password-email", strictLimiter, resetPasswordEmail);
 router.get("/me", protect, getMe);
-router.post("/check-email", async (req, res) => {
+router.post("/check-email", strictLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ success: false, message: "Email required" });
@@ -61,7 +61,7 @@ router.post("/check-email", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-router.post("/check-mobile", async (req, res) => {
+router.post("/check-mobile", strictLimiter, async (req, res) => {
     try {
         const { mobile } = req.body;
         if (!mobile) return res.status(400).json({ success: false, message: "Mobile required" });
@@ -94,7 +94,7 @@ router.post("/check-mobile", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-router.post("/check-same-password", async (req, res) => {
+router.post("/check-same-password", strictLimiter, async (req, res) => {
     try {
         const { email, mobile, newPassword } = req.body;
         const identifier = email || mobile;

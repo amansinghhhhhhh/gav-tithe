@@ -7,6 +7,42 @@ const generateToken = (userId) =>
         expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
+// ── Brute-force login lockout (in-memory): 5 wrong tries → 15 min block ──────
+const LOCKOUT_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_FAILS = 5;
+const loginFails = new Map();
+
+const lockKeyOf = (id) => {
+    const s = String(id || "").toLowerCase().trim();
+    return s.includes("@") ? s : s.replace(/[^0-9]/g, "").slice(-10);
+};
+
+const getLockRemainingMs = (key) => {
+    const e = loginFails.get(key);
+    if (!e) return 0;
+    if (e.until && e.until > Date.now()) return e.until - Date.now();
+    loginFails.delete(key); // window expire ho chuki — fresh start
+    return 0;
+};
+
+const recordLoginFail = (key) => {
+    const now = Date.now();
+    const e = loginFails.get(key);
+    if (!e || (e.until && e.until <= now)) {
+        loginFails.set(key, { count: 1, until: now + LOCKOUT_WINDOW_MS });
+        return;
+    }
+    e.count += 1;
+    if (e.count >= MAX_LOGIN_FAILS) e.until = now + LOCKOUT_WINDOW_MS; // lock fresh 15 min
+};
+
+const clearLoginFails = (key) => {
+    loginFails.delete(key);
+};
+
+// Naya password rule: min 8 chars + kam se kam 1 letter + 1 number
+const isStrongPassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(String(pw || ""));
+
 // ── Firebase se emailVerified sync karo → Mongo ─────────────────────────────
 const syncEmailVerified = async (user) => {
     if (!user?.email) return user;
@@ -207,6 +243,17 @@ const loginEmail = async (req, res) => {
         if (!loginId)
             return res.status(400).json({ message: "Email or mobile number required" });
 
+        // ── Brute-force lock check (5 wrong tries → 15 min) ──
+        const lockKey = lockKeyOf(loginId);
+        const lockMs = getLockRemainingMs(lockKey);
+        if (lockMs > 0) {
+            const waitMin = Math.ceil(lockMs / 60000);
+            return res.status(429).json({
+                message: `Too many failed attempts. Please try again in ${waitMin} minute(s).`,
+                retryAfterMinutes: waitMin,
+            });
+        }
+
         const isEmail = loginId.includes("@");
         let user;
 
@@ -226,8 +273,10 @@ const loginEmail = async (req, res) => {
         }
 
         console.log("Login - identifier:", loginId, "isEmail:", isEmail, "found:", !!user, "userMobile:", user?.mobile, "hasEmail:", !!user?.email, "hasPassword:", !!user?.password);
-        if (!user)
+        if (!user) {
+            recordLoginFail(lockKey);
             return res.status(401).json({ message: "Invalid credentials" });
+        }
 
         // Firebase token verification — only for email login
         if (firebaseIdToken && isEmail) {
@@ -238,6 +287,7 @@ const loginEmail = async (req, res) => {
                     const emailMatch = decoded.email && decoded.email === loginId.toLowerCase();
                     const uidMatch = user.firebaseUid && decoded.uid === user.firebaseUid;
                     if (!emailMatch && !uidMatch) {
+                        recordLoginFail(lockKey);
                         return res.status(401).json({ message: "Invalid credentials" });
                     }
                     // ⚠️ Login pe Mongo password KABHI mat likho — sirf reset flows update karte hain
@@ -248,6 +298,7 @@ const loginEmail = async (req, res) => {
                             await user.save();
                         }
                     } catch (_) {}
+                    clearLoginFails(lockKey);
                     return res.json({
                         success: true,
                         token: generateToken(user._id),
@@ -301,6 +352,7 @@ const loginEmail = async (req, res) => {
                         } catch (_) {}
                         await user.save();
                         console.log("Password re-hashed from Firebase for:", user.email);
+                        clearLoginFails(lockKey);
                         return res.json({
                             success: true,
                             token: generateToken(user._id),
@@ -315,9 +367,11 @@ const loginEmail = async (req, res) => {
             } else {
                 console.log("Firebase REST fallback skipped:", { hasKey: !!fbKey, hasEmail: !!user.email });
             }
+            recordLoginFail(lockKey);
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
+        clearLoginFails(lockKey);
         res.json({
             success: true,
             token: generateToken(user._id),
@@ -363,8 +417,8 @@ const resetPasswordMobile = async (req, res) => {
             return res.status(400).json({ success: false, message: "ID token and new password required" });
         }
 
-        if (newPassword.length < 6) {
-            return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+        if (!isStrongPassword(newPassword)) {
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters and include a letter and a number" });
         }
 
         const firebaseAdmin = getAdmin();
@@ -493,8 +547,8 @@ const resetPasswordEmail = async (req, res) => {
         if (!idToken || !newPassword) {
             return res.status(400).json({ success: false, message: "ID token and new password required" });
         }
-        if (newPassword.length < 6) {
-            return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+        if (!isStrongPassword(newPassword)) {
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters and include a letter and a number" });
         }
 
         const firebaseAdmin = getAdmin();

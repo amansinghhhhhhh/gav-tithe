@@ -17,6 +17,7 @@ import { Header } from "../components/Header";
 import { Spinner } from "../components/shared/Spinner";
 import FaqModal from "../components/FaqModal";
 import InfoTip from "../components/InfoTip";
+import { PasswordChecklist, isStrongPassword } from "../components/PasswordChecklist";
 import faqIcon from "../assets/faq.png";
 import videoSrc from "../assets/gtu-register.mp4";
 import { Lightbulb, TriangleAlert, Smartphone, Pencil, CheckCircle2, Eye, EyeOff, Play, X } from "lucide-react";
@@ -209,7 +210,7 @@ export default function RegisterPage() {
 
   // Step auto-advance: Valid password → step 5
   useEffect(() => {
-    if (step === 4 && password.length >= 6) {
+    if (step === 4 && isStrongPassword(password)) {
       setStep(5);
     }
   }, [password, step]);
@@ -302,7 +303,7 @@ export default function RegisterPage() {
       setErr(t("login_error_email"));
       return;
     }
-    if (password.length < 6) {
+    if (!isStrongPassword(password)) {
       setErr(t("login_error_pass"));
       return;
     }
@@ -750,6 +751,7 @@ export default function RegisterPage() {
                     {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </span>
                 </div>
+                {step >= 4 && <PasswordChecklist password={password} />}
               </div>
 
               {/* Consent text — above Register button */}
