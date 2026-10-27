@@ -41,8 +41,8 @@ const NAV = {
     },
     {
       key: "udyog_vikas",
-      label: "Udyog Vikas Kendra",
-      labelMr: "उद्योग विकास केंद्र",
+      label: "Udyog Vikas Manch",
+      labelMr: "उद्योग विकास मंच",
       icon: <img src={Vikas} />,
     },
     {
