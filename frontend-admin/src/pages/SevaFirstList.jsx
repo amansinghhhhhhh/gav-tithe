@@ -4,7 +4,7 @@ import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
 import { getSevaList, deleteSevaApplication } from "../services/api";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2 } from "lucide-react";
+import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2, Layers, FileText, Clock } from "lucide-react";
 
 const STATUS_BADGE = {
   submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted" },
@@ -19,6 +19,14 @@ const FILTERS = [
   { v: "under_review", label: "Under Review" },
   { v: "approved", label: "Approved" },
   { v: "rejected", label: "Rejected" },
+];
+
+const CARDS = [
+  { key: "total", label: "Total Applications", color: C.navy, bg: "#eef2ff", icon: <Layers size={18} />, filter: "" },
+  { key: "submitted", label: "Submitted", color: "#F97316", bg: "#fff7ed", icon: <FileText size={18} />, filter: "submitted" },
+  { key: "under_review", label: "Under Review", color: "#7c3aed", bg: "#ede9fe", icon: <Clock size={18} />, filter: "under_review" },
+  { key: "approved", label: "Approved", color: "#16a34a", bg: "#dcfce7", icon: <CheckCircle2 size={18} />, filter: "approved" },
+  { key: "rejected", label: "Rejected", color: "#dc2626", bg: "#fee2e2", icon: <XCircle size={18} />, filter: "rejected" },
 ];
 
 function StatusBadge({ status }) {
@@ -50,7 +58,7 @@ export default function SevaFirstList() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
-  const [total, setTotal] = useState(0);
+  const [counts, setCounts] = useState({ total: 0, submitted: 0, under_review: 0, approved: 0, rejected: 0 });
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
@@ -67,7 +75,7 @@ export default function SevaFirstList() {
     const res = await getSevaList({ q: search, status: st }).catch(() => null);
     if (res?.success) {
       setApps(res.applications || []);
-      setTotal(res.total || 0);
+      if (res.counts) setCounts(res.counts);
     } else {
       showMsg(res?.message || "Load failed", false);
     }
@@ -96,7 +104,11 @@ export default function SevaFirstList() {
     setDeletingId(null);
     if (res?.success) {
       setApps((prev) => prev.filter((a) => a._id !== app._id));
-      setTotal((t) => Math.max(0, t - 1));
+      setCounts((c) => ({
+        ...c,
+        total: Math.max(0, c.total - 1),
+        [app.status]: Math.max(0, (c[app.status] || 0) - 1),
+      }));
       showMsg("Application deleted!", true);
     } else {
       showMsg(res?.message || "Delete failed", false);
@@ -112,9 +124,61 @@ export default function SevaFirstList() {
             <Lightbulb size={24} color="#e65100" /> Seva First Applications
           </h1>
           <p style={{ color: C.textopa, fontSize: 13.5, margin: "5px 0 0" }}>
-            Seva First Innovation Challenge — total {total} application{total === 1 ? "" : "s"}
+            Seva First Innovation Challenge — total {counts.total} application{counts.total === 1 ? "" : "s"}
           </p>
         </div>
+      </div>
+
+      {/* Stat cards */}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
+        {CARDS.map((card) => {
+          const active = status === card.filter;
+          return (
+            <button
+              key={card.key}
+              onClick={() => onFilter(card.filter)}
+              style={{
+                flex: "1 1 150px",
+                minWidth: 140,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "14px 16px",
+                background: C.white,
+                border: active ? `2px solid ${card.color}` : "2px solid transparent",
+                borderRadius: 12,
+                boxShadow: active ? "0 4px 14px rgba(0,0,0,0.10)" : "0 2px 8px rgba(0,0,0,0.06)",
+                cursor: "pointer",
+                textAlign: "left",
+                transition: "box-shadow 0.15s ease",
+              }}
+            >
+              <span
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 10,
+                  background: card.bg,
+                  color: card.color,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                {card.icon}
+              </span>
+              <span>
+                <span style={{ display: "block", fontSize: 22, fontWeight: 800, color: card.color, lineHeight: 1.1 }}>
+                  {counts[card.key] ?? 0}
+                </span>
+                <span style={{ display: "block", fontSize: 11.5, fontWeight: 600, color: C.textopa, marginTop: 2 }}>
+                  {card.label}
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {msg && (

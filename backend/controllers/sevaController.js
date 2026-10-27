@@ -244,7 +244,10 @@ const adminListSeva = async (req, res) => {
         const pageNum = Math.max(1, Number(page) || 1);
         const limitNum = Math.min(200, Math.max(1, Number(limit) || 50));
 
-        const [total, apps] = await Promise.all([
+        const countFilter = { ...filter };
+        delete countFilter.status;
+
+        const [total, apps, countsAgg] = await Promise.all([
             SevaFirstApplication.countDocuments(filter),
             SevaFirstApplication.find(filter)
                 .select("uniqueId applicant idea.category idea.problem budget.cost status createdAt")
@@ -252,8 +255,17 @@ const adminListSeva = async (req, res) => {
                 .skip((pageNum - 1) * limitNum)
                 .limit(limitNum)
                 .lean(),
+            SevaFirstApplication.aggregate([
+                ...(Object.keys(countFilter).length ? [{ $match: countFilter }] : []),
+                { $group: { _id: "$status", count: { $sum: 1 } } },
+            ]),
         ]);
-        res.json({ success: true, applications: apps, total, page: pageNum, totalPages: Math.ceil(total / limitNum) });
+        const counts = { total: 0, submitted: 0, under_review: 0, approved: 0, rejected: 0 };
+        for (const c of countsAgg) {
+            if (c._id in counts) counts[c._id] = c.count;
+            counts.total += c.count;
+        }
+        res.json({ success: true, applications: apps, total, counts, page: pageNum, totalPages: Math.ceil(total / limitNum) });
     } catch (err) {
         console.error("Admin seva list error:", err.message);
         res.status(500).json({ success: false, message: "Fetch failed" });
