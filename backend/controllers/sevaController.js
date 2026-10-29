@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const multer = require("multer");
+const ExcelJS = require("exceljs");
 const { GridFSBucket } = require("mongodb");
 const SevaFirstApplication = require("../models/SevaFirstApplication");
 const { saveToGridFS } = require("../middleware/upload");
@@ -356,6 +357,81 @@ const adminDeleteSeva = async (req, res) => {
     }
 };
 
+// ── Admin: export all applications to Excel ──────────────────────────────────
+const adminExportSeva = async (req, res) => {
+    try {
+        const apps = await SevaFirstApplication.find({}).sort({ createdAt: -1 }).lean();
+
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("Seva First Applications");
+
+        ws.columns = [
+            { header: "SF ID", key: "uniqueId", width: 14 },
+            { header: "Name", key: "name", width: 22 },
+            { header: "Mobile", key: "mobile", width: 14 },
+            { header: "Email", key: "email", width: 26 },
+            { header: "Location", key: "location", width: 22 },
+            { header: "Aadhaar", key: "aadhaar", width: 16 },
+            { header: "PAN", key: "pan", width: 12 },
+            { header: "Team Members", key: "teamMembers", width: 32 },
+            { header: "Category", key: "category", width: 26 },
+            { header: "Problem", key: "problem", width: 40 },
+            { header: "Solution", key: "solution", width: 40 },
+            { header: "Cost (Rs.)", key: "cost", width: 14 },
+            { header: "Timeline (months)", key: "timelineMonths", width: 16 },
+            { header: "Implementation Plan", key: "implementationPlan", width: 40 },
+            { header: "Video Link", key: "videoLink", width: 26 },
+            { header: "Status", key: "status", width: 14 },
+            { header: "Admin Remark", key: "adminRemark", width: 28 },
+            { header: "Files", key: "files", width: 26 },
+            { header: "Submitted On", key: "submittedOn", width: 18 },
+        ];
+
+        ws.getRow(1).font = { bold: true };
+
+        for (const a of apps) {
+            const team = (a.teamMembers || [])
+                .filter((m) => m.name || m.contact)
+                .map((m) => [m.name, m.role, m.contact].filter(Boolean).join(" - "))
+                .join("; ");
+            const files = ["ppt", "idProof", "prototype", "research"]
+                .filter((k) => a.files && a.files[k])
+                .map((k) => k)
+                .join(", ");
+
+            ws.addRow({
+                uniqueId: a.uniqueId,
+                name: a.applicant?.name,
+                mobile: a.applicant?.mobile,
+                email: a.applicant?.email,
+                location: a.applicant?.location,
+                aadhaar: a.applicant?.aadhaar,
+                pan: a.applicant?.pan || "",
+                teamMembers: team,
+                category: a.idea?.category,
+                problem: a.idea?.problem,
+                solution: a.idea?.solution,
+                cost: a.budget?.cost,
+                timelineMonths: a.budget?.timelineMonths,
+                implementationPlan: a.budget?.implementationPlan,
+                videoLink: a.budget?.videoLink || "",
+                status: a.status,
+                adminRemark: a.adminRemark || "",
+                files,
+                submittedOn: a.createdAt,
+            });
+        }
+
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", "attachment; filename=seva-first-applications.xlsx");
+        await wb.xlsx.write(res);
+        res.end();
+    } catch (err) {
+        console.error("Admin seva export error:", err.message);
+        res.status(500).json({ success: false, message: "Export failed" });
+    }
+};
+
 module.exports = {
     sevaUpload,
     handleSevaMulterError,
@@ -367,4 +443,5 @@ module.exports = {
     adminUpdateSevaStatus,
     adminGetSevaFile,
     adminDeleteSeva,
+    adminExportSeva,
 };

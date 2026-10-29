@@ -164,3 +164,6 @@ export const deleteSevaApplication = async (id) =>
 
 export const getSevaFileUrl = (fileId) =>
     `${BASE}/seva/admin/file/${fileId}?token=${getToken()}`;
+
+export const getSevaExcelUrl = () =>
+    `${BASE}/seva/admin/export?token=${getToken()}`;

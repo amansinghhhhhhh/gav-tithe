@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
-import { getSevaList, deleteSevaApplication } from "../services/api";
+import { getSevaList, deleteSevaApplication, getSevaExcelUrl } from "../services/api";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2, Layers, FileText, Clock } from "lucide-react";
+import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2, Layers, FileText, Clock, Download } from "lucide-react";
 
 const STATUS_BADGE = {
   submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted" },
@@ -127,6 +127,24 @@ export default function SevaFirstList() {
             Seva First Innovation Challenge — total {counts.total} application{counts.total === 1 ? "" : "s"}
           </p>
         </div>
+        <a
+          href={getSevaExcelUrl()}
+          style={{
+            padding: "9px 18px",
+            background: "#16a34a",
+            color: "#fff",
+            borderRadius: 8,
+            fontWeight: 700,
+            fontSize: 13,
+            textDecoration: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <Download size={15} /> Export Excel
+        </a>
       </div>
 
       {/* Stat cards */}
