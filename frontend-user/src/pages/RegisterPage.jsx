@@ -1,12 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { registerEmail, checkMobile, checkEmail } from "../services/api";
+import { registerEmail, checkMobile, checkEmail, sendOtpApi, verifyOtpApi, otpErrMsg } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import VoiceGuide from "../components/VoiceGuide";
 import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
   signInWithEmailAndPassword,
   sendEmailVerification,
   createUserWithEmailAndPassword,
@@ -110,7 +108,7 @@ export default function RegisterPage() {
   const [regOtpVerified, setRegOtpVerified] = useState(false);
   const [regOtpLoading, setRegOtpLoading] = useState(false);
   const [regOtpInput, setRegOtpInput] = useState("");
-  const [phoneFirebaseUid, setPhoneFirebaseUid] = useState("");
+  const [otpToken, setOtpToken] = useState(""); // backend OTP verify ke baad mila token
   const [emailFirebaseUid, setEmailFirebaseUid] = useState(null);
   const [countdown, setCountdown] = useState(0);
   const [step, setStep] = useState(1);
@@ -136,24 +134,24 @@ export default function RegisterPage() {
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
 
-  const regRecaptchaRef = useRef(null);
-  const regConfirmRef = useRef(null);
-
-  function destroyRegRecaptcha() {
+  // Refresh-proof mobile OTP verify (device-bound): 15 min window = backend otpToken JWT lifetime
+  const REG_OTP_KEY = "reg_otp_v1";
+  const saveRegOtp = (mob, tok) => {
     try {
-      if (regRecaptchaRef.current) regRecaptchaRef.current.clear();
-    } catch (_) {}
-    regRecaptchaRef.current = null;
-  }
+      localStorage.setItem(REG_OTP_KEY, JSON.stringify({ mobile: mob, otpToken: tok, verifiedAt: Date.now() }));
+    } catch {}
+  };
+  const clearRegOtp = () => {
+    try { localStorage.removeItem(REG_OTP_KEY); } catch {}
+  };
 
   const resetRegOtp = () => {
+    clearRegOtp();
     setRegOtpSent(false);
     setRegOtpVerified(false);
     setRegOtpInput("");
-    setPhoneFirebaseUid("");
+    setOtpToken("");
     setCountdown(0);
-    regConfirmRef.current = null;
-    destroyRegRecaptcha();
   };
 
   useEffect(() => {
@@ -162,9 +160,20 @@ export default function RegisterPage() {
     return () => clearTimeout(timer);
   }, [countdown]);
 
+  // Restore: refresh ke baad same number 10-digit → recently verified hai toh bina OTP ke Verified
   useEffect(() => {
-    return () => destroyRegRecaptcha();
-  }, []);
+    if (mobile.length !== 10) return;
+    try {
+      const raw = localStorage.getItem(REG_OTP_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (!saved || saved.mobile !== mobile || !saved.otpToken) return;
+      if (Date.now() - saved.verifiedAt > 15 * 60 * 1000) { clearRegOtp(); return; }
+      setOtpToken(saved.otpToken);
+      setRegOtpVerified(true);
+      setRegOtpSent(true);
+    } catch {}
+  }, [mobile]);
 
   // Step auto-advance: Names filled → step 2
   useEffect(() => {
@@ -183,29 +192,41 @@ export default function RegisterPage() {
 
   // Step auto-advance: Valid email → check availability → step 4
   useEffect(() => {
-    if (step === 3 && email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      const timer = setTimeout(async () => {
+    if (step !== 3) return;
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    const timer = setTimeout(() => {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+        // Invalid format → silent mat chhodo, feedback do
+        setErr(t("login_error_email"));
+        return;
+      }
+      (async () => {
         try {
-          const res = await checkEmail(email.trim());
+          const res = await checkEmail(trimmed);
           if (res.message === "firebase_only") {
             // Firebase me hai, MongoDB me nahi → allow proceed, store Firebase UID
             setEmailFirebaseUid(res.firebaseUid);
+            setErr("");
             setStep(4);
-          } else if (!res.success) {
-            // Already registered in MongoDB
+          } else if (res.message === "already_registered" || res.status === 400) {
+            // Already registered in MongoDB → yahi ek genuine block
+            setEmailFirebaseUid(null);
             setErr(t("login_error_email_exists"));
           } else {
-            // Available → proceed
+            // available / server error / rate limit → aage badho; final check registerEmail pe hota hai
             setEmailFirebaseUid(null);
+            setErr("");
             setStep(4);
           }
         } catch {
           // On error, allow proceed (fallback)
+          setErr("");
           setStep(4);
         }
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
+      })();
+    }, 3000);
+    return () => clearTimeout(timer);
   }, [email, step]);
 
   // Step auto-advance: Valid password → step 5
@@ -224,16 +245,6 @@ export default function RegisterPage() {
     return null;
   };
 
-  const getRegRecaptcha = () => {
-    if (regRecaptchaRef.current) return regRecaptchaRef.current;
-    regRecaptchaRef.current = new RecaptchaVerifier(
-      auth,
-      "reg-recaptcha-container",
-      { size: "invisible", callback: () => {}, "expired-callback": () => { destroyRegRecaptcha(); } },
-    );
-    return regRecaptchaRef.current;
-  };
-
   const sendRegOtp = async () => {
     setErr("");
     if (mobile.length !== 10) { setErr(t("login_error_mobile")); return; }
@@ -248,42 +259,39 @@ export default function RegisterPage() {
         return;
       }
       
-      // Case 2: Firebase me hai, MongoDB me nahi → Show verified, auto-advance 3 sec baad
-      if (mobileCheck.message === "firebase_only") {
-        setPhoneFirebaseUid(mobileCheck.firebaseUid);
-        setRegOtpVerified(true);
+      // Case 2 (firebase_only) bhi yahin se guzarta hai — sabko asli MagicText OTP chahiye
+      const data = await sendOtpApi(mobile, "register", lang);
+      if (!data.success) {
+        setErr(otpErrMsg(data, t));
         setRegOtpLoading(false);
         return;
       }
-      
-      // Case 3: Kahi nahi hai → Normal OTP flow
-      const verifier = getRegRecaptcha();
-      const confirmation = await signInWithPhoneNumber(auth, `+91${mobile}`, verifier);
-      regConfirmRef.current = confirmation;
       setRegOtpSent(true);
       setCountdown(59);
     } catch (e) {
       console.error("OTP send error:", e);
-      setErr(t(firebaseErrorKey(e.code)));
-      destroyRegRecaptcha();
+      setErr(t("otp_error_send"));
     } finally {
       setRegOtpLoading(false);
     }
   };
 
   const handleVerifyRegOtp = async () => {
-    if (regOtpInput.length < 4) return;
+    if (regOtpInput.length !== 6) { setErr(t("otp_error_incomplete")); return; }
     setErr("");
     setRegOtpLoading(true);
     try {
-      if (!regConfirmRef.current) throw new Error("Send OTP first");
-      const result = await regConfirmRef.current.confirm(regOtpInput);
-      const uid = result.user.uid;
-      setPhoneFirebaseUid(uid);
+      const data = await verifyOtpApi(mobile, regOtpInput, "register");
+      if (!data.success || !data.otpToken) {
+        setErr(otpErrMsg(data, t));
+        return;
+      }
+      setOtpToken(data.otpToken);
       setRegOtpVerified(true);
+      saveRegOtp(mobile, data.otpToken);
     } catch (e) {
       console.error("OTP verify error:", e);
-      setErr(t(firebaseErrorKey(e.code)));
+      setErr(t("otp_error_code"));
     } finally {
       setRegOtpLoading(false);
     }
@@ -338,7 +346,14 @@ export default function RegisterPage() {
       }
 
       const fullName = [firstName, middleName, surname].filter(Boolean).join(" ");
-      const data = await registerEmail(email, password, mobile, fullName, phoneFirebaseUid || emailUid);
+      const data = await registerEmail({
+        email,
+        password,
+        mobile,
+        name: fullName,
+        firebaseUid: emailUid,
+        otpToken,
+      });
       if (data?.success || data?.token) {
         signOut(auth).catch(() => {});
         setEmail("");
@@ -351,7 +366,15 @@ export default function RegisterPage() {
         resetRegOtp();
         navigate("/register-success", { state: { regSuccess: true } });
       } else {
-        setErr(t(data?.message) || t("login_error"));
+        // Token expire/invalid → persisted verify state hatao, user Get OTP se retry kar sake
+        if (data?.error === "session_expired" || data?.error === "otp_required") {
+          clearRegOtp();
+          setRegOtpSent(false);
+          setRegOtpVerified(false);
+          setOtpToken("");
+          setRegOtpInput("");
+        }
+        setErr(data?.error ? otpErrMsg(data, t) : t(data?.message) || t("login_error"));
       }
     } catch (e) {
       console.error("Register error:", e);
@@ -566,7 +589,6 @@ export default function RegisterPage() {
 
               {/* Mobile — visible always, disabled until step 2 */}
               <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 14, opacity: step >= 2 ? 1 : 0.5, pointerEvents: step >= 2 ? "auto" : "none" }}>
-                <div id="reg-recaptcha-container" />
                 <label style={labelStyle}>
                   {t("login_mobile")}
                   <InfoTip textKey="info_mobile_register" size={14} />
@@ -626,7 +648,7 @@ export default function RegisterPage() {
                   )}
                   {regOtpSent && !regOtpVerified && (
                     <button
-                      onClick={() => { setRegOtpSent(false); setRegOtpInput(""); destroyRegRecaptcha(); }}
+                      onClick={() => { clearRegOtp(); setRegOtpSent(false); setRegOtpInput(""); setOtpToken(""); setRegOtpVerified(false); }}
                       style={{
                         padding: "10px 12px",
                         background: "none",
@@ -659,7 +681,7 @@ export default function RegisterPage() {
                     />
                     <button
                       onClick={handleVerifyRegOtp}
-                      disabled={regOtpLoading || regOtpInput.length < 4}
+                      disabled={regOtpLoading || regOtpInput.length < 6}
                       style={{
                         padding: "10px 16px",
                         background: regOtpLoading ? "#aaa" : "#1e3a5f",
@@ -668,7 +690,7 @@ export default function RegisterPage() {
                         borderRadius: 10,
                         fontWeight: 700,
                         fontSize: 13,
-                        cursor: regOtpLoading || regOtpInput.length < 4 ? "not-allowed" : "pointer",
+                        cursor: regOtpLoading || regOtpInput.length < 6 ? "not-allowed" : "pointer",
                       }}
                     >
                       {t("s1_verify")}

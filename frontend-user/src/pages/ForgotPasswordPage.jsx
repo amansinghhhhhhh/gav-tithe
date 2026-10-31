@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { app } from "../config/firebase";
-import { checkMobile, checkEmail, resetPasswordMobile, checkSamePassword } from "../services/api";
+import { checkMobile, checkEmail, resetPasswordMobile, checkSamePassword, sendOtpApi, verifyOtpApi, otpErrMsg } from "../services/api";
 import { firebaseErrorKey } from "../services/firebaseErrors";
 import { useLang } from "../context/LangContext";
 import { Header } from "../components/Header";
@@ -56,7 +56,7 @@ const radioLabelStyle = {
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const auth = getAuth(app);
 
   const [method, setMethod] = useState("email");
@@ -68,33 +68,13 @@ export default function ForgotPasswordPage() {
 
   const [step, setStep] = useState(1); // 1=input, 2=otp sent, 3=otp verified, 4=reset password
   const [showPass, setShowPass] = useState(false);
-  const [idToken, setIdToken] = useState("");
+  const [resetToken, setResetToken] = useState(""); // OTP verify ke baad mila short-lived token
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [err, setErr] = useState("");
 
-  const confirmRef = useRef(null);
-  const recaptchaRef = useRef(null);
-
   const focusStyle = (e) => (e.target.style.borderColor = "#F97316");
   const blurStyle = (e) => (e.target.style.borderColor = "#e5e7eb");
-
-  const getRecaptcha = () => {
-    if (recaptchaRef.current) return recaptchaRef.current;
-    recaptchaRef.current = new RecaptchaVerifier(
-      auth,
-      "recaptcha-container",
-      {
-        size: "invisible",
-        callback: () => {},
-        "expired-callback": () => {
-          setErr(t("fb_captcha"));
-          recaptchaRef.current = null;
-        },
-      }
-    );
-    return recaptchaRef.current;
-  };
 
   const handleSendResetLink = async () => {
     setErr("");
@@ -165,15 +145,17 @@ export default function ForgotPasswordPage() {
       }
       
       // Mobile exists in MongoDB (400 response) → proceed with OTP
-      // Mobile exists — send OTP
-      const verifier = getRecaptcha();
-      const phoneNumber = `+91${mobile.replace(/\D/g, "").slice(-10)}`;
-      const confirmation = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-      confirmRef.current = confirmation;
+      // Mobile exists — send OTP (backend → MagicText SMS)
+      const data = await sendOtpApi(mobile, "reset", lang);
+      if (!data.success) {
+        setErr(otpErrMsg(data, t));
+        setLoading(false);
+        return;
+      }
       setStep(2);
     } catch (e) {
       console.error("Mobile OTP send error:", e);
-      setErr(t(firebaseErrorKey(e.code)));
+      setErr(t("otp_error_send"));
     } finally {
       setLoading(false);
     }
@@ -187,14 +169,17 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true);
     try {
-      const result = await confirmRef.current.confirm(otp);
-      const idToken = await result.user.getIdToken();
-      // Store idToken for password reset
-      setIdToken(idToken);
+      const data = await verifyOtpApi(mobile, otp, "reset");
+      if (!data.success || !data.resetToken) {
+        setErr(otpErrMsg(data, t));
+        return;
+      }
+      // Store resetToken for password reset
+      setResetToken(data.resetToken);
       setStep(3);
     } catch (e) {
       console.error("Mobile OTP verify error:", e);
-      setErr(t(firebaseErrorKey(e.code)));
+      setErr(t("otp_error_code"));
     } finally {
       setLoading(false);
     }
@@ -219,9 +204,9 @@ export default function ForgotPasswordPage() {
         setLoading(false);
         return;
       }
-      const data = await resetPasswordMobile(idToken, newPassword);
+      const data = await resetPasswordMobile(resetToken, newPassword);
       if (!data.success) {
-        const msg = data.message === "Same password" ? t("forgot_error_same_password") : data.message;
+        const msg = data.error === "session_expired" ? otpErrMsg(data, t) : data.message === "Same password" ? t("forgot_error_same_password") : data.message;
         setErr(msg);
         setLoading(false);
         return;
@@ -679,7 +664,6 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
       </div>
-      <div id="recaptcha-container" />
     </>
   );
 }

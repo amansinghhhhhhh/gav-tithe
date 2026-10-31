@@ -17,15 +17,18 @@ const validate = (req, res, next) => {
 
 // ── Auth Validators ───────────────────────────────────────────────────────────
 
-// OTP verify
+// OTP verify (MagicText — mobile + 6-digit code + purpose)
 const validateOtp = [
-    body("idToken")
-        .notEmpty().withMessage("Firebase ID token required"),
     body("mobile")
-        .optional()
+        .notEmpty().withMessage("Mobile number required")
         .isMobilePhone("en-IN").withMessage("Valid 10-digit mobile number required"),
-    body("name")
+    body("otp")
+        .matches(/^\d{6}$/).withMessage("6-digit OTP required"),
+    body("purpose")
         .optional()
+        .isIn(["register", "profile", "reset"]).withMessage("Invalid purpose"),
+    body("name")
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ min: 2, max: 100 }).withMessage("Name must be 2-100 characters"),
     validate,

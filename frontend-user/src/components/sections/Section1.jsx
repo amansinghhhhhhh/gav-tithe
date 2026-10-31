@@ -145,7 +145,7 @@ function Section1({ data, dispatch, registerNext, onNext }) {
   useEffect(() => {
     if (user?.firebaseUid && user?.mobile) {
       u({ mobile: user.mobile, otpVerified: true });
-      localStorage.setItem("otp_verified", "true");
+      localStorage.setItem("otp_verified_v2", "true");
       clearError("otpVerified");
     }
   }, [user?.firebaseUid, user?.mobile]);
@@ -236,7 +236,6 @@ function Section1({ data, dispatch, registerNext, onNext }) {
 
   return (
     <div style={sectionCardStyle}>
-      <div id="recaptcha-container" />
       <SectionHeader title={t("s1_title")} badge={t("s1_badge")} />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

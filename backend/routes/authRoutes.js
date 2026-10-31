@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
 const { getAdmin } = require("../config/firebase");
-const { verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile, resetPasswordEmail } = require("../controllers/authController");
+const { sendOtp, verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile, resetPasswordEmail } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 const { validateOtp, validateRegister, validateLogin } = require("../middleware/validate");
 
@@ -24,6 +24,7 @@ const strictLimiter = rateLimit({
     },
 });
 
+router.post("/otp/send", strictLimiter, sendOtp);
 router.post("/otp/verify", strictLimiter, validateOtp, verifyOtp);
 router.post("/register", strictLimiter, validateRegister, registerEmail);
 router.post("/login", strictLimiter, validateLogin, loginEmail);

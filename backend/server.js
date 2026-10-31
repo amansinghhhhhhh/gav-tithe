@@ -24,8 +24,8 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false,
 }));
 
-// ✅ Railway/Vercel proxy trust karo
-app.set("trust proxy", true);
+// ✅ Railway proxy ke 1 hop ka client IP trust karo (true = XFF spoof se rate-limit bypass)
+app.set("trust proxy", 1);
 
 // ── 2. CORS — sirf allowed origins ───────────────────────────────────────────
 const allowedOrigins = [

@@ -36,13 +36,14 @@ const apiFetch = async (url, options = {}, retries = 1) => {
 
             if (!res.ok) {
                 if (data && res.status === 429 && data.retryAfterMinutes) {
-                    return { success: false, status: 429, message: data.message || "Too many requests", retryAfterMinutes: data.retryAfterMinutes };
+                    return { success: false, status: 429, error: data.error, message: data.message || "Too many requests", retryAfterMinutes: data.retryAfterMinutes };
                 }
                 // Non-JSON error (HTML error page) → server 5xx ho toh api_server, warna network
                 const fallback = data ? null : res.status >= 500 ? "api_server" : "api_network";
                 return {
                     success: false,
                     status: res.status,
+                    error: data?.error,
                     message: (data && data.message) || fallback || "Something went wrong, please try again.",
                     retryAfterMinutes: data?.retryAfterMinutes,
                 };
@@ -77,20 +78,46 @@ export const apiMsg = (res, t) => {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-export const verifyOtpApi = async (idToken, mobile, name) => {
+// OTP error codes → translation keys (backend ke `error` field se)
+const OTP_ERR_KEYS = {
+    invalid_phone: "otp_error_phone",
+    rate_limited: "otp_error_rate",
+    expired: "otp_error_expired",
+    invalid_code: "otp_error_code",
+    sms_failed: "otp_error_send",
+    session_expired: "otp_error_session",
+    otp_required: "otp_error_verify",
+};
+
+export const otpErrMsg = (data, t) => {
+    if (data?.error && OTP_ERR_KEYS[data.error]) return t(OTP_ERR_KEYS[data.error]);
+    const m = data?.message;
+    if (typeof m === "string" && /^(api_|err_|fb_)/.test(m)) return t(m);
+    return m || t("otp_error_send");
+};
+
+export const sendOtpApi = (mobile, purpose = "profile", lang = "en") =>
+    apiFetch(`${BASE}/auth/otp/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile, purpose, lang }),
+    });
+
+export const verifyOtpApi = async (mobile, otp, purpose = "profile", name) => {
     const data = await apiFetch(`${BASE}/auth/otp/verify`, {
         method: "POST",
-        // ✅ authHeaders() use karo — logged-in user ka JWT token bhi jayega
+        // ✅ authHeaders() use karo — logged-in user ka JWT token bhi jayega (profile purpose)
         headers: authHeaders(),
-        body: JSON.stringify({ idToken, mobile, name }),
+        body: JSON.stringify({ mobile, otp, purpose, name }),
     });
     if (data.token) setToken(data.token);
     return data;
 };
 
-export const registerEmail = async (email, password, mobile, name, firebaseUid) => {
+export const registerEmail = async ({ email, password, mobile, name, firebaseUid, otpToken }) => {
     const body = { email, password, mobile, name };
     if (firebaseUid) body.firebaseUid = firebaseUid;
+    if (otpToken) body.otpToken = otpToken;
     const data = await apiFetch(`${BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,11 +166,11 @@ export const checkSamePassword = (identifier, newPassword) =>
         body: JSON.stringify({ email: identifier.includes("@") ? identifier : undefined, mobile: !identifier.includes("@") ? identifier : undefined, newPassword }),
     });
 
-export const resetPasswordMobile = async (idToken, newPassword) => {
+export const resetPasswordMobile = async (resetToken, newPassword) => {
     return apiFetch(`${BASE}/auth/reset-password-mobile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken, newPassword }),
+        body: JSON.stringify({ resetToken, newPassword }),
     });
 };
 

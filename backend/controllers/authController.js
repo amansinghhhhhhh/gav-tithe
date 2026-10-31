@@ -1,6 +1,9 @@
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const OtpCode = require("../models/OtpCode");
 const { getAdmin } = require("../config/firebase");
+const { sendOtpSms } = require("../services/magicText");
 
 const generateToken = (userId) =>
     jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -43,6 +46,19 @@ const clearLoginFails = (key) => {
 // Naya password rule: min 8 chars + kam se kam 1 letter + 1 number
 const isStrongPassword = (pw) => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(String(pw || ""));
 
+// ── OTP helpers (MagicText — backend-owned 6-digit codes, Mongo me hashed) ────
+const OTP_TTL_MIN = 5;        // code validity
+const OTP_DOC_TTL_MIN = 15;   // doc life (rate-limit history ke liye)
+const OTP_MAX_SENDS_15MIN = 5; // per-mobile send cap
+const OTP_MAX_ATTEMPTS = 5;   // wrong-guess cap per code
+const OTP_PURPOSES = ["register", "profile", "reset"];
+
+const cleanMobile = (m) => String(m || "").replace(/[^0-9]/g, "").slice(-10);
+const isValidMobile = (m) => /^[6-9]\d{9}$/.test(m);
+const sha256 = (s) => crypto.createHash("sha256").update(String(s)).digest("hex");
+const otpErr = (res, status, error, message) =>
+    res.status(status).json({ success: false, error, message });
+
 // ── Firebase se emailVerified sync karo → Mongo ─────────────────────────────
 const syncEmailVerified = async (user) => {
     if (!user?.email) return user;
@@ -62,21 +78,93 @@ const syncEmailVerified = async (user) => {
     return user;
 };
 
-// ── 1. Firebase OTP verify ────────────────────────────────────────────────────
+// ── 1a. Send OTP (MagicText SMS) ─────────────────────────────────────────────
+const sendOtp = async (req, res) => {
+    try {
+        const mobile = cleanMobile(req.body.mobile);
+        const purpose = OTP_PURPOSES.includes(req.body.purpose) ? req.body.purpose : "profile";
+        const lang = req.body.lang === "mr" ? "mr" : "en";
+        if (!isValidMobile(mobile))
+            return otpErr(res, 400, "invalid_phone", "Enter a valid 10-digit mobile number");
+
+        // Per-phone rate limit: max 5 sends / 15 min
+        const since = new Date(Date.now() - OTP_DOC_TTL_MIN * 60 * 1000);
+        const sends = await OtpCode.countDocuments({ mobile, createdAt: { $gte: since } });
+        if (sends >= OTP_MAX_SENDS_15MIN)
+            return otpErr(res, 429, "rate_limited", "Too many OTP requests. Please try again after some time.");
+
+        // Purani active codes invalidate — sirf latest code chalega
+        await OtpCode.updateMany({ mobile, consumedAt: null }, { $set: { consumedAt: new Date() } });
+
+        const otp = String(crypto.randomInt(100000, 1000000));
+        const now = Date.now();
+        await OtpCode.create({
+            mobile,
+            purpose,
+            codeHash: sha256(otp),
+            validUntil: new Date(now + OTP_TTL_MIN * 60000),
+            expiresAt: new Date(now + OTP_DOC_TTL_MIN * 60000),
+        });
+
+        try {
+            await sendOtpSms(mobile, otp, lang);
+        } catch (e) {
+            console.error("OTP SMS failed:", e.message);
+            return otpErr(res, 502, "sms_failed", "Could not send OTP. Please try again.");
+        }
+
+        res.json({ success: true, message: "OTP sent", expiresIn: OTP_TTL_MIN * 60 });
+    } catch (err) {
+        console.error("OTP send error:", err.message);
+        otpErr(res, 500, "sms_failed", "Could not send OTP. Please try again.");
+    }
+};
+
+// ── 1b. Verify OTP (MagicText) — purpose ke hisaab se response ───────────────
 const verifyOtp = async (req, res) => {
     try {
-        const { idToken, mobile, name } = req.body;
-        if (!idToken) return res.status(400).json({ message: "Firebase ID token required" });
+        const mobile = cleanMobile(req.body.mobile);
+        const purpose = OTP_PURPOSES.includes(req.body.purpose) ? req.body.purpose : "profile";
+        const otp = String(req.body.otp || "").trim();
+        const { name } = req.body;
 
-        const firebaseAdmin = getAdmin();
-        if (!firebaseAdmin)
-            return res.status(500).json({ message: "Firebase not configured on server" });
+        if (!isValidMobile(mobile))
+            return otpErr(res, 400, "invalid_phone", "Enter a valid 10-digit mobile number");
+        if (!/^\d{6}$/.test(otp))
+            return otpErr(res, 400, "invalid_code", "Enter the 6-digit OTP");
 
-        const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
-        const { uid, phone_number } = decoded;
-        const mobileNumber = phone_number || `+91${mobile}`;
+        const rec = await OtpCode.findOne({ mobile, purpose, consumedAt: null }).sort({ createdAt: -1 });
+        if (!rec)
+            return otpErr(res, 400, "expired", "OTP not found. Please request a new one.");
+        if (rec.validUntil < new Date())
+            return otpErr(res, 400, "expired", "OTP expired. Please request a new one.");
+        if (rec.attempts >= OTP_MAX_ATTEMPTS)
+            return otpErr(res, 429, "rate_limited", "Too many wrong attempts. Please request a new OTP.");
 
-        // ── Check: koi logged-in user hai JWT token se? ───────────────────────
+        if (sha256(otp) !== rec.codeHash) {
+            rec.attempts += 1;
+            await rec.save();
+            return otpErr(res, 400, "invalid_code", "Incorrect OTP. Please check the SMS and try again.");
+        }
+
+        rec.consumedAt = new Date();
+        await rec.save();
+
+        // ── Purpose: register → short-lived token (registerEmail me prove hoga) ──
+        if (purpose === "register") {
+            const otpToken = jwt.sign({ mobile, purpose: "register" }, process.env.JWT_SECRET, { expiresIn: "15m" });
+            return res.json({ success: true, otpToken });
+        }
+
+        // ── Purpose: reset → short-lived token (resetPasswordMobile me prove) ────
+        if (purpose === "reset") {
+            const resetToken = jwt.sign({ mobile, purpose: "reset" }, process.env.JWT_SECRET, { expiresIn: "10m" });
+            return res.json({ success: true, resetToken });
+        }
+
+        // ── Purpose: profile → mobile link + JWT (Section1 flow) ────────────────
+        const mobileNumber = `+91${mobile}`;
+
         let loggedInUser = null;
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -90,51 +178,26 @@ const verifyOtp = async (req, res) => {
         }
 
         let user;
-
         if (loggedInUser) {
-            // ── Case 1: Logged-in user hai → usi mein mobile + firebaseUid update karo
-            // Pehle check karo yeh mobile kisi aur user ke paas toh nahi
+            // Logged-in user → usi mein mobile update karo (conflict check)
             const mobileConflict = await User.findOne({
                 mobile: mobileNumber,
                 _id: { $ne: loggedInUser._id },
             });
             if (mobileConflict) {
-                return res.status(400).json({
-                    success: false,
-                    message: "This mobile number is linked to another account",
-                });
+                return otpErr(res, 400, "mobile_linked_other", "This mobile number is linked to another account");
             }
-
             loggedInUser.mobile = mobileNumber;
-            loggedInUser.firebaseUid = uid;
             loggedInUser.isVerified = true;
             if (name) loggedInUser.name = name;
             await loggedInUser.save();
             user = loggedInUser;
-
         } else {
-            // ── Case 2: Koi logged-in user nahi → firebaseUid ya mobile se dhundo
-            user = await User.findOne({
-                $or: [{ firebaseUid: uid }, { mobile: mobileNumber }],
-            });
-
+            // Koi logged-in nahi → mobile se dhoondo ya naya user banao
+            user = await User.findOne({ mobile: { $in: [mobileNumber, mobile, `91${mobile}`] } });
             if (!user) {
-                user = await User.create({
-                    firebaseUid: uid,
-                    mobile: mobileNumber,
-                    name: name || "",
-                    isVerified: true,
-                });
+                user = await User.create({ mobile: mobileNumber, name: name || "", isVerified: true });
             } else {
-                // ── Agar mobile se mila hai aur firebaseUid alag hai → duplicate mobile
-                if (user.mobile === mobileNumber && user.firebaseUid && user.firebaseUid !== uid) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "This mobile number is already registered. Please use a different number or login with existing account.",
-                    });
-                }
-                user.firebaseUid = uid;
-                user.mobile = mobileNumber;
                 user.isVerified = true;
                 if (name) user.name = name;
                 await user.save();
@@ -156,25 +219,40 @@ const verifyOtp = async (req, res) => {
         });
     } catch (err) {
         console.error("OTP verify error:", err.message);
-        res.status(401).json({ message: "OTP verification failed" });
+        otpErr(res, 400, "verify_failed", "OTP verification failed. Please try again.");
     }
 };
 
 // ── 2. Email Register ─────────────────────────────────────────────────────────
 const registerEmail = async (req, res) => {
     try {
-        const { email, password, mobile, name, firebaseUid } = req.body;
+        const { email, password, mobile, name, firebaseUid, otpToken } = req.body;
 
         const existingEmail = await User.findOne({ email });
         if (existingEmail)
             return res.status(400).json({ success: false, message: "Email already registered" });
 
         if (mobile) {
-            const cleanMobile = mobile.replace(/[^0-9]/g, "").slice(-10);
+            const cleanMobileNum = cleanMobile(mobile);
+            if (!isValidMobile(cleanMobileNum))
+                return otpErr(res, 400, "invalid_phone", "Enter a valid 10-digit mobile number");
+
+            // Mobile OTP (MagicText) se verify hona chahiye — koi bypass nahi
+            if (otpToken) {
+                try {
+                    const d = jwt.verify(otpToken, process.env.JWT_SECRET);
+                    if (d.purpose !== "register" || cleanMobile(d.mobile) !== cleanMobileNum) throw new Error("mismatch");
+                } catch (_) {
+                    return otpErr(res, 400, "session_expired", "OTP session expired. Please verify your mobile again.");
+                }
+            } else {
+                return otpErr(res, 400, "otp_required", "Please verify your mobile number with OTP");
+            }
+
             const mobileFormats = [
-                `+91${cleanMobile}`,
-                cleanMobile,
-                `91${cleanMobile}`,
+                `+91${cleanMobileNum}`,
+                cleanMobileNum,
+                `91${cleanMobileNum}`,
             ];
             const existingMobile = await User.findOne({
                 mobile: { $in: mobileFormats },
@@ -217,7 +295,7 @@ const registerEmail = async (req, res) => {
                 // ⚠️ null set mat karo — sparse unique index null ko bhi index karta hai (E11000 dup)
                 mobile: mobile || undefined,
                 firebaseUid: firebaseUid || undefined,
-                isVerified: !!firebaseUid,
+                isVerified: !!firebaseUid || !!otpToken,
                 role: "user",
             });
             await user.save();
@@ -409,26 +487,45 @@ const getMe = async (req, res) => {
     }
 };
 
-// ── 5. Reset password via mobile OTP (Firebase ID token verification) ─────────
+// ── 5. Reset password via mobile OTP ─────────────────────────────────────────
+// Naya flow: MagicText OTP → /otp/verify (purpose=reset) → resetToken
+// Legacy: Firebase ID token (purane clients ke liye fallback)
 const resetPasswordMobile = async (req, res) => {
     try {
-        const { idToken, newPassword } = req.body;
-        if (!idToken || !newPassword) {
-            return res.status(400).json({ success: false, message: "ID token and new password required" });
+        const { idToken, resetToken, newPassword } = req.body;
+        if (!newPassword) {
+            return res.status(400).json({ success: false, message: "New password required" });
         }
 
         if (!isStrongPassword(newPassword)) {
             return res.status(400).json({ success: false, message: "Password must be at least 8 characters and include a letter and a number" });
         }
 
-        const firebaseAdmin = getAdmin();
-        if (!firebaseAdmin) {
-            return res.status(500).json({ message: "Firebase not configured on server" });
+        if (!idToken && !resetToken) {
+            return otpErr(res, 400, "session_expired", "Session expired. Please verify OTP again.");
         }
 
-        // Verify Firebase ID token
-        const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
-        const { uid, phone_number } = decoded;
+        const firebaseAdmin = getAdmin();
+
+        let uid = null;
+        let phone_number = null;
+
+        if (resetToken) {
+            try {
+                const d = jwt.verify(resetToken, process.env.JWT_SECRET);
+                if (d.purpose !== "reset") throw new Error("bad purpose");
+                phone_number = `+91${cleanMobile(d.mobile)}`;
+            } catch (_) {
+                return otpErr(res, 400, "session_expired", "Reset session expired. Please verify OTP again.");
+            }
+        } else {
+            if (!firebaseAdmin) {
+                return res.status(500).json({ message: "Firebase not configured on server" });
+            }
+            const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+            uid = decoded.uid;
+            phone_number = decoded.phone_number;
+        }
 
         // Find user by firebaseUid or mobile
         let user = null;
@@ -465,7 +562,7 @@ const resetPasswordMobile = async (req, res) => {
         let firebaseSkipReason = null;
 
         const updateFbUid = async (uidToUse, label) => {
-            if (!uidToUse) return false;
+            if (!firebaseAdmin || !uidToUse) return false;
             try {
                 await firebaseAdmin.auth().updateUser(uidToUse, { password: newPassword });
                 console.log(`Firebase Auth password updated (${label}):`, uidToUse);
@@ -477,7 +574,7 @@ const resetPasswordMobile = async (req, res) => {
         };
 
         // 1) Email account — email login isliye ye mandatory hai
-        if (user.email) {
+        if (firebaseAdmin && user.email) {
             try {
                 const fbByEmail = await firebaseAdmin.auth().getUserByEmail(user.email);
                 const ok = await updateFbUid(fbByEmail.uid, "email");
@@ -498,14 +595,14 @@ const resetPasswordMobile = async (req, res) => {
                     if (ok) firebaseUpdated = true;
                 }
             }
-        } else if (user.firebaseUid) {
+        } else if (firebaseAdmin && user.firebaseUid) {
             const ok = await updateFbUid(user.firebaseUid, "firebaseUid");
             if (ok) firebaseUpdated = true;
             else firebaseSkipReason = "firebaseUid_update_failed";
         }
 
         // 3) Phone number wala Firebase user (alag UID ho toh)
-        if (phone_number) {
+        if (firebaseAdmin && phone_number) {
             try {
                 const fbByPhone = await firebaseAdmin.auth().getUserByPhoneNumber(phone_number);
                 if (!user.firebaseUid || fbByPhone.uid !== user.firebaseUid) {
@@ -590,4 +687,4 @@ const resetPasswordEmail = async (req, res) => {
     }
 };
 
-module.exports = { verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile, resetPasswordEmail };
+module.exports = { sendOtp, verifyOtp, registerEmail, loginEmail, getMe, resetPasswordMobile, resetPasswordEmail };

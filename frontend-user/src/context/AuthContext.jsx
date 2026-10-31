@@ -18,7 +18,8 @@ export function AuthProvider({ children }) {
           setUser(data.user);
         } else {
           clearToken();
-          localStorage.removeItem("otp_verified"); // token invalid → clear
+          localStorage.removeItem("otp_verified_v2"); // token invalid → clear
+          localStorage.removeItem("otp_verified"); // purani key bhi saaf
         }
       }
       setLoading(false);
@@ -32,7 +33,8 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     clearToken();
-    localStorage.removeItem("otp_verified"); // ✅ logout pe clear karo
+    localStorage.removeItem("otp_verified_v2"); // ✅ logout pe clear karo
+    localStorage.removeItem("otp_verified"); // purani key bhi saaf
     // ✅ Firebase session bhi clear karo — warna agla registration purane
     // user/reCAPTCHA state ke upar chalta hai → auth/invalid-app-credential
     signOut(auth).catch(() => {});
