@@ -167,3 +167,6 @@ export const getSevaFileUrl = (fileId) =>
 
 export const getSevaExcelUrl = () =>
     `${BASE}/seva/admin/export?token=${getToken()}`;
+
+export const getSevaZipUrl = ({ q = "", status = "", docs = [] } = {}) =>
+    `${BASE}/seva/admin/export-zip?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&docs=${encodeURIComponent(docs.join(","))}&token=${getToken()}`;

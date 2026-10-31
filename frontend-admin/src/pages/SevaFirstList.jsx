@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import C from "../constants/colors";
 import { Spinner } from "../components/shared/Spinner";
-import { getSevaList, deleteSevaApplication, getSevaExcelUrl } from "../services/api";
+import { getSevaList, deleteSevaApplication, getSevaExcelUrl, getSevaZipUrl } from "../services/api";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2, Layers, FileText, Clock, Download } from "lucide-react";
+import { Lightbulb, Search, FolderOpen, Eye, XCircle, Trash2, CheckCircle2, Layers, FileText, Clock, Download, FileArchive } from "lucide-react";
 
 const STATUS_BADGE = {
   submitted: { bg: "#fff7ed", color: "#F97316", label: "Submitted" },
@@ -12,6 +12,13 @@ const STATUS_BADGE = {
   approved: { bg: "#dcfce7", color: "#16a34a", label: "Approved" },
   rejected: { bg: "#fee2e2", color: "#dc2626", label: "Rejected" },
 };
+
+const DOC_TYPES = [
+  { v: "ppt", label: "PPT" },
+  { v: "idProof", label: "ID Proof" },
+  { v: "prototype", label: "Prototype" },
+  { v: "research", label: "Research" },
+];
 
 const FILTERS = [
   { v: "", label: "All" },
@@ -63,6 +70,11 @@ export default function SevaFirstList() {
   const [msgOk, setMsgOk] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmApp, setConfirmApp] = useState(null);
+  const [docs, setDocs] = useState(DOC_TYPES.map((d) => d.v));
+
+  const toggleDoc = (v) => {
+    setDocs((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
+  };
 
   const showMsg = (text, ok = false) => {
     setMsgOk(ok);
@@ -262,6 +274,57 @@ export default function SevaFirstList() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Docs selector + ZIP download */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 800, color: C.textopa, textTransform: "uppercase", letterSpacing: "0.5px", marginRight: 2 }}>
+          Documents:
+        </span>
+        {DOC_TYPES.map((d) => {
+          const on = docs.includes(d.v);
+          return (
+            <button
+              key={d.v}
+              onClick={() => toggleDoc(d.v)}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 20,
+                border: on ? "none" : "1.5px solid #cbd5e1",
+                background: on ? "#F97316" : C.white,
+                color: on ? "#fff" : C.textopa,
+                fontSize: 12.5,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {d.label}
+            </button>
+          );
+        })}
+        <a
+          href={docs.length ? getSevaZipUrl({ q, status, docs }) : undefined}
+          aria-disabled={!docs.length}
+          title={docs.length ? "Filtered users ke selected documents ZIP me download honge" : "Kam se kam ek document type select karo"}
+          style={{
+            marginLeft: 6,
+            padding: "8px 18px",
+            borderRadius: 8,
+            fontWeight: 700,
+            fontSize: 13,
+            textDecoration: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            whiteSpace: "nowrap",
+            background: docs.length ? C.navy : "#e2e8f0",
+            color: docs.length ? "#fff" : "#94a3b8",
+            cursor: docs.length ? "pointer" : "not-allowed",
+            pointerEvents: docs.length ? "auto" : "none",
+          }}
+        >
+          <FileArchive size={15} /> Download ZIP
+        </a>
       </div>
 
       {/* Table */}

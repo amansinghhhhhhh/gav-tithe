@@ -10,6 +10,7 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "archiver": "^8.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "docx": "^9.7.1",

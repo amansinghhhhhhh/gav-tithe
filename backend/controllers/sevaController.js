@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const multer = require("multer");
 const ExcelJS = require("exceljs");
+const { ZipArchive } = require("archiver");
 const { GridFSBucket } = require("mongodb");
 const SevaFirstApplication = require("../models/SevaFirstApplication");
 const { saveToGridFS } = require("../middleware/upload");
@@ -432,6 +433,110 @@ const adminExportSeva = async (req, res) => {
     }
 };
 
+// ── Admin: ZIP export (filtered users × selected docs, har user ka folder) ──
+const ZIP_DOC_FIELDS = ["ppt", "idProof", "prototype", "research"];
+
+const zipSafeName = (s, max = 120) =>
+    (s || "")
+        .replace(/[\\/:*?"<>|]/g, "_")
+        .replace(/\s+/g, "_")
+        .slice(0, max) || "document";
+
+const adminExportSevaZip = async (req, res) => {
+    try {
+        const { q = "", status = "", docs = "" } = req.query;
+
+        // docs: comma list → allowed fields; empty/invalid → sab
+        const selected = String(docs)
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => ZIP_DOC_FIELDS.includes(s));
+        const docFields = selected.length ? [...new Set(selected)] : ZIP_DOC_FIELDS;
+
+        // exact same filter as adminListSeva (jo table me dikh raha hai wahi ZIP me)
+        const filter = {};
+        if (status) filter.status = status;
+        if (q.trim()) {
+            const rx = new RegExp(q.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+            filter.$or = [{ uniqueId: rx }, { "applicant.name": rx }, { "applicant.mobile": rx }, { "applicant.email": rx }];
+        }
+
+        const apps = await SevaFirstApplication.find(filter)
+            .select("uniqueId applicant.name files")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        // saare fileIds ka ek batch me metadata laao (filename ke liye)
+        const db = mongoose.connection.db;
+        const bucket = new GridFSBucket(db, { bucketName: "uploads" });
+        const allIds = [];
+        for (const a of apps) {
+            for (const f of docFields) {
+                const fid = a.files && a.files[f];
+                if (fid && mongoose.Types.ObjectId.isValid(fid)) allIds.push(new mongoose.Types.ObjectId(fid));
+            }
+        }
+        const metaById = new Map();
+        if (allIds.length) {
+            const metas = await bucket.find({ _id: { $in: allIds } }).toArray();
+            for (const m of metas) metaById.set(String(m._id), m);
+        }
+
+        const stamp = new Date().toISOString().slice(0, 10);
+        res.setHeader("Content-Type", "application/zip");
+        res.setHeader("Content-Disposition", `attachment; filename="seva-first-docs-${stamp}.zip"`);
+
+        const archive = new ZipArchive({ zlib: { level: 6 } });
+        archive.on("warning", (err) => console.warn("Seva ZIP warning:", err.message));
+        archive.on("error", (err) => {
+            console.error("Seva ZIP error:", err.message);
+            res.destroy(err);
+        });
+        archive.pipe(res);
+
+        for (const a of apps) {
+            const folder = zipSafeName(`${a.uniqueId}_${a.applicant?.name || ""}`, 80);
+            let appended = 0;
+
+            for (const field of docFields) {
+                const fid = a.files && a.files[field];
+                if (!fid || !mongoose.Types.ObjectId.isValid(fid)) continue;
+                const meta = metaById.get(String(fid));
+                if (!meta) continue; // delete ho chuka hai → skip
+
+                const stored = meta.filename || `${field}.bin`;
+                const orig = stored.replace(/^seva_[A-Za-z]+_\d+_/, "");
+                const entryName = `${folder}/${zipSafeName(`${field}_${orig}`)}`;
+
+                const ok = await new Promise((resolve) => {
+                    const stream = bucket.openDownloadStream(new mongoose.Types.ObjectId(fid));
+                    stream.on("error", (e) => {
+                        console.error("Seva ZIP stream error:", e.message);
+                        resolve(false);
+                    });
+                    stream.on("end", () => resolve(true));
+                    archive.append(stream, { name: entryName });
+                });
+                if (ok) appended++;
+            }
+
+            // koi selected doc nahi mila → empty folder (admin ko dikhe khaali hai)
+            if (!appended) {
+                archive.append(Buffer.alloc(0), { name: `${folder}/` });
+            }
+        }
+
+        await archive.finalize();
+    } catch (err) {
+        console.error("Admin seva ZIP export error:", err.message);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: "ZIP export failed" });
+        } else {
+            res.destroy(err);
+        }
+    }
+};
+
 module.exports = {
     sevaUpload,
     handleSevaMulterError,
@@ -444,4 +549,5 @@ module.exports = {
     adminGetSevaFile,
     adminDeleteSeva,
     adminExportSeva,
+    adminExportSevaZip,
 };

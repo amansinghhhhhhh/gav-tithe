@@ -3,7 +3,7 @@ const router = express.Router();
 const {
     sevaUpload, handleSevaMulterError,
     submitSeva, getMySevaApps, getMySevaDocument,
-    adminListSeva, adminGetSeva, adminUpdateSevaStatus, adminGetSevaFile, adminDeleteSeva, adminExportSeva,
+    adminListSeva, adminGetSeva, adminUpdateSevaStatus, adminGetSevaFile, adminDeleteSeva, adminExportSeva, adminExportSevaZip,
 } = require("../controllers/sevaController");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
 
@@ -27,6 +27,7 @@ router.post(
 // ── Admin ─────────────────────────────────────────────────────────────────────
 router.get("/admin/list", protect, adminOnly, adminListSeva);
 router.get("/admin/export", protect, adminOnly, adminExportSeva);
+router.get("/admin/export-zip", protect, adminOnly, adminExportSevaZip);
 router.get("/admin/file/:fileId", protect, adminOnly, adminGetSevaFile);
 router.get("/admin/:id", protect, adminOnly, adminGetSeva);
 router.patch("/admin/:id/status", protect, adminOnly, adminUpdateSevaStatus);
