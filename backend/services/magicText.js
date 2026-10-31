@@ -1,7 +1,7 @@
 // MagicText SMS gateway — transactional OTP SMS (DLT template approved)
 // Template text must EXACTLY match the DLT template; only {#num#} is substituted.
 const TEMPLATE_TEXT_EN =
-    "Your Gaon Tithe Udyojak Website registration OTP is {#num#}. Enter it to verify your mobile number and complete registration on website. Thank you.";
+    "Your Gaon Tithe UdYojak Website registration OTP is {#num#}. Enter it to verify your mobile number and complete registration on website. Thank you.";
 const TEMPLATE_TEXT_MR =
     "हा OTP: {#num#} गाव तिथे उद्योजक वेबसाईटवर टाकून मोबाईल नंबर verify करा.";
 
