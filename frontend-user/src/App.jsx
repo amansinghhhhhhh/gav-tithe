@@ -28,8 +28,6 @@ import AboutUsPage from "./AboutUsPage";
 import { Spinner } from "./components/shared/Spinner";
 import { RegistrationPopup } from "./components/RegistrationPopup";
 import CustomerCareButton from "./components/CustomerCareButton";
-import ApplicationChoice from "./components/ApplicationChoice";
-import SevaFirstPage from "./pages/SevaFirstPage";
 
 // ── Protected Route ───────────────────────────────────────────────────────────
 function ProtectedRoute({ children }) {
@@ -212,10 +210,7 @@ function Dashboard() {
     >
       <Sidebar
         activeKey={activeNav}
-        onNav={(k) => {
-          if (k === "my_applications") navigate("/home");
-          else setActiveNav(k);
-        }}
+        onNav={(k) => setActiveNav(k)}
         onLogout={handleLogout}
       />
       <div style={{ flex: 1, background: C.light, overflowY: "auto" }}>
@@ -388,22 +383,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/home"
-        element={
-          <ProtectedRoute>
-            <ApplicationChoice />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/seva-first"
-        element={
-          <ProtectedRoute>
-            <SevaFirstPage />
           </ProtectedRoute>
         }
       />

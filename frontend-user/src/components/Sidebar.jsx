@@ -7,7 +7,6 @@ import Vikas from "../assets/Vikas.svg";
 import Hub from "../assets/Hub.svg";
 import Schemes from "../assets/Schemes.svg";
 import Profile from "../assets/Profile.svg";
-import Applications from "../assets/Applications.svg";
 import Library from "../assets/Library.svg";
 import Universities from "../assets/Universities.svg";
 import Partners from "../assets/Partners.svg";
@@ -21,12 +20,6 @@ import { Menu, ChevronLeft, LogOut } from "lucide-react";
 
 const NAV = {
   MY_JOURNEY: [
-    {
-      key: "my_applications",
-      label: "My Applications",
-      labelMr: "माझे अर्ज",
-      icon: <img src={Applications} />,
-    },
     {
       key: "my_journey",
       label: "My Introduction",
