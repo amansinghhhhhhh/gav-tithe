@@ -80,7 +80,8 @@ function tooltipHtml(displayName, stats) {
         `<div style="font-family:Segoe UI,sans-serif;min-width:150px">` +
         `<div style="font-weight:700;font-size:13px;margin-bottom:4px">${displayName}</div>` +
         `<div style="font-size:12px">Applications: <b>${stats.total}</b></div>` +
-        `<div style="font-size:12px">Active ideas: <b>${stats.high + stats.medium}</b></div>` +
+        `<div style="font-size:12px">Assessed: <b>${stats.assessed || 0}</b></div>` +
+        `<div style="font-size:12px">Run/Scale: <b>${stats.high}</b></div>` +
         `<div style="font-size:12px;margin-top:2px">Activity: <b>${pct.toFixed(0)}%</b> · ` +
         `<span style="color:${STATUS_COLORS[tier]};font-weight:700">${STATUS_LABELS[tier]}</span></div>` +
         `</div>`
@@ -257,18 +258,18 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                         lineHeight: 1.7,
                     }}
                 >
-                    <div style={{ fontWeight: 700, color: C.navy, marginBottom: 2 }}>Status</div>
+                    <div style={{ fontWeight: 700, color: C.navy, marginBottom: 2 }}>Track mix</div>
                     <div>
                         <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: STATUS_COLORS.high, marginRight: 6 }} />
-                        <span style={{ color: "#334155" }}>High (≥{THRESHOLDS.high}%)</span>
+                        <span style={{ color: "#334155" }}>Run/Scale led (≥{THRESHOLDS.high}%)</span>
                     </div>
                     <div>
                         <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: STATUS_COLORS.medium, marginRight: 6 }} />
-                        <span style={{ color: "#334155" }}>Medium ({THRESHOLDS.medium}–{THRESHOLDS.high - 1}%)</span>
+                        <span style={{ color: "#334155" }}>Start led ({THRESHOLDS.medium}–{THRESHOLDS.high - 1}%)</span>
                     </div>
                     <div>
                         <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: STATUS_COLORS.low, marginRight: 6 }} />
-                        <span style={{ color: "#334155" }}>Low (&lt;{THRESHOLDS.medium}%)</span>
+                        <span style={{ color: "#334155" }}>Spark led (&lt;{THRESHOLDS.medium}%)</span>
                     </div>
                     <div style={{ color: C.textopa, marginTop: 2, display: "flex", alignItems: "center", gap: 5 }}><Circle size={9} strokeWidth={2} /> Circle size = applications</div>
                 </div>
@@ -332,12 +333,13 @@ export default function MaharashtraMap({ data = [], loading = false, error = fal
                                     Applications: <b style={{ color: C.navy }}>{panelStats.total}</b>
                                 </div>
                                 <div style={{ fontSize: 12, color: "#334155", marginTop: 4 }}>
-                                    Active ideas: <b style={{ color: C.navy }}>{panelStats.high + panelStats.medium}</b>
+                                    Assessed: <b style={{ color: C.navy }}>{panelStats.assessed || 0}</b>
                                 </div>
-                                <div style={{ display: "flex", gap: 8, fontSize: 11, marginTop: 8 }}>
-                                    <span style={{ color: "#16a34a" }}>High: {panelStats.high}</span>
-                                    <span style={{ color: "#F97316" }}>Medium: {panelStats.medium}</span>
-                                    <span style={{ color: "#3b82f6" }}>Low: {panelStats.low}</span>
+                                <div style={{ display: "flex", gap: 8, fontSize: 11, marginTop: 8, flexWrap: "wrap" }}>
+                                    <span style={{ color: "#3b82f6" }}>Spark: {panelStats.t1 || 0}</span>
+                                    <span style={{ color: "#F97316" }}>Start: {panelStats.t2 || 0}</span>
+                                    <span style={{ color: "#7c3aed" }}>Run: {panelStats.t3 || 0}</span>
+                                    <span style={{ color: "#0f766e" }}>Scale: {panelStats.t4 || 0}</span>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
                                     <span style={{ fontSize: 12, color: "#334155" }}>

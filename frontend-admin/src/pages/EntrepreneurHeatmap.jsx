@@ -71,11 +71,29 @@ export default function EntrepreneurHeatmap() {
             if (selTaluka && u.taluka !== selTaluka) continue;
             if (selVillage && u.village !== selVillage) continue;
             if (!u.district) continue;
-            const prev = map.get(u.district) || { district: u.district, total: 0, high: 0, medium: 0, low: 0 };
+            const prev = map.get(u.district) || {
+                district: u.district,
+                total: 0,
+                assessed: 0,
+                t1: 0,
+                t2: 0,
+                t3: 0,
+                t4: 0,
+                na: 0,
+                high: 0,
+                medium: 0,
+                low: 0,
+            };
             prev.total++;
-            if (u.tier === "High Potential") prev.high++;
-            else if (u.tier === "Medium Potential") prev.medium++;
-            else prev.low++;
+            if (u.assessed && u.track) {
+                prev.assessed++;
+                prev[`t${u.track}`] += 1;
+                if (u.track === 3 || u.track === 4) prev.high++;
+                else if (u.track === 2) prev.medium++;
+                else if (u.track === 1) prev.low++;
+            } else {
+                prev.na++;
+            }
             map.set(u.district, prev);
         }
         return [...map.values()].sort((a, b) => b.total - a.total);
@@ -114,10 +132,12 @@ export default function EntrepreneurHeatmap() {
             {/* ── Summary Cards ── */}
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 24 }}>
                 {[
-                    { label: "Total Users", value: summary.total, color: C.navy },
-                    { label: "High Potential", value: summary.highPotential, color: "#16a34a" },
-                    { label: "Medium Potential", value: summary.mediumPotential, color: "#F97316" },
-                    { label: "Needs Development", value: summary.needsDevelopment, color: "#dc2626" },
+                    { label: "Total Registrations", value: summary.total, color: C.navy },
+                    { label: "Assessed", value: summary.assessed, color: "#16a34a" },
+                    { label: "Track 1 · Spark", value: summary.t1, color: "#3b82f6" },
+                    { label: "Track 2 · Start", value: summary.t2, color: "#F97316" },
+                    { label: "Track 3 · Run", value: summary.t3, color: "#7c3aed" },
+                    { label: "Track 4 · Scale", value: summary.t4, color: "#0f766e" },
                 ].map((c) => (
                     <div
                         key={c.label}

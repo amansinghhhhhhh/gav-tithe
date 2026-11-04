@@ -494,51 +494,33 @@ const getVillageDetail = async (req, res) => {
     }
 };
 
-// ── Temporary: Migrate existing users' assessments ────────────────────────────
-const migrateAssessments = async (req, res) => {
-    try {
-        const User = require("../models/User");
-        const Assessment = require("../models/Assessment");
+// ── Entrepreneur Heatmap (assessment profile / tracks) ───────────────────────
+const emptyBreakdown = (extra = {}) => ({
+    ...extra,
+    total: 0,
+    assessed: 0,
+    t1: 0,
+    t2: 0,
+    t3: 0,
+    t4: 0,
+    na: 0,
+    // Map compatibility: high = Run+Scale, medium = Start, low = Spark
+    high: 0,
+    medium: 0,
+    low: 0,
+});
 
-        const users = await User.find({ role: "user" }).select("_id");
-        let migrated = 0;
-        let skipped = 0;
-
-        for (const u of users) {
-            const exists = await Assessment.findOne({ userId: u._id });
-            if (exists) {
-                skipped++;
-                continue;
-            }
-            await Assessment.create({
-                userId: u._id,
-                currentStep: 15,
-                answers: [],
-                completed: true,
-                completedAt: new Date(),
-                totalAttempts: 1,
-                score: 15,
-            });
-            migrated++;
-        }
-
-        res.json({
-            success: true,
-            message: `Migration done. Migrated: ${migrated}, Skipped: ${skipped}`,
-            migrated,
-            skipped,
-        });
-    } catch (err) {
-        console.error("Migrate assessments error:", err.message);
-        res.status(500).json({ message: "Migration failed" });
+const addToBreakdown = (row, user) => {
+    row.total++;
+    if (user.assessed) {
+        row.assessed++;
+        row[`t${user.track}`]++;
+        if (user.track === 3 || user.track === 4) row.high++;
+        else if (user.track === 2) row.medium++;
+        else if (user.track === 1) row.low++;
+    } else {
+        row.na++;
     }
-};
-
-// ── Entrepreneur Heatmap ──────────────────────────────────────────────────────
-const getTierForScore = (score) => {
-    if (score >= 12) return "High Potential";
-    if (score >= 8) return "Medium Potential";
-    return "Needs Development";
 };
 
 const getEntrepreneurHeatmap = async (req, res) => {
@@ -552,7 +534,7 @@ const getEntrepreneurHeatmap = async (req, res) => {
 
         const [forms, assessments] = await Promise.all([
             FormData.find({ userId: { $in: userIds } }).select("userId section1.fullName section1.address createdAt submittedAt status").sort({ createdAt: -1 }),
-            Assessment.find({ userId: { $in: userIds } }).select("userId score completed completedAt"),
+            Assessment.find({ userId: { $in: userIds } }).select("userId setId completed completedAt profile"),
         ]);
 
         const assessmentMap = {};
@@ -568,12 +550,11 @@ const getEntrepreneurHeatmap = async (req, res) => {
             if (seen.has(uid)) continue;
             seen.add(uid);
             const a = assessmentMap[uid];
+            const assessed = !!(a && a.completed && a.profile && a.profile.track);
             const dist = (f.section1?.address?.dist || "").trim();
             const taluka = (f.section1?.address?.taluka || "").trim();
             const villageRaw = (f.section1?.address?.village || "").trim();
             const village = villageRaw === "__other__" ? (f.section1?.address?.villageCustom || "Other") : villageRaw;
-            const score = a?.score || 0;
-            const tier = getTierForScore(score);
 
             enriched.push({
                 _id: uid,
@@ -581,8 +562,11 @@ const getEntrepreneurHeatmap = async (req, res) => {
                 district: dist,
                 taluka,
                 village,
-                score,
-                tier,
+                assessed,
+                track: assessed ? a.profile.track : null,
+                trackName: assessed ? a.profile.trackName : null,
+                stage: assessed ? a.profile.stage : null,
+                style: assessed ? a.profile.style : null,
                 date: f.createdAt,
                 status: f.status || "draft",
             });
@@ -590,22 +574,20 @@ const getEntrepreneurHeatmap = async (req, res) => {
 
         const summary = {
             total: enriched.length,
-            highPotential: enriched.filter((u) => u.tier === "High Potential").length,
-            mediumPotential: enriched.filter((u) => u.tier === "Medium Potential").length,
-            needsDevelopment: enriched.filter((u) => u.tier === "Needs Development").length,
+            assessed: enriched.filter((u) => u.assessed).length,
+            notAssessed: enriched.filter((u) => !u.assessed).length,
+            t1: enriched.filter((u) => u.track === 1).length,
+            t2: enriched.filter((u) => u.track === 2).length,
+            t3: enriched.filter((u) => u.track === 3).length,
+            t4: enriched.filter((u) => u.track === 4).length,
         };
 
         // District-wise breakdown
         const distMap = {};
         for (const u of enriched) {
             if (!u.district) continue;
-            if (!distMap[u.district]) {
-                distMap[u.district] = { district: u.district, total: 0, high: 0, medium: 0, low: 0 };
-            }
-            distMap[u.district].total++;
-            if (u.tier === "High Potential") distMap[u.district].high++;
-            else if (u.tier === "Medium Potential") distMap[u.district].medium++;
-            else distMap[u.district].low++;
+            if (!distMap[u.district]) distMap[u.district] = emptyBreakdown({ district: u.district });
+            addToBreakdown(distMap[u.district], u);
         }
         const byDistrict = Object.values(distMap).sort((a, b) => b.total - a.total);
 
@@ -614,13 +596,8 @@ const getEntrepreneurHeatmap = async (req, res) => {
         for (const u of enriched) {
             if (!u.district || !u.taluka) continue;
             const key = `${u.district}|${u.taluka}`;
-            if (!talukaMap[key]) {
-                talukaMap[key] = { district: u.district, taluka: u.taluka, total: 0, high: 0, medium: 0, low: 0 };
-            }
-            talukaMap[key].total++;
-            if (u.tier === "High Potential") talukaMap[key].high++;
-            else if (u.tier === "Medium Potential") talukaMap[key].medium++;
-            else talukaMap[key].low++;
+            if (!talukaMap[key]) talukaMap[key] = emptyBreakdown({ district: u.district, taluka: u.taluka });
+            addToBreakdown(talukaMap[key], u);
         }
         const byTaluka = Object.values(talukaMap).sort((a, b) => b.total - a.total);
 
@@ -629,13 +606,8 @@ const getEntrepreneurHeatmap = async (req, res) => {
         for (const u of enriched) {
             if (!u.district || !u.taluka || !u.village) continue;
             const key = `${u.district}|${u.taluka}|${u.village}`;
-            if (!villageMap[key]) {
-                villageMap[key] = { district: u.district, taluka: u.taluka, village: u.village, total: 0, high: 0, medium: 0, low: 0 };
-            }
-            villageMap[key].total++;
-            if (u.tier === "High Potential") villageMap[key].high++;
-            else if (u.tier === "Medium Potential") villageMap[key].medium++;
-            else villageMap[key].low++;
+            if (!villageMap[key]) villageMap[key] = emptyBreakdown({ district: u.district, taluka: u.taluka, village: u.village });
+            addToBreakdown(villageMap[key], u);
         }
         const byVillage = Object.values(villageMap).sort((a, b) => b.total - a.total);
 
@@ -646,4 +618,4 @@ const getEntrepreneurHeatmap = async (req, res) => {
     }
 };
 
-module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail, migrateAssessments, getEntrepreneurHeatmap };
+module.exports = { getAllUsers, getUserDetail, updateUserStatus, getDocument, exportExcel, getEditRequests, updateEditRequest, updateEditAllowed, deleteUser, getReports, getVillageDetail, getEntrepreneurHeatmap };

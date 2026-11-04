@@ -9,7 +9,7 @@ export const STATUS_COLORS = {
     low: "#3b82f6", // Low activity — blue
 };
 
-export const STATUS_LABELS = { high: "High", medium: "Medium", low: "Low" };
+export const STATUS_LABELS = { high: "Run/Scale led", medium: "Start led", low: "Spark led" };
 
 export const MAP_STYLE = {
     districtFill: "#ffffff",

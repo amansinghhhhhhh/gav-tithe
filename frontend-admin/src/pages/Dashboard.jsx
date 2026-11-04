@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers, migrateAssessments } from "../services/api";
+import { getAllUsers } from "../services/api";
 
 // images/icons
 import totalUser from "../assets/totalUser.svg";
@@ -11,28 +11,11 @@ import rejected from "../assets/rejected.svg";
 // colors
 import C from "../constants/colors";
 import { Avatar } from "../utils/avatar.jsx";
-import ConfirmDialog from "../components/ConfirmDialog";
-import { RefreshCw, ArrowRight, Eye } from "lucide-react";
+import { ArrowRight, Eye } from "lucide-react";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [migrating, setMigrating] = useState(false);
-  const [migrateMsg, setMigrateMsg] = useState("");
-  const [confirmMigrate, setConfirmMigrate] = useState(false);
-
-  const runMigrate = async () => {
-    setMigrating(true);
-    setMigrateMsg("");
-    try {
-      const res = await migrateAssessments();
-      setMigrateMsg(res.message || "Done!");
-    } catch (err) {
-      setMigrateMsg("Error: " + err.message);
-    } finally {
-      setMigrating(false);
-    }
-  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -127,34 +110,6 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Temporary: Migration Button */}
-          <div style={{ marginBottom: 24 }}>
-            <button
-              disabled={migrating}
-              onClick={() => setConfirmMigrate(true)}
-              style={{
-                padding: "10px 24px",
-                background: migrating ? "#9ca3af" : "#F97316",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: migrating ? "not-allowed" : "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              {migrating ? "Migrating..." : <><RefreshCw size={13} /> Migrate Assessments</>}
-            </button>
-            {migrateMsg && (
-              <span style={{ marginLeft: 12, fontSize: 13, color: C.green, fontWeight: 600 }}>
-                {migrateMsg}
-              </span>
-            )}
           </div>
 
           {/* Recent Users */}
@@ -280,19 +235,6 @@ export default function Dashboard() {
         </>
       )}
 
-      <ConfirmDialog
-        open={confirmMigrate}
-        title="Migrate Assessments?"
-        message="Migrate all existing users' assessments? This will mark them as completed."
-        confirmLabel="Migrate"
-        danger={false}
-        loading={migrating}
-        onCancel={() => setConfirmMigrate(false)}
-        onConfirm={async () => {
-          await runMigrate();
-          setConfirmMigrate(false);
-        }}
-      />
     </div>
   );
 }

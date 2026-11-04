@@ -7,7 +7,7 @@ import { X, CheckCircle2, CloudUpload, TriangleAlert } from "lucide-react";
 const FILE_MAX = 5 * 1024 * 1024;   // 5 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
-function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, onRemove, error }) {
+function DocUploadBox({ label, sublabel, uploaded, loading = false, progress = 0, onUpload, onRemove, error }) {
   const { t } = useLang();
   const inputRef = useRef(null);
   const [err, setErr] = useState("");
@@ -100,8 +100,24 @@ function DocUploadBox({ label, sublabel, uploaded, loading = false, onUpload, on
         </span>
 
         <span style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>
-          {showSpinner ? t("s4_uploading") : label}
+          {showSpinner
+            ? `${t("s4_uploading")}${progress > 0 ? ` ${Math.min(100, Math.round(progress))}%` : ""}`
+            : label}
         </span>
+
+        {showSpinner && (
+          <span style={{ width: "85%", height: 4, background: "#eee", borderRadius: 999, marginTop: 6, overflow: "hidden" }}>
+            <span
+              style={{
+                display: "block",
+                width: `${Math.min(100, Math.max(0, progress || 0))}%`,
+                height: "100%",
+                background: C.green,
+                transition: "width .2s",
+              }}
+            />
+          </span>
+        )}
 
         {sublabel && !showSpinner && (
           <span style={{ fontSize: 10, color: "#888", marginTop: 3 }}>

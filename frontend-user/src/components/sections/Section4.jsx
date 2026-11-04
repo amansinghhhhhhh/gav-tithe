@@ -226,6 +226,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
   };
 
   const [uploadingKey, setUploadingKey] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [guides, setGuides] = useState({});
   const toggleGuide = (k) => setGuides((g) => ({ ...g, [k]: !g[k] }));
 
@@ -236,6 +237,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     }
 
     setUploadingKey(key);
+    setUploadProgress(0);
     let ocrNumber = null;
     if (OCR_KEYS[key]) {
       uo({ [`${key}Pending`]: true, [key]: null });
@@ -267,7 +269,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
     }
 
     try {
-      const res = await uploadDoc(key, file, ocrNumber);
+      const res = await uploadDoc(key, file, ocrNumber, (pct) => setUploadProgress(pct));
       if (res.success) {
         ud(key, res.fileId);
         clearError(`docs.${key}`);
@@ -278,6 +280,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
       alert(apiMsg({ message: "api_network" }, t));
     } finally {
       setUploadingKey(null);
+      setUploadProgress(0);
     }
   };
 
@@ -376,6 +379,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
                 label={t("s4_doc_aadh_front")}
                 uploaded={!!data.docs.aadhaarFront}
                 loading={uploadingKey === "aadhaarFront"}
+                progress={uploadingKey === "aadhaarFront" ? uploadProgress : 0}
                 onUpload={(f) => handleDocUpload("aadhaarFront", f)}
                 onRemove={() => handleRemoveDoc("aadhaarFront")}
                 error={errors["docs.aadhaarFront"]}
@@ -384,6 +388,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
                 label={t("s4_doc_aadh_back")}
                 uploaded={!!data.docs.aadhaarBack}
                 loading={uploadingKey === "aadhaarBack"}
+                progress={uploadingKey === "aadhaarBack" ? uploadProgress : 0}
                 onUpload={(f) => handleDocUpload("aadhaarBack", f)}
                 onRemove={() => handleRemoveDoc("aadhaarBack")}
                 error={errors["docs.aadhaarBack"]}
@@ -427,6 +432,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
                 label={t("s4_doc_pan")}
                 uploaded={!!data.docs.pan}
                 loading={uploadingKey === "pan"}
+                progress={uploadingKey === "pan" ? uploadProgress : 0}
                 onUpload={(f) => handleDocUpload("pan", f)}
                 onRemove={() => handleRemoveDoc("pan")}
                 error={errors["docs.pan"]}
@@ -471,6 +477,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
                 sublabel={t("s4_doc_udyam_sub")}
                 uploaded={!!data.docs.udyam}
                 loading={uploadingKey === "udyam"}
+                progress={uploadingKey === "udyam" ? uploadProgress : 0}
                 onUpload={(f) => handleDocUpload("udyam", f)}
                 onRemove={() => handleRemoveDoc("udyam")}
               />
@@ -523,6 +530,7 @@ function Section4({ data, dispatch, registerNext, onNext, editAllowed = false })
               label={t("s4_doc_pass")}
               uploaded={!!data.docs.passport}
               loading={uploadingKey === "passport"}
+              progress={uploadingKey === "passport" ? uploadProgress : 0}
               onUpload={(f) => handleDocUpload("passport", f)}
               onRemove={() => handleRemoveDoc("passport")}
             />

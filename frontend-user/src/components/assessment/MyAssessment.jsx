@@ -1,21 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
+import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../shared/Spinner";
 import {
   getMyAssessment,
+  saveAssessmentRespondent,
   saveAssessmentAnswer,
   completeAssessment,
   retakeAssessment,
 } from "../../services/api";
-import { questions } from "../../constants/assessmentQuestions";
 import { ClipboardList, Rocket, ArrowLeft, ArrowRight, Check } from "lucide-react";
 import QuestionStep from "./QuestionStep";
 import AssessmentComplete from "./AssessmentComplete";
+import RespondentForm from "./RespondentForm";
 
 export default function MyAssessment() {
   const { lang } = useLang();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [assessment, setAssessment] = useState(null);
@@ -24,6 +27,11 @@ export default function MyAssessment() {
   const [saving, setSaving] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  const questions = assessment?.questions || [];
+  const total = questions.length;
+  const respondentReady = !!assessment?.respondent?.savedAt;
 
   const loadAssessment = async () => {
     setLoading(true);
@@ -33,23 +41,27 @@ export default function MyAssessment() {
         const a = res.assessment;
         setAssessment(a);
 
-        // Restore answers from backend
         const answersMap = {};
-        if (a.answers) {
-          for (const ans of a.answers) {
-            answersMap[ans.questionIndex + 1] = ans.selectedOptions;
-          }
+        for (const ans of a.answers || []) {
+          answersMap[ans.questionId] = {
+            selectedOptions: ans.selectedOptions || [],
+            text: ans.text || "",
+          };
         }
         setAnswers(answersMap);
 
+        const count = (a.questions || []).length || a.totalQuestions || 1;
+        const savedStep = Math.min(Math.max(a.currentStep || 1, 1), count);
+
         if (a.completed) {
           setShowIntro(false);
-          setCurrentStep(16); // Show completed
-          setJustCompleted(false); // refresh/revisit — celebration nahi
-        } else if (a.answers && a.answers.length > 0) {
-          // Resume from first unanswered
-          setCurrentStep(a.currentStep || 1);
+          setCurrentStep(count);
+          setJustCompleted(false);
+        } else if ((a.answers || []).length > 0) {
+          setCurrentStep(savedStep);
           setShowIntro(false);
+        } else {
+          setCurrentStep(1);
         }
       }
     } catch (err) {
@@ -63,48 +75,144 @@ export default function MyAssessment() {
     loadAssessment();
   }, []);
 
-  const handleStart = () => {
-    setShowIntro(false);
-    setCurrentStep(1);
+  const isAnswered = (question) => {
+    const a = answers[question.id];
+    if (!a) return false;
+    if (question.type === "text") return !!String(a.text || "").trim();
+    return (a.selectedOptions || []).length > 0;
   };
 
-  const handleAnswer = async (step, selectedOptions) => {
+  const firstUnansweredIndex = () => {
+    for (let i = 0; i < total; i++) {
+      if (!isAnswered(questions[i])) return i + 1;
+    }
+    return total;
+  };
+
+  const handleStart = () => {
+    setShowIntro(false);
+    setSaveError("");
+    setCurrentStep(firstUnansweredIndex());
+  };
+
+  const handleRespondentSave = async (data) => {
     setSaving(true);
+    setSaveError("");
     try {
-      const res = await saveAssessmentAnswer(step, selectedOptions);
+      const res = await saveAssessmentRespondent(data);
       if (res.success) {
-        setAnswers((prev) => ({ ...prev, [step]: selectedOptions }));
+        setAssessment((prev) => ({ ...prev, respondent: { ...res.respondent } }));
       }
     } catch (err) {
-      console.error("Save answer error:", err);
+      setSaveError(
+        lang === "mr"
+          ? "माहिती जतन करता आली नाही. पुन्हा प्रयत्न करा."
+          : "Could not save your details. Please try again."
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  const handleNext = async () => {
-    if (currentStep < 15) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Complete assessment
-      setSaving(true);
-      try {
-        const res = await completeAssessment();
-        if (res.success) {
-          setCurrentStep(16); // Show completed
-          setAssessment((prev) => ({ ...prev, completed: true, score: res.score }));
-          setJustCompleted(true);
-        }
-      } catch (err) {
-        console.error("Complete error:", err);
-      } finally {
-        setSaving(false);
+  const persistAnswer = async (question, selectedOptions, text) => {
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await saveAssessmentAnswer(question.id, selectedOptions, text);
+      if (res.success) {
+        setAssessment((prev) =>
+          prev ? { ...prev, currentStep: res.currentStep } : prev
+        );
+        return true;
       }
+    } catch (err) {
+      setSaveError(
+        lang === "mr"
+          ? "उत्तर जतन करता आले नाही. पुन्हा प्रयत्न करा."
+          : "Could not save your answer. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
+    return false;
+  };
+
+  const handleSelect = async (question, selectedOptions) => {
+    const prev = answers[question.id];
+    setAnswers((map) => ({
+      ...map,
+      [question.id]: { selectedOptions, text: "" },
+    }));
+
+    const ok = await persistAnswer(question, selectedOptions, "");
+    if (!ok) {
+      setAnswers((map) => {
+        const next = { ...map };
+        if (prev) next[question.id] = prev;
+        else delete next[question.id];
+        return next;
+      });
+    }
+  };
+
+  const handleTextChange = (question, value, saveNow = false) => {
+    setAnswers((map) => ({
+      ...map,
+      [question.id]: { selectedOptions: [], text: value },
+    }));
+    if (saveNow) persistAnswer(question, [], value);
+  };
+
+  const handleNext = async () => {
+    const question = questions[currentStep - 1];
+    if (!question) return;
+
+    if (question.type === "text") {
+      const value = String(answers[question.id]?.text || "").trim();
+      if (question.required !== false && !value) {
+        setSaveError(
+          lang === "mr" ? "कृपया उत्तर लिहा." : "Please write your answer."
+        );
+        return;
+      }
+      const ok = await persistAnswer(question, [], value);
+      if (!ok) return;
+    }
+
+    if (currentStep < total) {
+      setSaveError("");
+      setCurrentStep(currentStep + 1);
+      return;
+    }
+
+    setSaving(true);
+    setSaveError("");
+    try {
+      const res = await completeAssessment();
+      if (res.success) {
+        setAssessment((prev) => ({
+          ...prev,
+          completed: true,
+          completedAt: res.completedAt,
+          profile: res.profile,
+          totalAttempts: res.totalAttempts,
+        }));
+        setJustCompleted(true);
+      }
+    } catch (err) {
+      setSaveError(
+        lang === "mr"
+          ? "मूल्यांकन पूर्ण करता आले नाही. सर्व आवश्यक उत्तरं भरलेली आहेत का ते तपासा."
+          : "Could not complete the assessment. Please check all required answers."
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
+      setSaveError("");
       setCurrentStep(currentStep - 1);
     }
   };
@@ -118,9 +226,12 @@ export default function MyAssessment() {
         setCurrentStep(1);
         setShowIntro(true);
         setJustCompleted(false);
+        setSaveError("");
         setAssessment((prev) => ({
           ...prev,
           completed: false,
+          completedAt: null,
+          profile: {},
           answers: [],
           currentStep: 1,
         }));
@@ -133,10 +244,13 @@ export default function MyAssessment() {
   };
 
   const handleBackToJourney = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
-  const answeredCount = Object.keys(answers).length;
+  const answeredCount = useMemo(
+    () => questions.filter((q) => isAnswered(q)).length,
+    [questions, answers]
+  );
 
   if (loading) {
     return (
@@ -158,30 +272,32 @@ export default function MyAssessment() {
     );
   }
 
-  // Show completed screen
-  if (assessment?.completed && currentStep === 16) {
+  if (assessment?.completed) {
     return (
       <AssessmentComplete
         completedAt={assessment.completedAt}
         onRetake={handleRetake}
         saving={saving}
         onBackToJourney={handleBackToJourney}
-        score={assessment.score}
+        profile={assessment.profile}
         celebrate={justCompleted}
       />
     );
   }
 
-  // Show intro screen
+  if (!assessment || questions.length === 0) {
+    return (
+      <div style={{ padding: "60px 20px", textAlign: "center", color: C.textopa }}>
+        {lang === "mr"
+          ? "मूल्यांकन लोड करता आले नाही. पुन्हा प्रयत्न करा."
+          : "Could not load the assessment. Please try again."}
+      </div>
+    );
+  }
+
   if (showIntro) {
     return (
-      <div
-        style={{
-          maxWidth: 700,
-          margin: "0 auto",
-          padding: "40px 20px",
-        }}
-      >
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 20px" }}>
         <div
           style={{
             background: "#fff",
@@ -190,7 +306,6 @@ export default function MyAssessment() {
             overflow: "hidden",
           }}
         >
-          {/* Header */}
           <div
             style={{
               background: `linear-gradient(135deg, ${C.navy} 0%, #1e3a6e 100%)`,
@@ -208,95 +323,41 @@ export default function MyAssessment() {
                 alignItems: "center",
                 justifyContent: "center",
                 margin: "0 auto 16px",
-                fontSize: 30,
               }}
             >
-              <ClipboardList size={30} />
+              <ClipboardList size={30} color="#fff" />
             </div>
-            <h2
-              style={{
-                color: "#fff",
-                margin: 0,
-                fontSize: 22,
-                fontWeight: 800,
-              }}
-            >
-              {lang === "mr"
-                ? "उद्योजक मनोवृत्ती निर्मिती"
-                : "Entrepreneurial Mindset Creation"}
+            <h2 style={{ color: "#fff", margin: 0, fontSize: 22, fontWeight: 800 }}>
+              {lang === "mr" ? "GTU उद्योजक मूल्यांकन" : "GTU Entrepreneur Assessment"}
             </h2>
-            <p
-              style={{
-                color: "rgba(255,255,255,0.75)",
-                margin: "8px 0 0",
-                fontSize: 14,
-              }}
-            >
+            <p style={{ color: "rgba(255,255,255,0.75)", margin: "8px 0 0", fontSize: 14 }}>
               {lang === "mr"
-                ? "तुमच्या उद्योजक तयारीचा चाचणी"
+                ? "तुमच्या उद्योजकीय तयारीचे मूल्यांकन"
                 : "Assessment of your entrepreneurial readiness"}
             </p>
           </div>
 
-          {/* Content */}
           <div style={{ padding: "28px" }}>
             <div
               style={{
-                background: "#f0f9ff",
-                border: "1px solid #bae6fd",
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
                 borderRadius: 12,
                 padding: "18px 20px",
                 marginBottom: 20,
               }}
             >
-              <h3
-                style={{
-                  margin: "0 0 12px",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: C.navy,
-                }}
-              >
-                {lang === "mr" ? "सूचना" : "Instructions"}
+              <h3 style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 700, color: C.navy }}>
+                {lang === "mr" ? "GTU हे मूल्यांकन का घेते?" : "Why is GTU conducting this assessment?"}
               </h3>
-              <ul
-                style={{
-                  margin: 0,
-                  paddingLeft: 18,
-                  fontSize: 14,
-                  color: "#374151",
-                  lineHeight: 1.8,
-                }}
-              >
-                <li>
-                  {lang === "mr"
-                    ? "एकूण १५ प्रश्न आहेत"
-                    : "There are 15 questions in total"}
-                </li>
-                <li>
-                  {lang === "mr"
-                    ? "प्रत्येक प्रश्नासाठी फक्त एक सर्वात योग्य उत्तर निवडा"
-                    : "Select only one best answer per question"}
-                </li>
-                <li>
-                  {lang === "mr"
-                    ? "पुढच्या प्रश्नावर जाण्यापूर्वी सध्याचे उत्तर सेव्ह करा"
-                    : "Save your current answer before moving to the next question"}
-                </li>
-                <li>
-                  {lang === "mr"
-                    ? "तुम्ही कोणत्याही वेळी परत जाऊ शकता"
-                    : "You can go back at any time"}
-                </li>
-                <li>
-                  {lang === "mr"
-                    ? "पूर्ण झाल्यावर पुन्हा प्रयत्न करता येतो"
-                    : "You can retake after completion"}
-                </li>
-              </ul>
+              <p style={{ margin: 0, fontSize: 14, color: "#374151", lineHeight: 1.7 }}>
+                {lang === "mr"
+                  ? "GTU (गाव तिठे उद्योजक) तुमचा उद्योजकीय प्रवास, सध्याची तयारी आणि तुम्हाला लागणारी मदत समजून घेण्यासाठी हे मूल्यांकन घेत आहे. तुमच्या उत्तरांवरून आम्ही तुम्हाला योग्य मार्गदर्शन, प्रशिक्षण आणि साधने उपलब्ध करून देऊ शकतो."
+                  : "GTU (Gaon Tithe Udyojak) is conducting this assessment to understand your entrepreneurial journey, your current readiness, and the support you need. Your answers help us provide the right guidance, training, and resources."}
+              </p>
             </div>
 
-            {assessment?.answers?.length > 0 && !assessment.completed && (
+            {Object.keys(answers).length > 0 && (
               <div
                 style={{
                   background: "#fff7ed",
@@ -310,8 +371,8 @@ export default function MyAssessment() {
                 }}
               >
                 {lang === "mr"
-                  ? `तुम्ही आधीच ${assessment.answers.length}/१५ प्रश्नांना उत्तर दिले आहे. पुन्हा सुरू करा.`
-                  : `You've already answered ${assessment.answers.length}/15 questions. Resume from where you left off.`}
+                  ? `तुम्ही आधीच ${answeredCount}/${total} प्रश्नांना उत्तर दिले आहे. जिथे थांबला होता तिथून सुरू करा.`
+                  : `You've already answered ${answeredCount}/${total} questions. Resume from where you left off.`}
               </div>
             )}
 
@@ -335,12 +396,12 @@ export default function MyAssessment() {
               }}
             >
               <Rocket size={17} />
-              {assessment?.answers?.length > 0 && !assessment.completed
+              {Object.keys(answers).length > 0
                 ? lang === "mr"
-                  ? "पुन्हा सुरू करा"
+                  ? "मूल्यांकन पुन्हा सुरू करा"
                   : "Resume Assessment"
                 : lang === "mr"
-                ? "सुरू करा"
+                ? "मूल्यांकन सुरू करा"
                 : "Start Assessment"}
             </button>
           </div>
@@ -349,18 +410,26 @@ export default function MyAssessment() {
     );
   }
 
-  // Show quiz
+  if (!respondentReady) {
+    return (
+      <RespondentForm
+        user={user}
+        initial={assessment.respondent}
+        onSave={handleRespondentSave}
+        saving={saving}
+        lang={lang}
+        serverError={saveError}
+      />
+    );
+  }
+
   const question = questions[currentStep - 1];
-  const currentAnswer = answers[currentStep] || [];
+  const currentAnswer = answers[question.id] || { selectedOptions: [], text: "" };
+  const canProceed =
+    isAnswered(question) || (question.type === "text" && question.required === false);
 
   return (
-    <div
-      style={{
-        maxWidth: 700,
-        margin: "0 auto",
-        padding: "40px 20px",
-      }}
-    >
+    <div style={{ maxWidth: 700, margin: "0 auto", padding: "40px 20px" }}>
       {/* Progress Bar */}
       <div
         style={{
@@ -379,13 +448,11 @@ export default function MyAssessment() {
             marginBottom: 10,
           }}
         >
-          <span
-            style={{ fontSize: 14, fontWeight: 700, color: C.navy }}
-          >
+          <span style={{ fontSize: 14, fontWeight: 700, color: C.navy }}>
             {lang === "mr" ? "प्रगती" : "Progress"}
           </span>
           <span style={{ fontSize: 13, color: C.textopa }}>
-            {answeredCount}/15 {lang === "mr" ? "उत्तरे" : "answered"}
+            {answeredCount}/{total} {lang === "mr" ? "उत्तर दिली" : "answered"}
           </span>
         </div>
         <div
@@ -399,7 +466,7 @@ export default function MyAssessment() {
         >
           <div
             style={{
-              width: `${(answeredCount / 15) * 100}%`,
+              width: `${(answeredCount / total) * 100}%`,
               height: "100%",
               background: C.green,
               borderRadius: 4,
@@ -419,15 +486,15 @@ export default function MyAssessment() {
           flexWrap: "wrap",
         }}
       >
-        {Array.from({ length: 15 }, (_, i) => {
+        {questions.map((q, i) => {
           const step = i + 1;
-          const isAnswered = !!answers[step];
+          const done = isAnswered(q);
           const isCurrent = step === currentStep;
           return (
             <div
-              key={step}
+              key={`${q.id}-${step}`}
               onClick={() => {
-                if (isAnswered || isCurrent) setCurrentStep(step);
+                if (done || isCurrent) setCurrentStep(step);
               }}
               style={{
                 width: 28,
@@ -438,13 +505,9 @@ export default function MyAssessment() {
                 justifyContent: "center",
                 fontSize: 11,
                 fontWeight: 700,
-                cursor: isAnswered || isCurrent ? "pointer" : "default",
-                background: isCurrent
-                  ? C.orange
-                  : isAnswered
-                  ? C.green
-                  : "#e5e7eb",
-                color: isCurrent || isAnswered ? "#fff" : "#9ca3af",
+                cursor: done || isCurrent ? "pointer" : "default",
+                background: isCurrent ? C.orange : done ? C.green : "#e5e7eb",
+                color: isCurrent || done ? "#fff" : "#9ca3af",
                 transition: "all 0.2s",
               }}
             >
@@ -454,7 +517,6 @@ export default function MyAssessment() {
         })}
       </div>
 
-      {/* Saving indicator */}
       {saving && (
         <div
           style={{
@@ -467,31 +529,42 @@ export default function MyAssessment() {
         >
           <Spinner size={18} />
           <span style={{ fontSize: 13, color: C.maroon, fontWeight: 600 }}>
-            Saving...
+            {lang === "mr" ? "जतन होत आहे..." : "Saving..."}
           </span>
         </div>
       )}
 
-      {/* Question */}
-      {question && (
-        <QuestionStep
-          question={question}
-          step={currentStep}
-          selectedOptions={currentAnswer}
-          onSelect={(opts) => handleAnswer(currentStep, opts)}
-          lang={lang}
-          disabled={saving}
-        />
+      {saveError && (
+        <div
+          style={{
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#b91c1c",
+            borderRadius: 10,
+            padding: "10px 14px",
+            fontSize: 13,
+            fontWeight: 600,
+            marginBottom: 12,
+          }}
+        >
+          {saveError}
+        </div>
       )}
 
+      <QuestionStep
+        question={question}
+        index={currentStep}
+        total={total}
+        selectedOptions={currentAnswer.selectedOptions}
+        textValue={currentAnswer.text}
+        onSelect={(opts) => handleSelect(question, opts)}
+        onTextChange={(value, saveNow) => handleTextChange(question, value, saveNow)}
+        lang={lang}
+        disabled={saving}
+      />
+
       {/* Navigation */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          marginTop: 20,
-        }}
-      >
+      <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
         <button
           onClick={handleBack}
           disabled={currentStep === 1}
@@ -515,37 +588,28 @@ export default function MyAssessment() {
         </button>
         <button
           onClick={handleNext}
-          disabled={!answers[currentStep] || answers[currentStep].length === 0 || saving}
+          disabled={!canProceed || saving}
           style={{
             flex: 2,
             padding: "13px 0",
             background:
-              !answers[currentStep] || answers[currentStep].length === 0 || saving
+              !canProceed || saving
                 ? "#e5e7eb"
                 : `linear-gradient(135deg, ${C.orange}, #fb923c)`,
-            color:
-              !answers[currentStep] || answers[currentStep].length === 0 || saving
-                ? "#9ca3af"
-                : "#fff",
+            color: !canProceed || saving ? "#9ca3af" : "#fff",
             border: "none",
             borderRadius: 10,
             fontWeight: 700,
             fontSize: 14,
-            cursor:
-              !answers[currentStep] || answers[currentStep].length === 0 || saving
-                ? "not-allowed"
-                : "pointer",
-            boxShadow:
-              answers[currentStep] && answers[currentStep].length > 0
-                ? "0 4px 14px rgba(249,115,22,0.35)"
-                : "none",
+            cursor: !canProceed || saving ? "not-allowed" : "pointer",
+            boxShadow: canProceed && !saving ? "0 4px 14px rgba(249,115,22,0.35)" : "none",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 7,
           }}
         >
-          {currentStep === 15 ? (
+          {currentStep === total ? (
             <>
               <Check size={16} strokeWidth={3} />
               {lang === "mr" ? "पूर्ण करा" : "Complete"}

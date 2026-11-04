@@ -1,3 +1,5 @@
+import { compressImageForUpload } from "./imageCompression";
+
 const BASE = import.meta.env.VITE_API_BASE ||
   (window.location.hostname === "localhost" || window.location.hostname === "192.168.29.4"
     ? "http://localhost:5000/api"
@@ -18,13 +20,25 @@ export const docFileUrl = (fileId) =>
     `${BASE}/form/docs/${fileId}?token=${encodeURIComponent(getToken() || "")}`;
 
 // ── Generic fetch wrapper ─────────────────────────────────────────────────────
-const apiFetch = async (url, options = {}, retries = 1) => {
-    for (let attempt = 0; attempt <= retries; attempt++) {
+const apiFetch = async (url, options = {}, retries) => {
+    const { timeoutMs = 30000, retries: optionRetries, ...fetchOptions } = options;
+    const method = String(fetchOptions.method || "GET").toUpperCase();
+    // POST/PUT/DELETE ko retry mat karo — register/OTP/upload duplicate side effects ho sakte hain
+    const maxRetries =
+        retries !== undefined
+            ? retries
+            : optionRetries !== undefined
+              ? optionRetries
+              : method === "GET"
+                ? 1
+                : 0;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        let timeoutId;
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-            const res = await fetch(url, { ...options, signal: controller.signal });
-            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            const res = await fetch(url, { ...fetchOptions, signal: controller.signal });
 
             // Safe JSON parse — Railway/CDN 502 HTML page jaisi non-JSON responses par res.json() throw karta tha
             let data = null;
@@ -54,9 +68,9 @@ const apiFetch = async (url, options = {}, retries = 1) => {
             }
             return data;
         } catch (err) {
-            const label = `${options.method || "GET"} ${url}`;
+            const label = `${method} ${url}`;
             console.error(`API error (attempt ${attempt + 1}) ${label}:`, err);
-            if (attempt < retries) {
+            if (attempt < maxRetries) {
                 await new Promise((r) => setTimeout(r, 2000));
                 continue;
             }
@@ -64,6 +78,8 @@ const apiFetch = async (url, options = {}, retries = 1) => {
                 return { success: false, status: 0, message: "api_timeout" };
             }
             return { success: false, status: 0, message: "api_network" };
+        } finally {
+            if (timeoutId) clearTimeout(timeoutId);
         }
     }
 };
@@ -217,14 +233,62 @@ export const getEditRequest = async () => {
     return apiFetch(`${BASE}/form/edit-request`, { headers: authHeaders() });
 };
 
-export const uploadDoc = async (docType, file, ocr = null) => {
+const parseUploadResponse = (xhr) => {
+    let data = null;
+    try {
+        data = JSON.parse(xhr.responseText);
+    } catch (_) {
+        data = null;
+    }
+
+    if (xhr.status >= 200 && xhr.status < 300) {
+        if (!data) return { success: false, status: xhr.status, message: "api_server" };
+        return data;
+    }
+    if (data && xhr.status === 429 && data.retryAfterMinutes) {
+        return { success: false, status: 429, error: data.error, message: data.message || "Too many requests", retryAfterMinutes: data.retryAfterMinutes };
+    }
+    return {
+        success: false,
+        status: xhr.status,
+        error: data?.error,
+        message: (data && data.message) || (xhr.status >= 500 ? "api_server" : "api_network"),
+        retryAfterMinutes: data?.retryAfterMinutes,
+    };
+};
+
+// XHR use karte hain taaki upload progress mile; timeout 120s (slow network), retry nahi
+export const uploadDoc = async (docType, file, ocr = null, onProgress) => {
+    const uploadFile = await compressImageForUpload(file);
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", uploadFile);
     if (ocr) fd.append("ocr", ocr);
-    return apiFetch(`${BASE}/form/upload/${docType}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${getToken()}` },
-        body: fd,
+
+    return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${BASE}/form/upload/${docType}`);
+        xhr.timeout = 120000;
+
+        const token = getToken();
+        if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
+        if (typeof onProgress === "function") {
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    onProgress(Math.min(100, Math.round((e.loaded / e.total) * 100)));
+                }
+            };
+        }
+
+        xhr.onload = () => {
+            if (typeof onProgress === "function") onProgress(100);
+            resolve(parseUploadResponse(xhr));
+        };
+        xhr.onerror = () => resolve({ success: false, status: 0, message: "api_network" });
+        xhr.ontimeout = () => resolve({ success: false, status: 0, message: "api_upload_timeout" });
+        xhr.onabort = () => resolve({ success: false, status: 0, message: "api_upload_timeout" });
+
+        xhr.send(fd);
     });
 };
 
@@ -252,11 +316,19 @@ export const getMyAssessment = async () => {
     return apiFetch(`${BASE}/assessment`, { headers: authHeaders() });
 };
 
-export const saveAssessmentAnswer = async (step, selectedOptions) => {
+export const saveAssessmentRespondent = async (data) => {
+    return apiFetch(`${BASE}/assessment/respondent`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(data),
+    });
+};
+
+export const saveAssessmentAnswer = async (questionId, selectedOptions = [], text = "") => {
     return apiFetch(`${BASE}/assessment/answer`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ step, selectedOptions }),
+        body: JSON.stringify({ questionId, selectedOptions, text }),
     });
 };
 
@@ -291,11 +363,12 @@ export const getMySevaApps = async () => {
 
 export const submitSevaApplication = async (formData) => {
   // formData = FormData (multipart) — text fields + files (ppt/idProof/prototype/research)
-  return apiFetch(`${BASE}/seva/submit`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${getToken()}` },
-    body: formData,
-  });
+    return apiFetch(`${BASE}/seva/submit`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData,
+        timeoutMs: 120000,
+    });
 };
 
 export const sevaFileUrl = (fileId) =>

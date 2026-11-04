@@ -14,7 +14,6 @@ const {
     deleteUser,
     getReports,
     getVillageDetail,
-    migrateAssessments,
     getEntrepreneurHeatmap,
 } = require("../controllers/adminController");
 
@@ -34,8 +33,6 @@ router.put("/edit-requests/:id", protect, adminOnly, updateEditRequest);
 
 router.get("/reports", protect, adminOnly, getReports);
 router.get("/reports/village/:dist/:taluka/:village", protect, adminOnly, getVillageDetail);
-
-router.post("/migrate-assessments", protect, adminOnly, migrateAssessments);
 
 router.get("/entrepreneur-heatmap", protect, adminOnly, getEntrepreneurHeatmap);
 

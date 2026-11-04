@@ -100,12 +100,6 @@ export const getVillageDetail = async (dist, taluka, village) =>
         { headers: authHeaders() }
     );
 
-export const migrateAssessments = async () =>
-    apiFetch(`${BASE}/admin/migrate-assessments`, {
-        method: "POST",
-        headers: authHeaders(),
-    });
-
 export const getEntrepreneurHeatmap = async () =>
     apiFetch(`${BASE}/admin/entrepreneur-heatmap`, { headers: authHeaders() });
 

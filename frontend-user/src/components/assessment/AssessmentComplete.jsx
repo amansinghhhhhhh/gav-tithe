@@ -1,31 +1,62 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import C from "../../constants/colors";
 import { useLang } from "../../context/LangContext";
-import { PartyPopper, Trophy, RotateCcw } from "lucide-react";
+import { PartyPopper, Trophy, RotateCcw, Target, Compass, Route } from "lucide-react";
 
-export default function AssessmentComplete({ completedAt, onRetake, saving, onBackToJourney, score, celebrate }) {
-  const { lang, t } = useLang();
+const STAGE_LABELS = {
+  explorer: { en: "Explorer", mr: "शोधक" },
+  idea: { en: "Idea stage", mr: "कल्पना टप्पा" },
+  starter: { en: "Starter", mr: "सुरुवातीचा" },
+  running: { en: "Running", mr: "चालू" },
+  scaling: { en: "Scaling", mr: "वाढवणारा" },
+};
 
-  const [displayScore, setDisplayScore] = useState(celebrate ? 0 : score);
+const STYLE_LABELS = {
+  learner: { en: "Learner", mr: "शिकणारा" },
+  planner: { en: "Planner", mr: "नियोजक" },
+  networker: { en: "Networker", mr: "नेटवर्कर" },
+  experimenter: { en: "Experimenter", mr: "प्रयोगशील" },
+  balanced: { en: "Balanced", mr: "संतुलित" },
+};
 
-  // Score count-up — sirf turant complete hone par
-  useEffect(() => {
-    if (!celebrate || typeof score !== "number" || score <= 0) {
-      setDisplayScore(score);
-      return;
-    }
-    setDisplayScore(0);
-    let cur = 0;
-    const iv = setInterval(() => {
-      cur += 1;
-      setDisplayScore(cur >= score ? score : cur);
-      if (cur >= score) clearInterval(iv);
-    }, 120);
-    return () => clearInterval(iv);
-  }, [celebrate, score]);
+const TRACKS = {
+  1: {
+    nameEn: "Spark",
+    nameMr: "प्रेरणा",
+    supportEn: "Village opportunity sessions, local success stories, idea-finding workshop",
+    supportMr: "गावातील संधी सत्रं, स्थानिक यशोगाथा, कल्पना शोध कार्यशाळा",
+  },
+  2: {
+    nameEn: "Start",
+    nameMr: "सुरुवात",
+    supportEn: "Business planning, training on gap areas, loan and scheme guidance",
+    supportMr: "व्यवसाय नियोजन, आवश्यक कौशल्य प्रशिक्षण, कर्ज आणि योजना मार्गदर्शन",
+  },
+  3: {
+    nameEn: "Run",
+    nameMr: "सातत्य",
+    supportEn: "Marketing, finance, GST and record-keeping modules",
+    supportMr: "मार्केटिंग, अर्थ, जीएसटी आणि हिशेब ठेवणीचे मॉड्यूल",
+  },
+  4: {
+    nameEn: "Scale",
+    nameMr: "विस्तार",
+    supportEn: "Mentoring, market linkage, funding and partnerships",
+    supportMr: "मार्गदर्शन, बाजारपेठेशी जोडणी, निधी आणि भागीदारी",
+  },
+};
 
-  // Confetti — sirf turant complete hone par (refresh/revisit par nahi)
+export default function AssessmentComplete({
+  completedAt,
+  onRetake,
+  saving,
+  onBackToJourney,
+  profile,
+  celebrate,
+}) {
+  const { lang } = useLang();
+
   useEffect(() => {
     if (!celebrate) return;
     const colors = ["#F97316", "#142952", "#1A7A3C", "#560A0A", "#fbbf24", "#ffffff"];
@@ -63,14 +94,14 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
       })
     : "";
 
+  const track = TRACKS[profile?.track] || null;
+  const stage = STAGE_LABELS[profile?.stage] || null;
+  const style = STYLE_LABELS[profile?.style] || null;
+
+  const label = (item) => (item ? (lang === "mr" ? item.mr : item.en) : "—");
+
   return (
-    <div
-      style={{
-        maxWidth: 600,
-        margin: "0 auto",
-        padding: "40px 20px",
-      }}
-    >
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 20px" }}>
       <div
         style={{
           background: "#fff",
@@ -97,43 +128,26 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 20px",
-              fontSize: 50,
               color: "#fff",
             }}
           >
             <PartyPopper size={50} />
           </div>
-          <h2
-            style={{
-              color: "#fff",
-              margin: 0,
-              fontSize: 24,
-              fontWeight: 800,
-            }}
-          >
-            {lang === "mr"
-              ? "मूल्यांकन पूर्ण झाले!"
-              : "Assessment Complete!"}
+          <h2 style={{ color: "#fff", margin: 0, fontSize: 24, fontWeight: 800 }}>
+            {lang === "mr" ? "मूल्यांकन पूर्ण झाले!" : "Assessment Complete!"}
           </h2>
-          <p
-            style={{
-              color: "rgba(255,255,255,0.85)",
-              margin: "8px 0 0",
-              fontSize: 15,
-            }}
-          >
+          <p style={{ color: "rgba(255,255,255,0.85)", margin: "8px 0 0", fontSize: 15 }}>
             {lang === "mr"
-              ? "तुम्ही उद्योजक मनोवृत्ती निर्मिती मूल्यांकन पूर्ण केले आहे"
-              : "You have completed the Entrepreneurial Mindset Creation Assessment"}
+              ? "तुमची उत्तरं जतन झाली आहेत आणि तुमची मदत-प्रोफाइल तयार आहे."
+              : "Your answers are saved and your support profile is ready."}
           </p>
         </div>
 
-        {/* Badge Section */}
         <div style={{ padding: "32px 28px" }}>
           <div
             style={{
-              width: 160,
-              height: 160,
+              width: 150,
+              height: 150,
               borderRadius: "50%",
               background: `linear-gradient(135deg, ${C.orange} 0%, #fbbf24 100%)`,
               display: "flex",
@@ -144,7 +158,9 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
               boxShadow: "0 8px 30px rgba(249,115,22,0.35)",
             }}
           >
-            <span style={{ display: "flex", color: "#fff" }}><Trophy size={40} /></span>
+            <span style={{ display: "flex", color: "#fff" }}>
+              <Trophy size={38} />
+            </span>
             <span
               style={{
                 color: "#fff",
@@ -155,44 +171,95 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
                 letterSpacing: "0.5px",
               }}
             >
-              {lang === "mr" ? "पूर्ण झाले" : "COMPLETED"}
+              {track
+                ? lang === "mr"
+                  ? track.nameMr
+                  : track.nameEn
+                : lang === "mr"
+                ? "पूर्ण"
+                : "COMPLETED"}
             </span>
           </div>
 
           {formattedDate && (
-            <p
-              style={{
-                fontSize: 13,
-                color: C.textopa,
-                margin: "0 0 24px",
-              }}
-            >
-              {lang === "mr" ? "पूर्ण केल्याची तारीख" : "Completed on"}:{" "}
-              <span style={{ fontWeight: 700, color: C.navy }}>
-                {formattedDate}
-              </span>
+            <p style={{ fontSize: 13, color: C.textopa, margin: "0 0 24px" }}>
+              {lang === "mr" ? "पूर्ण झालं" : "Completed on"}:{" "}
+              <span style={{ fontWeight: 700, color: C.navy }}>{formattedDate}</span>
             </p>
           )}
 
-          {typeof score === "number" && (
+          {track && (
             <div
               style={{
                 background: "#fff7ed",
                 border: "2px solid #fdba74",
-                borderRadius: 12,
-                padding: "14px 20px",
-                marginBottom: 20,
-                textAlign: "center",
+                borderRadius: 14,
+                padding: "18px 20px",
+                marginBottom: 16,
+                textAlign: "left",
               }}
             >
-              <p style={{ margin: 0, fontSize: 13, color: "#9a3412" }}>
-                {t("mindset_score_label")}
-              </p>
-              <p style={{ margin: "4px 0 0", fontSize: 28, fontWeight: 800, color: C.orange }}>
-                {displayScore} / 15
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <Route size={17} color={C.orange} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#9a3412" }}>
+                  {lang === "mr" ? "तुमचा मार्ग (Track)" : "Your support track"}
+                </span>
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.orange }}>
+                {lang === "mr" ? track.nameMr : track.nameEn}
+              </div>
+              <p style={{ margin: "6px 0 0", fontSize: 13, color: "#7c2d12", lineHeight: 1.6 }}>
+                {lang === "mr" ? track.supportMr : track.supportEn}
               </p>
             </div>
           )}
+
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              flexWrap: "wrap",
+              marginBottom: 12,
+            }}
+          >
+            <div
+              style={{
+                flex: "1 1 160px",
+                background: "#f0f9ff",
+                border: "1px solid #bae6fd",
+                borderRadius: 12,
+                padding: "14px 16px",
+                textAlign: "left",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                <Compass size={15} color={C.navy} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: C.navy }}>
+                  {lang === "mr" ? "टप्पा" : "Stage"}
+                </span>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.navy }}>{label(stage)}</div>
+            </div>
+
+            <div
+              style={{
+                flex: "1 1 160px",
+                background: "#f0fdf4",
+                border: "1px solid #86efac",
+                borderRadius: 12,
+                padding: "14px 16px",
+                textAlign: "left",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                <Target size={15} color="#166534" />
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#166534" }}>
+                  {lang === "mr" ? "कार्यशैली" : "Working style"}
+                </span>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#166534" }}>{label(style)}</div>
+            </div>
+          </div>
 
           <div
             style={{
@@ -203,17 +270,10 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
               marginBottom: 24,
             }}
           >
-            <p
-              style={{
-                margin: 0,
-                fontSize: 14,
-                color: "#166534",
-                lineHeight: 1.6,
-              }}
-            >
+            <p style={{ margin: 0, fontSize: 14, color: "#166534", lineHeight: 1.6 }}>
               {lang === "mr"
-                ? "तुमचे मूल्यांकन यशस्वीपणे पूर्ण झाले आहे. तुम्ही तुमच्या उद्योजक तयारीबद्दल महत्त्वाचे माहिती प्राप्त केली आहे."
-                : "Your assessment has been successfully completed. You've gained valuable insights into your entrepreneurial readiness."}
+                ? "तुमच्या उत्तरांवरून GTU तुम्हाला योग्य प्रशिक्षण, मार्गदर्शन आणि योजनांची माहिती देऊ शकतं."
+                : "Based on your answers, GTU can guide you with the right training, mentoring and scheme support."}
             </p>
           </div>
 
@@ -230,10 +290,9 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
                   fontWeight: 700,
                   fontSize: 14,
                   cursor: "pointer",
-                  transition: "all 0.2s",
                 }}
               >
-                {t("mindset_back")}
+                {lang === "mr" ? "डॅशबोर्डवर जा" : "Back to Dashboard"}
               </button>
             )}
             <button
@@ -248,7 +307,6 @@ export default function AssessmentComplete({ completedAt, onRetake, saving, onBa
                 fontWeight: 700,
                 fontSize: 14,
                 cursor: saving ? "not-allowed" : "pointer",
-                transition: "all 0.2s",
                 display: "flex",
                 alignItems: "center",
                 gap: 7,

@@ -13,7 +13,7 @@ import Section3 from "./components/sections/Section3";
 import Section4 from "./components/sections/Section4";
 import C from "./constants/colors";
 import { SuccessPage } from "./SuccessPage";
-import { submitForm, saveSection, getMyForm, getMyAssessment } from "./services/api";
+import { submitForm, saveSection, getMyForm } from "./services/api";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
@@ -58,8 +58,6 @@ function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [loadingForm, setLoadingForm] = useState(true);
-  const [assessmentCompleted, setAssessmentCompleted] = useState(false);
-  const [assessmentScore, setAssessmentScore] = useState(0);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useLang();
@@ -69,10 +67,7 @@ function Dashboard() {
   const loadFormData = async (silent = false) => {
     if (!silent) setLoadingForm(true);
     try {
-      const [formRes, assessRes] = await Promise.all([
-        getMyForm(),
-        getMyAssessment().catch(() => null),
-      ]);
+      const formRes = await getMyForm();
       if (formRes.status === 401) {
         showMsg("Session expired. Please login again.", true);
         setTimeout(() => { logout(); navigate("/signin"); }, 1500);
@@ -98,10 +93,6 @@ function Dashboard() {
         else if (section2?.businessType)
           dispatch({ type: "SET_STEP", step: 3 });
         else if (section1?.fullName) dispatch({ type: "SET_STEP", step: 2 });
-      }
-      if (assessRes?.success && assessRes.assessment) {
-        setAssessmentCompleted(assessRes.assessment.completed);
-        setAssessmentScore(assessRes.assessment.score || 0);
       }
     } catch (err) {
       console.error("Draft load error:", err);
